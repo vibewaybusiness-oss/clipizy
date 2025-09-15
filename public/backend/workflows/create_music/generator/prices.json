@@ -1,0 +1,6 @@
+{
+    "music_generator": {
+        "price": 20,
+        "description": "Generate a music track based on the description."
+    }
+}

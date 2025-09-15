@@ -1,0 +1,92 @@
+[
+  {
+    "id": "minimalist",
+    "name": "Minimalist",
+    "keyword": "Clean",
+    "description": "Clean, simple design with minimal elements and lots of white space",
+    "icon": "✨",
+    "gradient": "from-gray-500/20 to-slate-500/20",
+    "imageUrl": "/styles/minimalist.jpg"
+  },
+  {
+    "id": "vintage",
+    "name": "Vintage",
+    "keyword": "Retro",
+    "description": "Retro, nostalgic aesthetic with warm tones and film grain effects",
+    "icon": "📼",
+    "gradient": "from-amber-500/20 to-orange-500/20",
+    "imageUrl": "/styles/vintage.jpg"
+  },
+  {
+    "id": "abstract",
+    "name": "Abstract",
+    "keyword": "Artistic",
+    "description": "Artistic, non-representational visuals with bold colors and shapes",
+    "icon": "🎨",
+    "gradient": "from-purple-500/20 to-pink-500/20",
+    "imageUrl": "/styles/abstract.jpg"
+  },
+  {
+    "id": "cinematic",
+    "name": "Cinematic",
+    "keyword": "Dramatic",
+    "description": "Professional, movie-like quality with dramatic lighting and composition",
+    "icon": "🎬",
+    "gradient": "from-red-500/20 to-orange-500/20",
+    "imageUrl": "/styles/cinematic.jpg"
+  },
+  {
+    "id": "cyberpunk",
+    "name": "Cyberpunk",
+    "keyword": "Neon",
+    "description": "Neon-lit, dystopian future with electric colors and urban decay",
+    "icon": "🌃",
+    "gradient": "from-pink-500/20 to-purple-500/20",
+    "imageUrl": "/styles/cyberpunk.jpg"
+  },
+  {
+    "id": "animated",
+    "name": "Animated",
+    "keyword": "Dynamic",
+    "description": "Dynamic, animated graphics with fluid motion and vibrant colors",
+    "icon": "🎭",
+    "gradient": "from-pink-500/20 to-rose-500/20",
+    "imageUrl": "/styles/animated.jpg"
+  },
+  {
+    "id": "noir",
+    "name": "Noir",
+    "keyword": "Dark",
+    "description": "Dark, high-contrast black and white with dramatic shadows",
+    "icon": "🌑",
+    "gradient": "from-gray-800/20 to-black/20",
+    "imageUrl": "/styles/noir.jpg"
+  },
+  {
+    "id": "pastel",
+    "name": "Pastel",
+    "keyword": "Soft",
+    "description": "Soft, muted color palette with gentle tones and dreamy atmosphere",
+    "icon": "🌸",
+    "gradient": "from-pink-200/20 to-blue-200/20",
+    "imageUrl": "/styles/pastel.jpg"
+  },
+  {
+    "id": "neon",
+    "name": "Neon",
+    "keyword": "Bright",
+    "description": "Bright, electric colors with glowing effects and high saturation",
+    "icon": "💡",
+    "gradient": "from-cyan-400/20 to-pink-400/20",
+    "imageUrl": "/styles/neon.jpg"
+  },
+  {
+    "id": "monochrome",
+    "name": "Monochrome",
+    "keyword": "B&W",
+    "description": "Black and white only with various shades of gray for contrast",
+    "icon": "⚫",
+    "gradient": "from-gray-300/20 to-gray-700/20",
+    "imageUrl": "/styles/monochrome.jpg"
+  }
+]

@@ -1,0 +1,48 @@
+---
+alwaysApply: true
+---
+The Pods are connected to a network storage "workspace" which must be used each time a pod creates a request. 
+Pod's architecture (Network Storage architecture attached to each pod)
+```
+/workspace
+├── ComfyUI/
+├── models/
+│   ├── checkpoints/
+│   ├── clip/
+│   ├── vae/
+│   ├── loras/
+│   └── controlnet/
+├── workflows/
+├── outputs/
+│   ├── videos/
+│   └── images/
+└── api/
+
+>>> Ollama
+      └── Deepseek
+
+```
+
+Backend integration: /backend
+
+The network storage is attached to the pods under <pod-id>/workspace.
+Any <given-API> created should run through the /backend/runpod-api service workflow, handling pods management:
+    -Checks if a pod is available in the <given-API> queue. Each API has its own queue. If no pods are available for the <given-API> queue, recruits a new pod with the (rest api).
+    -Returns a pod id to the <given-API>, used for the <given-API> workflow integration. The pod <status> becomes "active" within the <given-API> queue. 
+    -Once the <given-API> workflow is finished, the <given-API> returns the pod ID to the runpod-api service. The pod <status> becomes "inactive".
+    -Any <status> "inactive" pod will stay alive for the duration set in @config.json. If no request are made to reactivate the pod, it will be terminated.
+
+
+Frontend integration: /src
+
+Keep and use common styling saved under @globals.css
+The frontend is separated in two parts:
+      
+      Website Front: 
+            Basic website pages (lander, about, etc...)
+      
+      Website Dashboard: 
+            -Only accessible after login door. 
+            -Content generation
+            -Library
+            -Analytics
