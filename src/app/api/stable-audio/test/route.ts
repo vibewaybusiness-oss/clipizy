@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { StableAudio2Client } from '../../../../backend/stable-audio-2/client';
+import { StableAudio2Client } from '../../../../../backend/stable-audio-2/client';
 
 export async function POST(request: NextRequest) {
   try {
