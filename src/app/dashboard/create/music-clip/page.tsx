@@ -1343,8 +1343,8 @@ export default function MusicClipPage() {
                   }`}
                   disabled={!settingsForm.formState.isValid}
                 >
-                  <span>Continue</span>
-                  <ChevronRight className="w-4 h-4" />
+                  <Film className="w-4 h-4" />
+                  <span>Generate Video ({settingsForm.getValues('budget')?.[0] || 0} credits)</span>
                 </Button>
               )}
               

@@ -607,7 +607,13 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
             {!hideNavigation && (
               <div className="flex justify-between">
                 <Button type="button" variant="outline" className="btn-secondary-hover" onClick={onBack}>Back</Button>
-                <Button type="submit">Continue</Button>
+                <Button 
+                  type="submit" 
+                  className="btn-ai-gradient text-white flex items-center space-x-2"
+                >
+                  <Video className="w-4 h-4" />
+                  <span>Generate Video ({form.getValues('budget')?.[0] || 0} credits)</span>
+                </Button>
               </div>
             )}
         </form>

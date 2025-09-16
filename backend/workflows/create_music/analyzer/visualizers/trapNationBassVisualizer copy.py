@@ -111,7 +111,6 @@ class TrapNationBassVisualizer:
         # Pre-compute constants
         self.radius_range = self.cmax - self.cmin
         self.ease_power = 1.4
-        self.core_cap = int(self.cmin * 1.4)
         
         # Pre-allocate black frame
         self.black_frame = np.zeros((self.H, self.W, 3), dtype=np.uint8)
@@ -641,7 +640,7 @@ class TrapNationBassVisualizer:
             
             # Scale by frequency strength and circle scale factor (only affects growth, not base radius)
             base_amplitude = 0
-            scaled_amplitude = (self.r_core - 1) * circle_config['scale']
+            scaled_amplitude = (self.radius_range - self.r_core)  * circle_config['scale']
             radius_offsets += weight * scaled_amplitude
         
         # Create perfect Y-axis symmetry by mirroring the left half to the right half

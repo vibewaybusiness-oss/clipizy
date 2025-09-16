@@ -15,7 +15,7 @@
     "looped_animation_generator": {
         "minute_rate": 0.11,
         "unit_rate": 1,
-        "min": 5,
+        "min": 3,
         "max": null,
         "description": "Generate a looping animation based on the description."
     },
