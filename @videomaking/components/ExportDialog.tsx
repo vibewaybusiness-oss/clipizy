@@ -2,14 +2,14 @@
 
 import React, { useState, useCallback } from 'react';
 import { VideoProject, ExportFormat } from '../types';
-import { Button } from '@/app/dashboard/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/dashboard/components/ui/card';
-import { Label } from '@/app/dashboard/components/ui/label';
-import { Input } from '@/app/dashboard/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/dashboard/components/ui/select';
-import { Slider } from '@/app/dashboard/components/ui/slider';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/dashboard/components/ui/tabs';
-import { Progress } from '@/app/dashboard/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 import { 
   Download, 
   Settings, 

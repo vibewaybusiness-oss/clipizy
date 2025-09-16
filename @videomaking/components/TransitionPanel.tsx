@@ -2,11 +2,11 @@
 
 import React, { useState, useCallback } from 'react';
 import { VideoProject, Transition } from '../types';
-import { Button } from '@/app/dashboard/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/dashboard/components/ui/card';
-import { Slider } from '@/app/dashboard/components/ui/slider';
-import { Input } from '@/app/dashboard/components/ui/input';
-import { Label } from '@/app/dashboard/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { 
   ArrowRight, 
   Clock, 

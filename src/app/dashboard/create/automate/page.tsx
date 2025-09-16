@@ -1,21 +1,21 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/dashboard/components/ui/card";
-import { Badge } from "@/app/dashboard/components/ui/badge";
-import { Button } from "@/app/dashboard/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Music, Sparkles, ArrowLeft, ChevronLeft, ChevronRight, Upload, Loader2, Film, Zap, Mail } from "lucide-react";
-import { MusicLogo } from "@/app/dashboard/components/music-logo";
+import { MusicLogo } from "@/components/music-logo";
 import Link from "next/link";
 import { useState, useRef, useEffect, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import WaveformVisualizer, { type WaveformVisualizerRef } from "@/app/dashboard/components/waveform-visualizer";
-import { StepSettings } from "@/app/dashboard/components/generator/step-settings";
-import { StepPrompt } from "@/app/dashboard/components/generator/step-prompt";
-import { StepOverview } from "@/app/dashboard/components/generator/step-overview";
-import { StepGenerating } from "@/app/dashboard/components/generator/step-generating";
-import { StepPreview } from "@/app/dashboard/components/generator/step-preview";
+import WaveformVisualizer, { type WaveformVisualizerRef } from "@/components/waveform-visualizer";
+import { StepSettings } from "@/components/generator/step-settings";
+import { StepPrompt } from "@/components/generator/step-prompt";
+import { StepOverview } from "@/components/generator/step-overview";
+import { StepGenerating } from "@/components/generator/step-generating";
+import { StepPreview } from "@/components/generator/step-preview";
 import { 
   Scene, 
   SceneSchema, 
@@ -24,7 +24,7 @@ import {
   OverviewSchema,
   calculateLoopedBudget,
   calculateScenesBudget
-} from "@/app/dashboard/components/vibewave-generator";
+} from "@/components/vibewave-generator";
 import { useToast } from "@/hooks/use-toast";
 import { analyzeAudioAction, generateVideoAction, generateMusicAction } from "@/app/actions";
 

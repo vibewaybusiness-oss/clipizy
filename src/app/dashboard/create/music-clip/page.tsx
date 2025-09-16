@@ -1,24 +1,24 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/dashboard/components/ui/card";
-import { Badge } from "@/app/dashboard/components/ui/badge";
-import { Button } from "@/app/dashboard/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Music, Sparkles, ArrowLeft, ChevronLeft, ChevronRight, Upload, Loader2, Film, Play, Pause, Trash2, Clock, Plus } from "lucide-react";
-import { MusicLogo } from "@/app/dashboard/components/music-logo";
+import { MusicLogo } from "@/components/music-logo";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import WaveformVisualizer, { type WaveformVisualizerRef } from "@/app/dashboard/components/waveform-visualizer";
-import { StepSettings } from "@/app/dashboard/components/generator/step-settings";
-import { StepPrompt } from "@/app/dashboard/components/generator/step-prompt";
-import { StepOverview } from "@/app/dashboard/components/generator/step-overview";
-import { StepGenerating } from "@/app/dashboard/components/generator/step-generating";
-import { StepPreview } from "@/app/dashboard/components/generator/step-preview";
-import { GenreSelector } from "@/app/dashboard/components/generator/genre-selector";
-import { TimelineHeader } from "@/app/dashboard/components/timeline-header";
+import WaveformVisualizer, { type WaveformVisualizerRef } from "@/components/waveform-visualizer";
+import { StepSettings } from "@/components/generator/step-settings";
+import { StepPrompt } from "@/components/generator/step-prompt";
+import { StepOverview } from "@/components/generator/step-overview";
+import { StepGenerating } from "@/components/generator/step-generating";
+import { StepPreview } from "@/components/generator/step-preview";
+import { GenreSelector } from "@/components/generator/genre-selector";
+import { TimelineHeader } from "@/components/timeline-header";
 import { 
   Scene, 
   SceneSchema, 
@@ -27,7 +27,7 @@ import {
   OverviewSchema,
   calculateLoopedBudget,
   calculateScenesBudget
-} from "@/app/dashboard/components/vibewave-generator";
+} from "@/components/vibewave-generator";
 import { useToast } from "@/hooks/use-toast";
 import { analyzeAudioAction, generateVideoAction, generateMusicAction } from "@/app/actions";
 
@@ -167,22 +167,25 @@ export default function MusicClipPage() {
         const audio = new Audio(url);
         audio.addEventListener('loadedmetadata', () => {
             setAudioDuration(audio.duration);
-            
-            // Update the duration in the tracks list
-            if (selectedTrackId) {
-                setMusicTracks(prev => prev.map(track => 
-                    track.id === selectedTrackId 
-                        ? { ...track, duration: audio.duration }
-                        : track
-                ));
-            }
         });
 
         return () => {
             URL.revokeObjectURL(url);
         }
     }
-  }, [audioFile, selectedTrackId]);
+  }, [audioFile]);
+
+  // Update track duration when audio duration changes
+  useEffect(() => {
+    if (audioDuration > 0 && selectedTrackId) {
+        setMusicTracks(prev => prev.map(track => {
+            if (track.id === selectedTrackId && track.duration !== audioDuration) {
+                return { ...track, duration: audioDuration };
+            }
+            return track;
+        }));
+    }
+  }, [audioDuration, selectedTrackId]);
 
   // Update overview form when prompts change
   useEffect(() => {

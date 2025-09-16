@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/app/dashboard/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/dashboard/components/ui/card';
-import { Badge } from '@/app/dashboard/components/ui/badge';
-import { Alert, AlertDescription } from '@/app/dashboard/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Image as ImageIcon, RefreshCw } from 'lucide-react';
 
 export default function ComfyUITestPage() {

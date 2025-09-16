@@ -3,8 +3,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { VideoProject, VideoEditorProps } from '../types';
 import { VideoCanvas, VideoCanvasRef } from './VideoCanvas';
-import { Button } from '@/app/dashboard/components/ui/button';
-import { Slider } from '@/app/dashboard/components/ui/slider';
+import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 import { Play, Pause, Square, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 
 export function VideoEditor({ 

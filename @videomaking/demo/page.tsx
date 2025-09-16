@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import { VideoMaker } from '../components/VideoMaker';
 import { VideoProject, ExportFormat } from '../types';
-import { Button } from '@/app/dashboard/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/dashboard/components/ui/card';
-import { Badge } from '@/app/dashboard/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { 
   Play, 
   Pause, 

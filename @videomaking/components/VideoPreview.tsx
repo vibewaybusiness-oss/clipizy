@@ -3,7 +3,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { VideoProject } from '../types';
 import { VideoCanvas } from './VideoCanvas';
-import { Button } from '@/app/dashboard/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Play, Pause, Square, Volume2, VolumeX, Maximize2 } from 'lucide-react';
 
 interface VideoPreviewProps {

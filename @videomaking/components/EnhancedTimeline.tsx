@@ -2,8 +2,8 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { VideoProject, TimelineProps, VideoClip } from '../types';
-import { Button } from '../../src/app/dashboard/components/ui/button';
-import { Slider } from '../../src/app/dashboard/components/ui/slider';
+import { Button } from '../../src/components/ui/button';
+import { Slider } from '../../src/components/ui/slider';
 import { 
   Play, 
   Pause, 

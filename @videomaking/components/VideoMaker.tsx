@@ -15,9 +15,9 @@ import { useVideoEditor } from '../hooks/useVideoEditor';
 import { useUndoRedo } from '../hooks/useUndoRedo';
 import { VideoProject, VideoMakerProps } from '../types';
 import { exportVideoToFile } from '../utils/videoExporter';
-import { Button } from '@/app/dashboard/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/dashboard/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/dashboard/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Play, 
   Pause, 

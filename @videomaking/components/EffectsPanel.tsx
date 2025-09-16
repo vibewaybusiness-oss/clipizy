@@ -2,12 +2,12 @@
 
 import React, { useState, useCallback } from 'react';
 import { VideoProject, Effect, EffectType } from '../types';
-import { Button } from '@/app/dashboard/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/dashboard/components/ui/card';
-import { Slider } from '@/app/dashboard/components/ui/slider';
-import { Input } from '@/app/dashboard/components/ui/input';
-import { Label } from '@/app/dashboard/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/dashboard/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Palette, 
   Zap, 

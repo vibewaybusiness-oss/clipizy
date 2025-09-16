@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/app/dashboard/components/ui/button";
-import { Input } from "@/app/dashboard/components/ui/input";
-import { Label } from "@/app/dashboard/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/dashboard/components/ui/card";
-import { Badge } from "@/app/dashboard/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Sparkles, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getWorkflows } from '../../../../../backend/comfyUI/api';
+import { getWorkflows } from '../../../../../backendOLD/comfyUI/api';
 
 export async function GET(request: NextRequest) {
   try {

@@ -3,7 +3,7 @@
 import { analyzeAudioForDescriptions } from "@/ai/flows/analyze-audio-for-descriptions";
 import { analyzeAudioForScenes } from "@/ai/flows/analyze-audio-for-scenes";
 import { generateMusicVideoFromPrompt } from "@/ai/flows/generate-music-video-from-prompt";
-import { StableAudio2Client } from "../../backend/stable-audio-2/client";
+import { StableAudio2Client } from "../../backendOLD/stable-audio-2/client";
 import { z } from "zod";
 
 const AnalyzeAudioSchema = z.object({

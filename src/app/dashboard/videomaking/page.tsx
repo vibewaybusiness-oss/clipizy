@@ -5,9 +5,9 @@ import { VideoMaker } from '../../../../@videomaking/components/VideoMaker';
 import { VideoProject, ExportFormat } from '../../../../@videomaking/types';
 import { createRunPodIntegration } from '../../../../@videomaking/integrations/runpod-integration';
 import { createOllamaIntegration } from '../../../../@videomaking/integrations/ollama-integration';
-import { Button } from '@/app/dashboard/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/dashboard/components/ui/card';
-import { Badge } from '@/app/dashboard/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { 
   Play, 
   Pause, 

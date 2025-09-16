@@ -1,96 +1,179 @@
-# Gmail
+# Vibewave - AI-Powered Music Video Creation
 
-Start with Vercel + RunPod hybrid architecture:
-Frontend: Vercel (FREE)
-API: Vercel (FREE tier)
-AI Processing: RunPod (auto-scaling)
-Storage: RunPod volumes
-CDN: Cloudflare (FREE)
+Transform your audio into stunning music videos with the power of AI. Create professional content in minutes, not hours.
 
-_________________________________________________________________________________
+## 🏗️ Architecture
 
-vibeway.business@gmail.com
+### Production (Cloud)
+- **Frontend**: Vercel (Next.js)
+- **API**: Vercel Functions + Render.com (CPU tasks)
+- **GPU Processing**: RunPod (auto-scaling)
+- **Storage**: S3/R2 (file storage)
+- **Database**: Supabase/Neon (PostgreSQL)
+- **CDN**: Cloudflare
 
+### Development (Local)
+- **Frontend**: Next.js (localhost:3000)
+- **API**: FastAPI (localhost:8000)
+- **Storage**: MinIO (localhost:9000)
+- **Database**: PostgreSQL (localhost:5432)
+- **GPU**: ComfyUI (localhost:8188) or RunPod
 
-#TIKTOK 
-Vibewave
-vibeway.business@gmail.com
-ouiOUI2007@
+## 🚀 Quick Start
 
+### Prerequisites
+- Docker & Docker Compose
+- Python 3.10+
+- Node.js 18+
+- Git
 
-
-
-
-# Firebase Studio
-
-###Start dev Pod:
-
-ssh 7zkcn96uzmhxjp-64411bef@ssh.runpod.io -i C:\Code\waveclip_development_server\studio-main\backend\runpod_api_key
-
-
-###Copy files:
-
--> Set runpod api key in home if not done alrey, cd home and paste it
--> chmod 600 ~/runpod_api_key (set it readable/writable lock)
--> Check the pod Direct TCP ports information and replace it below:
-    e.g.    194.68.245.18:
-
-
-From Linux wsl:
-scp -i ~/runpod_api_key -P 22092 \
-    /home/unix/code/start-service.sh \
-    root@194.68.245.31:/workspace/
-
-
-
-This is a NextJS starter in Firebase Studio.
-
-To get started, take a look at src/app/page.tsx.
-
-## POD WORKSPACE LAYOUT AND ENTRYPOINT
-
-The repository includes scripts to provision and start pods with a network volume mounted at `/workspace`.
-
-### Layout Created
-
-```
-/workspace
-├── ComfyUI/
-├── models/
-│   ├── checkpoints/
-│   ├── clip/
-│   ├── vae/
-│   ├── loras/
-│   └── controlnet/
-├── workflows/
-├── outputs/
-│   ├── videos/
-│   └── images/
-└── api/
+### 1. Clone & Setup
+```bash
+git clone <repository-url>
+cd vibewave
 ```
 
-### Provision Once Per Volume
+### 2. Start Local Development Stack
+```bash
+# Start all services with one command
+./app.sh
 
-Mount your volume to `/workspace` in the pod, then run:
+# Or start individually:
+# - MinIO (S3): localhost:9000
+# - PostgreSQL: localhost:5432
+# - FastAPI: localhost:8000
+# - ComfyUI: localhost:8188
+# - Next.js: localhost:3000
+```
+
+### 3. Access Services
+- **Frontend**: http://localhost:3000
+- **API Docs**: http://localhost:8000/docs
+- **MinIO Console**: http://localhost:9001 (admin/admin123)
+- **ComfyUI**: http://localhost:8188
+
+## 📁 Project Structure
+
+```
+vibewave/
+├── src/                    # Next.js frontend
+│   ├── app/               # App Router pages
+│   ├── components/        # React components
+│   └── lib/              # Utilities
+├── api/                   # FastAPI backend
+│   ├── main.py           # FastAPI app
+│   ├── models/           # Database models
+│   ├── schemas/          # API schemas
+│   └── services/         # Business logic
+├── backendOLD/           # Legacy backend code
+├── public/               # Static assets
+└── app.sh               # Development startup script
+```
+
+## 🔄 Development Workflow
+
+1. **User Upload**: Audio file → FastAPI → MinIO
+2. **CPU Analysis**: Music analysis (tempo, key, mood)
+3. **GPU Processing**: Video generation via ComfyUI/RunPod
+4. **Results**: Final video stored in MinIO/S3
+5. **Frontend**: Display results to user
+
+## 🛠️ Development Commands
 
 ```bash
-WORKSPACE_DIR=/workspace INSTALL_COMFYUI=false INIT_API=true LINK_MODELS=true ./scripts/provision_workspace.sh
+# Start all services
+./app.sh
+
+# Start individual services
+docker run -p 9000:9000 -p 9001:9001 -e "MINIO_ROOT_USER=admin" -e "MINIO_ROOT_PASSWORD=admin123" quay.io/minio/minio server /data --console-address ":9001"
+
+docker run --name pg -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres
+
+cd api && python start.py
+
+cd src && npm run dev
 ```
 
-Set `INSTALL_COMFYUI=true` to clone ComfyUI into `/workspace/ComfyUI`. When `LINK_MODELS=true`, `ComfyUI/models/*` are symlinked to `/workspace/models/*`.
+## 🚀 Deployment
 
-### Start Services
+### Frontend (Vercel)
+- Connect GitHub repository
+- Deploy automatically on push
+
+### Backend (Render.com)
+- Connect GitHub repository
+- Set environment variables
+- Deploy automatically
+
+### GPU (RunPod)
+- Create RunPod account
+- Set up GPU templates
+- Configure API keys
+
+## 📚 Documentation
+
+- [API Documentation](./api/README.md)
+- [Frontend Documentation](./src/README.md)
+- [Development Setup](./README_CONFIG.md)
+
+## 🔧 Local Development Setup
+
+### 1. Storage (S3 replacement)
+Use MinIO - an S3-compatible object store that runs locally.
 
 ```bash
-# ComfyUI on port 8000
-SERVICE=comfyui HOST=0.0.0.0 PORT=8000 ./scripts/entrypoint.sh
-
-# API on port 8000
-SERVICE=api HOST=0.0.0.0 PORT=8000 ./scripts/entrypoint.sh
-
-# Both: ComfyUI on 8000, API on 8001
-SERVICE=both HOST=0.0.0.0 PORT=8000 API_PORT=8001 ./scripts/entrypoint.sh
+docker run -p 9000:9000 -p 9001:9001 \
+  -e "MINIO_ROOT_USER=admin" \
+  -e "MINIO_ROOT_PASSWORD=admin123" \
+  quay.io/minio/minio server /data --console-address ":9001"
 ```
 
-The API scaffold is created under `/workspace/api` if `INIT_API=true`, exposing `/health` and a `requirements.txt`.
+Access UI → http://localhost:9001 (admin/admin123)
 
+### 2. Database (Supabase/Neon replacement)
+Use Postgres locally.
+
+```bash
+docker run --name pg -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres
+```
+
+### 3. Backend (Vercel replacement)
+FastAPI app for uploads, analysis, and orchestration.
+
+```bash
+cd api
+python start.py
+# API available at: http://localhost:8000
+```
+
+### 4. GPU Simulation (RunPod replacement)
+If you have a GPU locally, run ComfyUI:
+
+```bash
+cd ComfyUI
+python3 main.py --listen 0.0.0.0 --port 8188
+```
+
+### 5. Frontend
+Next.js app for user interface.
+
+```bash
+cd src
+npm run dev
+# Frontend available at: http://localhost:3000
+```
+
+## 🔄 Migration to Cloud
+
+Replace components when ready for production:
+- `./storage` → S3/R2
+- `Local Postgres` → Supabase/Neon
+- `Local FastAPI` → Vercel Functions/Render.com
+- `Local ComfyUI` → RunPod GPU pods
+
+Since everything talks through APIs and S3, your code doesn't change much when you move to the cloud.
+
+## 📞 Contact
+
+- **Email**: vibeway.business@gmail.com
+- **Project**: Vibewave AI Music Video Creation

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getComfyUIStatus } from '../../../../../backend/comfyUI/api';
+import { getComfyUIStatus } from '../../../../../backendOLD/comfyUI/api';
 
 export async function GET(request: NextRequest) {
   try {

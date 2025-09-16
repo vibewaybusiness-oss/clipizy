@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/dashboard/components/ui/card";
-import { Button } from "@/app/dashboard/components/ui/button";
-import { Input } from "@/app/dashboard/components/ui/input";
-import { Label } from "@/app/dashboard/components/ui/label";
-import { Badge } from "@/app/dashboard/components/ui/badge";
-import { Switch } from "@/app/dashboard/components/ui/switch";
-import { Separator } from "@/app/dashboard/components/ui/separator";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 import { 
   User, 
   Bell, 

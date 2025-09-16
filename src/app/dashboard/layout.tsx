@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { VibewaveLogo } from "@/app/dashboard/components/vibewave-logo";
+import { VibewaveLogo } from "@/components/vibewave-logo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Button } from "@/app/dashboard/components/ui/button";
-import { Badge } from "@/app/dashboard/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { 
   Home, 
   Plus, 
@@ -19,7 +19,7 @@ import {
   TestTube,
   Video
 } from "lucide-react";
-import { ProtectedRoute } from "@/app/dashboard/components/protected-route";
+import { ProtectedRoute } from "@/components/protected-route";
 import { useAuth } from "@/contexts/auth-context";
 
 const navigation = [

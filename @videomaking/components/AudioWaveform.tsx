@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Button } from '@/app/dashboard/components/ui/button';
-import { Slider } from '@/app/dashboard/components/ui/slider';
+import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 import { 
   Play, 
   Pause, 

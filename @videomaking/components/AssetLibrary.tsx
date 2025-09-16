@@ -2,11 +2,11 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import { AssetItem } from '../types';
-import { Button } from '@/app/dashboard/components/ui/button';
-import { Input } from '@/app/dashboard/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/dashboard/components/ui/card';
-import { Badge } from '@/app/dashboard/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/dashboard/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Upload, 
   Search, 

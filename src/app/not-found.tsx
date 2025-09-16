@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Button } from "@/app/dashboard/components/ui/button";
-import { VibewaveLogo } from "@/app/dashboard/components/vibewave-logo";
+import { Button } from "@/components/ui/button";
+import { VibewaveLogo } from "@/components/vibewave-logo";
 import { Home, ArrowLeft, Search } from "lucide-react";
 
 export default function NotFound() {

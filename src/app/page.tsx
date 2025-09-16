@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Button } from "@/app/dashboard/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/dashboard/components/ui/card";
-import { Badge } from "@/app/dashboard/components/ui/badge";
-import { VideoTheater } from "@/app/dashboard/components/video-theater";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { VideoTheater } from "@/components/video-theater";
 import { 
   Sparkles, 
   Zap, 

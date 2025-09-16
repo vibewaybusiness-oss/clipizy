@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { downloadImage } from '../../../../../backend/comfyUI/api';
+import { downloadImage } from '../../../../../backendOLD/comfyUI/api';
 
 export async function GET(request: NextRequest) {
   try {

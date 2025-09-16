@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getComfyUIManager } from '../../../../backend/comfyUI/comfyui-manager';
-import { getQueueManager } from '../../../../backend/runpod-api/queue-manager';
+import { getComfyUIManager } from '../../../../backendOLD/comfyUI/comfyui-manager';
+import { getQueueManager } from '../../../../backendOLD/runpod-api/queue-manager';
 
 export async function GET(request: NextRequest) {
   try {
@@ -309,7 +309,7 @@ async function releaseComfyUIPod(): Promise<NextResponse> {
       });
     }
     
-    const { terminatePod } = await import('../../../../backend/runpod-api');
+    const { terminatePod } = await import('../../../../backendOLD/runpod-api');
     const results = [];
     
     // Terminate all ComfyUI pods

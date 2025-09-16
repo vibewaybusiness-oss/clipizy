@@ -1,9 +1,9 @@
 "use client";
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/dashboard/components/ui/card';
-import { Button } from '@/app/dashboard/components/ui/button';
-import { Badge } from '@/app/dashboard/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
 export default function VideoMakingTestPage() {
