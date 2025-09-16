@@ -1,0 +1,38 @@
+{
+  "processing_summary": {
+    "total_files": 4,
+    "successful": 4,
+    "failed": 0,
+    "output_directory": "json_outputs"
+  },
+  "files": {
+    "music_1.wav": {
+      "file": "..\\..\\..\\..\\TEST Library\\music\\music_1.wav",
+      "output": "json_outputs\\music_1_analysis.json",
+      "peaks_count": 54,
+      "segments_count": 6,
+      "duration": 202.84952380952382
+    },
+    "music_2.wav": {
+      "file": "..\\..\\..\\..\\TEST Library\\music\\music_2.wav",
+      "output": "json_outputs\\music_2_analysis.json",
+      "peaks_count": 67,
+      "segments_count": 8,
+      "duration": 211.7659863945578
+    },
+    "music_3.wav": {
+      "file": "..\\..\\..\\..\\TEST Library\\music\\music_3.wav",
+      "output": "json_outputs\\music_3_analysis.json",
+      "peaks_count": 30,
+      "segments_count": 10,
+      "duration": 137.46213151927438
+    },
+    "music_4.wav": {
+      "file": "..\\..\\..\\..\\TEST Library\\music\\music_4.wav",
+      "output": "json_outputs\\music_4_analysis.json",
+      "peaks_count": 28,
+      "segments_count": 6,
+      "duration": 161.9824036281179
+    }
+  }
+}

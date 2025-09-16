@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { Input } from "@/app/dashboard/components/ui/input";
 import { Button } from "@/app/dashboard/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/dashboard/components/ui/card";
@@ -9,8 +9,9 @@ import { Separator } from "@/app/dashboard/components/ui/separator";
 import { Textarea } from "@/app/dashboard/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/dashboard/components/ui/select";
 import { Label } from "@/app/dashboard/components/ui/label";
-import { Upload, Wand2, Loader2, Sparkles, Music, Clock, Settings } from "lucide-react";
+import { Upload, Wand2, Loader2, Sparkles, Music, Clock, Settings, HelpCircle } from "lucide-react";
 import type { GenerationMode } from "@/app/dashboard/components/vibewave-generator";
+import { usePricing } from "@/hooks/use-pricing";
 
 type StepUploadProps = {
     generationMode: GenerationMode;
@@ -39,6 +40,14 @@ export function StepUpload({
   const [duration, setDuration] = useState(20);
   const [model, setModel] = useState("stable-audio-2.5");
   const [showAdvanced, setShowAdvanced] = useState(false);
+  
+  const { pricing, loading: pricingLoading, error: pricingError } = usePricing();
+  
+  // Calculate music generation cost
+  const musicCost = useMemo(() => {
+    if (!pricing) return 0;
+    return Math.ceil(pricing.music_generator.price * pricing.credits_rate);
+  }, [pricing]);
 
   const handleVibeFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -148,6 +157,37 @@ export function StepUpload({
                             </div>
                         )}
                     </div>
+                    
+                    {/* Pricing Display */}
+                    {!pricingLoading && pricing && (
+                        <div className="space-y-4 budget-slider-container">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center space-x-2">
+                                    <span className="text-muted-foreground">Music Generation Cost</span>
+                                    <div className="group relative">
+                                        <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
+                                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                                            {pricing.music_generator.description}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">credits</span>
+                                        <Input 
+                                            type="number" 
+                                            value={musicCost}
+                                            readOnly
+                                            className="w-32 pl-12 pr-2 text-right font-semibold bg-muted/50"
+                                        />
+                                    </div>
+                                    <span className="text-sm text-muted-foreground">
+                                        (per track)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     
                     <Button className="w-full h-12 text-base font-semibold gradient-primary text-white hover:opacity-90 transition-opacity" onClick={handleGenerateClick} disabled={isGeneratingMusic || (!vibeFile && musicPrompt.length < 10)}>
                         {isGeneratingMusic ? (

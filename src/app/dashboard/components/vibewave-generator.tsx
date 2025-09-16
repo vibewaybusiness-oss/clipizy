@@ -29,7 +29,7 @@ export const SceneSchema = z.object({
 export type Scene = z.infer<typeof SceneSchema>;
 
 export const PromptSchema = z.object({
-  musicDescription: z.string().min(10, "Music description is too short.").max(500, "Music description is too long."),
+  musicDescription: z.string().optional(),
   videoDescription: z.string().min(10, "Video description is too short.").max(500, "Video description is too long."),
   scenes: z.array(SceneSchema).optional(),
 });
@@ -119,13 +119,15 @@ export const calculateScenesBudget = (
     // Number of videos (tracks)
     const numberOfVideos = trackDurations.length || 1;
     
-    // Scenes per video = total scenes / number of videos
-    const scenesPerVideo = Math.ceil(totalScenes / numberOfVideos);
+    // When reusing video, create 1 video with all scenes
+    // When not reusing, distribute scenes across multiple videos
+    const scenesPerVideo = reuseVideo ? totalScenes : Math.ceil(totalScenes / numberOfVideos);
+    const actualNumberOfVideos = reuseVideo ? 1 : numberOfVideos;
     
-    // Calculate price: total scenes × duration per scene × minute_rate
+    // Calculate price: scenes per video × number of videos × duration per scene × minute_rate
     // Each scene is 7.5 seconds = 0.125 minutes
     const durationPerSceneMinutes = 7.5 / 60; // 0.125 minutes per scene
-    const totalSceneDurationMinutes = totalScenes * durationPerSceneMinutes;
+    const totalSceneDurationMinutes = scenesPerVideo * actualNumberOfVideos * durationPerSceneMinutes;
     const calculatedPrice = totalSceneDurationMinutes * config.minute_rate;
     
     // Apply minimum constraint
@@ -137,7 +139,8 @@ export const calculateScenesBudget = (
 
 export const getScenesInfo = (
     totalDurationSeconds: number,
-    trackDurations: number[]
+    trackDurations: number[],
+    reuseVideo: boolean = false
 ) => {
     // Calculate total scenes across all videos: duration / 7.5 seconds per scene
     const totalScenes = Math.ceil(totalDurationSeconds / 7.5);
@@ -145,12 +148,14 @@ export const getScenesInfo = (
     // Number of videos (tracks)
     const numberOfVideos = trackDurations.length || 1;
     
-    // Scenes per video = total scenes / number of videos
-    const scenesPerVideo = Math.ceil(totalScenes / numberOfVideos);
+    // When reusing video, create 1 video with all scenes
+    // When not reusing, distribute scenes across multiple videos
+    const scenesPerVideo = reuseVideo ? totalScenes : Math.ceil(totalScenes / numberOfVideos);
+    const actualNumberOfVideos = reuseVideo ? 1 : numberOfVideos;
     
     return {
         scenesPerVideo,
-        numberOfVideos,
+        numberOfVideos: actualNumberOfVideos,
         totalScenes
     };
 };

@@ -60,10 +60,9 @@ const calculateVideoCount = (budget: number, videoType: string, trackCount: numb
   const units = getUnitsFromBudget(budget, videoType, trackCount, totalDuration, trackDurations, pricing, reuseVideo);
   
   if (videoType === 'scenes') {
-    // For scenes, each unit is a complete video, but we want to show the number of scenes
-    // Each video contains multiple scenes based on the track count
-    const scenesPerVideo = reuseVideo ? 1 : trackCount;
-    return units * scenesPerVideo;
+    // For scenes, when reusing video, we create 1 video with all scenes
+    // When not reusing, we create multiple videos
+    return reuseVideo ? 1 : units;
   }
   
   return units;
@@ -105,7 +104,8 @@ export function BudgetSlider({
   const totalVideos = trackDurations.length || 1; // Fixed number of videos (music tracks)
   const totalScenes = Math.ceil(totalDuration / 7.5); // Total scenes across all videos
   const minScenesPerVideo = 1; // Minimum 1 scene per video
-  const maxScenesPerVideo = Math.ceil(totalScenes / totalVideos); // Maximum scenes per video (distributed across videos)
+  // When reusing video, create 1 video with all scenes, otherwise distribute across videos
+  const maxScenesPerVideo = reuseVideo ? totalScenes : Math.ceil(totalScenes / totalVideos);
   
   // Calculate cost per scene
   const costPerScene = useMemo(() => {
@@ -122,7 +122,7 @@ export function BudgetSlider({
   
   // For scenes, calculate current scenes per video from budget
   const currentScenesPerVideo = videoType === 'scenes' 
-    ? Math.max(minScenesPerVideo, Math.min(maxScenesPerVideo, Math.round(inputValue / (costPerScene * totalVideos))))
+    ? Math.max(minScenesPerVideo, Math.min(maxScenesPerVideo, Math.round(inputValue / (costPerScene * (reuseVideo ? 1 : totalVideos)))))
     : 1;
   
   // For scenes, map scenes per video (1-maxScenesPerVideo) to slider value (0-100)
@@ -195,7 +195,7 @@ export function BudgetSlider({
   // Get scenes info for display
   const scenesInfo = videoType === 'scenes' 
     ? (() => {
-        const numberOfVideos = totalVideos; // Fixed number of videos (music tracks)
+        const numberOfVideos = reuseVideo ? 1 : totalVideos; // 1 video when reusing, otherwise number of tracks
         const scenesPerVideo = currentScenesPerVideo; // Current scenes per video from slider
         return {
           scenesPerVideo,

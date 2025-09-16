@@ -165,7 +165,7 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                     description: "A single static image that matches your audio",
                     icon: "🖼️",
                     gradient: "from-blue-500/20 to-slate-500/20",
-                    cost: pricing ? loopedVideoCost : 0,
+                    cost: pricing ? calculateLoopedBudget(totalDuration, trackCount, pricing, reuseVideo, 'looped-static') : 0,
                     preview: "A picture of a mountain landscape at sunrise with soft golden light and mist rolling over the peaks."
                   },
                   {
@@ -174,7 +174,7 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                     description: "A seamless looping video animation",
                     icon: "🎬",
                     gradient: "from-green-500/20 to-cyan-500/20",
-                    cost: pricing ? loopedVideoCost : 0,
+                    cost: pricing ? calculateLoopedBudget(totalDuration, trackCount, pricing, reuseVideo, 'looped-animated') : 0,
                     preview: "An endless loop of glowing neon waves smoothly flowing across the screen."
                   },
                   {
@@ -194,7 +194,7 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                   setShowVideoTypeSelector(false);
                 }}
                 showCost={true}
-                costConversionRate={CONFIG.BUDGET_CONVERSION_RATE}
+                costConversionRate={1}
               />
             </div>
             

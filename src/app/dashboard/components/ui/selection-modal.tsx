@@ -131,16 +131,11 @@ export function SelectionModal({
                            )}
                          </div>
                        </div>
-                     ) : option.preview ? (
-                       <div className="mt-6 p-4 bg-muted/50 rounded-xl">
-                         <p className="text-sm text-muted-foreground mb-2 font-medium">Preview:</p>
-                         <p className="text-base italic">"{option.preview}"</p>
-                       </div>
                      ) : null}
                      
                      {showCost && option.cost && (
                        <div className="mt-6 rounded-xl bg-secondary/50 px-6 py-3 text-lg font-bold">
-                         <span className="text-muted-foreground">{option.cost * costConversionRate} pts</span>
+                         <span className="text-muted-foreground">{option.cost * costConversionRate} credits</span>
                        </div>
                      )}
                    </div>
