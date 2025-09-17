@@ -1,8 +1,26 @@
 """
 Database models for Vibewave Backend
 """
-from .project import Project, ProjectStatus
 from .user import User
-from .job import Job, JobStatus
+from .social_account import SocialAccount
+from .project import Project
+from .music import Track
+from .video import Video
+from .image import Image
+from .stats import Stats
+from .export import Export
+from .audio import Audio
+from .user_settings import UserSettings
 
-__all__ = ["Project", "ProjectStatus", "User", "Job", "JobStatus"]
+__all__ = [
+    "User",
+    "SocialAccount",
+    "Project",
+    "Track",
+    "Video",
+    "Image",
+    "Stats",
+    "Export",
+    "Audio",
+    "UserSettings",
+]

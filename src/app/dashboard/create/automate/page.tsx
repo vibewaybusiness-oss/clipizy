@@ -11,11 +11,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import WaveformVisualizer, { type WaveformVisualizerRef } from "@/components/waveform-visualizer";
-import { StepSettings } from "@/components/generator/step-settings";
-import { StepPrompt } from "@/components/generator/step-prompt";
-import { StepOverview } from "@/components/generator/step-overview";
-import { StepGenerating } from "@/components/generator/step-generating";
-import { StepPreview } from "@/components/generator/step-preview";
+import { StepSettings } from "@/components/create/step-settings";
+import { StepPrompt } from "@/components/create/step-prompt";
+import { StepOverview } from "@/components/create/step-overview";
+import { StepGenerating } from "@/components/create/step-generating";
+import { StepPreview } from "@/components/create/step-preview";
 import { 
   Scene, 
   SceneSchema, 

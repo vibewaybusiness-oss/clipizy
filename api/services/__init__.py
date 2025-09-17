@@ -1,14 +1,19 @@
-"""
-Services for Vibewave Backend
-"""
-from .storage import StorageService, storage_service
-from .analysis import AnalysisService, analysis_service
-from .runpod import RunPodService, runpod_service
-from .auth import AuthService, auth_service
+from .project_service import ProjectService
+from .job_service import JobService
+from .track_service import TrackService
+from .video_service import VideoService
+from .image_service import ImageService
+from .audio_service import AudioService
+from .export_service import ExportService
+from .stats_service import StatsService
 
 __all__ = [
-    "StorageService", "storage_service",
-    "AnalysisService", "analysis_service", 
-    "RunPodService", "runpod_service",
-    "AuthService", "auth_service"
+    "ProjectService",
+    "JobService",
+    "TrackService",
+    "VideoService",
+    "ImageService",
+    "AudioService",
+    "ExportService",
+    "StatsService",
 ]

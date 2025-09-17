@@ -65,12 +65,28 @@ vibewave/
 │   ├── models/           # Database models
 │   ├── schemas/          # API schemas
 │   └── services/         # Business logic
-├── backendOLD/           # Legacy backend code
 ├── public/               # Static assets
 └── app.sh               # Development startup script
 ```
 
+## 🔄 Structured Workflow
+
+User
+↳ has many Projects
+↳ has many Jobs (global across projects)
+↳ has many SocialAccounts
+
+Project
+↳ belongs to User
+↳ has many Jobs (step orchestration)
+↳ has many Tracks, Videos, Images, Audio, Exports, Stats
+
+Job
+↳ belongs to User
+↳ belongs to Project
+
 ## 🔄 Development Workflow
+
 
 1. **User Upload**: Audio file → FastAPI → MinIO
 2. **CPU Analysis**: Music analysis (tempo, key, mood)

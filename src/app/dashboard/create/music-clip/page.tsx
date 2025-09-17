@@ -12,12 +12,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import WaveformVisualizer, { type WaveformVisualizerRef } from "@/components/waveform-visualizer";
-import { StepSettings } from "@/components/generator/step-settings";
-import { StepPrompt } from "@/components/generator/step-prompt";
-import { StepOverview } from "@/components/generator/step-overview";
-import { StepGenerating } from "@/components/generator/step-generating";
-import { StepPreview } from "@/components/generator/step-preview";
-import { GenreSelector } from "@/components/generator/genre-selector";
+import { StepSettings } from "@/components/create/music-clip/step-settings";
+import { StepPrompt } from "@/components/create/music-clip/step-prompt";
+import { StepOverview } from "@/components/create/music-clip/step-overview";
+import { StepGenerating } from "@/components/create/music-clip/step-generating";
+import { StepPreview } from "@/components/create/music-clip/step-preview";
+import { GenreSelector } from "@/components/create/music-clip/genre-selector";
 import { TimelineHeader } from "@/components/timeline-header";
 import { 
   Scene, 
@@ -29,7 +29,6 @@ import {
   calculateScenesBudget
 } from "@/components/vibewave-generator";
 import { useToast } from "@/hooks/use-toast";
-import { analyzeAudioAction, generateVideoAction, generateMusicAction } from "@/app/actions";
 
 interface MusicTrack {
   id: string;
@@ -53,8 +52,6 @@ export default function MusicClipPage() {
   const [generationMode, setGenerationMode] = useState<"upload" | "generate">("upload");
   const [musicPrompt, setMusicPrompt] = useState("");
   const [vibeFile, setVibeFile] = useState<File | null>(null);
-  const [isGeneratingMusic, setIsGeneratingMusic] = useState(false);
-  const [isGeneratingMusicPrompt, setIsGeneratingMusicPrompt] = useState(false);
   const [showGenreSelector, setShowGenreSelector] = useState(false);
   const [showSceneControls, setShowSceneControls] = useState(false);
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
@@ -72,7 +69,6 @@ export default function MusicClipPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   
-  const [isGeneratingVideo, startGeneratingVideo] = useTransition();
   
   const { toast } = useToast();
   const router = useRouter();
@@ -409,195 +405,19 @@ export default function MusicClipPage() {
   };
 
   const handleGenerateMusic = async (options?: { duration: number; model: string }) => {
-    if ((!musicPrompt || musicPrompt.length < 10) && !vibeFile) {
-      toast({
-        variant: "destructive",
-        title: "Missing Information",
-        description: "Please provide a music description (at least 10 characters) or a vibe file.",
-      });
-      return;
-    }
-    
-    setIsGeneratingMusic(true);
-    
-    try {
-      const result = await generateMusicAction({
-        prompt: musicPrompt,
-        duration: options?.duration || 20,
-        output_format: "mp3",
-        model: (options?.model || "stable-audio-2.5") as "stable-audio-2.5" | "stable-audio-2"
-      });
-
-      if (result.success && result.audioDataUri) {
-        // Convert data URI to File object
-        const response = await fetch(result.audioDataUri);
-        const audioBlob = await response.blob();
-        const generatedFile = new File([audioBlob], `generated-track-${Date.now()}.mp3`, { type: "audio/mp3" });
-        
-        // Extract genre from music prompt for tracking
-        let detectedGenre = "Unknown";
-        if (musicPrompt) {
-          // Try to extract genre from the prompt
-          const genreKeywords = {
-            "Ambient": ["ambient", "atmospheric", "ethereal", "drone", "meditative", "chill"],
-            "Synthwave / Electronic": ["synth", "electronic", "synthesizer", "retro", "80s", "digital", "techno"],
-            "Hip Hop / Trap / Lo-Fi": ["hip hop", "hiphop", "trap", "lo-fi", "lofi", "rap", "beats"],
-            "Rock / Metal / Punk": ["rock", "metal", "punk", "grunge", "alternative", "guitar"],
-            "Jazz / Blues": ["jazz", "blues", "swing", "bebop", "fusion", "smooth", "saxophone"],
-            "Classical / Orchestral": ["classical", "orchestral", "symphony", "chamber", "baroque"],
-            "Pop / Indie / Folk": ["pop", "indie", "alternative", "mainstream", "radio", "catchy"],
-            "Dance / EDM / Club": ["dance", "edm", "club", "electronic", "beat", "party", "disco"],
-            "World / Folk / Traditional": ["folk", "traditional", "world", "ethnic", "acoustic", "country"],
-            "Cinematic / Trailer / Score": ["cinematic", "trailer", "score", "soundtrack", "dramatic", "epic"]
-          };
-          
-          const promptLower = musicPrompt.toLowerCase();
-          for (const [genre, keywords] of Object.entries(genreKeywords)) {
-            if (keywords.some(keyword => promptLower.includes(keyword))) {
-              detectedGenre = genre;
-              break;
-            }
-          }
-        }
-        
-        // Create new track object
-        const newTrack: MusicTrack = {
-          id: `track-${Date.now()}`,
-          file: generatedFile,
-          url: result.audioDataUri,
-          duration: result.duration || 20,
-          name: generatedFile.name,
-          prompt: musicPrompt,
-          generatedAt: new Date(),
-          genre: detectedGenre,
-          isGenerated: true
-        };
-        
-        // Add to tracks list
-        setMusicTracks(prev => [...prev, newTrack]);
-        
-        // Set as current audio for preview
-        setAudioFile(generatedFile);
-        setAudioUrl(result.audioDataUri);
-        setAudioDuration(result.duration || 20);
-        setSelectedTrackId(newTrack.id);
-        
-        // Set music description in the form
-        promptForm.setValue("musicDescription", musicPrompt, { shouldValidate: true, shouldDirty: true });
-        
-        toast({ 
-          title: "Music Generated!", 
-          description: `Your new ${detectedGenre} track has been added to the list.` 
-        });
-        
-        // Clear the prompt for next generation
-        setMusicPrompt("");
-        setVibeFile(null);
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Generation Failed",
-          description: result.error || "Failed to generate music. Please try again.",
-        });
-      }
-    } catch (error) {
-      console.error("Music generation error:", error);
-      toast({
-        variant: "destructive",
-        title: "Generation Failed",
-        description: "An unexpected error occurred. Please try again.",
-      });
-    } finally {
-      setIsGeneratingMusic(false);
-    }
+    toast({
+      variant: "destructive",
+      title: "Feature Disabled",
+      description: "Music generation is currently disabled.",
+    });
   };
 
   const handleGenerateMusicPrompt = async (selectedGenre?: string, isInstrumental?: boolean) => {
-    setIsGeneratingMusicPrompt(true);
-    
-    try {
-      // Add 2 second delay for loading animation
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Load the AI random prompts
-      const response = await fetch('/api/backend/workflows/create_music/generator/ai_random');
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      // Get random music prompt from categorized structure
-      let randomMusicPrompt = "";
-      let genreName = "";
-      
-      console.log('Debug - selectedGenre:', selectedGenre);
-      console.log('Debug - data.music_prompts keys:', Object.keys(data.music_prompts));
-      
-      if (Array.isArray(data.music_prompts)) {
-        // Old structure - array of prompts
-        const musicPrompts = data.music_prompts || [];
-        randomMusicPrompt = musicPrompts[Math.floor(Math.random() * musicPrompts.length)];
-      } else if (typeof data.music_prompts === 'object') {
-        // New structure - categorized object
-        if (selectedGenre && data.music_prompts[selectedGenre]) {
-          // Use selected genre
-          genreName = selectedGenre;
-          const categoryPrompts = data.music_prompts[selectedGenre];
-          console.log('Debug - Using selected genre:', selectedGenre, 'with', categoryPrompts.length, 'prompts');
-          randomMusicPrompt = categoryPrompts[Math.floor(Math.random() * categoryPrompts.length)];
-        } else {
-          // Random genre
-          const categories = Object.keys(data.music_prompts);
-          const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-          genreName = randomCategory;
-          const categoryPrompts = data.music_prompts[randomCategory];
-          console.log('Debug - Using random genre:', randomCategory, 'with', categoryPrompts.length, 'prompts');
-          randomMusicPrompt = categoryPrompts[Math.floor(Math.random() * categoryPrompts.length)];
-        }
-      }
-      
-      console.log('Debug - Final genreName:', genreName);
-      console.log('Debug - Final randomMusicPrompt:', randomMusicPrompt);
-      
-      // Format the final prompt
-      // Prefix
-      let finalPrompt = isInstrumental ? "Generate an instrumental " : "Generate a ";
-
-      // Genre
-      if (genreName) {
-        finalPrompt += `${genreName} `;
-      }
-
-      // Sanitize random prompt to avoid duplicated leading verbs like "Generate"
-      const sanitizedRandom = (randomMusicPrompt || "")
-        .replace(/^\s*(generate|create)\s+(a|an|the)?\s*/i, "")
-        .trim();
-
-      finalPrompt += sanitizedRandom;
-      
-      // Set the generated prompt
-      setMusicPrompt(finalPrompt);
-      
-      const description = isInstrumental 
-        ? `Generated ${genreName || 'random'} instrumental description!`
-        : `Generated ${genreName || 'random'} description!`;
-      
-      toast({
-        title: "AI Generated",
-        description: description,
-      });
-    } catch (error) {
-      console.error('Error generating AI prompt:', error);
-      toast({
-        variant: "destructive",
-        title: "Generation Failed",
-        description: "Could not generate AI description. Please try again.",
-      });
-    } finally {
-      setIsGeneratingMusicPrompt(false);
-    }
+    toast({
+      variant: "destructive",
+      title: "Feature Disabled",
+      description: "AI prompt generation is currently disabled.",
+    });
   };
 
   const handleGenreSelect = (genre: string, isInstrumental: boolean) => {
@@ -682,39 +502,10 @@ export default function MusicClipPage() {
   };
   
   const onOverviewSubmit = (values: z.infer<typeof OverviewSchema>) => {
-    let videoPrompt = "";
-    if (settings?.videoType === 'looped-static' || settings?.videoType === 'looped-animated') {
-        const animationType = settings?.videoType === 'looped-animated' && settings?.animationStyle 
-          ? ` (${settings.animationStyle === 'boomerang' ? 'boomerang effect - forward then reverse playback' : 'seamless loop'})`
-          : '';
-        videoPrompt = `Create a single, looping video scene based on this description: "${values.videoDescription}". The style should be ${settings.videoStyle || 'cyberpunk'}${animationType}.`;
-    } else {
-        videoPrompt = `Create a music video with multiple scenes with the overarching theme of "${prompts?.videoDescription}". The individual scenes are: ${prompts?.scenes?.map(s => s.description).join(", ")}. The style should be ${settings?.videoStyle || 'cyberpunk'}.`;
-    }
-
-    let visualizerPrompt = "";
-    if (values.audioVisualizerEnabled) {
-        visualizerPrompt = ` Include an audio visualizer with these properties: vertical_position=${values.audioVisualizerPositionV}, horizontal_position=${values.audioVisualizerPositionH}, size=${values.audioVisualizerSize}, type=${values.audioVisualizerType}.`
-    }
-    
-    const fullPrompt = `Style: ${settings?.videoStyle === 'none' ? 'default' : settings?.videoStyle || 'default'}. Video Type: ${settings?.videoType}. Budget level: ${settings?.budget?.[0] || 1}. Music: ${prompts?.musicDescription}. Video: ${videoPrompt}. Channel Animation Present: ${!!channelAnimationFile}. ${visualizerPrompt}`;
-    
-    startGeneratingVideo(async () => {
-      const result = await generateVideoAction({ prompt: fullPrompt });
-      if (result.success && result.videoDataUri) {
-        setGeneratedVideoUri(result.videoDataUri);
-        // Video generation completed successfully - could show success message or redirect
-        toast({
-          title: "Video Generated Successfully!",
-          description: "Your music video has been created and is ready for download.",
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Video Generation Failed",
-          description: result.error,
-        });
-      }
+    toast({
+      variant: "destructive",
+      title: "Feature Disabled",
+      description: "Video generation is currently disabled.",
     });
   };
 
@@ -930,14 +721,9 @@ export default function MusicClipPage() {
                           type="button"
                           size="sm"
                           onClick={handleOpenGenreSelector}
-                          disabled={isGeneratingMusicPrompt}
                           className="w-12 h-12 p-0 btn-ai-gradient text-white flex items-center justify-center"
                         >
-                          {isGeneratingMusicPrompt ? (
-                            <div className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
-                          ) : (
-                            <Sparkles className="w-4 h-4" />
-                          )}
+                          <Sparkles className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
@@ -948,12 +734,8 @@ export default function MusicClipPage() {
                       <input id="vibe-upload" ref={vibeFileRef} type="file" className="hidden" onChange={handleVibeFileChange} />
                     </label>
                     
-                    <Button className="w-full h-12 text-base font-semibold btn-ai-gradient text-white" onClick={() => handleGenerateMusic()} disabled={isGeneratingMusic || (!vibeFile && musicPrompt.length < 10)}>
-                      {isGeneratingMusic ? (
-                        <div className="w-5 h-5 mr-2 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
-                      ) : (
-                        <Sparkles className="w-5 h-5 mr-2" />
-                      )}
+                    <Button className="w-full h-12 text-base font-semibold btn-ai-gradient text-white" onClick={() => handleGenerateMusic()}>
+                      <Sparkles className="w-5 h-5 mr-2" />
                       Generate Music with AI
                     </Button>
                     
@@ -1027,7 +809,7 @@ export default function MusicClipPage() {
                   setChannelAnimationFile={setChannelAnimationFile}
                   onSubmit={onOverviewSubmit}
                   onBack={() => setCurrentStep(3)}
-                  isGeneratingVideo={isGeneratingVideo}
+                  isGeneratingVideo={false}
                   toast={toast}
                 />
               </div>
@@ -1313,13 +1095,8 @@ export default function MusicClipPage() {
                   <Button 
                     onClick={() => overviewForm.handleSubmit(onOverviewSubmit)()} 
                     className="w-full h-10 text-base font-semibold btn-ai-gradient text-white flex items-center space-x-2"
-                    disabled={isGeneratingVideo}
                   >
-                    {isGeneratingVideo ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Film className="w-4 h-4" />
-                    )}
+                    <Film className="w-4 h-4" />
                     <span>Generate Video ({settings?.budget?.[0] || 100} credits)</span>
                   </Button>
                 </div>

@@ -6,15 +6,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { usePricing, type PricingConfig } from "@/hooks/use-pricing";
-import { analyzeAudioAction, generateVideoAction, generateMusicAction } from "@/app/actions";
-
-import { StepUpload } from "@/components/generator/step-upload";
-import { StepSettings } from "@/components/generator/step-settings";
-import { StepPrompt } from "@/components/generator/step-prompt";
-import { StepOverview } from "@/components/generator/step-overview";
-import { StepGenerating } from "@/components/generator/step-generating";
-import { StepPreview } from "@/components/generator/step-preview";
+// Removed pricing API - using fixed values
+// Removed API imports - features disabled
+import { StepSettings } from "@/components/create/music-clip/step-settings";
+import { StepPrompt } from "@/components/create/music-clip/step-prompt";
+import { StepOverview } from "@/components/create/music-clip/step-overview";
+import { StepGenerating } from "@/components/create/music-clip/step-generating";
+import { StepPreview } from "@/components/create/music-clip/step-preview";
 
 export type Step = "UPLOAD" | "SETTINGS" | "PROMPT" | "OVERVIEW" | "GENERATING" | "PREVIEW";
 export type GenerationMode = "upload" | "generate";
@@ -70,71 +68,22 @@ const convertToCredits = (dollars: number, creditsRate: number): number => {
 export const calculateLoopedBudget = (
     totalDurationSeconds: number, 
     trackCount: number, 
-    pricing: PricingConfig | null,
+    pricing: any = null,
     reuseVideo: boolean = false,
     videoType: 'looped-static' | 'looped-animated' = 'looped-static'
 ) => {
-    if (!pricing) return 100; // Default fallback if pricing not loaded
-    
-    if (totalDurationSeconds === 0) return convertToCredits(5, pricing.credits_rate); // Minimum in credits
-    
-    const durationMinutes = totalDurationSeconds / 60;
-    const config = videoType === 'looped-static' 
-        ? pricing.image_generator 
-        : pricing.looped_animation_generator;
-    
-    // Number of images/animations needed
-    const unitCount = reuseVideo ? 1 : trackCount;
-    
-    // Calculate price: (units × unit_rate) + (duration × minute_rate)
-    const unitCost = unitCount * config.unit_rate;
-    const durationCost = durationMinutes * config.minute_rate;
-    const calculatedPrice = unitCost + durationCost;
-    
-    // Apply min/max constraints
-    let finalPrice = Math.max(calculatedPrice, config.min);
-    if (config.max !== null) {
-        finalPrice = Math.min(finalPrice, config.max);
-    }
-    
-    // Convert to credits and round up to nearest 5
-    return convertToCredits(finalPrice, pricing.credits_rate);
+    // Fixed pricing - no API dependency
+    return 100; // Fixed cost for looped videos
 };
 
 export const calculateScenesBudget = (
     totalDurationSeconds: number,
     trackDurations: number[],
-    pricing: PricingConfig | null,
+    pricing: any = null,
     reuseVideo: boolean = false
 ) => {
-    if (!pricing) return 100; // Default fallback if pricing not loaded
-    
-    if (totalDurationSeconds === 0) return convertToCredits(5, pricing.credits_rate); // Minimum in credits
-    
-    const config = pricing.video_generator;
-    
-    // Calculate total scenes across all videos: duration / 7.5 seconds per scene
-    const totalScenes = Math.ceil(totalDurationSeconds / 7.5);
-    
-    // Number of videos (tracks)
-    const numberOfVideos = trackDurations.length || 1;
-    
-    // When reusing video, create 1 video with all scenes
-    // When not reusing, distribute scenes across multiple videos
-    const scenesPerVideo = reuseVideo ? totalScenes : Math.ceil(totalScenes / numberOfVideos);
-    const actualNumberOfVideos = reuseVideo ? 1 : numberOfVideos;
-    
-    // Calculate price: scenes per video × number of videos × duration per scene × minute_rate
-    // Each scene is 7.5 seconds = 0.125 minutes
-    const durationPerSceneMinutes = 7.5 / 60; // 0.125 minutes per scene
-    const totalSceneDurationMinutes = scenesPerVideo * actualNumberOfVideos * durationPerSceneMinutes;
-    const calculatedPrice = totalSceneDurationMinutes * config.minute_rate;
-    
-    // Apply minimum constraint
-    const finalPrice = Math.max(calculatedPrice, config.min);
-    
-    // Convert to credits and round up to nearest 5
-    return convertToCredits(finalPrice, pricing.credits_rate);
+    // Fixed pricing - no API dependency
+    return 200; // Fixed cost for scenes videos
 };
 
 export const getScenesInfo = (
@@ -174,13 +123,12 @@ export default function VibewaveGenerator() {
   const [vibeFile, setVibeFile] = useState<File | null>(null);
   const [channelAnimationFile, setChannelAnimationFile] = useState<File | null>(null);
 
-  const [isAnalyzing, startAnalyzing] = useTransition();
   const [isGeneratingVideo, startGeneratingVideo] = useTransition();
   const [isGeneratingMusic, setIsGeneratingMusic] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const { pricing, loading: pricingLoading, error: pricingError } = usePricing();
+  // Removed pricing API - using fixed values
   const { toast } = useToast();
 
   const promptForm = useForm<z.infer<typeof PromptSchema>>({
@@ -276,90 +224,19 @@ export default function VibewaveGenerator() {
   };
   
   const onOverviewSubmit = (values: z.infer<typeof OverviewSchema>) => {
-    setStep("GENERATING");
-    
-    let videoPrompt = "";
-    if (settings?.videoType === 'looped-static' || settings?.videoType === 'looped-animated') {
-        const videoTypeText = settings.videoType === 'looped-static' ? 'static image' : 'looping video';
-        videoPrompt = `Create a single, ${videoTypeText} scene based on this description: "${values.videoDescription}". The style should be ${settings.videoStyle}.`;
-    } else { // scenes
-        videoPrompt = `Create a music video with multiple scenes with the overarching theme of "${prompts?.videoDescription}". The individual scenes are: ${prompts?.scenes?.map(s => s.description).join(", ")}. The style should be ${settings?.videoStyle}.`;
-    }
-
-    let visualizerPrompt = "";
-    if (values.audioVisualizerEnabled) {
-        visualizerPrompt = ` Include an audio visualizer with these properties: vertical_position=${values.audioVisualizerPositionV}, horizontal_position=${values.audioVisualizerPositionH}, size=${values.audioVisualizerSize}, type=${values.audioVisualizerType}.`
-    }
-    
-    const fullPrompt = `Style: ${settings?.videoStyle}. Video Type: ${settings?.videoType}. Budget level: ${settings?.budget?.[0] || 1}. Music: ${prompts?.musicDescription}. Video: ${videoPrompt}. Channel Animation Present: ${!!channelAnimationFile}. ${visualizerPrompt}`;
-    
-    startGeneratingVideo(async () => {
-      const result = await generateVideoAction({ prompt: fullPrompt });
-      if (result.success && result.videoDataUri) {
-        setGeneratedVideoUri(result.videoDataUri);
-        setStep("PREVIEW");
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Video Generation Failed",
-          description: result.error,
-        });
-        setStep("OVERVIEW");
-      }
+    toast({
+      variant: "destructive",
+      title: "Feature Disabled",
+      description: "Video generation is currently disabled.",
     });
   }
 
   const handleGenerateMusic = async (options?: { duration: number; model: string }) => {
-    if ((!musicPrompt || musicPrompt.length < 10) && !vibeFile) {
-        toast({
-            variant: "destructive",
-            title: "Missing Information",
-            description: "Please provide a music description (at least 10 characters) or a vibe file.",
-        });
-        return;
-    }
-    
-    setIsGeneratingMusic(true);
-    
-    try {
-      const result = await generateMusicAction({
-        prompt: musicPrompt,
-        duration: options?.duration || 20,
-        output_format: "mp3",
-        model: (options?.model || "stable-audio-2.5") as "stable-audio-2.5" | "stable-audio-2"
-      });
-
-      if (result.success && result.audioDataUri) {
-        toast({ 
-          title: "Music Generated!", 
-          description: "Your new track is ready." 
-        });
-        
-        // Convert data URI to File object
-        const response = await fetch(result.audioDataUri);
-        const audioBlob = await response.blob();
-        const generatedFile = new File([audioBlob], "generated-track.mp3", { type: "audio/mp3" });
-        
-        setAudioFile(generatedFile);
-        promptForm.reset();
-        setStep("SETTINGS");
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Generation Failed",
-          description: result.error || "Failed to generate music. Please try again.",
-        });
-      }
-    } catch (error) {
-      console.error("Music generation error:", error);
-      toast({
-        variant: "destructive",
-        title: "Generation Failed",
-        description: "An unexpected error occurred. Please try again.",
-      });
-    } finally {
-      setIsGeneratingMusic(false);
-    }
+    toast({
+      variant: "destructive",
+      title: "Feature Disabled",
+      description: "Music generation is currently disabled.",
+    });
   }
 
   const handleReset = () => {
@@ -396,17 +273,16 @@ export default function VibewaveGenerator() {
     switch (step) {
       case "UPLOAD":
         return (
-          <StepUpload
-            generationMode={generationMode}
-            setGenerationMode={setGenerationMode}
-            handleAudioFileChange={handleAudioFileChange}
-            musicPrompt={musicPrompt}
-            setMusicPrompt={setMusicPrompt}
-            vibeFile={vibeFile}
-            setVibeFile={setVibeFile}
-            handleGenerateMusic={handleGenerateMusic}
-            isGeneratingMusic={isGeneratingMusic}
-          />
+          <div className="w-full p-8 text-center">
+            <h2 className="text-2xl font-bold mb-4">Upload Audio</h2>
+            <p className="text-muted-foreground mb-6">Please upload an audio file to get started.</p>
+            <input
+              type="file"
+              accept="audio/*"
+              onChange={handleAudioFileChange}
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+            />
+          </div>
         );
       case "SETTINGS":
         return (

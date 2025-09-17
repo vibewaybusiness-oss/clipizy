@@ -1,0 +1,24 @@
+import uuid
+from datetime import datetime
+from sqlalchemy import Column, String, BigInteger, DateTime, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
+from api.db import Base
+
+class Stats(Base):
+    __tablename__ = "stats"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    export_id = Column(UUID(as_uuid=True), ForeignKey("exports.id", ondelete="CASCADE"), nullable=False)
+
+    platform = Column(String, nullable=False)       # youtube | instagram | tiktok
+    account_name = Column(String, nullable=True)    # e.g. channel or handle
+    video_url = Column(String, nullable=True)       # published link
+
+    # 📊 Analytics
+    views = Column(BigInteger, default=0)
+    likes = Column(BigInteger, default=0)
+    comments = Column(BigInteger, default=0)
+    shares = Column(BigInteger, default=0)
+    watch_time = Column(BigInteger, nullable=True)  # in seconds
+
+    last_synced = Column(DateTime, default=datetime.utcnow)
