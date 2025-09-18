@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, BigInteger, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from api.db import Base
 
 class Stats(Base):
@@ -22,3 +23,6 @@ class Stats(Base):
     watch_time = Column(BigInteger, nullable=True)  # in seconds
 
     last_synced = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    export = relationship("Export", back_populates="stats")

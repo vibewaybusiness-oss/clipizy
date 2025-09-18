@@ -10,6 +10,7 @@ from .image import Image
 from .stats import Stats
 from .export import Export
 from .audio import Audio
+from .job import Job
 from .user_settings import UserSettings
 
 __all__ = [
@@ -22,5 +23,6 @@ __all__ = [
     "Stats",
     "Export",
     "Audio",
+    "Job",
     "UserSettings",
 ]

@@ -67,7 +67,7 @@ api/
 ```
 S3
 users/ 
-└── john.doe@example.com/ 
+└── user-id 
 ├── music-clip/ 
 │ ├── project_123/ 
 │ │ ├── script.json 

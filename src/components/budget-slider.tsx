@@ -5,9 +5,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import { SimpleSlider } from "@/components/ui/simple-slider";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { CONFIG } from "@/lib/config";
-import { calculateLoopedBudget, calculateScenesBudget, getScenesInfo } from "@/components/vibewave-generator";
-import { usePricing, type PricingConfig } from "@/hooks/use-pricing";
+import { getScenesInfo } from "@/components/vibewave-generator";
+import { usePricing } from "@/hooks/use-pricing";
+import { PricingConfig } from "@/contexts/pricing-context";
+import { usePricingService } from "@/hooks/use-pricing-service";
 import { HelpCircle } from "lucide-react";
 
 type BudgetSliderProps = {
@@ -22,42 +23,47 @@ type BudgetSliderProps = {
 };
 
 
-// Calculate cost per unit based on video type using the same logic as vibewave-generator
-const getCostPerUnit = (videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricing: PricingConfig | null, reuseVideo: boolean = false) => {
-  if (!pricing) return 100; // Default to 100 credits if pricing not loaded
-  
-  if (videoType === 'looped-static' || videoType === 'looped-animated') {
-    // For static/animated, this is the total cost, not per unit
-    return calculateLoopedBudget(totalDuration, trackCount, pricing, reuseVideo, videoType as 'looped-static' | 'looped-animated');
-  } else if (videoType === 'scenes') {
-    // For scenes, calculate the maximum cost (all scenes distributed across videos)
-    const totalScenes = Math.ceil(totalDuration / 7.5);
-    const numberOfVideos = trackDurations.length || 1;
-    const maxScenesPerVideo = Math.ceil(totalScenes / numberOfVideos);
-    const durationPerSceneMinutes = 7.5 / 60; // 0.125 minutes per scene
-    const costPerScene = durationPerSceneMinutes * pricing.video_generator.minute_rate;
-    const maxCost = maxScenesPerVideo * costPerScene * numberOfVideos;
-    return Math.round(maxCost * pricing.credits_rate);
+// Calculate cost per unit based on video type using the new pricing service
+const getCostPerUnit = (videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricingService: any, reuseVideo: boolean = false) => {
+  try {
+    const totalMinutes = totalDuration / 60;
+    
+    if (videoType === 'looped-static') {
+      const units = reuseVideo ? 1 : trackCount;
+      const price = pricingService.calculateImagePrice(units, totalMinutes);
+      return price.credits;
+    } else if (videoType === 'looped-animated') {
+      const units = reuseVideo ? 1 : trackCount;
+      const price = pricingService.calculateLoopedAnimationPrice(units, totalMinutes);
+      return price.credits;
+    } else if (videoType === 'scenes') {
+      const longestTrackMinutes = Math.max(...trackDurations) / 60;
+      const videoDuration = reuseVideo ? longestTrackMinutes : totalMinutes;
+      const price = pricingService.calculateVideoPrice(videoDuration);
+      return price.credits;
+    }
+  } catch (error) {
+    console.error('Error calculating cost:', error);
   }
   
   return 100; // Default to 100 credits
 };
 
 // Calculate budget value from number of units
-const getBudgetFromUnits = (units: number, videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricing: PricingConfig | null, reuseVideo: boolean = false) => {
-  const costPerUnit = getCostPerUnit(videoType, trackCount, totalDuration, trackDurations, pricing, reuseVideo);
+const getBudgetFromUnits = (units: number, videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricingService: any, reuseVideo: boolean = false) => {
+  const costPerUnit = getCostPerUnit(videoType, trackCount, totalDuration, trackDurations, pricingService, reuseVideo);
   return Math.round(units * costPerUnit);
 };
 
 // Calculate number of units from budget
-const getUnitsFromBudget = (budget: number, videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricing: PricingConfig | null, reuseVideo: boolean = false) => {
-  const costPerUnit = getCostPerUnit(videoType, trackCount, totalDuration, trackDurations, pricing, reuseVideo);
+const getUnitsFromBudget = (budget: number, videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricingService: any, reuseVideo: boolean = false) => {
+  const costPerUnit = getCostPerUnit(videoType, trackCount, totalDuration, trackDurations, pricingService, reuseVideo);
   return Math.floor(budget / costPerUnit);
 };
 
 // Calculate number of videos that can be created based on budget
-const calculateVideoCount = (budget: number, videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricing: PricingConfig | null, reuseVideo: boolean = false) => {
-  const units = getUnitsFromBudget(budget, videoType, trackCount, totalDuration, trackDurations, pricing, reuseVideo);
+const calculateVideoCount = (budget: number, videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricingService: any, reuseVideo: boolean = false) => {
+  const units = getUnitsFromBudget(budget, videoType, trackCount, totalDuration, trackDurations, pricingService, reuseVideo);
   
   if (videoType === 'scenes') {
     // For scenes, when reusing video, we create 1 video with all scenes
@@ -94,27 +100,41 @@ export function BudgetSlider({
   reuseVideo = false 
 }: BudgetSliderProps) {
   const { pricing, loading: pricingLoading, error: pricingError } = usePricing();
+  const pricingService = usePricingService();
   
   // Calculate cost based on video type
-  const calculatedCost = useMemo(() => {
-    return getCostPerUnit(videoType, trackCount, totalDuration, trackDurations, pricing, reuseVideo);
-  }, [videoType, trackCount, totalDuration, trackDurations, pricing, reuseVideo]);
+  const [calculatedCost, setCalculatedCost] = useState(100);
+  
+  useEffect(() => {
+    const updateCost = () => {
+      if (pricing) {
+        const cost = getCostPerUnit(videoType, trackCount, totalDuration, trackDurations, pricingService, reuseVideo);
+        // Round up to nearest 5 for scenes
+        const roundedCost = videoType === 'scenes' ? Math.ceil(cost / 5) * 5 : cost;
+        setCalculatedCost(roundedCost);
+      }
+    };
+    updateCost();
+  }, [videoType, trackCount, totalDuration, trackDurations, pricing, pricingService, reuseVideo]);
 
   // For scenes, calculate scenes-per-video slider logic
   const totalVideos = trackDurations.length || 1; // Fixed number of videos (music tracks)
-  const totalScenes = Math.ceil(totalDuration / 7.5); // Total scenes across all videos
+  const videoDuration = reuseVideo ? Math.max(...trackDurations) / 60 : totalDuration / 60; // Use longest track if reusing, total if not
+  const videoDurationFromConfig = (pricing?.video_generator?.['vibewave-model']?.['video-duration'] || 5) / 60; // Get from config and convert to minutes
+  const totalScenes = Math.ceil(videoDuration / videoDurationFromConfig); // Total scenes based on video duration
   const minScenesPerVideo = 1; // Minimum 1 scene per video
-  // When reusing video, create 1 video with all scenes, otherwise distribute across videos
-  const maxScenesPerVideo = reuseVideo ? totalScenes : Math.ceil(totalScenes / totalVideos);
+  const videosToCreate = reuseVideo ? 1 : totalVideos;
+  const maxScenesPerVideo = Math.ceil(totalScenes / videosToCreate); // Maximum scenes per video (total scenes ÷ number of videos)
   
   // Calculate cost per scene
   const costPerScene = useMemo(() => {
     if (videoType === 'scenes' && pricing) {
-      const durationPerSceneMinutes = 7.5 / 60; // 0.125 minutes per scene
-      return Math.round(durationPerSceneMinutes * pricing.video_generator.minute_rate * pricing.credits_rate);
+      const modelConfig = pricing.video_generator['vibewave-model'];
+      const durationPerSceneMinutes = videoDurationFromConfig; // Already in minutes
+      return Math.round(durationPerSceneMinutes * modelConfig.minute_rate * pricing.credits_rate);
     }
     return 0;
-  }, [videoType, pricing]);
+  }, [videoType, pricing, videoDurationFromConfig]);
 
   // Use the external value as the source of truth, handle NaN
   const currentValue = value[0] || 0;
@@ -122,27 +142,38 @@ export function BudgetSlider({
   
   // For scenes, calculate current scenes per video from budget
   const currentScenesPerVideo = videoType === 'scenes' 
-    ? Math.max(minScenesPerVideo, Math.min(maxScenesPerVideo, Math.round(inputValue / (costPerScene * (reuseVideo ? 1 : totalVideos)))))
+    ? (inputValue <= 0 || isNaN(inputValue))
+      ? maxScenesPerVideo  // Use maximum when no value is set
+      : Math.max(minScenesPerVideo, Math.min(maxScenesPerVideo, Math.floor(inputValue / (costPerScene * videosToCreate))))
     : 1;
   
   // For scenes, map scenes per video (1-maxScenesPerVideo) to slider value (0-100)
+  // If inputValue is 0 or invalid, start at maximum (100) to show max scenes per video
   const sliderValue = videoType === 'scenes' 
-    ? Math.round(((currentScenesPerVideo - minScenesPerVideo) / (maxScenesPerVideo - minScenesPerVideo)) * 100)
+    ? (inputValue <= 0 || isNaN(inputValue)) 
+      ? 100  // Start at maximum when no value is set
+      : Math.round(((currentScenesPerVideo - minScenesPerVideo) / Math.max(1, maxScenesPerVideo - minScenesPerVideo)) * 100)
     : 0;
 
-  // Set initial budget based on video type (only when pricing is loaded and value is 0 or invalid)
+
+  // Set initial budget based on video type and reset when reuseVideo changes
   useEffect(() => {
-    if (pricing && (inputValue === 0 || isNaN(inputValue))) {
+    if (pricing && calculatedCost > 0) {
       if (videoType === 'scenes') {
-        // For scenes, use the calculated cost as the maximum value
-        onValueChange([calculatedCost]);
+        // For scenes, always start with maximum scenes per video
+        const maxScenesCost = maxScenesPerVideo * costPerScene * videosToCreate;
+        // Round to nearest 5
+        const roundedMaxCost = Math.ceil(maxScenesCost / 5) * 5;
+        onValueChange([roundedMaxCost]);
       } else {
-        // For static/animated, use fixed calculated cost
-        onValueChange([calculatedCost]);
+        // For non-scenes, only set if no value is set
+        if (inputValue === 0 || isNaN(inputValue)) {
+          onValueChange([calculatedCost]);
+        }
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [videoType, pricing]);
+  }, [videoType, pricing, calculatedCost, maxScenesPerVideo, costPerScene, reuseVideo, totalVideos, videosToCreate]);
 
   
   const handleSliderChange = (newSliderValue: number[]) => {
@@ -150,12 +181,20 @@ export function BudgetSlider({
       // Map slider value (0-100) to scenes per video (1-maxScenesPerVideo)
       const sliderPercent = newSliderValue[0] / 100;
       const newScenesPerVideo = Math.max(minScenesPerVideo, Math.min(maxScenesPerVideo, Math.round(minScenesPerVideo + sliderPercent * (maxScenesPerVideo - minScenesPerVideo))));
-      const newBudgetValue = newScenesPerVideo * costPerScene * totalVideos;
+      
+      // Calculate budget based on scenes per video
+      const newBudgetValue = newScenesPerVideo * costPerScene * videosToCreate;
+      
+      // Round to nearest 5
+      const roundedBudget = Math.ceil(newBudgetValue / 5) * 5;
       
       // Only update if the value actually changed to prevent infinite loops
-      if (Math.abs(newBudgetValue - inputValue) > 1) {
-        onValueChange([newBudgetValue]);
+      if (Math.abs(roundedBudget - inputValue) > 1) {
+        onValueChange([roundedBudget]);
       }
+    } else {
+      // For non-scenes, just update the value directly
+      onValueChange(newSliderValue);
     }
   };
 
@@ -172,35 +211,38 @@ export function BudgetSlider({
   const handleInputBlur = () => {
     if (videoType === 'scenes') {
       let budget = inputValue;
-      const minBudget = costPerScene * totalVideos; // 1 scene per video
+      const minBudget = costPerScene * videosToCreate; // 1 scene per video
       const maxBudget = calculatedCost; // Use calculated cost as maximum
       
       if (isNaN(budget) || budget < minBudget) budget = minBudget;
       if (budget > maxBudget) budget = maxBudget;
       
       // Snap to nearest scenes per video
-      const scenesPerVideo = Math.round(budget / (costPerScene * totalVideos));
+      const scenesPerVideo = Math.floor(budget / (costPerScene * videosToCreate));
       const snappedScenesPerVideo = Math.max(minScenesPerVideo, Math.min(maxScenesPerVideo, scenesPerVideo));
-      const snappedBudget = snappedScenesPerVideo * costPerScene * totalVideos;
+      const snappedBudget = snappedScenesPerVideo * costPerScene * videosToCreate;
       
-      onValueChange([snappedBudget]);
+      // Round to nearest 5
+      const roundedBudget = Math.ceil(snappedBudget / 5) * 5;
+      
+      onValueChange([roundedBudget]);
     }
   }
 
   // Calculate video count for current budget
   const videoCount = videoType === 'scenes' 
-    ? calculateVideoCount(inputValue, videoType, trackCount, totalDuration, trackDurations, pricing, reuseVideo)
+    ? calculateVideoCount(inputValue, videoType, trackCount, totalDuration, trackDurations, pricingService, reuseVideo)
     : trackCount; // For static/animated, show track count
   
   // Get scenes info for display
   const scenesInfo = videoType === 'scenes' 
     ? (() => {
-        const numberOfVideos = reuseVideo ? 1 : totalVideos; // 1 video when reusing, otherwise number of tracks
+        const numberOfVideos = videosToCreate; // Use the calculated videos to create
         const scenesPerVideo = currentScenesPerVideo; // Current scenes per video from slider
         return {
           scenesPerVideo,
           numberOfVideos,
-          totalScenes
+          totalScenes: scenesPerVideo * numberOfVideos // Total scenes = scenes per video × number of videos
         };
       })()
     : null;
@@ -251,8 +293,8 @@ export function BudgetSlider({
             <span className="text-muted-foreground">Your Budget</span>
             <div className="group relative">
               <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-                Price influences the number of videos created for each type
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10 max-w-xs">
+                For scenes: Budget determines how many videos and scenes per video you can create. Higher budget = more scenes per video.
               </div>
             </div>
           </div>
@@ -265,9 +307,9 @@ export function BudgetSlider({
                     onChange={handleInputChange}
                     onBlur={handleInputBlur}
                     className="w-32 pl-12 pr-2 text-right font-semibold"
-                    min={costPerScene * totalVideos}
+                    min={costPerScene * videosToCreate}
                     max={calculatedCost}
-                    step={costPerScene * totalVideos}
+                    step={costPerScene * videosToCreate}
                 />
             </div>
             <span className="text-sm text-muted-foreground">
@@ -297,8 +339,12 @@ export function BudgetSlider({
             <span className="text-muted-foreground">Calculated Price</span>
             <div className="group relative">
               <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-                Price is calculated based on duration and video type
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10 max-w-xs">
+                <div className="space-y-1">
+                  <div><strong>Static/Animated:</strong> (Units × Rate) + (Duration × Rate)</div>
+                  <div><strong>Scenes:</strong> Duration × $30/min (min $5)</div>
+                  <div>Units = 1 if reusing video, otherwise track count</div>
+                </div>
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-from .user import UserCreate, UserRead, UserUpdate
+from .user import UserCreate, UserRead, UserUpdate, UserLogin, Token
 from .social_account import SocialAccountCreate, SocialAccountRead
 from .project import ProjectCreate, ProjectRead, ProjectUpdate
 from .track import TrackCreate, TrackRead
@@ -7,13 +7,15 @@ from .image import ImageCreate, ImageRead
 from .audio import AudioCreate, AudioRead
 from .export import ExportCreate, ExportRead
 from .stats import StatsRead
-from .job import JobCreate, JobRead
+from .job import JobCreate, JobResponse
 
 __all__ = [
     # Users
     "UserCreate",
     "UserRead",
     "UserUpdate",
+    "UserLogin",
+    "Token",
 
     # Social Accounts
     "SocialAccountCreate",
@@ -49,5 +51,5 @@ __all__ = [
 
     # Jobs
     "JobCreate",
-    "JobRead",
+    "JobResponse",
 ]

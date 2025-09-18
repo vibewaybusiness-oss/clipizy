@@ -11,19 +11,17 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import WaveformVisualizer, { type WaveformVisualizerRef } from "@/components/waveform-visualizer";
-import { StepSettings } from "@/components/create/step-settings";
-import { StepPrompt } from "@/components/create/step-prompt";
-import { StepOverview } from "@/components/create/step-overview";
-import { StepGenerating } from "@/components/create/step-generating";
-import { StepPreview } from "@/components/create/step-preview";
+import { StepSettings } from "@/components/create/create-music/step-settings";
+import { StepPrompt } from "@/components/create/create-music/step-prompt";
+import { StepOverview } from "@/components/create/create-music/step-overview";
+import { StepGenerating } from "@/components/create/create-music/step-generating";
+import { StepPreview } from "@/components/create/create-music/step-preview";
 import { 
   Scene, 
   SceneSchema, 
   PromptSchema, 
   SettingsSchema, 
-  OverviewSchema,
-  calculateLoopedBudget,
-  calculateScenesBudget
+  OverviewSchema
 } from "@/components/vibewave-generator";
 import { useToast } from "@/hooks/use-toast";
 import { analyzeAudioAction, generateVideoAction, generateMusicAction } from "@/app/actions";

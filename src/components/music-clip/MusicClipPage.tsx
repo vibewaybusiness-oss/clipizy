@@ -1,0 +1,1348 @@
+"use client";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Music, ArrowLeft, ChevronLeft, ChevronRight, Upload, Film, Trash2 } from "lucide-react";
+import { MusicLogo } from "@/components/music-logo";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { useAudioPlayback } from "@/hooks/use-audio-playback";
+import { useMusicTracks } from "@/hooks/use-music-tracks";
+import { usePromptGeneration } from "@/hooks/use-prompt-generation";
+import { usePricingService } from "@/hooks/use-pricing-service";
+import { useMusicClipState } from "@/hooks/use-music-clip-state";
+import { useProjectManagement } from "@/hooks/use-project-management";
+import { useDragAndDrop } from "@/hooks/use-drag-and-drop";
+import { useReuseVideoclip } from "@/hooks/use-reuse-videoclip";
+import { musicClipAPI } from "@/lib/api/music-clip";
+import { formatDuration, getTotalDuration, fileToDataUri } from "@/utils/music-clip-utils";
+import type { MusicTrack } from "@/types/music-clip";
+import { SettingsSchema, PromptSchema, OverviewSchema } from "@/components/vibewave-generator";
+import * as z from "zod";
+import WaveformVisualizer, { type WaveformVisualizerRef } from "@/components/waveform-visualizer";
+import { StepUpload } from "@/components/create/create-music/step-upload";
+import { StepSettings } from "@/components/create/create-music/step-settings";
+import { StepPrompt } from "@/components/create/create-music/step-prompt";
+import { StepOverview } from "@/components/create/create-music/step-overview";
+import { GenreSelector } from "@/components/create/create-music/genre-selector";
+import { TimelineHeader } from "@/components/timeline-header";
+import { TrackCard } from "@/components/create/create-music/track-card";
+
+function MusicClipPage() {
+  // Custom hooks for state management
+  const { toast } = useToast();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const projectId = searchParams.get('projectId');
+  
+  const audioPlayback = useAudioPlayback();
+  const musicTracks = useMusicTracks(projectId);
+  const promptGeneration = usePromptGeneration();
+  const pricingService = usePricingService();
+  const musicClipState = useMusicClipState(projectId);
+  const projectManagement = useProjectManagement();
+  const dragAndDrop = useDragAndDrop();
+  const waveformRef = useRef<WaveformVisualizerRef>(null);
+  const lastProcessedDuration = useRef<number>(0);
+  
+  // Extract loaded descriptions from project data
+  const [loadedDescriptions, setLoadedDescriptions] = useState<{
+    sharedDescription?: string;
+    individualDescriptions?: Record<string, string>;
+    reuseEnabled?: boolean;
+  }>({});
+
+  // REUSE VIDEOCLIP HOOK
+  const reuseVideoclip = useReuseVideoclip({
+    musicTracks: musicTracks.musicTracks,
+    trackDescriptions: musicTracks.trackDescriptions,
+    setTrackDescriptions: musicTracks.setTrackDescriptions,
+    promptForm: musicClipState.forms.promptForm,
+    settingsForm: musicClipState.forms.settingsForm,
+    projectId: projectId || projectManagement.state.currentProjectId,
+    loadedSharedDescription: loadedDescriptions.sharedDescription,
+    loadedIndividualDescriptions: loadedDescriptions.individualDescriptions,
+    loadedReuseEnabled: loadedDescriptions.reuseEnabled
+  });
+  
+  // Watch for form changes to update shared description
+  useEffect(() => {
+    const subscription = musicClipState.forms.promptForm.watch((value: any) => {
+      console.log('Form watch triggered:', value?.videoDescription, 'isReuseEnabled:', reuseVideoclip.isReuseEnabled);
+      // Only update if we have a non-empty value and we're in reuse mode
+      if (reuseVideoclip.isReuseEnabled && value?.videoDescription !== undefined && value.videoDescription.trim() !== '') {
+        console.log('Updating shared description:', value.videoDescription);
+        reuseVideoclip.updateSharedDescription(value.videoDescription);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [reuseVideoclip.isReuseEnabled, musicClipState.forms.promptForm, reuseVideoclip]);
+
+  // Wrapper function to handle track descriptions update with immediate localStorage save
+  const handleTrackDescriptionsUpdate = useCallback((newTrackDescriptions: Record<string, string>) => {
+    console.log('handleTrackDescriptionsUpdate called with:', newTrackDescriptions);
+    console.log('reuseVideoclip.isReuseEnabled:', reuseVideoclip.isReuseEnabled);
+    
+    // Update the music tracks state
+    musicTracks.setTrackDescriptions(newTrackDescriptions);
+    
+    // Update individual descriptions in the hook for immediate localStorage save
+    if (!reuseVideoclip.isReuseEnabled) {
+      Object.entries(newTrackDescriptions).forEach(([trackId, description]) => {
+        console.log('Updating individual description for track:', trackId, 'description:', description);
+        reuseVideoclip.updateIndividualDescription(trackId, description);
+      });
+    }
+  }, [musicTracks, reuseVideoclip]);
+
+  // Local state
+  const [musicGenerationPrice, setMusicGenerationPrice] = useState(0);
+
+
+  // Cleanup audio when leaving the page
+  useEffect(() => {
+    return () => {
+      audioPlayback.stopAllAudio();
+      
+      // Clean up the main audio URL
+      if (musicClipState.state.audioUrl) {
+        URL.revokeObjectURL(musicClipState.state.audioUrl);
+      }
+      
+      // Clean up all track blob URLs
+      musicTracks.musicTracks.forEach(track => {
+        if (track.url.startsWith('blob:')) {
+          try {
+            URL.revokeObjectURL(track.url);
+          } catch (error) {
+            console.warn('Failed to revoke blob URL during cleanup:', track.id, error);
+          }
+        }
+      });
+    };
+  }, [musicClipState.state.audioUrl, audioPlayback.stopAllAudio, musicTracks.musicTracks]);
+
+  // Set audio duration when audio file changes
+  useEffect(() => {
+    if (musicClipState.state.audioFile && musicClipState.state.audioFile.size > 0) {
+      // Only try to get duration for files with actual content
+      const tempUrl = URL.createObjectURL(musicClipState.state.audioFile);
+      console.log('[MUSIC CLIP] Created temporary blob URL for duration detection:', tempUrl, 'File size:', musicClipState.state.audioFile.size);
+      
+      const audio = new Audio(tempUrl);
+      let isMetadataLoaded = false;
+      let isErrorHandled = false;
+      
+      const handleLoadedMetadata = () => {
+        if (!isMetadataLoaded && !isErrorHandled) {
+          isMetadataLoaded = true;
+          musicClipState.actions.setAudioDuration(audio.duration);
+          console.log('[MUSIC CLIP] Audio metadata loaded, duration:', audio.duration);
+          
+          // Revoke the temporary URL after getting duration
+          setTimeout(() => {
+            try {
+              URL.revokeObjectURL(tempUrl);
+              console.log('[MUSIC CLIP] Revoked temporary blob URL for duration detection:', tempUrl);
+            } catch (error) {
+              console.warn('Failed to revoke temporary blob URL:', error);
+            }
+          }, 1000);
+        }
+      };
+      
+      const handleError = (e: Event) => {
+        if (!isErrorHandled && !isMetadataLoaded) {
+          isErrorHandled = true;
+          console.error('[MUSIC CLIP] Audio load error for file:', musicClipState.state.audioFile?.name, 'Size:', musicClipState.state.audioFile?.size, e);
+          
+          // Set duration to 0 for files that can't be loaded
+          musicClipState.actions.setAudioDuration(0);
+          
+          // Revoke URL on error
+          setTimeout(() => {
+            try {
+              URL.revokeObjectURL(tempUrl);
+              console.log('[MUSIC CLIP] Revoked temporary blob URL on error:', tempUrl);
+            } catch (error) {
+              console.warn('Failed to revoke blob URL on error:', error);
+            }
+          }, 1000);
+        }
+      };
+      
+      audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.addEventListener('error', handleError);
+
+      return () => {
+        audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        audio.removeEventListener('error', handleError);
+        // Revoke the URL if it hasn't been revoked yet
+        setTimeout(() => {
+          try {
+            URL.revokeObjectURL(tempUrl);
+            console.log('[MUSIC CLIP] Revoked temporary blob URL on cleanup:', tempUrl);
+          } catch (error) {
+            // URL might already be revoked, ignore error
+          }
+        }, 2000);
+      }
+    } else if (musicClipState.state.audioFile && musicClipState.state.audioFile.size === 0) {
+      // File is empty, set duration to 0
+      console.log('[MUSIC CLIP] Empty file detected, setting duration to 0');
+      musicClipState.actions.setAudioDuration(0);
+    }
+  }, [musicClipState.state.audioFile]);
+
+  // Update track duration when audio duration changes
+  useEffect(() => {
+    if (musicClipState.state.audioDuration > 0 && musicTracks.selectedTrackId && musicClipState.state.audioDuration !== lastProcessedDuration.current) {
+      lastProcessedDuration.current = musicClipState.state.audioDuration;
+      musicTracks.updateTrackDuration(musicTracks.selectedTrackId, musicClipState.state.audioDuration);
+    }
+  }, [musicClipState.state.audioDuration, musicTracks.selectedTrackId]);
+
+  // Calculate music generation price when number of tracks changes
+  useEffect(() => {
+    const calculatePrice = () => {
+      if (musicClipState.state.musicTracksToGenerate > 0) {
+        const price = pricingService.calculateMusicPrice(musicClipState.state.musicTracksToGenerate, 'stable-audio');
+        setMusicGenerationPrice(price.credits);
+      }
+    };
+    calculatePrice();
+  }, [musicClipState.state.musicTracksToGenerate, pricingService]);
+
+  // Initialize step from URL parameter (only on mount)
+  const hasInitialized = useRef(false);
+  useEffect(() => {
+    if (!hasInitialized.current) {
+      const stepParam = searchParams.get('step');
+      if (stepParam) {
+        const step = parseInt(stepParam, 10);
+        if (step >= 1 && step <= 4) {
+          console.log('Initializing step from URL:', step);
+          musicClipState.actions.setCurrentStep(step as 1 | 2 | 3 | 4);
+          musicClipState.actions.setMaxReachedStep(Math.max(musicClipState.state.maxReachedStep, step) as 1 | 2 | 3 | 4);
+        }
+      }
+      hasInitialized.current = true;
+    }
+  }, []); // Only run on mount
+
+  // Load existing project data if projectId is provided
+  useEffect(() => {
+    if (projectId && !projectManagement.state.currentProjectId && !projectManagement.state.isLoadingProject) {
+      // Check if we have localStorage data for this project
+      const hasLocalData = musicClipState.state.settings || musicTracks.musicTracks.length > 0;
+      
+      if (hasLocalData) {
+        console.log('Using localStorage data for project:', projectId);
+        // localStorage data is already loaded by the hooks
+      } else {
+        console.log('No localStorage data found, loading from backend for project:', projectId);
+        // Load from backend as fallback
+        loadExistingProject(projectId);
+      }
+    } else if (!projectId && !projectManagement.state.currentProjectId) {
+      // Starting a new project - no localStorage loading, start fresh
+      console.log('Starting new project - no data loading needed');
+    }
+  }, [projectId, projectManagement.state.currentProjectId, projectManagement.state.isLoadingProject, musicClipState.state.settings, musicTracks.musicTracks.length]);
+
+  // Update URL when step changes (with throttling to prevent browser hanging)
+  const prevStepRef = useRef(musicClipState.state.currentStep);
+  const urlUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  useEffect(() => {
+    if (prevStepRef.current !== musicClipState.state.currentStep) {
+      console.log('Step changed from', prevStepRef.current, 'to', musicClipState.state.currentStep);
+      
+      // Clear any pending URL update
+      if (urlUpdateTimeoutRef.current) {
+        clearTimeout(urlUpdateTimeoutRef.current);
+      }
+      
+      // Throttle URL updates to prevent browser hanging
+      urlUpdateTimeoutRef.current = setTimeout(() => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('step', musicClipState.state.currentStep.toString());
+        window.history.replaceState({}, '', url.toString());
+        prevStepRef.current = musicClipState.state.currentStep;
+      }, 100); // 100ms delay
+    }
+    
+    // Cleanup timeout on unmount
+    return () => {
+      if (urlUpdateTimeoutRef.current) {
+        clearTimeout(urlUpdateTimeoutRef.current);
+      }
+    };
+  }, [musicClipState.state.currentStep]);
+
+  // Debug step changes
+  useEffect(() => {
+    console.log('Current step changed to:', musicClipState.state.currentStep);
+  }, [musicClipState.state.currentStep]);
+
+  // Push data to backend when leaving the page
+  useEffect(() => {
+    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
+      try {
+        const projectId = searchParams.get('projectId');
+        if (projectId) {
+          // Get current data from hooks
+          const musicClipData = await musicClipState.actions.pushToBackend(projectId);
+          const tracksData = await musicTracks.pushToBackend(projectId);
+          
+          // Push to backend
+          await pushDataToBackend(projectId, musicClipData, tracksData);
+        }
+      } catch (error) {
+        console.error('Failed to push data to backend on page leave:', error);
+      }
+    };
+
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'hidden') {
+        try {
+          const projectId = searchParams.get('projectId');
+          if (projectId) {
+            // Get current data from hooks
+            const musicClipData = await musicClipState.actions.pushToBackend(projectId);
+            const tracksData = await musicTracks.pushToBackend(projectId);
+            
+            // Push to backend
+            await pushDataToBackend(projectId, musicClipData, tracksData);
+          }
+        } catch (error) {
+          console.error('Failed to push data to backend on visibility change:', error);
+        }
+      }
+    };
+
+    // Add event listeners
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [searchParams, musicClipState.actions, musicTracks]);
+
+  // Handle browser back/forward navigation
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const currentPath = window.location.pathname;
+      if (!currentPath.includes('/music-clip')) {
+        return;
+      }
+      
+      const stepParam = searchParams.get('step');
+      if (stepParam) {
+        const step = parseInt(stepParam, 10);
+        if (step >= 1 && step <= 4) {
+          musicClipState.actions.setCurrentStep(step as 1 | 2 | 3 | 4);
+        }
+      } else {
+        musicClipState.actions.setCurrentStep(1);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [searchParams]);
+
+  // Restore audio file state from localStorage on mount
+  useEffect(() => {
+    const restoreAudioState = async () => {
+      if (musicTracks.selectedTrackId && musicTracks.musicTracks.length > 0) {
+        const selectedTrack = musicTracks.musicTracks.find(track => track.id === musicTracks.selectedTrackId);
+        if (selectedTrack && selectedTrack.file && selectedTrack.file.size > 0) {
+          musicClipState.actions.setAudioFile(selectedTrack.file);
+          musicClipState.actions.setAudioUrl(selectedTrack.url);
+          musicClipState.actions.setAudioDuration(selectedTrack.duration);
+        }
+      }
+    };
+
+    restoreAudioState();
+  }, [musicTracks.selectedTrackId, musicTracks.musicTracks]);
+
+  const pushDataToBackend = async (projectId: string, musicClipData: any, tracksData: any) => {
+    try {
+      console.log('Pushing data to backend for project:', projectId);
+      
+      // Update project settings using the project management hook
+      if (musicClipData.settings) {
+        await projectManagement.actions.updateProjectSettings(projectId, musicClipData.settings);
+      }
+      
+      // Get descriptions from the reuse videoclip hook
+      const descriptionsData = reuseVideoclip.getAllDescriptions();
+      
+      // Update tracks if we have track data
+      if (tracksData.musicTracks && tracksData.musicTracks.length > 0) {
+        // Update track descriptions and genres
+        for (const track of tracksData.musicTracks) {
+          const updates: any = {};
+          
+          // Use hook's description data if available, otherwise fallback to tracksData
+          let videoDescription = '';
+          if (descriptionsData.isReuseEnabled) {
+            videoDescription = descriptionsData.sharedDescription;
+          } else {
+            videoDescription = descriptionsData.individualDescriptions[track.id] || tracksData.trackDescriptions[track.id] || '';
+          }
+          
+          if (videoDescription) {
+            updates.video_description = videoDescription;
+          }
+          if (tracksData.trackGenres[track.id]) {
+            updates.genre = tracksData.trackGenres[track.id];
+          }
+          
+          if (Object.keys(updates).length > 0) {
+            await musicClipAPI.updateTrack(projectId, track.id, updates);
+          }
+        }
+      }
+      
+      console.log('Successfully pushed data to backend');
+    } catch (error) {
+      console.error('Failed to push data to backend:', error);
+      // Don't throw error to avoid blocking page navigation
+    }
+  };
+
+  const loadExistingProject = async (projectId: string) => {
+    try {
+      musicClipState.actions.setIsLoadingExistingProject(true);
+      console.log('Loading project from backend:', projectId);
+      const projectData = await projectManagement.actions.loadExistingProject(projectId);
+      
+      // Update settings if available
+      if (projectData?.script.steps.music.settings) {
+        const settings = projectData.script.steps.music.settings;
+        musicClipState.actions.setSettings(settings);
+        musicClipState.forms.settingsForm.reset(settings);
+      }
+      
+      // Update tracks if available
+      if (projectData?.tracks.tracks && projectData.tracks.tracks.length > 0) {
+        console.log(`Loading ${projectData.tracks.tracks.length} tracks in parallel...`);
+        const startTime = performance.now();
+        
+        // Fetch URLs for all tracks in parallel
+        const trackUrlPromises = projectData.tracks.tracks.map(async (track: any) => {
+          try {
+            const urlResponse = await musicClipAPI.getTrackUrl(projectId, track.id);
+            return {
+              track,
+              url: urlResponse.url,
+              success: true
+            };
+          } catch (error) {
+            console.error(`Failed to get URL for track ${track.id}:`, error);
+            return {
+              track,
+              url: '',
+              success: false
+            };
+          }
+        });
+
+        // Wait for all track URL requests to complete
+        const trackResults = await Promise.all(trackUrlPromises);
+        
+        const endTime = performance.now();
+        const loadTime = endTime - startTime;
+        const successfulTracks = trackResults.filter(result => result.success).length;
+        const failedTracks = trackResults.length - successfulTracks;
+        console.log(`Loaded ${trackResults.length} tracks in ${loadTime.toFixed(2)}ms (parallel) - ${successfulTracks} successful, ${failedTracks} failed`);
+        
+        // Create MusicTrack objects from the results
+        const tracks: MusicTrack[] = trackResults.map(({ track, url, success }) => {
+          console.log(`Track ${track.id}: URL=${url}, Success=${success}`);
+          
+          // Create a proper File object for existing tracks
+          // For existing tracks, we'll use the S3 URL and create a minimal File object
+          const fileName = track.file_path.split('/').pop() || 'Unknown Track';
+          const file = new File([], fileName, { type: 'audio/wav' });
+          
+          return {
+            id: track.id,
+            file: file,
+            url: url, // Use the S3 URL for playback
+            duration: track.metadata.duration || 0,
+            name: fileName,
+            prompt: track.prompt,
+            genre: track.genre,
+            videoDescription: track.video_description,
+            generatedAt: new Date(track.created_at),
+            isGenerated: track.ai_generated,
+          };
+        });
+        
+        musicTracks.setMusicTracks(tracks);
+        
+        if (tracks.length > 0) {
+          musicTracks.setSelectedTrackId(tracks[0].id);
+          musicTracks.setSelectedTrackIds([tracks[0].id]);
+        }
+
+        // Extract descriptions from loaded tracks
+        const reuseEnabled = projectData?.script.steps.music.settings?.useSameVideoForAll || false;
+        const individualDescriptions: Record<string, string> = {};
+        let sharedDescription = '';
+
+        tracks.forEach(track => {
+          if (track.videoDescription) {
+            if (reuseEnabled) {
+              // In reuse mode, all tracks should have the same description
+              sharedDescription = track.videoDescription;
+            } else {
+              // In individual mode, each track has its own description
+              individualDescriptions[track.id] = track.videoDescription;
+            }
+          }
+        });
+
+        // Set loaded descriptions for the hook
+        setLoadedDescriptions({
+          sharedDescription,
+          individualDescriptions,
+          reuseEnabled
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load existing project:', error);
+      
+      // Show user-friendly error message
+      if (error instanceof Error && error.message.includes('Project not found')) {
+        toast({
+          variant: "destructive",
+          title: "Project Not Found",
+          description: "The selected project could not be found. Using local data instead.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Loading Error",
+          description: "Failed to load the existing project from server. Using local data instead.",
+        });
+      }
+    } finally {
+      musicClipState.actions.setIsLoadingExistingProject(false);
+    }
+  };
+
+  const handleGenerateMusic = async (options?: { duration: number; model: string }, isInstrumental?: boolean) => {
+    console.log('handleGenerateMusic called with:', { options, isInstrumental, musicPrompt: musicClipState.state.musicPrompt });
+    
+    if (!musicClipState.state.musicPrompt.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Missing Description",
+        description: "Please describe the music you want to generate.",
+      });
+      return;
+    }
+
+    // For now, just generate prompts instead of actual music
+    await handleGenerateMusicPrompt(undefined, isInstrumental);
+  };
+
+  const handleGenerateMusicPrompt = async (selectedGenre?: string, isInstrumental?: boolean) => {
+    musicClipState.actions.setIsUploadingTracks(true);
+    
+    try {
+      // Create project if not already created
+      const projectId = await projectManagement.actions.createProject();
+      
+      const categories = selectedGenre ? [selectedGenre] : undefined;
+      
+      const params = new URLSearchParams({
+        prompt_type: 'music',
+        source: 'json',
+        instrumental: (isInstrumental || false).toString(),
+      });
+      
+      if (categories) {
+        params.append('categories', categories.join(','));
+      }
+
+      const response = await fetch(`/api/prompts/random?${params.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch prompt');
+      }
+      
+      const data = await response.json();
+      
+      // Generate prompts for the specified number of tracks
+      const generatedTracks: MusicTrack[] = [];
+      for (let i = 0; i < musicClipState.state.musicTracksToGenerate; i++) {
+        const trackId = `generated-${Date.now()}-${i}`;
+        const trackNumber = musicTracks.musicTracks.length + i + 1;
+        const trackName = data.category ? `${data.category} Track ${trackNumber}` : `Generated Track ${trackNumber}`;
+        
+        // Create a placeholder file for AI-generated tracks
+        // Note: These are placeholder tracks for prompt generation only
+        // They don't have actual audio files until generated
+        const placeholderFile = new File([], trackName, { type: 'audio/wav' });
+        
+        const track: MusicTrack = {
+          id: trackId,
+          file: placeholderFile,
+          url: '', // No URL for placeholder tracks
+          duration: 30, // Default duration
+          name: trackName,
+          prompt: data.prompt,
+          videoDescription: '',
+          generatedAt: new Date(),
+          genre: data.category,
+          isGenerated: true,
+        };
+        generatedTracks.push(track);
+      }
+      
+      musicTracks.addTracks(generatedTracks);
+      
+      // Update the music prompt form field
+      musicClipState.forms.promptForm.setValue('musicDescription', data.prompt);
+      
+      // Immediately save the generated prompt to localStorage
+      musicClipState.actions.setMusicPrompt(data.prompt);
+      
+      toast({
+        title: "Music Prompts Generated",
+        description: `Generated ${musicClipState.state.musicTracksToGenerate} track${musicClipState.state.musicTracksToGenerate !== 1 ? 's' : ''} with ${data.category} style prompts.`,
+      });
+      
+    } catch (error) {
+      console.error('Error generating music prompts:', error);
+      toast({
+        variant: "destructive",
+        title: "Generation Failed",
+        description: "Failed to generate music prompts. Please try again.",
+      });
+    } finally {
+      musicClipState.actions.setIsUploadingTracks(false);
+    }
+  };
+
+  const handleGenerateMusicDescription = async (selectedGenre?: string, isInstrumental?: boolean) => {
+    // Update the local isInstrumental state
+    if (isInstrumental !== undefined) {
+      musicClipState.actions.setIsInstrumental(isInstrumental);
+    }
+    
+    try {
+      const data = await promptGeneration.generateMusicDescription(selectedGenre, isInstrumental);
+      
+      // Only update the music prompt text area, don't create tracks
+      musicClipState.actions.setMusicPrompt(data.prompt);
+      
+      toast({
+        title: "Music Description Generated",
+        description: `Generated ${data.category} style description for your music.`,
+      });
+      
+    } catch (error) {
+      console.error('Error generating music description:', error);
+    }
+  };
+
+  const handleGenreSelect = async (genre: string, isInstrumental: boolean) => {
+    await handleGenerateMusicDescription(genre, isInstrumental);
+  };
+
+  const handleRandomGenerate = async (isInstrumental: boolean) => {
+    await handleGenerateMusicDescription(undefined, isInstrumental);
+  };
+
+  const handleAudioFileChange = async (files: File[]) => {
+    const audioFiles = files.filter(file => file.type.startsWith("audio/"));
+    
+    if (audioFiles.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Invalid File Type",
+        description: "Please upload audio files (e.g., MP3, WAV).",
+      });
+      return;
+    }
+    
+    musicClipState.actions.setIsUploadingTracks(true);
+    
+    try {
+      const projectId = await projectManagement.actions.createProject();
+      
+      if (!projectId) {
+        throw new Error('Failed to create project');
+      }
+      
+      const newTracks: MusicTrack[] = [];
+      
+      for (const file of audioFiles) {
+        try {
+          const uploadResult = await musicClipAPI.uploadTrack(projectId, file, {
+            ai_generated: false,
+            instrumental: false,
+          });
+          
+          // Create blob URL for local playback
+          const url = URL.createObjectURL(file);
+          
+          const newTrack: MusicTrack = {
+            id: uploadResult.track_id,
+            file: file,
+            url: url, // This will be used for local playback
+            duration: uploadResult.metadata.duration || 0,
+            name: file.name,
+            generatedAt: new Date(),
+            prompt: uploadResult.prompt,
+            genre: uploadResult.genre,
+            videoDescription: uploadResult.video_description,
+            isGenerated: uploadResult.ai_generated,
+          };
+          
+          newTracks.push(newTrack);
+          
+          const audio = new Audio(url);
+          audio.addEventListener('loadedmetadata', () => {
+            musicTracks.updateTrackDuration(newTrack.id, audio.duration);
+          });
+          
+        } catch (error) {
+          console.error(`Failed to upload track ${file.name}:`, error);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          toast({
+            variant: "destructive",
+            title: "Upload Failed",
+            description: `Failed to upload ${file.name}: ${errorMessage}`,
+          });
+        }
+      }
+      
+      if (newTracks.length > 0) {
+        musicTracks.addTracks(newTracks);
+        
+        const firstTrack = newTracks[0];
+        musicClipState.actions.setAudioFile(firstTrack.file);
+        musicClipState.actions.setAudioUrl(firstTrack.url);
+        musicClipState.actions.setAudioDuration(firstTrack.duration);
+        
+        toast({
+          title: "Tracks Uploaded",
+          description: `Successfully uploaded ${newTracks.length} track(s) to your project.`,
+        });
+      }
+    } finally {
+      musicClipState.actions.setIsUploadingTracks(false);
+    }
+  };
+
+  const handleTrackSelect = (track: MusicTrack, event?: React.MouseEvent) => {
+    musicTracks.selectTrack(track, event);
+    
+    musicClipState.actions.setAudioFile(track.file);
+    musicClipState.actions.setAudioUrl(track.url);
+    musicClipState.actions.setAudioDuration(track.duration);
+  };
+
+  const handlePlayPause = (track: MusicTrack) => {
+    audioPlayback.playTrack(track);
+  };
+
+  const handleTrackRemove = (trackId: string) => {
+    if (audioPlayback.currentlyPlayingId === trackId) {
+      audioPlayback.stopCurrentAudio();
+    }
+    
+    musicTracks.removeTrack(trackId);
+    
+    if (musicTracks.selectedTrackId === trackId) {
+      const remainingTracks = musicTracks.musicTracks.filter(track => track.id !== trackId);
+      if (remainingTracks.length > 0) {
+        const nextTrack = remainingTracks[0];
+        handleTrackSelect(nextTrack);
+      } else {
+        musicClipState.actions.setAudioFile(null);
+        musicClipState.actions.setAudioUrl(null);
+        musicClipState.actions.setAudioDuration(0);
+      }
+    }
+  };
+
+  const handleTrackReorder = (fromId: string, toId: string, position: 'above' | 'below' | null) => {
+    const fromIndex = musicTracks.musicTracks.findIndex(t => t.id === fromId);
+    const toIndex = musicTracks.musicTracks.findIndex(t => t.id === toId);
+    
+    if (fromIndex !== -1 && toIndex !== -1) {
+      const adjustedToIndex = position === 'below' ? toIndex + 1 : toIndex;
+      musicTracks.reorderTracks(fromIndex, adjustedToIndex);
+    }
+  };
+
+  const handleSettingsSubmit = async (values: z.infer<typeof SettingsSchema>) => {
+    const currentBudget = musicClipState.forms.settingsForm.getValues("budget")?.[0] || 1;
+    const settingsWithDefaults = {
+      ...values,
+      budget: values.budget || [currentBudget],
+      user_price: currentBudget, // Save the user-set price separately
+    };
+    
+    musicClipState.actions.setSettings(settingsWithDefaults);
+    
+    if (projectManagement.state.currentProjectId) {
+      try {
+        await projectManagement.actions.updateProjectSettings(projectManagement.state.currentProjectId, settingsWithDefaults);
+      } catch (error) {
+        console.error('Failed to save settings:', error);
+      }
+    }
+    
+    musicClipState.actions.setCurrentStep(3);
+    musicClipState.actions.setMaxReachedStep(3);
+  };
+
+  const handleReuseVideoToggle = (enabled: boolean) => {
+    // Update the settings state immediately so validation logic works correctly
+    const currentSettings = musicClipState.forms.settingsForm.getValues();
+    const updatedSettings = {
+      ...currentSettings,
+      useSameVideoForAll: enabled
+    };
+    musicClipState.actions.setSettings(updatedSettings);
+    
+    // Use the hook to handle the toggle
+    reuseVideoclip.toggleReuse(enabled);
+  };
+
+  const onPromptSubmit = (values: z.infer<typeof PromptSchema>, newTrackDescriptions?: Record<string, string>, trackGenres?: Record<string, string>) => {
+    musicClipState.actions.setPrompts(values);
+    
+    if (newTrackDescriptions) {
+      musicTracks.setTrackDescriptions(prev => ({
+        ...prev,
+        ...newTrackDescriptions
+      }));
+    }
+    
+    if (newTrackDescriptions || trackGenres) {
+      musicTracks.setMusicTracks(prev => prev.map(track => ({
+        ...track,
+        videoDescription: newTrackDescriptions?.[track.id] || track.videoDescription,
+        genre: trackGenres?.[track.id] || track.genre
+      })));
+    }
+    
+    if (musicClipState.state.settings?.useSameVideoForAll && values.videoDescription) {
+      musicTracks.setMusicTracks(prev => prev.map(track => ({
+        ...track,
+        videoDescription: values.videoDescription
+      })));
+    }
+    
+    // Save descriptions to localStorage using the hook (this is now automatic, but ensure it's saved)
+    reuseVideoclip.saveToLocalStorage();
+    
+    musicClipState.actions.setCurrentStep(4);
+    musicClipState.actions.setMaxReachedStep(4);
+  };
+
+  const onPromptSubmitForm = (values: z.infer<typeof PromptSchema>) => {
+    onPromptSubmit(values);
+  };
+
+  const onOverviewSubmit = async (values: z.infer<typeof OverviewSchema>) => {
+    musicClipState.actions.setIsGeneratingVideo(true);
+    
+    try {
+      toast({
+        variant: "destructive",
+        title: "Feature Disabled",
+        description: "Video generation is currently disabled.",
+      });
+    } finally {
+      musicClipState.actions.setIsGeneratingVideo(false);
+    }
+  };
+
+  const handleBack = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    audioPlayback.stopAllAudio();
+    musicClipState.actions.handleReset();
+    projectManagement.actions.clearProjectData();
+    musicTracks.setMusicTracks([]);
+    musicTracks.setSelectedTrackId(null);
+    musicTracks.setSelectedTrackIds([]);
+    musicTracks.setTrackDescriptions({});
+    musicTracks.setTrackGenres({});
+    
+    router.replace('/dashboard/create');
+  };
+
+  return (
+    <>
+      {/* FULL-SCREEN LOADING OVERLAY */}
+      {musicClipState.state.isLoadingExistingProject && (
+        <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
+          <div className="flex flex-col items-center space-y-8">
+            <div className="w-20 h-20 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <div className="text-center space-y-3">
+              <h2 className="text-2xl font-bold text-foreground">Loading Project</h2>
+              <p className="text-base text-muted-foreground max-w-md">
+                Please wait while we load your existing project data...
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(59, 130, 246, 0.3);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(59, 130, 246, 0.5);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:active {
+          background: rgba(59, 130, 246, 0.7);
+        }
+        
+        @keyframes fade-in-up {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fade-in-up {
+          animation: fade-in-up 0.6s ease-out forwards;
+        }
+      `}</style>
+      
+      <div className="h-screen bg-background flex flex-col">
+        {/* HEADER */}
+        <div className="border-b border-border bg-card">
+          <div className="max-w-7xl mx-auto px-8 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Link 
+                  href="/dashboard/create"
+                  className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="text-sm">Back to Create</span>
+                </Link>
+                
+              </div>
+              
+              <div className="flex-1 flex justify-center">
+                <TimelineHeader 
+                  currentStep={musicClipState.state.currentStep} 
+                  maxReachedStep={musicClipState.state.maxReachedStep}
+                  totalSteps={4} 
+                  onStepClick={(step) => {
+                    if (step <= musicClipState.state.maxReachedStep) {
+                      musicClipState.actions.setCurrentStep(step as 1 | 2 | 3 | 4);
+                    }
+                  }}
+                />
+              </div>
+              
+              <Badge className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg flex items-center space-x-2">
+                <MusicLogo className="w-4 h-4" />
+                <span>Music Clip Creator</span>
+              </Badge>
+            </div>
+          </div>
+        </div>
+
+
+        {/* MAIN CONTENT */}
+        <div className="flex-1 max-w-7xl mx-auto px-8 py-4 overflow-hidden">
+          <div className="h-full flex flex-col space-y-4">
+            <div className="flex-1 grid grid-cols-1 xl:grid-cols-3 gap-6 min-h-0">
+              {/* LEFT SIDE - UPLOAD AREA */}
+              <div className="flex flex-col xl:col-span-2">
+                {musicClipState.state.currentStep === 1 && (
+                  <StepUpload
+                    musicPrompt={musicClipState.state.musicPrompt}
+                    setMusicPrompt={musicClipState.actions.setMusicPrompt}
+                    musicTracksToGenerate={musicClipState.state.musicTracksToGenerate}
+                    setMusicTracksToGenerate={musicClipState.actions.setMusicTracksToGenerate}
+                    musicGenerationPrice={musicGenerationPrice}
+                    onAudioFileChange={handleAudioFileChange}
+                    onGenerateMusic={handleGenerateMusic}
+                    onOpenGenreSelector={() => musicClipState.actions.setShowGenreSelector(true)}
+                    onContinue={musicClipState.actions.handleContinue}
+                    canContinue={musicTracks.musicTracks.length > 0 && musicTracks.selectedTrackId !== null}
+                    vibeFile={musicClipState.state.vibeFile}
+                    onVibeFileChange={musicClipState.actions.setVibeFile}
+                  />
+                )}
+
+                {musicClipState.state.currentStep === 2 && (
+                  <div className="flex flex-col h-full">
+                    <Card className="bg-card border border-border shadow-lg flex-1 flex flex-col">
+                      <CardContent className="space-y-6 flex-1 flex flex-col p-6">
+                        <StepSettings
+                          form={musicClipState.forms.settingsForm}
+                          audioDuration={musicClipState.state.audioDuration}
+                          totalDuration={getTotalDuration(musicTracks.musicTracks)}
+                          trackCount={musicTracks.musicTracks.length}
+                          trackDurations={musicTracks.musicTracks.map(track => track.duration)}
+                          onSubmit={handleSettingsSubmit}
+                          onBack={() => musicClipState.actions.setCurrentStep(1)}
+                          hideNavigation={true}
+                          onReuseVideoToggle={handleReuseVideoToggle}
+                        />
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+
+                {musicClipState.state.currentStep === 3 && (
+                  <div className="flex flex-col h-full">
+                    <Card className="bg-card border border-border shadow-lg flex-1 flex flex-col">
+                      <CardContent className="space-y-6 flex-1 flex flex-col p-6">
+                        <StepPrompt
+                          form={musicClipState.forms.promptForm}
+                          settings={musicClipState.state.settings}
+                          audioFile={musicClipState.state.audioFile}
+                          audioDuration={musicClipState.state.audioDuration}
+                          musicTracks={musicTracks.musicTracks}
+                          selectedTrackId={musicTracks.selectedTrackId}
+                          onTrackSelect={handleTrackSelect}
+                          onSubmit={onPromptSubmitForm}
+                          onBack={() => musicClipState.actions.setCurrentStep(2)}
+                          fileToDataUri={fileToDataUri}
+                          toast={toast}
+                          onTrackDescriptionsUpdate={handleTrackDescriptionsUpdate}
+                        />
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+
+                {musicClipState.state.currentStep === 4 && (
+                  <div className="flex flex-col h-full">
+                    <StepOverview
+                      form={musicClipState.forms.overviewForm}
+                      settings={musicClipState.state.settings}
+                      prompts={musicClipState.state.prompts}
+                      channelAnimationFile={musicClipState.state.channelAnimationFile}
+                      setChannelAnimationFile={musicClipState.actions.setChannelAnimationFile}
+                      onSubmit={onOverviewSubmit}
+                      onBack={() => musicClipState.actions.setCurrentStep(3)}
+                      isGeneratingVideo={false}
+                      toast={toast}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* RIGHT SIDE - DRAG AND DROP AREA */}
+              <div 
+                className={`flex flex-col h-full xl:col-span-1 transition-all duration-300 ${
+                  dragAndDrop.state.isDragOver ? 'scale-[1.02]' : ''
+                }`}
+                onDragEnter={(e) => dragAndDrop.actions.handleDragEnter(e, dragAndDrop.state.isTrackReordering)}
+                onDragOver={(e) => dragAndDrop.actions.handleDragOver(e, dragAndDrop.state.isTrackReordering)}
+                onDragLeave={(e) => dragAndDrop.actions.handleDragLeave(e, dragAndDrop.state.isTrackReordering)}
+                onDrop={(e) => {
+                  dragAndDrop.actions.handleDrop(e, dragAndDrop.state.isTrackReordering);
+                  
+                  const files = Array.from(e.dataTransfer.files);
+                  const audioFiles = files.filter(file => file.type.startsWith('audio/'));
+                  
+                  if (audioFiles.length === 0) {
+                    toast({
+                      variant: "destructive",
+                      title: "Invalid Files",
+                      description: "Please drop audio files only.",
+                    });
+                    return;
+                  }
+                  
+                  handleAudioFileChange(audioFiles);
+                }}
+              >
+                <Card className={`bg-card border shadow-lg flex-1 flex flex-col min-h-0 transition-all duration-300 ${
+                  dragAndDrop.state.isDragOver 
+                    ? 'border-primary/50 bg-primary/5' 
+                    : 'border-border'
+                }`}>
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <Music className="w-4 h-4 text-primary" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg font-semibold text-foreground">
+                            Music Tracks
+                          </CardTitle>
+                          <CardDescription className="text-sm text-muted-foreground">
+                            {musicTracks.musicTracks.length} track{musicTracks.musicTracks.length !== 1 ? 's' : ''} loaded
+                            {musicTracks.selectedTrackIds.length > 1 && (
+                              <span className="ml-2 text-primary font-medium">
+                                • {musicTracks.selectedTrackIds.length} selected
+                              </span>
+                            )}
+                          </CardDescription>
+                        </div>
+                      </div>
+                      {musicTracks.musicTracks.length > 0 && (
+                        <div className="text-right">
+                          <div className="text-xs text-muted-foreground">Total Duration</div>
+                          <div className="text-sm font-semibold text-primary">
+                            {formatDuration(getTotalDuration(musicTracks.musicTracks))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {musicTracks.musicTracks.length === 0 && (
+                      <div className="mt-3 p-3 bg-muted/30 rounded-lg border border-dashed border-border">
+                        <p className="text-sm text-muted-foreground text-center">
+                          Drag and drop audio files here or use the controls on the left
+                        </p>
+                      </div>
+                    )}
+                  </CardHeader>
+                  
+                  <CardContent className="flex-1 flex flex-col min-h-0">
+                    <div className="flex-1 min-h-0">
+                      {musicClipState.state.isUploadingTracks ? (
+                        <div className="flex-1 flex items-center justify-center p-6">
+                          <div className="text-center space-y-4">
+                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-primary">
+                                Uploading tracks...
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Please wait while your files are being processed
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ) : musicTracks.musicTracks.length === 0 ? (
+                        <div className="flex-1 flex items-center justify-center p-6">
+                          <div className="text-center space-y-4">
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto transition-all duration-300 ${
+                              dragAndDrop.state.isDragOver ? 'bg-primary/20 scale-110' : 'bg-primary/10'
+                            }`}>
+                              <Upload className={`w-6 h-6 text-primary transition-all duration-300 ${
+                                dragAndDrop.state.isDragOver ? 'scale-110' : ''
+                              }`} />
+                            </div>
+                            <div>
+                              <p className={`text-sm font-medium transition-colors duration-300 ${
+                                dragAndDrop.state.isDragOver ? 'text-primary' : 'text-muted-foreground'
+                              }`}>
+                                {dragAndDrop.state.isDragOver ? 'Drop audio files here!' : 'No tracks loaded'}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Upload or generate music to get started
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div 
+                          className={`p-3 space-y-2 h-full overflow-y-auto transition-all duration-300 relative custom-scrollbar ${
+                            dragAndDrop.state.isDragOver ? 'opacity-50' : ''
+                          }`}
+                          style={{ maxHeight: 'calc(100vh - 300px)' }}
+                        >
+                          {dragAndDrop.state.isDragOver && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-primary/10 rounded-lg z-10">
+                              <div className="text-center space-y-2">
+                                <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center mx-auto">
+                                  <Upload className="w-5 h-5 text-primary" />
+                                </div>
+                                <p className="text-sm font-medium text-muted-foreground">Drop to add more tracks</p>
+                              </div>
+                            </div>
+                          )}
+                          {musicTracks.musicTracks.map((track, index) => (
+                            <TrackCard
+                              key={track.id}
+                              track={track}
+                              isSelected={musicTracks.selectedTrackIds.includes(track.id)}
+                              isPlaying={audioPlayback.currentlyPlayingId === track.id && audioPlayback.isPlaying}
+                              hasDescription={reuseVideoclip.getTrackValidity(track.id)}
+                              onSelect={handleTrackSelect}
+                              onPlayPause={handlePlayPause}
+                              onRemove={handleTrackRemove}
+                              selectionIndex={musicTracks.selectedTrackIds.includes(track.id) ? musicTracks.selectedTrackIds.indexOf(track.id) : undefined}
+                              totalSelected={musicTracks.selectedTrackIds.length}
+                              onDragStart={(e) => dragAndDrop.actions.handleDragStart(e, track.id)}
+                              onDragOver={(e) => dragAndDrop.actions.handleTrackDragOver(e, track.id)}
+                              onDrop={(e) => {
+                                const result = dragAndDrop.actions.handleTrackDrop(e, track.id);
+                                if (result && 'fromId' in result) {
+                                  handleTrackReorder(result.fromId, result.toId, result.position);
+                                }
+                              }}
+                              onDragEnd={dragAndDrop.actions.handleDragEnd}
+                              isDragging={dragAndDrop.state.draggedTrackId === track.id}
+                              isDragOver={dragAndDrop.state.dragOverTrackId === track.id}
+                              dropPosition={dragAndDrop.state.dragOverTrackId === track.id ? dragAndDrop.state.dropPosition : null}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {musicTracks.selectedTrackIds.length > 1 && (
+                      <div className="p-3">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            musicTracks.removeTracks(musicTracks.selectedTrackIds);
+                            toast({
+                              title: "Tracks Deleted",
+                              description: `${musicTracks.selectedTrackIds.length} tracks have been removed.`,
+                            });
+                          }}
+                          className="w-full"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete Selected ({musicTracks.selectedTrackIds.length})
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+            
+            {/* NAVIGATION BUTTONS */}
+            {musicTracks.musicTracks.length > 0 && musicTracks.selectedTrackId && musicClipState.state.currentStep < 4 && (
+              <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                  <div className={`${musicClipState.state.currentStep === 4 ? 'grid grid-cols-1 xl:grid-cols-3 gap-6' : 'flex items-center justify-between'}`}>
+                    <div className={musicClipState.state.currentStep === 4 ? 'xl:col-span-2' : ''}>
+                      <Button 
+                        variant="outline" 
+                        onClick={(e) => {
+                          if (musicClipState.state.currentStep > 1) {
+                            musicClipState.actions.handleBack();
+                          } else {
+                            handleBack(e);
+                          }
+                        }} 
+                        className="flex items-center space-x-2 btn-secondary-hover"
+                        disabled={musicClipState.state.currentStep === 1 && musicTracks.musicTracks.length === 0}
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                        <span>Back</span>
+                      </Button>
+                    </div>
+                    
+                    {musicClipState.state.currentStep === 4 && (
+                      <div className="xl:col-span-1">
+                        <Button 
+                          onClick={() => musicClipState.forms.overviewForm.handleSubmit(onOverviewSubmit)()} 
+                          className="w-full h-10 text-base font-semibold btn-ai-gradient text-white flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={musicClipState.state.isGeneratingVideo}
+                        >
+                          {musicClipState.state.isGeneratingVideo ? (
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <Film className="w-4 h-4" />
+                          )}
+                          <span>{musicClipState.state.isGeneratingVideo ? 'Generating...' : `Generate Video (${musicClipState.state.settings?.budget?.[0] || 100} credits)`}</span>
+                        </Button>
+                      </div>
+                    )}
+                    
+                    {musicClipState.state.currentStep === 1 && (
+                      <Button 
+                        onClick={musicClipState.actions.handleContinue} 
+                        className={`flex items-center space-x-2 text-white ${
+                          musicTracks.musicTracks.length > 0 && musicTracks.selectedTrackId ? 'btn-ai-gradient' : 'bg-muted text-muted-foreground cursor-not-allowed'
+                        }`}
+                        disabled={musicTracks.musicTracks.length === 0 || !musicTracks.selectedTrackId}
+                      >
+                        <span>Continue</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    )}
+                    
+                    {musicClipState.state.currentStep === 2 && (
+                      <Button 
+                        onClick={() => musicClipState.forms.settingsForm.handleSubmit(handleSettingsSubmit)()} 
+                        className={`flex items-center space-x-2 text-white ${
+                          musicClipState.forms.settingsForm.formState.isValid ? 'btn-ai-gradient' : 'bg-muted text-muted-foreground cursor-not-allowed'
+                        }`}
+                        disabled={!musicClipState.forms.settingsForm.formState.isValid}
+                      >
+                        <span>Continue</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    )}
+                    
+                    {musicClipState.state.currentStep === 3 && (
+                      <Button 
+                        onClick={() => musicClipState.forms.promptForm.handleSubmit((values: z.infer<typeof PromptSchema>) => onPromptSubmit(values))()} 
+                        className={`flex items-center space-x-2 text-white ${
+                          musicClipState.forms.promptForm.formState.isValid ? 'btn-ai-gradient' : 'bg-muted text-muted-foreground cursor-not-allowed'
+                        }`}
+                        disabled={!musicClipState.forms.promptForm.formState.isValid}
+                      >
+                        <Film className="w-4 h-4" />
+                        <span>Generate Video ({musicClipState.state.settings?.budget?.[0] || 100} credits)</span>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Genre Selector Modal */}
+        <GenreSelector
+          isOpen={musicClipState.state.showGenreSelector}
+          onClose={() => musicClipState.actions.setShowGenreSelector(false)}
+          onSelectGenre={handleGenreSelect}
+          onGenerateRandom={handleRandomGenerate}
+        />
+
+      </div>
+    </>
+  );
+}
+
+export default MusicClipPage;

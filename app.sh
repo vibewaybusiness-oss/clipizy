@@ -13,10 +13,15 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+bash stop.sh
+
 # Function to check if a command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
+
+docker stop vibewave-minio vibewave-postgres
+docker rm vibewave-minio vibewave-postgres
 
 # Function to check if a port is in use
 port_in_use() {
@@ -88,7 +93,6 @@ else
     source .venv/bin/activate
     
     echo -e "${YELLOW}📦 Installing Python dependencies...${NC}"
-    pip install -r api/requirements.txt
     
     echo -e "${YELLOW}🚀 Starting FastAPI server...${NC}"
     cd api
@@ -125,9 +129,9 @@ else
         npm install
     fi
     
-    echo -e "${YELLOW}🚀 Starting Next.js development server...${NC}"
-    npm run dev &
-    echo -e "${GREEN}✅ Next.js started at http://localhost:3000${NC}"
+    # echo -e "${YELLOW}🚀 Starting Next.js development server...${NC}"
+    # npm run dev &
+    # echo -e "${GREEN}✅ Next.js started at http://localhost:3000${NC}"
 fi
 
 echo ""

@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { ConditionalLayout } from "@/components/conditional-layout"
 import { AuthProvider } from "@/contexts/auth-context"
+import { PricingProvider } from "@/contexts/pricing-context"
 
 export const metadata: Metadata = {
   title: 'Vibewave - AI-Powered Music Video Creation',
@@ -58,7 +59,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" data-scroll-behavior="smooth">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -71,9 +72,11 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased">
         <AuthProvider>
-          <ConditionalLayout>
-            {children}
-          </ConditionalLayout>
+          <PricingProvider>
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
+          </PricingProvider>
         </AuthProvider>
         <Toaster />
       </body>

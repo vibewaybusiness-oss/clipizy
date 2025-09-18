@@ -39,4 +39,3 @@ class Project(Base):
     images = relationship("Image", back_populates="project", cascade="all, delete-orphan")
     audio = relationship("Audio", back_populates="project", cascade="all, delete-orphan")
     exports = relationship("Export", back_populates="project", cascade="all, delete-orphan")
-    stats = relationship("Stats", back_populates="project", cascade="all, delete-orphan")

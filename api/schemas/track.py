@@ -15,12 +15,19 @@ class TrackCreate(TrackBase):
 class TrackRead(TrackBase):
     id: UUID
     project_id: UUID
-    user_id: UUID
     file_path: str
-    duration: Optional[float] = None
-    format: Optional[str] = None
-    size_mb: Optional[float] = None
+    ai_generated: bool = False
+    prompt: Optional[str] = None
+    genre: Optional[str] = None
+    instrumental: bool = False
+    video_description: Optional[str] = None
+    description: Optional[str] = None
+    vibe: Optional[str] = None
+    lyrics: Optional[str] = None
+    version: int = 1
+    status: str = "uploaded"
+    track_metadata: Optional[dict] = None
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True

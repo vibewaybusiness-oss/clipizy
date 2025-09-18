@@ -1,5 +1,15 @@
 # Vibewave - AI-Powered Music Video Creation
 
+Google developer
+
+vibesclip.com
+
+:::::::::::::::::::::::::::::::
+
+:::::::::::::::::::::::::::::::
+
+
+
 Transform your audio into stunning music videos with the power of AI. Create professional content in minutes, not hours.
 
 ## 🏗️ Architecture

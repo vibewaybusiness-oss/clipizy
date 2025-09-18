@@ -264,7 +264,7 @@ const WaveformVisualizer = forwardRef<WaveformVisualizerRef, WaveformVisualizerP
           window.removeEventListener('mousemove', handleMouseMove);
           window.removeEventListener('mouseup', handleStopDragging);
       };
-  }, [draggingSceneId, handleMouseMove, handleStopDragging]);
+  }, [draggingSceneId]);
 
   const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
       if (!timelineRef.current || duration === 0 || draggingSceneId) return;

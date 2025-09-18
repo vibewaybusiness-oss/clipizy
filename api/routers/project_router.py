@@ -66,13 +66,14 @@ def upload_audio_file(
     track = Track(
         id=str(uuid.uuid4()),
         project_id=project_id,
-        user_id=str(current_user.id),
         file_path=file_url,
         ai_generated=False,
         title=os.path.splitext(file.filename)[0],
-        format=ext.lstrip("."),
-        size_mb=None,  # TODO: compute from file size
-        duration=None,  # TODO: extract with analysis_service
+        track_metadata={
+            "format": ext.lstrip("."),
+            "size_mb": None,  # TODO: compute from file size
+            "duration": None,  # TODO: extract with analysis_service
+        },
         created_at=datetime.datetime.utcnow(),
     )
 

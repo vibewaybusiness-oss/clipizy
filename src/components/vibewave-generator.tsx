@@ -8,11 +8,11 @@ import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
 // Removed pricing API - using fixed values
 // Removed API imports - features disabled
-import { StepSettings } from "@/components/create/music-clip/step-settings";
-import { StepPrompt } from "@/components/create/music-clip/step-prompt";
-import { StepOverview } from "@/components/create/music-clip/step-overview";
-import { StepGenerating } from "@/components/create/music-clip/step-generating";
-import { StepPreview } from "@/components/create/music-clip/step-preview";
+import { StepSettings } from "@/components/create/create-music/step-settings";
+import { StepPrompt } from "@/components/create/create-music/step-prompt";
+import { StepOverview } from "@/components/create/create-music/step-overview";
+import { StepGenerating } from "@/components/create/create-music/step-generating";
+import { StepPreview } from "@/components/create/create-music/step-preview";
 
 export type Step = "UPLOAD" | "SETTINGS" | "PROMPT" | "OVERVIEW" | "GENERATING" | "PREVIEW";
 export type GenerationMode = "upload" | "generate";
@@ -35,6 +35,7 @@ export const PromptSchema = z.object({
 export const SettingsSchema = z.object({
     videoType: z.enum(["looped-static", "looped-animated", "scenes"], { required_error: "Please select a video type." }),
     budget: z.array(z.number()).optional(),
+    user_price: z.number().optional(),
     videoStyle: z.string().optional(),
     animationStyle: z.string().optional(),
     createIndividualVideos: z.boolean().default(false),
@@ -68,22 +69,36 @@ const convertToCredits = (dollars: number, creditsRate: number): number => {
 export const calculateLoopedBudget = (
     totalDurationSeconds: number, 
     trackCount: number, 
-    pricing: any = null,
+    pricingService: any,
     reuseVideo: boolean = false,
     videoType: 'looped-static' | 'looped-animated' = 'looped-static'
-) => {
-    // Fixed pricing - no API dependency
-    return 100; // Fixed cost for looped videos
+): number => {
+    const totalMinutes = totalDurationSeconds / 60;
+    const units = reuseVideo ? 1 : trackCount;
+    
+    if (videoType === 'looped-static') {
+        const price = pricingService.calculateImagePrice(units, totalMinutes, 'vibewave-model');
+        return price.credits;
+    } else if (videoType === 'looped-animated') {
+        const price = pricingService.calculateLoopedAnimationPrice(units, totalMinutes, 'vibewave-model');
+        return price.credits;
+    }
+    
+    return 100; // Fallback
 };
 
 export const calculateScenesBudget = (
     totalDurationSeconds: number,
     trackDurations: number[],
-    pricing: any = null,
+    pricingService: any,
     reuseVideo: boolean = false
-) => {
-    // Fixed pricing - no API dependency
-    return 200; // Fixed cost for scenes videos
+): number => {
+    const totalMinutes = totalDurationSeconds / 60;
+    const longestTrackMinutes = Math.max(...trackDurations) / 60;
+    const videoDuration = reuseVideo ? longestTrackMinutes : totalMinutes;
+    
+    const price = pricingService.calculateVideoPrice(videoDuration, 'vibewave-model');
+    return price.credits;
 };
 
 export const getScenesInfo = (

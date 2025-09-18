@@ -15,6 +15,19 @@ class S3Storage:
             aws_secret_access_key=secret_key,
             config=Config(signature_version="s3v4"),
         )
+        # Ensure bucket exists
+        self._ensure_bucket_exists()
+
+    def _ensure_bucket_exists(self):
+        """Create bucket if it doesn't exist"""
+        try:
+            self.s3.head_bucket(Bucket=self.bucket)
+        except:
+            try:
+                self.s3.create_bucket(Bucket=self.bucket)
+                print(f"✅ Created S3 bucket: {self.bucket}")
+            except Exception as e:
+                print(f"⚠️  Could not create bucket {self.bucket}: {e}")
 
     # ---- File operations ----
     def upload_file(self, file: UploadFile, key: str):

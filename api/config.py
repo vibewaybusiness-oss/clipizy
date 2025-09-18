@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     runpod_api_key: str = "changeme"
     runpod_endpoint: str = "https://api.runpod.io/graphql"
     
+    # AI Services
+    gemini_api_key: Optional[str] = None
+    
     # Redis (for Celery)
     redis_url: str = "redis://localhost:6379/0"
     

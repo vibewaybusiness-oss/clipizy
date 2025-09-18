@@ -37,16 +37,11 @@ class TrackService:
         track = Track(
             id=track_id,
             project_id=project_id,
-            user_id=user_id,
             file_path=s3_path,
             title=params.get("title"),
             prompt=params.get("prompt"),
             description=params.get("description"),
-            duration=metadata.get("duration"),
-            format=metadata.get("format"),
-            sample_rate=metadata.get("sample_rate"),
-            channels=metadata.get("channels"),
-            size_mb=metadata.get("size_mb"),
+            track_metadata=metadata,
             created_at=datetime.utcnow(),
         )
         db.add(track)

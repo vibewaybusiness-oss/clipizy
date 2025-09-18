@@ -52,7 +52,7 @@ export default function DashboardLayout({
         )}
 
         {/* SIDEBAR */}
-        <div className={`fixed inset-y-0 left-0 z-50 w-16 bg-gray-900 transform transition-transform duration-200 ease-in-out md:translate-x-0 ${
+        <div className={`fixed inset-y-0 left-0 z-[60] w-16 bg-gray-900 transform transition-transform duration-200 ease-in-out md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}>
           <div className="flex flex-col h-full">

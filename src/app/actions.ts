@@ -3,7 +3,6 @@
 import { analyzeAudioForDescriptions } from "@/ai/flows/analyze-audio-for-descriptions";
 import { analyzeAudioForScenes } from "@/ai/flows/analyze-audio-for-scenes";
 import { generateMusicVideoFromPrompt } from "@/ai/flows/generate-music-video-from-prompt";
-import { StableAudio2Client } from "../../backendOLD/stable-audio-2/client";
 import { z } from "zod";
 
 const AnalyzeAudioSchema = z.object({
@@ -120,8 +119,9 @@ export async function generateMusicAction(values: z.infer<typeof GenerateMusicSc
             };
         }
 
-        const client = new StableAudio2Client({ apiKey });
-        const result = await client.textToAudio(validatedFields.data);
+        // const client = new StableAudio2Client({ apiKey });
+        // const result = await client.textToAudio(validatedFields.data);
+        const result = {Notimplemented: true, success: false, error: "Not implemented"};
 
         if (!result.success) {
             return {
@@ -130,14 +130,14 @@ export async function generateMusicAction(values: z.infer<typeof GenerateMusicSc
             };
         }
 
-        if (!result.audio) {
+        if (!result.Notimplemented) {
             return {
                 success: false,
                 error: "No audio data received from API.",
             };
         }
 
-        const audioDataUri = `data:audio/${validatedFields.data.output_format};base64,${result.audio.toString('base64')}`;
+        const audioDataUri = `data:audio`;
         
         return {
             success: true,

@@ -1,3 +1,8 @@
+import uuid
+from sqlalchemy import Column, String, ForeignKey, JSON
+from sqlalchemy.dialects.postgresql import UUID
+from api.db import Base
+
 class UserSettings(Base):
     __tablename__ = "user_settings"
 

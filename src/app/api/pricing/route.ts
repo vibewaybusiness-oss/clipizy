@@ -5,7 +5,7 @@ import path from 'path';
 export async function GET() {
   try {
     // Read the pricing configuration from the JSON file
-    const pricingPath = path.join(process.cwd(), 'backend', 'prices.json');
+    const pricingPath = path.join(process.cwd(), 'api', 'library', 'prices.json');
     const pricingData = fs.readFileSync(pricingPath, 'utf8');
     const pricing = JSON.parse(pricingData);
     
