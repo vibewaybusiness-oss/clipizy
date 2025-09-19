@@ -3,10 +3,11 @@ import { getWorkflowConfig } from '../../../../../../backendOLD/comfyUI/api';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { workflowName: string } }
+  { params }: { params: Promise<{ workflowName: string }> }
 ) {
   try {
-    return await getWorkflowConfig(params.workflowName);
+    const { workflowName } = await params;
+    return await getWorkflowConfig(workflowName);
   } catch (error) {
     console.error('ComfyUI workflow config error:', error);
     return NextResponse.json(
@@ -18,9 +19,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { workflowName: string } }
+  { params }: { params: Promise<{ workflowName: string }> }
 ) {
   try {
+    const { workflowName } = await params;
     return NextResponse.json({
       success: false,
       error: 'Workflow execution not available. Please expose port 8188 in your RunPod console first.'

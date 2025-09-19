@@ -71,3 +71,44 @@ DETAIL:  Key (user_id)=(00000000-0000-0000-0000-000000000001) is not present in 
 [parameters: {'id': '07b235ce-cb62-4f35-afa2-692f55324e25', 'user_id': '00000000-0000-0000-0000-000000000001', 'type': 'music-clip', 'name': 'Music Clip 17/09/2025', 'description': 'AI-generated music video project', 'status': 'DRAFT', 'created_at': datetime.datetime(2025, 9, 17, 19, 48, 24, 664859), 'updated_at': datetime.datetime(2025, 9, 17, 19, 48, 24, 666157)}]
 (Background on this error at: https://sqlalche.me/e/20/gkpj)
 2025-09-17 22:18:28 - services.project_service - ERROR - list_music_clip_projects:67 - Failed to list music-clip projects: 'Track' object has no attribute 'duration'
+2025-09-18 18:25:03 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (builtins.AttributeError) 'str' object has no attribute 'hex'
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users."plan" AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
+FROM users 
+WHERE users.id = ?
+ LIMIT ? OFFSET ?]
+[parameters: [{}]]
+2025-09-18 18:25:03 - services.project_service - ERROR - list_music_clip_projects:68 - Failed to list music-clip projects: (builtins.AttributeError) 'str' object has no attribute 'hex'
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users."plan" AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
+FROM users 
+WHERE users.id = ?
+ LIMIT ? OFFSET ?]
+[parameters: [{}]]
+2025-09-18 18:25:22 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (builtins.AttributeError) 'str' object has no attribute 'hex'
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users."plan" AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
+FROM users 
+WHERE users.id = ?
+ LIMIT ? OFFSET ?]
+[parameters: [{}]]
+2025-09-18 18:25:22 - services.project_service - ERROR - list_music_clip_projects:68 - Failed to list music-clip projects: (builtins.AttributeError) 'str' object has no attribute 'hex'
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users."plan" AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
+FROM users 
+WHERE users.id = ?
+ LIMIT ? OFFSET ?]
+[parameters: [{}]]
+2025-09-18 18:25:32 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (builtins.AttributeError) 'str' object has no attribute 'hex'
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users."plan" AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
+FROM users 
+WHERE users.id = ?
+ LIMIT ? OFFSET ?]
+[parameters: [{}]]
+2025-09-18 18:25:32 - services.project_service - ERROR - list_music_clip_projects:68 - Failed to list music-clip projects: (builtins.AttributeError) 'str' object has no attribute 'hex'
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users."plan" AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
+FROM users 
+WHERE users.id = ?
+ LIMIT ? OFFSET ?]
+[parameters: [{}]]
+2025-09-18 18:25:56 - services.project_service - ERROR - list_music_clip_projects:70 - Failed to list music-clip projects: (builtins.AttributeError) 'str' object has no attribute 'hex'
+[SQL: SELECT projects.id AS projects_id, projects.user_id AS projects_user_id, projects.type AS projects_type, projects.name AS projects_name, projects.description AS projects_description, projects.status AS projects_status, projects.created_at AS projects_created_at, projects.updated_at AS projects_updated_at 
+FROM projects 
+WHERE projects.user_id = ? AND projects.type = ? ORDER BY projects.created_at DESC]
+[parameters: [{}]]

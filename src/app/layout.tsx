@@ -4,6 +4,8 @@ import { Toaster } from "@/components/ui/toaster"
 import { ConditionalLayout } from "@/components/conditional-layout"
 import { AuthProvider } from "@/contexts/auth-context"
 import { PricingProvider } from "@/contexts/pricing-context"
+import { ThemeProvider } from "@/contexts/ThemeContext"
+import { InfoPopup } from "@/components/info-popup"
 
 export const metadata: Metadata = {
   title: 'Vibewave - AI-Powered Music Video Creation',
@@ -71,13 +73,16 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className="font-sans antialiased">
-        <AuthProvider>
-          <PricingProvider>
-            <ConditionalLayout>
-              {children}
-            </ConditionalLayout>
-          </PricingProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <PricingProvider>
+              <ConditionalLayout>
+                {children}
+              </ConditionalLayout>
+            </PricingProvider>
+          </AuthProvider>
+        </ThemeProvider>
+        <InfoPopup />
         <Toaster />
       </body>
     </html>

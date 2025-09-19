@@ -3,9 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Sparkles, Zap, Users, FileText, Mail } from "lucide-react";
+import { Menu, X, Sparkles, Zap, Users, FileText, Mail, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VibewaveLogo } from "@/components/vibewave-logo";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -26,6 +27,7 @@ const mobileNavigation = [
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -54,6 +56,24 @@ export function Navigation() {
 
           {/* CTA BUTTONS */}
           <div className="hidden md:flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleTheme}
+              className="gap-2"
+            >
+              {theme === 'light' ? (
+                <>
+                  <Moon className="w-4 h-4" />
+                  Dark
+                </>
+              ) : (
+                <>
+                  <Sun className="w-4 h-4" />
+                  Light
+                </>
+              )}
+            </Button>
             <Button variant="ghost" asChild>
               <Link href="/dashboard/create">Get Started</Link>
             </Button>
@@ -102,6 +122,23 @@ export function Navigation() {
                 );
               })}
               <div className="pt-4 space-y-2">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2"
+                  onClick={toggleTheme}
+                >
+                  {theme === 'light' ? (
+                    <>
+                      <Moon className="w-4 h-4" />
+                      Switch to Dark
+                    </>
+                  ) : (
+                    <>
+                      <Sun className="w-4 h-4" />
+                      Switch to Light
+                    </>
+                  )}
+                </Button>
                 <Button variant="ghost" className="w-full justify-start" asChild>
                   <Link href="/dashboard/create">Get Started</Link>
                 </Button>

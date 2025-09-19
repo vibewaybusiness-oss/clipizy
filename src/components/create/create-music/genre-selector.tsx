@@ -97,7 +97,7 @@ export function GenreSelector({ isOpen, onClose, onSelectGenre, onGenerateRandom
     >
       <div 
         ref={modalRef}
-        className="bg-card border border-border rounded-2xl shadow-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden"
+        className="bg-card border border-border rounded-2xl  max-w-4xl w-full max-h-[80vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -184,7 +184,7 @@ export function GenreSelector({ isOpen, onClose, onSelectGenre, onGenerateRandom
                   variant="outline"
                   onClick={() => handleGenreClick(genre)}
                   disabled={isGenerating}
-                  className={`w-full h-12 text-sm font-medium transition-all duration-300 hover:scale-[1.02] hover:shadow-md hover:bg-primary/5 hover:border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`w-full h-12 text-sm font-medium transition-all duration-300 hover:scale-[1.02]  hover:bg-primary/5 hover:border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed ${
                     isAnimating ? 'animate-fade-in-up' : ''
                   }`}
                 >

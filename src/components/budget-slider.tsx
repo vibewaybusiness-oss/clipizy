@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { SimpleSlider } from "@/components/ui/simple-slider";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -105,21 +105,52 @@ export function BudgetSlider({
   // Calculate cost based on video type
   const [calculatedCost, setCalculatedCost] = useState(100);
   
+  // Memoize trackDurations to prevent infinite re-renders
+  const memoizedTrackDurations = useMemo(() => trackDurations, [trackDurations?.join(',')]);
+  
+  // Use ref to track previous values and prevent unnecessary updates
+  const prevValuesRef = useRef({
+    videoType,
+    trackCount,
+    totalDuration,
+    trackDurations: memoizedTrackDurations,
+    pricing,
+    reuseVideo
+  });
+
   useEffect(() => {
     const updateCost = () => {
       if (pricing) {
-        const cost = getCostPerUnit(videoType, trackCount, totalDuration, trackDurations, pricingService, reuseVideo);
+        const cost = getCostPerUnit(videoType, trackCount, totalDuration, memoizedTrackDurations, pricingService, reuseVideo);
         // Round up to nearest 5 for scenes
         const roundedCost = videoType === 'scenes' ? Math.ceil(cost / 5) * 5 : cost;
         setCalculatedCost(roundedCost);
       }
     };
-    updateCost();
-  }, [videoType, trackCount, totalDuration, trackDurations, pricing, pricingService, reuseVideo]);
+    
+    // Check if any relevant values have actually changed
+    const currentValues = {
+      videoType,
+      trackCount,
+      totalDuration,
+      trackDurations: memoizedTrackDurations,
+      pricing,
+      reuseVideo
+    };
+    
+    const hasChanged = Object.keys(currentValues).some(key => 
+      currentValues[key as keyof typeof currentValues] !== prevValuesRef.current[key as keyof typeof prevValuesRef.current]
+    );
+    
+    if (hasChanged) {
+      updateCost();
+      prevValuesRef.current = currentValues;
+    }
+  }, [videoType, trackCount, totalDuration, memoizedTrackDurations, pricing, reuseVideo]);
 
   // For scenes, calculate scenes-per-video slider logic
-  const totalVideos = trackDurations.length || 1; // Fixed number of videos (music tracks)
-  const videoDuration = reuseVideo ? Math.max(...trackDurations) / 60 : totalDuration / 60; // Use longest track if reusing, total if not
+  const totalVideos = memoizedTrackDurations.length || 1; // Fixed number of videos (music tracks)
+  const videoDuration = reuseVideo ? Math.max(...memoizedTrackDurations) / 60 : totalDuration / 60; // Use longest track if reusing, total if not
   const videoDurationFromConfig = (pricing?.video_generator?.['vibewave-model']?.['video-duration'] || 5) / 60; // Get from config and convert to minutes
   const totalScenes = Math.ceil(videoDuration / videoDurationFromConfig); // Total scenes based on video duration
   const minScenesPerVideo = 1; // Minimum 1 scene per video
@@ -164,7 +195,10 @@ export function BudgetSlider({
         const maxScenesCost = maxScenesPerVideo * costPerScene * videosToCreate;
         // Round to nearest 5
         const roundedMaxCost = Math.ceil(maxScenesCost / 5) * 5;
-        onValueChange([roundedMaxCost]);
+        // Only update if the value is significantly different to prevent infinite loops
+        if (Math.abs(roundedMaxCost - inputValue) > 1) {
+          onValueChange([roundedMaxCost]);
+        }
       } else {
         // For non-scenes, only set if no value is set
         if (inputValue === 0 || isNaN(inputValue)) {
@@ -231,7 +265,7 @@ export function BudgetSlider({
 
   // Calculate video count for current budget
   const videoCount = videoType === 'scenes' 
-    ? calculateVideoCount(inputValue, videoType, trackCount, totalDuration, trackDurations, pricingService, reuseVideo)
+    ? calculateVideoCount(inputValue, videoType, trackCount, totalDuration, memoizedTrackDurations, pricingService, reuseVideo)
     : trackCount; // For static/animated, show track count
   
   // Get scenes info for display
@@ -349,6 +383,9 @@ export function BudgetSlider({
             </div>
           </div>
           <div className="flex items-center space-x-2">
+            <span className="text-sm text-muted-foreground">
+              {`(${videoCount} ${getVideoTypeLabel()})`}
+            </span>
             <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">credits</span>
                 <Input 
@@ -358,9 +395,6 @@ export function BudgetSlider({
                     className="w-32 pl-12 pr-2 text-right font-semibold bg-muted/50"
                 />
             </div>
-            <span className="text-sm text-muted-foreground">
-              {`(${videoCount} ${getVideoTypeLabel()})`}
-            </span>
           </div>
         </div>
       </div>

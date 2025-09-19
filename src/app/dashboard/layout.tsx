@@ -19,8 +19,8 @@ import {
   TestTube,
   Video
 } from "lucide-react";
-import { ProtectedRoute } from "@/components/protected-route";
-import { useAuth } from "@/contexts/auth-context";
+// import { ProtectedRoute } from "@/components/protected-route";
+// import { useAuth } from "@/contexts/auth-context";
 
 const navigation = [
   { name: "Overview", href: "/dashboard", icon: Home },
@@ -38,10 +38,14 @@ export default function DashboardLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  // const { user, logout } = useAuth();
+  
+  // Mock user data for testing
+  const user = { id: "1", name: "Test User", email: "test@example.com" };
+  const logout = () => console.log("Logout clicked");
 
   return (
-    <ProtectedRoute>
+    // <ProtectedRoute>
       <div className="min-h-screen bg-background">
         {/* MOBILE SIDEBAR OVERLAY */}
         {sidebarOpen && (
@@ -144,6 +148,6 @@ export default function DashboardLayout({
           </main>
         </div>
       </div>
-    </ProtectedRoute>
+    // </ProtectedRoute>
   );
 }

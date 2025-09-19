@@ -40,6 +40,10 @@ export interface MusicClipState {
   settings: z.infer<typeof SettingsSchema> | null;
   prompts: any;
   
+  // Descriptions - separate storage for individual vs shared
+  sharedDescription: string;
+  individualDescriptions: Record<string, string>;
+  
   // UI state
   showGenreSelector: boolean;
   vibeFile: File | null;
@@ -72,6 +76,11 @@ export interface MusicClipActions {
   // Settings and prompts
   setSettings: (settings: z.infer<typeof SettingsSchema>) => void;
   setPrompts: (prompts: any) => void;
+  
+  // Descriptions
+  setSharedDescription: (description: string) => void;
+  setIndividualDescriptions: (descriptions: Record<string, string>) => void;
+  updateIndividualDescription: (trackId: string, description: string) => void;
   
   // UI state
   setShowGenreSelector: (show: boolean) => void;
@@ -144,6 +153,21 @@ export function useMusicClipState(projectId?: string | null) {
       return saved ? JSON.parse(saved) : null;
     }
     return null;
+  });
+  
+  // DESCRIPTION STATES - separate storage for individual vs shared
+  const [sharedDescription, setSharedDescription] = useState<string>(() => {
+    if (typeof window !== 'undefined' && projectId) {
+      return localStorage.getItem(`musicClip_${projectId}_sharedDescription`) || '';
+    }
+    return '';
+  });
+  const [individualDescriptions, setIndividualDescriptions] = useState<Record<string, string>>(() => {
+    if (typeof window !== 'undefined' && projectId) {
+      const saved = localStorage.getItem(`musicClip_${projectId}_individualDescriptions`);
+      return saved ? JSON.parse(saved) : {};
+    }
+    return {};
   });
   
   // UI STATE
@@ -269,6 +293,29 @@ export function useMusicClipState(projectId?: string | null) {
     }
   }, [prompts, projectId]);
 
+  // PERSISTENCE: Save description states to localStorage (real-time updates)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && projectId) {
+      if (sharedDescription) {
+        localStorage.setItem(`musicClip_${projectId}_sharedDescription`, sharedDescription);
+      } else {
+        localStorage.removeItem(`musicClip_${projectId}_sharedDescription`);
+        console.log('Removed shared description from localStorage');
+      }
+    }
+  }, [sharedDescription, projectId]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && projectId) {
+      if (Object.keys(individualDescriptions).length > 0) {
+        localStorage.setItem(`musicClip_${projectId}_individualDescriptions`, JSON.stringify(individualDescriptions));
+      } else {
+        localStorage.removeItem(`musicClip_${projectId}_individualDescriptions`);
+        console.log('Removed individual descriptions from localStorage');
+      }
+    }
+  }, [individualDescriptions, projectId]);
+
   // PERSISTENCE: Save form data changes to localStorage
   useEffect(() => {
     if (typeof window !== 'undefined' && projectId) {
@@ -297,15 +344,20 @@ export function useMusicClipState(projectId?: string | null) {
     }
   }, [overviewForm, projectId]);
   
-  // Clean up blob URLs when audioUrl changes
+  // Clean up blob URLs when audioUrl changes - but be more careful about timing
   useEffect(() => {
     const previousUrl = previousAudioUrlRef.current;
-    if (previousUrl && previousUrl.startsWith('blob:')) {
-      try {
-        URL.revokeObjectURL(previousUrl);
-      } catch (error) {
-        console.warn('Failed to revoke previous audio blob URL:', error);
-      }
+    if (previousUrl && previousUrl.startsWith('blob:') && previousUrl !== audioUrl) {
+      // Add a small delay to ensure any ongoing audio operations complete
+      const timeoutId = setTimeout(() => {
+        try {
+          URL.revokeObjectURL(previousUrl);
+        } catch (error) {
+          console.warn('Failed to revoke previous audio blob URL:', error);
+        }
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
     }
     previousAudioUrlRef.current = audioUrl;
   }, [audioUrl]);
@@ -321,7 +373,7 @@ export function useMusicClipState(projectId?: string | null) {
         }
       }
     };
-  }, [audioUrl]);
+  }, []); // Empty dependency array to only run on unmount
 
   // ACTIONS
   const handleContinue = useCallback(() => {
@@ -368,6 +420,8 @@ export function useMusicClipState(projectId?: string | null) {
         maxReachedStep,
         settings,
         prompts,
+        sharedDescription,
+        individualDescriptions,
         audioUrl,
         audioDuration,
         settingsForm: settingsForm.getValues(),
@@ -401,6 +455,8 @@ export function useMusicClipState(projectId?: string | null) {
     setIsUploadingTracks(false);
     setSettings(null);
     setPrompts(null);
+    setSharedDescription('');
+    setIndividualDescriptions({});
     setShowGenreSelector(false);
     setVibeFile(null);
     setChannelAnimationFile(null);
@@ -413,6 +469,8 @@ export function useMusicClipState(projectId?: string | null) {
       localStorage.removeItem(`musicClip_${projectId}_audioDuration`);
       localStorage.removeItem(`musicClip_${projectId}_settings`);
       localStorage.removeItem(`musicClip_${projectId}_prompts`);
+      localStorage.removeItem(`musicClip_${projectId}_sharedDescription`);
+      localStorage.removeItem(`musicClip_${projectId}_individualDescriptions`);
       localStorage.removeItem(`musicClip_${projectId}_settingsForm`);
       localStorage.removeItem(`musicClip_${projectId}_promptForm`);
       localStorage.removeItem(`musicClip_${projectId}_overviewForm`);
@@ -444,6 +502,8 @@ export function useMusicClipState(projectId?: string | null) {
     isLoadingExistingProject,
     settings,
     prompts,
+    sharedDescription,
+    individualDescriptions,
     showGenreSelector,
     vibeFile,
     channelAnimationFile,
@@ -461,6 +521,8 @@ export function useMusicClipState(projectId?: string | null) {
     isLoadingExistingProject,
     settings,
     prompts,
+    sharedDescription,
+    individualDescriptions,
     showGenreSelector,
     vibeFile,
     channelAnimationFile,
@@ -485,6 +547,14 @@ export function useMusicClipState(projectId?: string | null) {
     setIsLoadingExistingProject,
     setSettings,
     setPrompts,
+    setSharedDescription,
+    setIndividualDescriptions,
+    updateIndividualDescription: (trackId: string, description: string) => {
+      setIndividualDescriptions(prev => ({
+        ...prev,
+        [trackId]: description
+      }));
+    },
     setShowGenreSelector,
     setVibeFile,
     setChannelAnimationFile,
@@ -509,4 +579,3 @@ export function useMusicClipState(projectId?: string | null) {
   };
 }
 
-export { useMusicClipState };

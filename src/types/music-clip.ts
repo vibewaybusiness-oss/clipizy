@@ -1,6 +1,6 @@
 export interface MusicTrack {
   id: string;
-  file: File;
+  file?: File; // Optional because tracks loaded from localStorage/backend don't have File objects
   url: string;
   duration: number;
   name: string;

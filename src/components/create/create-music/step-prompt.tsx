@@ -25,6 +25,10 @@ type StepPromptProps = {
   fileToDataUri: (file: File) => Promise<string>;
   toast: (options: { variant?: "default" | "destructive" | null; title: string; description: string }) => void;
   onTrackDescriptionsUpdate?: (trackDescriptions: Record<string, string>) => void;
+  onSharedDescriptionUpdate?: (description: string) => void;
+  onPromptsUpdate?: (values: z.infer<typeof PromptSchema>) => void;
+  trackDescriptions?: Record<string, string>;
+  initialTrackDescriptions?: Record<string, string>;
 };
 
 export function StepPrompt({
@@ -40,9 +44,14 @@ export function StepPrompt({
   fileToDataUri,
   toast,
   onTrackDescriptionsUpdate,
+  onSharedDescriptionUpdate,
+  onPromptsUpdate,
+  trackDescriptions: propTrackDescriptions,
+  initialTrackDescriptions,
 }: StepPromptProps) {
   const waveformVisualizerRef = useRef<{ generateWaveformImage: () => string | null }>(null);
-  const [trackDescriptions, setTrackDescriptions] = useState<Record<string, string>>({});
+  const [trackDescriptions, setTrackDescriptions] = useState<Record<string, string>>(initialTrackDescriptions || {});
+  
   // Transient storage for individual track descriptions (frontend only)
   const [transientTrackDescriptions, setTransientTrackDescriptions] = useState<Record<string, string>>({});
   // Merged description for when reuse is enabled
@@ -53,7 +62,7 @@ export function StepPrompt({
   const watchedVideoDescription = form.watch("videoDescription") || "";
 
   // Shallow equality check to prevent redundant state updates
-  const areDescriptionsEqual = (a: Record<string, string>, b: Record<string, string>) => {
+  const areDescriptionsEqual = useCallback((a: Record<string, string>, b: Record<string, string>) => {
     const aKeys = Object.keys(a);
     const bKeys = Object.keys(b);
     if (aKeys.length !== bKeys.length) return false;
@@ -61,16 +70,52 @@ export function StepPrompt({
       if (a[key] !== b[key]) return false;
     }
     return true;
+  }, []);
+
+  // Load appropriate descriptions when component mounts or mode changes
+  useEffect(() => {
+    if (settings?.useSameVideoForAll) {
+      // Reuse mode: load shared description into form field
+      // The shared description should be passed via the form's videoDescription field
+      // This is handled by the parent component when switching modes
+      console.log('StepPrompt: Reuse mode - using form videoDescription:', watchedVideoDescription);
+    } else {
+      // Individual mode: load individual descriptions for each track
+      if (propTrackDescriptions && !areDescriptionsEqual(trackDescriptions, propTrackDescriptions)) {
+        console.log('StepPrompt: Individual mode - loading track descriptions:', propTrackDescriptions);
+        setTrackDescriptions(propTrackDescriptions);
+        onTrackDescriptionsUpdate?.(propTrackDescriptions);
+      }
+    }
+  }, [settings?.useSameVideoForAll, propTrackDescriptions, watchedVideoDescription, trackDescriptions, areDescriptionsEqual, onTrackDescriptionsUpdate]);
+
+  // Check if all descriptions are filled
+  const areAllDescriptionsFilled = () => {
+    if (settings?.useSameVideoForAll) {
+      // When reuse is enabled, only check the shared description
+      return watchedVideoDescription.trim().length > 0;
+    } else {
+      // When reuse is disabled, check all individual track descriptions
+      return musicTracks.every(track => {
+        const description = propTrackDescriptions?.[track.id] || 
+                          track.videoDescription || 
+                          trackDescriptions[track.id] || 
+                          transientTrackDescriptions[track.id] || 
+                          "";
+        return description.trim().length > 0;
+      });
+    }
   };
 
-  // Debug: Monitor isGenerating state changes
+  // Monitor isGenerating state changes
   useEffect(() => {
-    console.log('isGenerating state changed:', promptGeneration.isGenerating);
+    // isGenerating state changed
   }, [promptGeneration.isGenerating]);
 
   // Navigation functions
   const currentTrackIndex = musicTracks.findIndex(track => track.id === selectedTrackId);
   const currentTrack = musicTracks[currentTrackIndex];
+  
   
   const handlePreviousTrack = () => {
     if (currentTrackIndex > 0) {
@@ -114,20 +159,33 @@ export function StepPrompt({
 
   // Save current description to track
   const saveCurrentDescription = (description: string) => {
+    console.log('saveCurrentDescription called:', {
+      description: description.substring(0, 50) + '...',
+      useSameVideoForAll: settings?.useSameVideoForAll,
+      currentTrackId: currentTrack?.id,
+      descriptionLength: description.length
+    });
+    
     if (settings?.useSameVideoForAll) {
       // When "Reuse clips" is enabled, update the shared description in form
+      console.log('Saving to shared description');
       form.setValue("videoDescription", description, { shouldValidate: true, shouldDirty: true });
       setMergedDescription(description);
-      
+
+      // Update the shared description state
+      onSharedDescriptionUpdate?.(description);
+
       // Also update all tracks with the same description for visual feedback
       const newDescriptions: Record<string, string> = {};
       musicTracks.forEach(track => {
         newDescriptions[track.id] = description;
       });
+      console.log('Updating all tracks with shared description:', newDescriptions);
       setTrackDescriptions(newDescriptions);
       onTrackDescriptionsUpdate?.(newDescriptions);
     } else if (currentTrack) {
       // When "Reuse clips" is disabled, save track-specific description
+      console.log('Saving to individual track description for:', currentTrack.id);
       setTransientTrackDescriptions(prev => ({
         ...prev,
         [currentTrack.id]: description
@@ -137,6 +195,7 @@ export function StepPrompt({
         ...trackDescriptions,
         [currentTrack.id]: description
       };
+      console.log('Updating individual track description:', newDescriptions);
       setTrackDescriptions(newDescriptions);
       onTrackDescriptionsUpdate?.(newDescriptions);
     }
@@ -146,7 +205,7 @@ export function StepPrompt({
   // Get current description (track-specific or shared)
   const getCurrentDescription = () => {
     if (settings?.useSameVideoForAll) {
-      // When "Reuse clips" is enabled, use the shared description from form
+      // When "Reuse clips" is enabled, use the form field value as shared description
       return form.watch("videoDescription") || "";
     }
     if (currentTrack) {
@@ -182,20 +241,25 @@ export function StepPrompt({
 
   // Handle mode changes between shared and track-specific
   React.useEffect(() => {
+    console.log('StepPrompt mode change effect:', { 
+      useSameVideoForAll: settings?.useSameVideoForAll,
+      currentTrackId: currentTrack?.id,
+      sharedDescription: watchedVideoDescription,
+      trackDescriptions: Object.keys(trackDescriptions).length
+    });
+    
     if (settings?.useSameVideoForAll) {
-      // Switching to shared mode: use merged description or form value
-      const descriptionToUse = mergedDescription || form.getValues("videoDescription") || "";
-      const currentFormValue = form.getValues("videoDescription");
-      if (currentFormValue !== descriptionToUse) {
-        form.setValue("videoDescription", descriptionToUse, { shouldValidate: true, shouldDirty: true });
-      }
+      // Switching to shared mode: use the form field value as shared description
+      const formDesc = form.getValues("videoDescription") || "";
+      console.log('Switching to shared mode with form description:', formDesc);
       
-      // Update all tracks with the same description for visual feedback
+      // Clear all individual track descriptions for visual feedback
       const newTrackDescriptions: Record<string, string> = {};
       musicTracks.forEach(track => {
-        newTrackDescriptions[track.id] = descriptionToUse;
+        newTrackDescriptions[track.id] = formDesc;
       });
       if (!areDescriptionsEqual(trackDescriptions, newTrackDescriptions)) {
+        console.log('Updating track descriptions for shared mode:', newTrackDescriptions);
         setTrackDescriptions(newTrackDescriptions);
         onTrackDescriptionsUpdate?.(newTrackDescriptions);
       }
@@ -203,10 +267,11 @@ export function StepPrompt({
       // Switching to track-specific mode: restore individual descriptions
       if (currentTrack) {
         const trackDescription = transientTrackDescriptions[currentTrack.id] || trackDescriptions[currentTrack.id] || "";
+        console.log('Switching to individual mode for track:', currentTrack.id, 'with description:', trackDescription);
         form.setValue("videoDescription", trackDescription, { shouldValidate: true, shouldDirty: true });
       }
     }
-  }, [settings?.useSameVideoForAll, currentTrack, mergedDescription, transientTrackDescriptions, trackDescriptions, musicTracks, form]);
+  }, [settings?.useSameVideoForAll, currentTrack, trackDescriptions, musicTracks, form, onTrackDescriptionsUpdate, areDescriptionsEqual, transientTrackDescriptions, watchedVideoDescription]);
   
   const scenes = form.watch('scenes') ?? [];
   const setScenes = useCallback((newScenes: Scene[]) => {
@@ -259,7 +324,6 @@ export function StepPrompt({
   }, [setScenes]);
 
   const handleGenerateWithAI = async () => {
-    console.log('handleGenerateWithAI called, isGenerating:', promptGeneration.isGenerating);
     
     try {
       // Determine prompt type based on video settings
@@ -268,33 +332,19 @@ export function StepPrompt({
         promptType = 'video_prompts';
       }
       
-      console.log('Calling generateVideoPrompt...');
       const data = await promptGeneration.generateVideoPrompt(settings?.videoType || 'looped-static', currentTrack?.genre);
-      console.log('generateVideoPrompt completed, isGenerating:', promptGeneration.isGenerating);
       
       // Update the form with the generated prompt
       form.setValue('videoDescription', data.prompt);
       
-      // Update the track descriptions state based on mode
-      if (settings?.useSameVideoForAll) {
-        // Shared mode: update all tracks with the same description
-        const newDescriptions: Record<string, string> = {};
-        musicTracks.forEach(track => {
-          newDescriptions[track.id] = data.prompt;
-        });
-        setTrackDescriptions(newDescriptions);
-        onTrackDescriptionsUpdate?.(newDescriptions);
-      } else if (currentTrack) {
-        // Track-specific mode: update only the current track
-        setTrackDescriptions(prev => ({
-          ...prev,
-          [currentTrack.id]: data.prompt
-        }));
-        onTrackDescriptionsUpdate?.({
-          ...trackDescriptions,
-          [currentTrack.id]: data.prompt
-        });
-      }
+      // Save the description to the appropriate state (shared or individual)
+      saveCurrentDescription(data.prompt);
+      
+      // Also update the prompts state directly for immediate validation
+      const currentFormValues = form.getValues();
+      onPromptsUpdate?.(currentFormValues);
+      
+      console.log('AI generated prompt saved:', data.prompt);
       
       toast({
         title: "Video Prompt Generated",
@@ -313,7 +363,7 @@ export function StepPrompt({
       
       {/* Music Track Title and Navigation */}
       {currentTrack && (
-        <div className="relative overflow-hidden bg-gradient-to-r from-card/50 to-card/30 backdrop-blur-sm rounded-xl border border-border/50 shadow-lg">
+        <div className="relative overflow-hidden bg-gradient-to-r from-card/50 to-card/30 backdrop-blur-sm rounded-xl border border-border/50 ">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5"></div>
           <div className="relative flex items-center justify-between p-6">
             <Button
@@ -354,7 +404,7 @@ export function StepPrompt({
                   </div>
                 )}
                 {currentTrack.prompt && (
-                  <div className="px-3 py-1 bg-muted/50 text-muted-foreground rounded-full italic max-w-xs truncate">
+                  <div className="px-3 py-1 bg-muted/50 text-foreground/70 rounded-full italic max-w-xs truncate">
                     "{currentTrack.prompt}"
                   </div>
                 )}
@@ -416,7 +466,7 @@ export function StepPrompt({
         <FormField
           control={form.control}
           name="musicDescription"
-          render={({ field }) => (
+          render={({ field }: { field: any }) => (
             <input type="hidden" {...field} />
           )}
         />
@@ -428,19 +478,26 @@ export function StepPrompt({
             {settings?.useSameVideoForAll ? (
               <span className="ml-2 text-sm text-blue-400 font-normal">(Shared for all tracks)</span>
             ) : (
-              <span className="ml-2 text-sm text-muted-foreground font-normal">(Track-specific)</span>
+              <span className="ml-2 text-sm text-foreground/70 font-normal">(Track-specific)</span>
             )}
           </label>
           <div className="relative">
             <textarea
               placeholder='e.g., "A seamless loop of a record player spinning on a vintage wooden table, with dust particles dancing in a sunbeam."'
               className="min-h-[200px] resize-none text-base w-full px-3 py-2 pr-14 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              maxLength={500}
-              value={settings?.useSameVideoForAll ? watchedVideoDescription : (trackDescriptions[currentTrack?.id || ""] || "")}
+              maxLength={1500}
+              value={settings?.useSameVideoForAll ? watchedVideoDescription : (propTrackDescriptions?.[currentTrack?.id || ""] || musicTracks.find(t => t.id === currentTrack?.id)?.videoDescription || trackDescriptions[currentTrack?.id || ""] || "")}
               onChange={(e) => {
                 const value = e.target.value;
                 form.setValue("videoDescription", value);
-                saveCurrentDescription(value);
+                
+                if (settings?.useSameVideoForAll) {
+                  // When in reuse mode, update the shared description
+                  onSharedDescriptionUpdate?.(value);
+                } else {
+                  // When in individual mode, update the current track description
+                  saveCurrentDescription(value);
+                }
               }}
             />
             {/* AI Generation Button inside textarea */}
@@ -460,13 +517,14 @@ export function StepPrompt({
               </Button>
             </div>
             {/* Character count */}
-            <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-1 rounded">
-              {(settings?.useSameVideoForAll ? watchedVideoDescription : (trackDescriptions[currentTrack?.id || ""] || ""))?.length || 0} / 500
+            <div className="absolute bottom-2 right-2 text-xs text-foreground/70 bg-background/80 px-1 rounded">
+              {(settings?.useSameVideoForAll ? watchedVideoDescription : (propTrackDescriptions?.[currentTrack?.id || ""] || musicTracks.find(t => t.id === currentTrack?.id)?.videoDescription || trackDescriptions[currentTrack?.id || ""] || ""))?.length || 0} / 1500
             </div>
           </div>
         </div>
       </form>
     </Form>
+
     </div>
   );
 }

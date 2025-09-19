@@ -83,8 +83,28 @@ export default function CreatePage() {
   };
 
   const handleNewProject = () => {
+    // Clear all music clip related localStorage data
+    if (typeof window !== 'undefined') {
+      // Get all localStorage keys and remove music clip related ones
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('musicClip_') || key === 'currentProjectId')) {
+          keysToRemove.push(key);
+        }
+      }
+      
+      // Remove all music clip related keys
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+      });
+      
+      console.log('Cleared localStorage for new project:', keysToRemove);
+    }
+    
     setShowProjectSelection(false);
-    router.push('/dashboard/create/music-clip');
+    // Add timestamp to force fresh start
+    router.push(`/dashboard/create/music-clip?new=${Date.now()}`);
   };
 
   const handleContinueProject = (projectId: string) => {

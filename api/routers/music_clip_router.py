@@ -683,6 +683,48 @@ def get_track_url(
         logger.error(f"Failed to get track URL: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get track URL")
 
+@router.delete("/projects/{project_id}")
+def delete_project(
+    project_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = "00000000-0000-0000-0000-000000000001"
+):
+    """Delete a specific music-clip project."""
+    try:
+        # Ensure user exists and create if needed
+        user = user_safety_service.ensure_user_exists(db, user_id)
+        
+        # Verify project exists and belongs to user
+        project = db.query(Project).filter(
+            Project.id == project_id, 
+            Project.user_id == user_id,
+            Project.type == "music-clip"
+        ).first()
+        
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        # Delete associated tracks
+        tracks_deleted = db.query(Track).filter(Track.project_id == project_id).delete()
+        
+        # Delete the project
+        db.delete(project)
+        db.commit()
+        
+        logger.info(f"Deleted project {project_id} and {tracks_deleted} associated tracks for user {user_id}")
+        
+        return {
+            "message": f"Successfully deleted project '{project.name}'",
+            "project_id": project_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to delete project {project_id}: {str(e)}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to delete project: {str(e)}")
+
 @router.delete("/projects/reset")
 def reset_user_projects(
     db: Session = Depends(get_db),

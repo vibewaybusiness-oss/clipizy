@@ -354,17 +354,22 @@ export function useMusicTracks(projectId?: string | null) {
     }
   }, [projectId]);
 
-  // Cleanup on unmount
+  // Cleanup on unmount - only revoke blob URLs when component is actually unmounting
   useEffect(() => {
     return () => {
-      // Revoke all blob URLs
+      // Only revoke blob URLs when the component is unmounting
+      // This prevents premature revocation during re-renders
       musicTracks.forEach(track => {
         if (track.url.startsWith('blob:')) {
-          URL.revokeObjectURL(track.url);
+          try {
+            URL.revokeObjectURL(track.url);
+          } catch (error) {
+            console.warn('Failed to revoke blob URL during cleanup:', track.id, error);
+          }
         }
       });
     };
-  }, [musicTracks]);
+  }, []); // Empty dependency array to only run on unmount
 
   return {
     musicTracks,

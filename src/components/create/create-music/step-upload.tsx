@@ -3,7 +3,7 @@
 import React, { useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Upload, CircleArrowLeft, CircleArrowRight, X } from "lucide-react";
+import { Sparkles, Upload, X } from "lucide-react";
 import { FileUploadArea } from "./file-upload-area";
 import { usePromptGeneration } from "@/hooks/use-prompt-generation";
 import type { MusicTrack, GenerationMode } from "@/types/music-clip";
@@ -41,13 +41,6 @@ export function StepUpload({
   const vibeFileRef = useRef<HTMLInputElement | null>(null);
   const promptGeneration = usePromptGeneration();
 
-  const handleIncreaseMusicTracks = () => {
-    setMusicTracksToGenerate(Math.min(musicTracksToGenerate + 1, 100)); // Max 100 tracks
-  };
-
-  const handleDecreaseMusicTracks = () => {
-    setMusicTracksToGenerate(Math.max(musicTracksToGenerate - 1, 1)); // Min 1 track
-  };
 
   const handleGenerateClick = () => {
     console.log('StepUpload: handleGenerateClick called', { musicPrompt, musicTracksToGenerate });
@@ -61,7 +54,7 @@ export function StepUpload({
 
   return (
     <div className="flex flex-col h-full">
-      <Card className="bg-card border border-border shadow-lg flex-1 flex flex-col">
+      <Card className="bg-card border border-border flex-1 flex flex-col">
         <CardContent className="space-y-6 flex flex-col p-6">
           {/* Info Banner */}
           <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
@@ -89,13 +82,13 @@ export function StepUpload({
                   <Upload className="w-8 h-8 text-primary" />
                 </div>
                 <p className="font-semibold text-foreground text-lg mb-2 text-center">Click to upload</p>
-                <p className="text-sm text-muted-foreground text-center">MP3, WAV, M4A, etc.</p>
+                <p className="text-sm text-foreground/70 text-center">MP3, WAV, M4A, etc.</p>
               </div>
             </FileUploadArea>
             
             <div className="flex items-center my-6">
               <div className="flex-1 h-px bg-border"></div>
-              <span className="px-6 text-sm text-muted-foreground font-medium">OR</span>
+              <span className="px-6 text-sm text-foreground/70 font-medium">OR</span>
               <div className="flex-1 h-px bg-border"></div>
             </div>
 
@@ -105,7 +98,7 @@ export function StepUpload({
               <div className="relative">
                 <textarea
                   ref={musicPromptRef}
-                  placeholder='e.g., "A lo-fi hip hop beat with a chill, rainy day vibe."'
+                  placeholder='e.g., "Generate a music track, it should be a mystical gamelan ensemble piece at 70 BPM featuring metallophones, resonant gongs, and bamboo flutes. The track should feel ceremonial and meditative."'
                   className="min-h-[120px] resize-none text-base w-full px-3 py-2 pr-14 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   value={musicPrompt}
                   onChange={(e) => setMusicPrompt(e.target.value)}
@@ -129,65 +122,18 @@ export function StepUpload({
                   </Button>
                 </div>
                 {/* Character count */}
-                <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background/80 px-1 rounded">
+                <div className="absolute bottom-2 right-2 text-xs text-foreground/70 bg-background/80 px-1 rounded">
                   {musicPrompt.length} / 500
                 </div>
               </div>
               
-              {/* Track Count Controls below textarea */}
-              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border">
-                <div className="flex items-center space-x-4">
-                  <h3 className="text-sm font-medium text-foreground">Tracks</h3>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDecreaseMusicTracks}
-                    disabled={musicTracksToGenerate <= 1}
-                    className="w-8 h-8 p-0 text-xs"
-                  >
-                    <CircleArrowLeft className="w-4 h-4" />
-                  </Button>
-                  <div className="flex items-center justify-center min-w-[80px]">
-                    <input
-                      type="number"
-                      min="1"
-                      max="100"
-                      value={musicTracksToGenerate}
-                      onChange={(e) => {
-                        const value = parseInt(e.target.value) || 1;
-                        const clampedValue = Math.min(Math.max(value, 1), 100);
-                        setMusicTracksToGenerate(clampedValue);
-                      }}
-                      onBlur={(e) => {
-                        const value = parseInt(e.target.value) || 1;
-                        const clampedValue = Math.min(Math.max(value, 1), 100);
-                        setMusicTracksToGenerate(clampedValue);
-                      }}
-                      className="w-16 text-center text-lg font-semibold text-foreground bg-transparent border-none outline-none focus:outline-none"
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleIncreaseMusicTracks}
-                    disabled={musicTracksToGenerate >= 100}
-                    className="w-8 h-8 p-0 text-xs"
-                  >
-                    <CircleArrowRight className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
             </div>
             
             {/* Vibe File Upload */}
             <div className="space-y-3">
               <label className="text-sm font-medium text-foreground">Vibe Reference (Optional)</label>
               <div className="relative">
-                <label htmlFor="vibe-upload" className="flex items-center gap-3 p-4 rounded-lg bg-muted/50 text-sm text-muted-foreground cursor-pointer hover:bg-muted/70 transition-colors border border-border">
+                <label htmlFor="vibe-upload" className="flex items-center gap-3 p-4 rounded-lg bg-muted/50 text-sm text-foreground/70 cursor-pointer hover:bg-muted/70 transition-colors border border-border">
                   <Upload className="w-4 h-4"/>
                   <span className="flex-1">{vibeFile ? vibeFile.name : 'Upload a file for the vibe (image, audio, etc.)'}</span>
                   {vibeFile && (
@@ -222,7 +168,7 @@ export function StepUpload({
               ) : (
                 <Sparkles className="w-5 h-5 mr-2" />
               )}
-              {promptGeneration.isGenerating ? 'Generating...' : `Generate ${musicTracksToGenerate} Track${musicTracksToGenerate !== 1 ? 's' : ''} (${musicGenerationPrice} credits)`}
+              {promptGeneration.isGenerating ? 'Generating...' : `Generate Music (${musicGenerationPrice} credits)`}
             </Button>
           </div>
         </CardContent>

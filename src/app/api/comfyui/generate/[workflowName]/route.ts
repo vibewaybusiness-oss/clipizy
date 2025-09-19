@@ -3,11 +3,12 @@ import { generateImage } from '../../../../../../backendOLD/comfyUI/api';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { workflowName: string } }
+  { params }: { params: Promise<{ workflowName: string }> }
 ) {
   try {
+    const { workflowName } = await params;
     const body = await request.json();
-    return await generateImage(params.workflowName, body);
+    return await generateImage(workflowName, body);
   } catch (error) {
     console.error('ComfyUI image generation error:', error);
     return NextResponse.json(

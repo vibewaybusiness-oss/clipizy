@@ -40,6 +40,8 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
   const videoType = form.watch("videoType");
   const videoStyle = form.watch("videoStyle");
   const reuseVideo = form.watch("useSameVideoForAll");
+
+  // No useEffect needed - validation will be handled directly in the click handler
   
   const [customStyleName, setCustomStyleName] = useState("");
   const [customStyleDescription, setCustomStyleDescription] = useState("");
@@ -76,38 +78,112 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
     <div className="w-full animate-fade-in-up">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="space-y-3">
-              <FormLabel className="text-lg font-semibold">Select the type of graphics</FormLabel>
+            <div className="space-y-4">
+              <FormLabel className="text-lg font-semibold">Video graphics & style</FormLabel>
               
-              <Button 
-                type="button"
-                variant="outline" 
-                className="w-full justify-between h-16 text-left font-normal btn-secondary-hover group"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowVideoTypeSelector(true);
-                }}
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-muted/20 to-muted-foreground/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                    <Video className="w-5 h-5 text-muted-foreground" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Graphics Type Button */}
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  className="w-full justify-between h-16 text-left font-normal btn-secondary-hover group"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowVideoTypeSelector(true);
+                  }}
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-muted/20 to-muted-foreground/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                      <Video className="w-5 h-5 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      {videoType ? (
+                        <div className="space-y-1">
+                          <div className="font-semibold text-foreground truncate">
+                            {videoType === "looped-static" && "Static Image"}
+                            {videoType === "looped-animated" && "Animated Loop"}
+                            {videoType === "scenes" && "Video with Scenes"}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {videoType === "looped-static" && "A single static image that matches your audio".substring(0, 50) + "..."}
+                            {videoType === "looped-animated" && "A seamless looping video animation".substring(0, 50) + "..."}
+                            {videoType === "scenes" && "Multiple scenes with complex storytelling".substring(0, 50) + "..."}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          <div className="font-semibold text-muted-foreground">Select a video type</div>
+                          <div className="text-sm text-muted-foreground">Choose the type of graphics for your video</div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    {videoType ? (
-                      <span>
-                        {[
-                          { id: "looped-static", name: "Static Image" },
-                          { id: "looped-animated", name: "Animated Loop" },
-                          { id: "scenes", name: "Video with Scenes" }
-                        ].find(s => s.id === videoType)?.name}
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground">Select a video type</span>
-                    )}
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </Button>
+
+                {/* Style Button */}
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  className="w-full justify-between h-16 text-left font-normal btn-secondary-hover group"
+                  onClick={() => setIsStyleSheetOpen(true)}
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-muted/20 to-muted-foreground/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                      <Palette className="w-6 h-6 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      {videoStyle ? (
+                        <div className="space-y-1">
+                          <div className="font-semibold text-foreground truncate">
+                            {videoStyle === "custom" 
+                              ? customStyleName || "Custom Style"
+                              : [
+                                  { id: "minimalist", name: "Minimalist", icon: "✨" },
+                                  { id: "vintage", name: "Vintage", icon: "📼" },
+                                  { id: "abstract", name: "Abstract", icon: "🎨" },
+                                  { id: "cinematic", name: "Cinematic", icon: "🎬" },
+                                  { id: "cyberpunk", name: "Cyberpunk", icon: "🌃" },
+                                  { id: "animated", name: "Animated", icon: "🎭" },
+                                  { id: "noir", name: "Noir", icon: "🌑" },
+                                  { id: "pastel", name: "Pastel", icon: "🌸" },
+                                  { id: "neon", name: "Neon", icon: "💡" },
+                                  { id: "none", name: "None", icon: "⚪" }
+                                ].find(s => s.id === videoStyle)?.name
+                            }
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {videoStyle === "custom" 
+                              ? "Custom visual style"
+                              : (() => {
+                                  const description = [
+                                    { id: "minimalist", description: "Clean, simple design with minimal elements and lots of white space" },
+                                    { id: "vintage", description: "Retro, nostalgic aesthetic with warm tones and film grain effects" },
+                                    { id: "abstract", description: "Artistic, non-representational visuals with bold colors and shapes" },
+                                    { id: "cinematic", description: "Professional, movie-like quality with dramatic lighting and composition" },
+                                    { id: "cyberpunk", description: "Neon-lit, dystopian future with electric colors and urban decay" },
+                                    { id: "animated", description: "Dynamic, animated graphics with fluid motion and vibrant colors" },
+                                    { id: "noir", description: "Dark, high-contrast black and white with dramatic shadows" },
+                                    { id: "pastel", description: "Soft, muted color palette with gentle tones and dreamy atmosphere" },
+                                    { id: "neon", description: "Bright, electric colors with glowing effects and high saturation" },
+                                    { id: "none", description: "No specific style applied - use default settings" }
+                                  ].find(s => s.id === videoStyle)?.description;
+                                  return description ? description.substring(0, 40) + "..." : "";
+                                })()
+                            }
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          <div className="font-semibold text-muted-foreground">Select a style</div>
+                          <div className="text-sm text-muted-foreground">Choose the visual style for your video</div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </Button>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-muted-foreground transition-colors" />
+                </Button>
+              </div>
 
               {/* Full Screen Video Type Selector */}
               <SelectionModal
@@ -146,256 +222,22 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                 ]}
                 selectedId={videoType}
                 onSelect={(id) => {
+                  console.log('Video type selected:', id);
                   form.setValue("videoType", id as any);
                   form.trigger("videoType");
                   setShowVideoTypeSelector(false);
+                  console.log('Form videoType after setValue:', form.getValues("videoType"));
                 }}
                 showCost={true}
                 costConversionRate={1}
               />
-            </div>
-            
-            <FormField
-              control={form.control}
-              name="budget"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <BudgetSlider
-                      videoType={videoType}
-                      audioDuration={totalDuration}
-                      value={field.value || [1]}
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        // Also update the user_price field when budget changes
-                        form.setValue("user_price", value[0] || 1);
-                      }}
-                      totalDuration={totalDuration}
-                      trackCount={trackCount}
-                      trackDurations={trackDurations}
-                      reuseVideo={reuseVideo}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Animation Style Options - Only show for animated loops */}
-            {videoType === 'looped-animated' && (
-              <div className="space-y-4">
-                <FormLabel className="text-lg font-semibold">Animation Style</FormLabel>
-                
-                <FormField
-                  control={form.control}
-                  name="animationStyle"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          value={field.value || "loop"}
-                          className="grid grid-cols-2 gap-4"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="loop" id="loop" />
-                            <Label htmlFor="loop" className="flex-1 cursor-pointer">
-                              <div className="p-4 rounded-lg border border-border hover:border-muted-foreground/50 transition-colors">
-                                <div className="font-medium text-foreground">Loop Video</div>
-                                <div className="text-sm text-muted-foreground">Seamless continuous loop</div>
-                              </div>
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="boomerang" id="boomerang" />
-                            <Label htmlFor="boomerang" className="flex-1 cursor-pointer">
-                              <div className="p-4 rounded-lg border border-border hover:border-muted-foreground/50 transition-colors">
-                                <div className="font-medium text-foreground">Boomerang</div>
-                                <div className="text-sm text-muted-foreground">Forward then reverse playback</div>
-                              </div>
-                            </Label>
-                          </div>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
-
-            {/* Video Creation Options */}
-            <div className="space-y-4">
-              <FormLabel className="text-lg font-semibold">Video Creation Options</FormLabel>
-              
-              <div className="space-y-3">
-                <FormField
-                  control={form.control}
-                  name="createIndividualVideos"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div 
-                        className="flex items-center space-x-4 p-3 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors duration-200 group cursor-pointer"
-                        onClick={() => field.onChange(!field.value)}
-                      >
-                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                          field.value 
-                            ? 'bg-muted-foreground border-muted-foreground' 
-                            : 'border-muted-foreground'
-                        }`}>
-                          {field.value && (
-                            <div className="w-2 h-2 bg-background rounded-sm" />
-                          )}
-                        </div>
-                        <div className="flex-1 space-y-1">
-                          <FormLabel className="text-base font-medium group-hover:text-foreground cursor-pointer">
-                            Create individual videoclips
-                          </FormLabel>
-                          <p className="text-sm text-muted-foreground group-hover:text-foreground/80">
-                            Generate a separate video for each music track
-                          </p>
-                        </div>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="createCompilation"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div 
-                        className="flex items-center space-x-4 p-3 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors duration-200 group cursor-pointer"
-                        onClick={() => field.onChange(!field.value)}
-                      >
-                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                          field.value 
-                            ? 'bg-muted-foreground border-muted-foreground' 
-                            : 'border-muted-foreground'
-                        }`}>
-                          {field.value && (
-                            <div className="w-2 h-2 bg-background rounded-sm" />
-                          )}
-                        </div>
-                        <div className="flex-1 space-y-1">
-                          <FormLabel className="text-base font-medium group-hover:text-foreground cursor-pointer">
-                            Create a compilation
-                          </FormLabel>
-                          <p className="text-sm text-muted-foreground group-hover:text-foreground/80">
-                            Generate a single video combining all tracks
-                          </p>
-                        </div>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="useSameVideoForAll"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div 
-                        className="flex items-center space-x-4 p-3 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors duration-200 group cursor-pointer"
-                        onClick={() => {
-                          const newValue = !field.value;
-                          field.onChange(newValue);
-                          onReuseVideoToggle?.(newValue);
-                        }}
-                      >
-                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                          field.value 
-                            ? 'bg-muted-foreground border-muted-foreground' 
-                            : 'border-muted-foreground'
-                        }`}>
-                          {field.value && (
-                            <div className="w-2 h-2 bg-background rounded-sm" />
-                          )}
-                        </div>
-                        <div className="flex-1 space-y-1">
-                          <FormLabel className="text-base font-medium group-hover:text-foreground cursor-pointer">
-                            Reuse videoclip
-                          </FormLabel>
-                          <p className="text-sm text-muted-foreground group-hover:text-foreground/80">
-                            Apply the same video content to all tracks
-                          </p>
-                        </div>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <FormLabel className="text-lg font-semibold">Style</FormLabel>
-              
-              <Button 
-                type="button"
-                variant="outline" 
-                className="w-full justify-between h-16 text-left font-normal btn-secondary-hover group"
-                onClick={() => setIsStyleSheetOpen(true)}
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-muted/20 to-muted-foreground/20 flex items-center justify-center">
-                    <Palette className="w-6 h-6 text-muted-foreground" />
-                  </div>
-                  <div className="flex-1">
-                    {videoStyle ? (
-                      <div className="space-y-1">
-                        <div className="font-semibold text-foreground">
-                          {videoStyle === "custom" 
-                            ? customStyleName || "Custom Style"
-                            : [
-                                { id: "minimalist", name: "Minimalist", icon: "✨" },
-                                { id: "vintage", name: "Vintage", icon: "📼" },
-                                { id: "abstract", name: "Abstract", icon: "🎨" },
-                                { id: "cinematic", name: "Cinematic", icon: "🎬" },
-                                { id: "cyberpunk", name: "Cyberpunk", icon: "🌃" },
-                                { id: "animated", name: "Animated", icon: "🎭" },
-                                { id: "noir", name: "Noir", icon: "🌑" },
-                                { id: "pastel", name: "Pastel", icon: "🌸" },
-                                { id: "neon", name: "Neon", icon: "💡" },
-                                { id: "none", name: "None", icon: "⚪" }
-                              ].find(s => s.id === videoStyle)?.name
-                          }
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {videoStyle === "custom" 
-                            ? "Custom visual style"
-                            : [
-                                { id: "minimalist", description: "Clean, simple design with minimal elements and lots of white space" },
-                                { id: "vintage", description: "Retro, nostalgic aesthetic with warm tones and film grain effects" },
-                                { id: "abstract", description: "Artistic, non-representational visuals with bold colors and shapes" },
-                                { id: "cinematic", description: "Professional, movie-like quality with dramatic lighting and composition" },
-                                { id: "cyberpunk", description: "Neon-lit, dystopian future with electric colors and urban decay" },
-                                { id: "animated", description: "Dynamic, animated graphics with fluid motion and vibrant colors" },
-                                { id: "noir", description: "Dark, high-contrast black and white with dramatic shadows" },
-                                { id: "pastel", description: "Soft, muted color palette with gentle tones and dreamy atmosphere" },
-                                { id: "neon", description: "Bright, electric colors with glowing effects and high saturation" },
-                                { id: "none", description: "No specific style applied - use default settings" }
-                              ].find(s => s.id === videoStyle)?.description
-                          }
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-1">
-                        <div className="font-semibold text-muted-foreground">Select a style</div>
-                        <div className="text-sm text-muted-foreground">Choose the visual style for your video</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-muted-foreground transition-colors" />
-              </Button>
 
               {/* Full Screen Style Selector Modal */}
               {isStyleSheetOpen && (
                 <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" onClick={() => setIsStyleSheetOpen(false)}>
                   <div className="flex items-center justify-center min-h-screen p-4">
                     <div 
-                      className="bg-background rounded-3xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+                      className="bg-background rounded-3xl  max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {/* Header */}
@@ -417,7 +259,7 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                       </div>
                       
                       {/* Content */}
-                      <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                      <div className="flex-1 overflow-y-auto p-8">
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                           {[
                             { id: "minimalist", name: "Minimalist", keyword: "Clean", description: "Clean, simple design with minimal elements and lots of white space", icon: "✨", gradient: "from-gray-500/20 to-slate-500/20" },
@@ -435,8 +277,8 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                               key={style.id}
                               className={`group relative aspect-square p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
                                 videoStyle === style.id
-                                  ? "border-muted-foreground bg-muted/50 shadow-lg ring-2 ring-muted-foreground/20"
-                                  : "border-border hover:border-muted-foreground/50 hover:bg-muted/30 hover:shadow-md"
+                                  ? "border-muted-foreground bg-muted/50  ring-2 ring-muted-foreground/20"
+                                  : "border-border hover:border-muted-foreground/50 hover:bg-muted/30 "
                               }`}
                               onClick={() => {
                                 form.setValue("videoStyle", style.id);
@@ -567,8 +409,230 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                   </FormItem>
                 )}
               />
-            </div>
+            </div>        
 
+            {/* Animation Style Options - Only show for animated loops */}
+            {videoType === 'looped-animated' && (
+              <div className="space-y-4">
+                <FormLabel className="text-lg font-semibold">Animation Style</FormLabel>
+                
+                <div className="space-y-3">
+                  <FormField
+                    control={form.control}
+                    name="animationStyle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div 
+                          className={`flex items-center space-x-4 p-3 rounded-lg border border-border transition-colors duration-200 group cursor-pointer ${
+                            field.value === "loop" 
+                            ? 'bg-blue-50 border-blue-200 dark:bg-[hsl(207_90%_68%_/_0.1)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                            : 'bg-card hover:bg-muted/50'
+                          }`}
+                          onClick={() => field.onChange("loop")}
+                        >
+                          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                            field.value === "loop"
+                              ? 'bg-blue-500 border-blue-500 dark:bg-[hsl(207_90%_68%_/_0.6)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                              : 'border-muted-foreground'
+                          }`}>
+                            {field.value === "loop" && (
+                              <div className="w-2 h-2 bg-white rounded-sm" />
+                            )}
+                          </div>
+                          <div className="flex-1 space-y-1">
+                            <FormLabel className="text-base font-medium group-hover:text-foreground cursor-pointer">
+                              Loop Video
+                            </FormLabel>
+                            <p className="text-sm text-muted-foreground group-hover:text-foreground/80">
+                              Seamless continuous loop
+                            </p>
+                          </div>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="animationStyle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div 
+                          className={`flex items-center space-x-4 p-3 rounded-lg border border-border transition-colors duration-200 group cursor-pointer ${
+                            field.value === "boomerang" 
+                              ? 'bg-blue-50 border-blue-200 dark:bg-[hsl(207_90%_68%_/_0.1)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                              : 'bg-card hover:bg-muted/50'
+                          }`}
+                          onClick={() => field.onChange("boomerang")}
+                        >
+                          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                            field.value === "boomerang"
+                              ? 'bg-blue-500 border-blue-500 dark:bg-[hsl(207_90%_68%_/_0.6)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                              : 'border-muted-foreground'
+                          }`}>
+                            {field.value === "boomerang" && (
+                              <div className="w-2 h-2 bg-white rounded-sm" />
+                            )}
+                          </div>
+                          <div className="flex-1 space-y-1">
+                            <FormLabel className="text-base font-medium group-hover:text-foreground cursor-pointer">
+                              Boomerang
+                            </FormLabel>
+                            <p className="text-sm text-muted-foreground group-hover:text-foreground/80">
+                              Forward then reverse playback
+                            </p>
+                          </div>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Video Creation Options */}
+            <div className="space-y-4">
+              <FormLabel className="text-lg font-semibold">Video Creation Options</FormLabel>
+              
+              <div className="space-y-3">
+                <FormField
+                  control={form.control}
+                  name="createIndividualVideos"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div 
+                        className={`flex items-center space-x-4 p-3 rounded-lg border border-border transition-colors duration-200 group cursor-pointer ${
+                          field.value 
+                            ? 'bg-blue-50 border-blue-200 dark:bg-[hsl(207_90%_68%_/_0.1)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                            : 'bg-card hover:bg-muted/50'
+                        }`}
+                        onClick={() => field.onChange(!field.value)}
+                      >
+                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                          field.value 
+                            ? 'bg-blue-500 border-blue-500 dark:bg-[hsl(207_90%_68%_/_0.6)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                            : 'border-muted-foreground'
+                        }`}>
+                          {field.value && (
+                            <div className="w-2 h-2 bg-white rounded-sm" />
+                          )}
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <FormLabel className="text-base font-medium group-hover:text-foreground cursor-pointer">
+                            Create individual videoclips
+                          </FormLabel>
+                          <p className="text-sm text-muted-foreground group-hover:text-foreground/80">
+                            Generate a separate video for each music track
+                          </p>
+                        </div>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="createCompilation"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div 
+                        className={`flex items-center space-x-4 p-3 rounded-lg border border-border transition-colors duration-200 group cursor-pointer ${
+                          field.value 
+                          ? 'bg-blue-50 border-blue-200 dark:bg-[hsl(207_90%_68%_/_0.1)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                          : 'bg-card hover:bg-muted/50'
+                      }`}
+                      onClick={() => field.onChange(!field.value)}
+                    >
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                        field.value 
+                          ? 'bg-blue-500 border-blue-500 dark:bg-[hsl(207_90%_68%_/_0.6)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                            : 'border-muted-foreground'
+                        }`}>
+                          {field.value && (
+                            <div className="w-2 h-2 bg-white rounded-sm" />
+                          )}
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <FormLabel className="text-base font-medium group-hover:text-foreground cursor-pointer">
+                            Create a compilation
+                          </FormLabel>
+                          <p className="text-sm text-muted-foreground group-hover:text-foreground/80">
+                            Generate a single video combining all tracks
+                          </p>
+                        </div>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="useSameVideoForAll"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div 
+                        className={`flex items-center space-x-4 p-3 rounded-lg border border-border transition-colors duration-200 group cursor-pointer ${
+                          field.value 
+                            ? 'bg-blue-50 border-blue-200 dark:bg-[hsl(207_90%_68%_/_0.1)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                            : 'bg-card hover:bg-muted/50'
+                        }`}
+                        onClick={() => {
+                          const newValue = !field.value;
+                          field.onChange(newValue);
+                          // Call validation update directly after the form field changes
+                          if (onReuseVideoToggle) {
+                            onReuseVideoToggle(newValue);
+                          }
+                        }}
+                      >
+                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                          field.value 
+                            ? 'bg-blue-500 border-blue-500 dark:bg-[hsl(207_90%_68%_/_0.6)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                            : 'border-muted-foreground'
+                        }`}>
+                          {field.value && (
+                            <div className="w-2 h-2 bg-white rounded-sm" />
+                          )}
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <FormLabel className="text-base font-medium group-hover:text-foreground cursor-pointer">
+                            Reuse videoclip
+                          </FormLabel>
+                          <p className="text-sm text-muted-foreground group-hover:text-foreground/80">
+                            Apply the same video content to all tracks
+                          </p>
+                        </div>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+            <FormField
+              control={form.control}
+              name="budget"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <BudgetSlider
+                      videoType={videoType}
+                      audioDuration={totalDuration}
+                      value={field.value || [1]}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        // Also update the user_price field when budget changes
+                        form.setValue("user_price", value[0] || 1);
+                      }}
+                      totalDuration={totalDuration}
+                      trackCount={trackCount}
+                      trackDurations={trackDurations}
+                      reuseVideo={reuseVideo}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             {!hideNavigation && (
               <div className="flex justify-between">
                 <Button type="button" variant="outline" className="btn-secondary-hover" onClick={onBack}>Back</Button>

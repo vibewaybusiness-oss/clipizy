@@ -12,7 +12,8 @@
         "pause": 5,
         "terminate": 500
       },
-      "network-volume": "ktsq4ji8l0"
+      "network-volume": "ktsq4ji8l0",
+      "template": "fdcc1twlxx"
     }
   },
   "queueSettings": {

@@ -76,10 +76,14 @@ export default function MusicClipPage() {
       startAudioDuringAnimation: false,
       videoDescription: "",
       audioVisualizerEnabled: false,
-      audioVisualizerPositionV: "bottom",
+      audioVisualizerPositionV: "center",
       audioVisualizerPositionH: "center",
       audioVisualizerSize: "medium",
       audioVisualizerType: "none",
+      audioTransition: "none",
+      videoTransition: "none",
+      introAnimationFile: null,
+      outroAnimationFile: null,
     }
   });
 

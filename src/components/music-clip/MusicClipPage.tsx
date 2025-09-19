@@ -7,7 +7,7 @@ import { Music, ArrowLeft, ChevronLeft, ChevronRight, Upload, Film, Trash2 } fro
 import { MusicLogo } from "@/components/music-logo";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAudioPlayback } from "@/hooks/use-audio-playback";
 import { useMusicTracks } from "@/hooks/use-music-tracks";
@@ -16,7 +16,6 @@ import { usePricingService } from "@/hooks/use-pricing-service";
 import { useMusicClipState } from "@/hooks/use-music-clip-state";
 import { useProjectManagement } from "@/hooks/use-project-management";
 import { useDragAndDrop } from "@/hooks/use-drag-and-drop";
-import { useReuseVideoclip } from "@/hooks/use-reuse-videoclip";
 import { musicClipAPI } from "@/lib/api/music-clip";
 import { formatDuration, getTotalDuration, fileToDataUri } from "@/utils/music-clip-utils";
 import type { MusicTrack } from "@/types/music-clip";
@@ -36,67 +35,112 @@ function MusicClipPage() {
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId');
+  const urlProjectId = searchParams.get('projectId');
+  const isNewProject = searchParams.get('new') !== null;
+  const projectManagement = useProjectManagement();
+  
+  // Use URL projectId if available, otherwise use persisted projectId
+  // If it's a new project, don't use persisted projectId
+  const projectId = urlProjectId || (isNewProject ? null : projectManagement.state.currentProjectId);
   
   const audioPlayback = useAudioPlayback();
   const musicTracks = useMusicTracks(projectId);
   const promptGeneration = usePromptGeneration();
   const pricingService = usePricingService();
   const musicClipState = useMusicClipState(projectId);
-  const projectManagement = useProjectManagement();
   const dragAndDrop = useDragAndDrop();
   const waveformRef = useRef<WaveformVisualizerRef>(null);
   const lastProcessedDuration = useRef<number>(0);
   
-  // Extract loaded descriptions from project data
-  const [loadedDescriptions, setLoadedDescriptions] = useState<{
-    sharedDescription?: string;
-    individualDescriptions?: Record<string, string>;
-    reuseEnabled?: boolean;
-  }>({});
-
-  // REUSE VIDEOCLIP HOOK
-  const reuseVideoclip = useReuseVideoclip({
-    musicTracks: musicTracks.musicTracks,
-    trackDescriptions: musicTracks.trackDescriptions,
-    setTrackDescriptions: musicTracks.setTrackDescriptions,
-    promptForm: musicClipState.forms.promptForm,
-    settingsForm: musicClipState.forms.settingsForm,
-    projectId: projectId || projectManagement.state.currentProjectId,
-    loadedSharedDescription: loadedDescriptions.sharedDescription,
-    loadedIndividualDescriptions: loadedDescriptions.individualDescriptions,
-    loadedReuseEnabled: loadedDescriptions.reuseEnabled
-  });
+  // TRACK VALIDATION SNAPSHOT FOR LIVE UI
+  const [trackValidity, setTrackValidity] = useState<Record<string, boolean>>({});
   
-  // Watch for form changes to update shared description
+  // Store individual descriptions when switching to reuse mode
+  const [preservedIndividualDescriptions, setPreservedIndividualDescriptions] = useState<Record<string, string>>({});
+  
+  // Check if all tracks are valid for step 3
+  const areAllTracksValid = useMemo(() => {
+    if (musicTracks.musicTracks.length === 0) return false;
+    return musicTracks.musicTracks.every(track => trackValidity[track.id] === true);
+  }, [musicTracks.musicTracks, trackValidity]);
+  
+  const areBoolMapsEqual = (a: Record<string, boolean>, b: Record<string, boolean>) => {
+    const aKeys = Object.keys(a);
+    const bKeys = Object.keys(b);
+    if (aKeys.length !== bKeys.length) return false;
+    for (const k of aKeys) {
+      if (a[k] !== b[k]) return false;
+    }
+    return true;
+  };
+  
+  // Live validation mapping based on reuse toggle state
   useEffect(() => {
-    const subscription = musicClipState.forms.promptForm.watch((value: any) => {
-      console.log('Form watch triggered:', value?.videoDescription, 'isReuseEnabled:', reuseVideoclip.isReuseEnabled);
-      // Only update if we have a non-empty value and we're in reuse mode
-      if (reuseVideoclip.isReuseEnabled && value?.videoDescription !== undefined && value.videoDescription.trim() !== '') {
-        console.log('Updating shared description:', value.videoDescription);
-        reuseVideoclip.updateSharedDescription(value.videoDescription);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [reuseVideoclip.isReuseEnabled, musicClipState.forms.promptForm, reuseVideoclip]);
+    const minLen = 10;
+    const maxLen = 500;
+    const isReuse = !!musicClipState.state.settings?.useSameVideoForAll;
 
-  // Wrapper function to handle track descriptions update with immediate localStorage save
-  const handleTrackDescriptionsUpdate = useCallback((newTrackDescriptions: Record<string, string>) => {
-    console.log('handleTrackDescriptionsUpdate called with:', newTrackDescriptions);
-    console.log('reuseVideoclip.isReuseEnabled:', reuseVideoclip.isReuseEnabled);
-    
-    // Update the music tracks state
-    musicTracks.setTrackDescriptions(newTrackDescriptions);
-    
-    // Update individual descriptions in the hook for immediate localStorage save
-    if (!reuseVideoclip.isReuseEnabled) {
-      Object.entries(newTrackDescriptions).forEach(([trackId, description]) => {
-        console.log('Updating individual description for track:', trackId, 'description:', description);
-        reuseVideoclip.updateIndividualDescription(trackId, description);
+    const newMap: Record<string, boolean> = {};
+
+    if (isReuse) {
+      // Reuse mode: validate based on shared description
+      const sharedDesc = musicClipState.state.sharedDescription?.trim() || "";
+      const isValid = sharedDesc.length >= minLen && sharedDesc.length <= maxLen;
+
+      // Apply the same validation to all tracks based on shared description
+      musicTracks.musicTracks.forEach(t => {
+        newMap[t.id] = isValid;
+      });
+    } else {
+      // Individual mode: validate based on individual descriptions
+      musicTracks.musicTracks.forEach(t => {
+        // Check the individual track descriptions from the music clip state
+        const desc = (musicClipState.state.individualDescriptions[t.id] || "").trim();
+        const isValid = desc.length >= minLen && desc.length <= maxLen;
+        newMap[t.id] = isValid;
       });
     }
-  }, [musicTracks, reuseVideoclip]);
+
+    // If no tracks exist, don't show validation errors
+    if (musicTracks.musicTracks.length === 0) {
+      return;
+    }
+
+    if (!areBoolMapsEqual(trackValidity, newMap)) {
+      setTrackValidity(newMap);
+    }
+  }, [
+    musicClipState.state.settings?.useSameVideoForAll,
+    musicClipState.state.sharedDescription,
+    musicClipState.state.individualDescriptions,
+    musicTracks.musicTracks
+  ]);
+
+  // Force validation refresh on page load and when tracks change
+  useEffect(() => {
+    console.log('Force validation refresh - tracks loaded or page reloaded');
+    // This will trigger the validation effect above by changing the dependency array
+    setTrackValidity(prev => ({ ...prev }));
+  }, [musicTracks.musicTracks.length, musicTracks.musicTracks.map(t => t.id).join(',')]);
+
+  // Load appropriate descriptions when navigating to step 4 (prompt step)
+  useEffect(() => {
+    if (musicClipState.state.currentStep === 4) {
+      console.log('Navigating to step 4 - loading descriptions for prompt form');
+      
+      if (musicClipState.state.settings?.useSameVideoForAll) {
+        // Reuse mode: load shared description into form field
+        const sharedDesc = musicClipState.state.sharedDescription || "";
+        console.log('Loading shared description for reuse mode:', sharedDesc);
+        musicClipState.forms.promptForm.setValue("videoDescription", sharedDesc, { shouldValidate: true, shouldDirty: true });
+      } else {
+        // Individual mode: ensure individual descriptions are loaded
+        console.log('Individual mode - individual descriptions:', musicClipState.state.individualDescriptions);
+        // The individual descriptions are already loaded in the music clip state
+        // The StepPrompt component will use them via the trackDescriptions prop
+      }
+    }
+  }, [musicClipState.state.currentStep, musicClipState.state.settings?.useSameVideoForAll, musicClipState.state.sharedDescription, musicClipState.state.individualDescriptions]);
 
   // Local state
   const [musicGenerationPrice, setMusicGenerationPrice] = useState(0);
@@ -105,25 +149,42 @@ function MusicClipPage() {
   // Cleanup audio when leaving the page
   useEffect(() => {
     return () => {
-      audioPlayback.stopAllAudio();
+      // Stop all audio without causing re-renders
+      const audioElements = document.querySelectorAll('audio');
+      audioElements.forEach(audio => {
+        if (audio instanceof HTMLAudioElement) {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.src = '';
+          audio.load();
+        }
+      });
       
-      // Clean up the main audio URL
-      if (musicClipState.state.audioUrl) {
-        URL.revokeObjectURL(musicClipState.state.audioUrl);
+      // Clean up the main audio URL with a delay to ensure audio operations complete
+      if (musicClipState.state.audioUrl && musicClipState.state.audioUrl.startsWith('blob:')) {
+        setTimeout(() => {
+          try {
+            URL.revokeObjectURL(musicClipState.state.audioUrl);
+          } catch (error) {
+            console.warn('Failed to revoke main audio blob URL during cleanup:', error);
+          }
+        }, 200);
       }
       
-      // Clean up all track blob URLs
+      // Clean up all track blob URLs with a delay
       musicTracks.musicTracks.forEach(track => {
         if (track.url.startsWith('blob:')) {
-          try {
-            URL.revokeObjectURL(track.url);
-          } catch (error) {
-            console.warn('Failed to revoke blob URL during cleanup:', track.id, error);
-          }
+          setTimeout(() => {
+            try {
+              URL.revokeObjectURL(track.url);
+            } catch (error) {
+              console.warn('Failed to revoke track blob URL during cleanup:', track.id, error);
+            }
+          }, 200);
         }
       });
     };
-  }, [musicClipState.state.audioUrl, audioPlayback.stopAllAudio, musicTracks.musicTracks]);
+  }, []); // Empty dependency array to only run on unmount
 
   // Set audio duration when audio file changes
   useEffect(() => {
@@ -233,25 +294,69 @@ function MusicClipPage() {
     }
   }, []); // Only run on mount
 
+  // Track if we've already cleared data for new project
+  const hasClearedNewProject = useRef(false);
+  
+  // Clear project data when starting a new project
+  useEffect(() => {
+    if (isNewProject && !hasClearedNewProject.current) {
+      console.log('Starting new project - clearing all data');
+      hasClearedNewProject.current = true;
+      
+      // Clear project management state
+      projectManagement.actions.clearProjectData();
+      
+      // Clear music tracks
+      musicTracks.clearAllTracks();
+      
+      // Reset music clip state
+      try {
+        musicClipState.actions.handleReset();
+      } catch (error) {
+        console.error('Error calling handleReset:', error);
+        // Fallback to resetState if actions is not available
+        musicClipState.resetState();
+      }
+      
+      // Reset validation state
+      setTrackValidity({});
+      
+      // Clear URL parameters to clean up the URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete('new');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [isNewProject]); // Only depend on isNewProject to prevent infinite loops
+  
+  // Reset the ref when component unmounts or when isNewProject changes
+  useEffect(() => {
+    if (!isNewProject) {
+      hasClearedNewProject.current = false;
+    }
+  }, [isNewProject]);
+
   // Load existing project data if projectId is provided
   useEffect(() => {
-    if (projectId && !projectManagement.state.currentProjectId && !projectManagement.state.isLoadingProject) {
+    if (projectId && !projectManagement.state.isLoadingProject) {
       // Check if we have localStorage data for this project
       const hasLocalData = musicClipState.state.settings || musicTracks.musicTracks.length > 0;
       
       if (hasLocalData) {
         console.log('Using localStorage data for project:', projectId);
         // localStorage data is already loaded by the hooks
-      } else {
+      } else if (urlProjectId) {
+        // Only load from backend if this is a URL projectId (not persisted)
         console.log('No localStorage data found, loading from backend for project:', projectId);
-        // Load from backend as fallback
         loadExistingProject(projectId);
+      } else {
+        console.log('Using persisted project with no localStorage data:', projectId);
+        // This is a persisted project with no localStorage data, which is fine
       }
-    } else if (!projectId && !projectManagement.state.currentProjectId) {
+    } else if (!projectId) {
       // Starting a new project - no localStorage loading, start fresh
       console.log('Starting new project - no data loading needed');
     }
-  }, [projectId, projectManagement.state.currentProjectId, projectManagement.state.isLoadingProject, musicClipState.state.settings, musicTracks.musicTracks.length]);
+  }, [projectId, urlProjectId, projectManagement.state.isLoadingProject, musicClipState.state.settings, musicTracks.musicTracks.length]);
 
   // Update URL when step changes (with throttling to prevent browser hanging)
   const prevStepRef = useRef(musicClipState.state.currentStep);
@@ -270,6 +375,10 @@ function MusicClipPage() {
       urlUpdateTimeoutRef.current = setTimeout(() => {
         const url = new URL(window.location.href);
         url.searchParams.set('step', musicClipState.state.currentStep.toString());
+        // Include projectId in URL if available
+        if (projectId) {
+          url.searchParams.set('projectId', projectId);
+        }
         window.history.replaceState({}, '', url.toString());
         prevStepRef.current = musicClipState.state.currentStep;
       }, 100); // 100ms delay
@@ -281,7 +390,7 @@ function MusicClipPage() {
         clearTimeout(urlUpdateTimeoutRef.current);
       }
     };
-  }, [musicClipState.state.currentStep]);
+  }, [musicClipState.state.currentStep, projectId]);
 
   // Debug step changes
   useEffect(() => {
@@ -383,34 +492,40 @@ function MusicClipPage() {
         await projectManagement.actions.updateProjectSettings(projectId, musicClipData.settings);
       }
       
-      // Get descriptions from the reuse videoclip hook
-      const descriptionsData = reuseVideoclip.getAllDescriptions();
-      
       // Update tracks if we have track data
       if (tracksData.musicTracks && tracksData.musicTracks.length > 0) {
         // Update track descriptions and genres
         for (const track of tracksData.musicTracks) {
           const updates: any = {};
           
-          // Use hook's description data if available, otherwise fallback to tracksData
-          let videoDescription = '';
-          if (descriptionsData.isReuseEnabled) {
-            videoDescription = descriptionsData.sharedDescription;
-          } else {
-            videoDescription = descriptionsData.individualDescriptions[track.id] || tracksData.trackDescriptions[track.id] || '';
-          }
-          
-          if (videoDescription) {
-            updates.video_description = videoDescription;
+          // Use individual descriptions from music clip state
+          if (musicClipState.state.individualDescriptions[track.id]) {
+            updates.video_description = musicClipState.state.individualDescriptions[track.id];
           }
           if (tracksData.trackGenres[track.id]) {
             updates.genre = tracksData.trackGenres[track.id];
           }
           
           if (Object.keys(updates).length > 0) {
-            await musicClipAPI.updateTrack(projectId, track.id, updates);
+            console.log(`Updating track ${track.id} with:`, updates);
+            try {
+              await musicClipAPI.updateTrack(projectId, track.id, updates);
+              console.log(`Successfully updated track ${track.id}`);
+            } catch (trackError) {
+              console.error(`Failed to update track ${track.id}:`, trackError);
+              // Continue with other tracks even if one fails
+            }
+          } else {
+            console.log(`No updates needed for track ${track.id}`);
           }
         }
+      }
+      
+      // Save shared description separately if in reuse mode
+      if (musicClipState.state.settings?.useSameVideoForAll && musicClipState.state.sharedDescription) {
+        console.log('Saving shared description to backend:', musicClipState.state.sharedDescription);
+        // TODO: Add API call to save shared description to project settings
+        // This could be saved as a project-level setting or in a separate table
       }
       
       console.log('Successfully pushed data to backend');
@@ -470,17 +585,15 @@ function MusicClipPage() {
         const tracks: MusicTrack[] = trackResults.map(({ track, url, success }) => {
           console.log(`Track ${track.id}: URL=${url}, Success=${success}`);
           
-          // Create a proper File object for existing tracks
-          // For existing tracks, we'll use the S3 URL and create a minimal File object
-          const fileName = track.file_path.split('/').pop() || 'Unknown Track';
-          const file = new File([], fileName, { type: 'audio/wav' });
+          // For existing tracks from backend, don't create a File object
+          // The S3 URL will be used directly for playback
           
           return {
             id: track.id,
-            file: file,
+            // No file property for tracks loaded from backend
             url: url, // Use the S3 URL for playback
             duration: track.metadata.duration || 0,
-            name: fileName,
+            name: track.file_path.split('/').pop() || 'Unknown Track',
             prompt: track.prompt,
             genre: track.genre,
             videoDescription: track.video_description,
@@ -495,30 +608,10 @@ function MusicClipPage() {
           musicTracks.setSelectedTrackId(tracks[0].id);
           musicTracks.setSelectedTrackIds([tracks[0].id]);
         }
-
-        // Extract descriptions from loaded tracks
-        const reuseEnabled = projectData?.script.steps.music.settings?.useSameVideoForAll || false;
-        const individualDescriptions: Record<string, string> = {};
-        let sharedDescription = '';
-
-        tracks.forEach(track => {
-          if (track.videoDescription) {
-            if (reuseEnabled) {
-              // In reuse mode, all tracks should have the same description
-              sharedDescription = track.videoDescription;
-            } else {
-              // In individual mode, each track has its own description
-              individualDescriptions[track.id] = track.videoDescription;
-            }
-          }
-        });
-
-        // Set loaded descriptions for the hook
-        setLoadedDescriptions({
-          sharedDescription,
-          individualDescriptions,
-          reuseEnabled
-        });
+        
+        // Reset validation state when loading project
+        console.log('Resetting validation state for loaded project');
+        setTrackValidity({});
       }
     } catch (error) {
       console.error('Failed to load existing project:', error);
@@ -735,7 +828,7 @@ function MusicClipPage() {
         musicTracks.addTracks(newTracks);
         
         const firstTrack = newTracks[0];
-        musicClipState.actions.setAudioFile(firstTrack.file);
+        musicClipState.actions.setAudioFile(firstTrack.file || null);
         musicClipState.actions.setAudioUrl(firstTrack.url);
         musicClipState.actions.setAudioDuration(firstTrack.duration);
         
@@ -752,7 +845,13 @@ function MusicClipPage() {
   const handleTrackSelect = (track: MusicTrack, event?: React.MouseEvent) => {
     musicTracks.selectTrack(track, event);
     
-    musicClipState.actions.setAudioFile(track.file);
+    // Only set audio file if it exists (for uploaded tracks)
+    if (track.file) {
+      musicClipState.actions.setAudioFile(track.file);
+    } else {
+      // For tracks loaded from backend, clear the audio file
+      musicClipState.actions.setAudioFile(null);
+    }
     musicClipState.actions.setAudioUrl(track.url);
     musicClipState.actions.setAudioDuration(track.duration);
   };
@@ -813,46 +912,154 @@ function MusicClipPage() {
     musicClipState.actions.setMaxReachedStep(3);
   };
 
-  const handleReuseVideoToggle = (enabled: boolean) => {
-    // Update the settings state immediately so validation logic works correctly
+  const handleReuseVideoToggle = useCallback((enabled: boolean) => {
+    console.log('handleReuseVideoToggle called with:', enabled);
+    
+    // Get current mode before updating settings
     const currentSettings = musicClipState.forms.settingsForm.getValues();
+    const wasInReuseMode = currentSettings.useSameVideoForAll;
+    
+    // Update the settings state immediately so validation logic works correctly
     const updatedSettings = {
       ...currentSettings,
       useSameVideoForAll: enabled
     };
     musicClipState.actions.setSettings(updatedSettings);
     
-    // Use the hook to handle the toggle
-    reuseVideoclip.toggleReuse(enabled);
-  };
+    // Get current form value for potential use in both modes
+    const currentFormValue = musicClipState.forms.promptForm.getValues("videoDescription") || "";
+    let descriptionToUse = "";
+    
+    if (enabled) {
+      // Switching TO reuse mode: save current individual descriptions and load shared description
+      console.log('Switching to reuse mode - saving current individual descriptions');
+      
+      // Save current individual descriptions to localStorage before switching
+      const currentIndividualDescriptions = { ...musicClipState.state.individualDescriptions };
+      setPreservedIndividualDescriptions(currentIndividualDescriptions);
+      
+      // Save to localStorage immediately
+      if (typeof window !== 'undefined' && projectId) {
+        localStorage.setItem(`musicClip_${projectId}_individualDescriptions`, JSON.stringify(currentIndividualDescriptions));
+      }
+      
+      // Load shared description from localStorage or use existing
+      const existingSharedDesc = musicClipState.state.sharedDescription || musicClipState.state.prompts?.videoDescription || "";
+      
+      // If we were already in reuse mode, preserve the current form value
+      // If we're switching from individual mode, use stored shared description
+      if (wasInReuseMode) {
+        descriptionToUse = currentFormValue.trim() || existingSharedDesc;
+        console.log('Already in reuse mode - preserving form value:', { currentFormValue, existingSharedDesc, descriptionToUse });
+      } else {
+        // When switching from individual to reuse mode, use empty string if no shared description exists
+        // This prevents using individual track descriptions as shared descriptions
+        descriptionToUse = existingSharedDesc;
+        console.log('Switching from individual to reuse mode - using stored shared description:', { 
+          currentFormValue, 
+          existingSharedDesc, 
+          descriptionToUse,
+          wasInReuseMode,
+          note: 'If shared description contains individual track data, it was incorrectly saved previously'
+        });
+      }
+      
+      musicClipState.actions.setSharedDescription(descriptionToUse);
+      musicClipState.forms.promptForm.setValue("videoDescription", descriptionToUse, { shouldValidate: true, shouldDirty: true });
+      
+    } else {
+      // Switching FROM reuse mode: save current shared description and load individual descriptions
+      console.log('Switching to individual mode - saving current shared description');
+      
+      // Save current shared description to localStorage before switching
+      const currentSharedDesc = musicClipState.state.sharedDescription || musicClipState.forms.promptForm.getValues("videoDescription") || "";
+      if (currentSharedDesc) {
+        musicClipState.actions.setSharedDescription(currentSharedDesc);
+        if (typeof window !== 'undefined' && projectId) {
+          localStorage.setItem(`musicClip_${projectId}_sharedDescription`, currentSharedDesc);
+        }
+      }
+
+      // Load individual descriptions from localStorage
+      let individualDescriptionsToLoad = { ...preservedIndividualDescriptions };
+      if (typeof window !== 'undefined' && projectId) {
+        const savedIndividual = localStorage.getItem(`musicClip_${projectId}_individualDescriptions`);
+        if (savedIndividual) {
+          try {
+            individualDescriptionsToLoad = JSON.parse(savedIndividual);
+          } catch (error) {
+            console.warn('Failed to parse saved individual descriptions:', error);
+          }
+        }
+      }
+      
+      // Apply loaded individual descriptions
+      musicClipState.actions.setIndividualDescriptions(individualDescriptionsToLoad);
+      
+      // Clear the form field for individual mode
+      musicClipState.forms.promptForm.setValue("videoDescription", '', { shouldValidate: true, shouldDirty: true });
+    }
+    
+    // Force immediate validation update by running validation logic directly
+    const minLen = 10;
+    const maxLen = 500;
+    const newMap: Record<string, boolean> = {};
+    
+    if (enabled) {
+      // Reuse mode: validate based on shared description
+      const sharedDesc = descriptionToUse?.trim() || "";
+      const isValid = sharedDesc.length >= minLen && sharedDesc.length <= maxLen;
+      
+      // Apply the same validation to all tracks based on shared description
+      musicTracks.musicTracks.forEach(t => { 
+        newMap[t.id] = isValid; 
+      });
+    } else {
+      // Individual mode: validate based on individual descriptions
+      musicTracks.musicTracks.forEach(t => {
+        const desc = (musicClipState.state.individualDescriptions[t.id] || "").trim();
+        const isValid = desc.length >= minLen && desc.length <= maxLen;
+        newMap[t.id] = isValid;
+      });
+    }
+    
+    // Update validation state immediately
+    if (musicTracks.musicTracks.length > 0) {
+      setTrackValidity(newMap);
+    }
+  }, [musicClipState, projectId, preservedIndividualDescriptions, musicTracks.musicTracks, setTrackValidity]);
 
   const onPromptSubmit = (values: z.infer<typeof PromptSchema>, newTrackDescriptions?: Record<string, string>, trackGenres?: Record<string, string>) => {
     musicClipState.actions.setPrompts(values);
     
-    if (newTrackDescriptions) {
-      musicTracks.setTrackDescriptions(prev => ({
+    if (musicClipState.state.settings?.useSameVideoForAll) {
+      // Reuse mode: save as shared description
+      if (values.videoDescription) {
+        musicClipState.actions.setSharedDescription(values.videoDescription);
+      }
+    } else {
+      // Individual mode: save as individual descriptions
+      if (newTrackDescriptions) {
+        musicClipState.actions.setIndividualDescriptions(prev => ({
+          ...prev,
+          ...newTrackDescriptions
+        }));
+      }
+    }
+    
+    if (trackGenres) {
+      musicTracks.setTrackGenres(prev => ({
         ...prev,
-        ...newTrackDescriptions
+        ...trackGenres
       }));
     }
     
-    if (newTrackDescriptions || trackGenres) {
+    if (trackGenres) {
       musicTracks.setMusicTracks(prev => prev.map(track => ({
         ...track,
-        videoDescription: newTrackDescriptions?.[track.id] || track.videoDescription,
-        genre: trackGenres?.[track.id] || track.genre
+        genre: trackGenres[track.id] || track.genre
       })));
     }
-    
-    if (musicClipState.state.settings?.useSameVideoForAll && values.videoDescription) {
-      musicTracks.setMusicTracks(prev => prev.map(track => ({
-        ...track,
-        videoDescription: values.videoDescription
-      })));
-    }
-    
-    // Save descriptions to localStorage using the hook (this is now automatic, but ensure it's saved)
-    reuseVideoclip.saveToLocalStorage();
     
     musicClipState.actions.setCurrentStep(4);
     musicClipState.actions.setMaxReachedStep(4);
@@ -894,6 +1101,17 @@ function MusicClipPage() {
     router.replace('/dashboard/create');
   };
 
+  // Memoized callbacks to prevent infinite loops in StepPrompt
+  const handleTrackDescriptionsUpdate = useCallback((descriptions: Record<string, string>) => {
+    // Update individual descriptions in music clip state
+    musicClipState.actions.setIndividualDescriptions(descriptions);
+  }, [musicClipState.actions]);
+
+  const handleSharedDescriptionUpdate = useCallback((desc: string) => {
+    // Update the shared description state
+    musicClipState.actions.setSharedDescription(desc);
+  }, [musicClipState.actions]);
+
   return (
     <>
       {/* FULL-SCREEN LOADING OVERLAY */}
@@ -912,23 +1130,6 @@ function MusicClipPage() {
       )}
 
       <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(59, 130, 246, 0.3);
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(59, 130, 246, 0.5);
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:active {
-          background: rgba(59, 130, 246, 0.7);
-        }
-        
         @keyframes fade-in-up {
           from {
             opacity: 0;
@@ -953,7 +1154,7 @@ function MusicClipPage() {
               <div className="flex items-center space-x-4">
                 <Link 
                   href="/dashboard/create"
-                  className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center space-x-2 text-foreground hover:text-foreground transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span className="text-sm">Back to Create</span>
@@ -984,11 +1185,11 @@ function MusicClipPage() {
 
 
         {/* MAIN CONTENT */}
-        <div className="flex-1 max-w-7xl mx-auto px-8 py-4 overflow-hidden">
-          <div className="h-full flex flex-col space-y-4">
-            <div className="flex-1 grid grid-cols-1 xl:grid-cols-3 gap-6 min-h-0">
+        <div className="flex-1 max-w-7xl mx-auto px-8 py-4 overflow-y-auto">
+          <div className="min-h-full flex flex-col space-y-4">
+            <div className="flex-1 grid grid-cols-1 xl:grid-cols-3 gap-6 min-h-0 items-center">
               {/* LEFT SIDE - UPLOAD AREA */}
-              <div className="flex flex-col xl:col-span-2">
+              <div className="flex flex-col xl:col-span-2 h-full min-h-[600px] xl:min-h-[calc(100vh-200px)]">
                 {musicClipState.state.currentStep === 1 && (
                   <StepUpload
                     musicPrompt={musicClipState.state.musicPrompt}
@@ -1008,7 +1209,7 @@ function MusicClipPage() {
 
                 {musicClipState.state.currentStep === 2 && (
                   <div className="flex flex-col h-full">
-                    <Card className="bg-card border border-border shadow-lg flex-1 flex flex-col">
+                    <Card className="bg-card border border-border  flex-1 flex flex-col">
                       <CardContent className="space-y-6 flex-1 flex flex-col p-6">
                         <StepSettings
                           form={musicClipState.forms.settingsForm}
@@ -1028,7 +1229,23 @@ function MusicClipPage() {
 
                 {musicClipState.state.currentStep === 3 && (
                   <div className="flex flex-col h-full">
-                    <Card className="bg-card border border-border shadow-lg flex-1 flex flex-col">
+                    <StepOverview
+                      form={musicClipState.forms.overviewForm}
+                      settings={musicClipState.state.settings}
+                      prompts={musicClipState.state.prompts}
+                      channelAnimationFile={musicClipState.state.channelAnimationFile}
+                      setChannelAnimationFile={musicClipState.actions.setChannelAnimationFile}
+                      onSubmit={onOverviewSubmit}
+                      onBack={() => musicClipState.actions.setCurrentStep(2)}
+                      isGeneratingVideo={false}
+                      toast={toast}
+                    />
+                  </div>
+                )}
+
+                {musicClipState.state.currentStep === 4 && (
+                  <div className="flex flex-col h-full">
+                    <Card className="bg-card border border-border  flex-1 flex flex-col">
                       <CardContent className="space-y-6 flex-1 flex flex-col p-6">
                         <StepPrompt
                           form={musicClipState.forms.promptForm}
@@ -1039,36 +1256,23 @@ function MusicClipPage() {
                           selectedTrackId={musicTracks.selectedTrackId}
                           onTrackSelect={handleTrackSelect}
                           onSubmit={onPromptSubmitForm}
-                          onBack={() => musicClipState.actions.setCurrentStep(2)}
+                          onBack={() => musicClipState.actions.setCurrentStep(3)}
                           fileToDataUri={fileToDataUri}
                           toast={toast}
                           onTrackDescriptionsUpdate={handleTrackDescriptionsUpdate}
+                          onSharedDescriptionUpdate={handleSharedDescriptionUpdate}
+                          onPromptsUpdate={musicClipState.actions.setPrompts}
+                          trackDescriptions={musicClipState.state.individualDescriptions}
                         />
                       </CardContent>
                     </Card>
-                  </div>
-                )}
-
-                {musicClipState.state.currentStep === 4 && (
-                  <div className="flex flex-col h-full">
-                    <StepOverview
-                      form={musicClipState.forms.overviewForm}
-                      settings={musicClipState.state.settings}
-                      prompts={musicClipState.state.prompts}
-                      channelAnimationFile={musicClipState.state.channelAnimationFile}
-                      setChannelAnimationFile={musicClipState.actions.setChannelAnimationFile}
-                      onSubmit={onOverviewSubmit}
-                      onBack={() => musicClipState.actions.setCurrentStep(3)}
-                      isGeneratingVideo={false}
-                      toast={toast}
-                    />
                   </div>
                 )}
               </div>
 
               {/* RIGHT SIDE - DRAG AND DROP AREA */}
               <div 
-                className={`flex flex-col h-full xl:col-span-1 transition-all duration-300 ${
+                className={`flex flex-col h-full xl:col-span-1 min-h-[600px] xl:min-h-[calc(100vh-200px)] transition-all duration-300 ${
                   dragAndDrop.state.isDragOver ? 'scale-[1.02]' : ''
                 }`}
                 onDragEnter={(e) => dragAndDrop.actions.handleDragEnter(e, dragAndDrop.state.isTrackReordering)}
@@ -1092,7 +1296,7 @@ function MusicClipPage() {
                   handleAudioFileChange(audioFiles);
                 }}
               >
-                <Card className={`bg-card border shadow-lg flex-1 flex flex-col min-h-0 transition-all duration-300 ${
+                <Card className={`bg-card border  flex-1 flex flex-col min-h-0 transition-all duration-300 ${
                   dragAndDrop.state.isDragOver 
                     ? 'border-primary/50 bg-primary/5' 
                     : 'border-border'
@@ -1178,7 +1382,7 @@ function MusicClipPage() {
                         </div>
                       ) : (
                         <div 
-                          className={`p-3 space-y-2 h-full overflow-y-auto transition-all duration-300 relative custom-scrollbar ${
+                          className={`p-3 space-y-2 h-full overflow-y-auto transition-all duration-300 relative scrollbar-modern ${
                             dragAndDrop.state.isDragOver ? 'opacity-50' : ''
                           }`}
                           style={{ maxHeight: 'calc(100vh - 300px)' }}
@@ -1199,7 +1403,7 @@ function MusicClipPage() {
                               track={track}
                               isSelected={musicTracks.selectedTrackIds.includes(track.id)}
                               isPlaying={audioPlayback.currentlyPlayingId === track.id && audioPlayback.isPlaying}
-                              hasDescription={reuseVideoclip.getTrackValidity(track.id)}
+                              hasDescription={!!trackValidity[track.id]}
                               onSelect={handleTrackSelect}
                               onPlayPause={handlePlayPause}
                               onRemove={handleTrackRemove}
@@ -1248,11 +1452,11 @@ function MusicClipPage() {
             </div>
             
             {/* NAVIGATION BUTTONS */}
-            {musicTracks.musicTracks.length > 0 && musicTracks.selectedTrackId && musicClipState.state.currentStep < 4 && (
-              <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-50">
+            {musicTracks.musicTracks.length > 0 && musicTracks.selectedTrackId && musicClipState.state.currentStep <= 4 && (
+              <div className="fixed bottom-0 left-16 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                  <div className={`${musicClipState.state.currentStep === 4 ? 'grid grid-cols-1 xl:grid-cols-3 gap-6' : 'flex items-center justify-between'}`}>
-                    <div className={musicClipState.state.currentStep === 4 ? 'xl:col-span-2' : ''}>
+                  <div className="flex items-center justify-between">
+                    <div className="w-24 flex-shrink-0">
                       <Button 
                         variant="outline" 
                         onClick={(e) => {
@@ -1262,27 +1466,33 @@ function MusicClipPage() {
                             handleBack(e);
                           }
                         }} 
-                        className="flex items-center space-x-2 btn-secondary-hover"
+                        className="w-24 h-10 flex items-center justify-center space-x-2 text-foreground border-border hover:bg-muted hover:text-foreground min-w-24 max-w-24"
                         disabled={musicClipState.state.currentStep === 1 && musicTracks.musicTracks.length === 0}
+                        style={{ width: '96px', minWidth: '96px', maxWidth: '96px' }}
                       >
                         <ChevronLeft className="w-4 h-4" />
                         <span>Back</span>
                       </Button>
                     </div>
                     
-                    {musicClipState.state.currentStep === 4 && (
-                      <div className="xl:col-span-1">
+                    {musicClipState.state.currentStep === 3 && (
+                      <div className="flex-1 flex justify-end">
                         <Button 
                           onClick={() => musicClipState.forms.overviewForm.handleSubmit(onOverviewSubmit)()} 
-                          className="w-full h-10 text-base font-semibold btn-ai-gradient text-white flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex items-center space-x-2 text-white btn-ai-gradient"
                           disabled={musicClipState.state.isGeneratingVideo}
                         >
                           {musicClipState.state.isGeneratingVideo ? (
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              <span>Generating...</span>
+                            </>
                           ) : (
-                            <Film className="w-4 h-4" />
+                            <>
+                              <span>Continue</span>
+                              <ChevronRight className="w-4 h-4" />
+                            </>
                           )}
-                          <span>{musicClipState.state.isGeneratingVideo ? 'Generating...' : `Generate Video (${musicClipState.state.settings?.budget?.[0] || 100} credits)`}</span>
                         </Button>
                       </div>
                     )}
@@ -1291,7 +1501,7 @@ function MusicClipPage() {
                       <Button 
                         onClick={musicClipState.actions.handleContinue} 
                         className={`flex items-center space-x-2 text-white ${
-                          musicTracks.musicTracks.length > 0 && musicTracks.selectedTrackId ? 'btn-ai-gradient' : 'bg-muted text-muted-foreground cursor-not-allowed'
+                          musicTracks.musicTracks.length > 0 && musicTracks.selectedTrackId ? 'btn-ai-gradient' : 'bg-muted text-foreground/50 cursor-not-allowed'
                         }`}
                         disabled={musicTracks.musicTracks.length === 0 || !musicTracks.selectedTrackId}
                       >
@@ -1304,7 +1514,7 @@ function MusicClipPage() {
                       <Button 
                         onClick={() => musicClipState.forms.settingsForm.handleSubmit(handleSettingsSubmit)()} 
                         className={`flex items-center space-x-2 text-white ${
-                          musicClipState.forms.settingsForm.formState.isValid ? 'btn-ai-gradient' : 'bg-muted text-muted-foreground cursor-not-allowed'
+                          musicClipState.forms.settingsForm.formState.isValid ? 'btn-ai-gradient' : 'bg-muted text-foreground/50 cursor-not-allowed'
                         }`}
                         disabled={!musicClipState.forms.settingsForm.formState.isValid}
                       >
@@ -1313,18 +1523,23 @@ function MusicClipPage() {
                       </Button>
                     )}
                     
-                    {musicClipState.state.currentStep === 3 && (
+                    {musicClipState.state.currentStep === 4 && (
                       <Button 
-                        onClick={() => musicClipState.forms.promptForm.handleSubmit((values: z.infer<typeof PromptSchema>) => onPromptSubmit(values))()} 
+                        onClick={() => {
+                          // Save current form data first
+                          const formValues = musicClipState.forms.promptForm.getValues();
+                          onPromptSubmit(formValues);
+                        }} 
                         className={`flex items-center space-x-2 text-white ${
-                          musicClipState.forms.promptForm.formState.isValid ? 'btn-ai-gradient' : 'bg-muted text-muted-foreground cursor-not-allowed'
+                          areAllTracksValid ? 'btn-ai-gradient' : 'bg-muted text-foreground/50 cursor-not-allowed'
                         }`}
-                        disabled={!musicClipState.forms.promptForm.formState.isValid}
+                        disabled={!areAllTracksValid}
                       >
-                        <Film className="w-4 h-4" />
-                        <span>Generate Video ({musicClipState.state.settings?.budget?.[0] || 100} credits)</span>
+                        <span>Checkout with {musicClipState.state.settings?.user_price || musicClipState.state.settings?.budget?.[0] || 0} credits</span>
+                        <ChevronRight className="w-4 h-4" />
                       </Button>
                     )}
+                    
                   </div>
                 </div>
               </div>

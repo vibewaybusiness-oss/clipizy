@@ -117,11 +117,6 @@ export function useProjectManagement() {
       console.log('Project script loaded:', projectScript);
       console.log('Project tracks loaded:', projectTracks);
       
-      toast({
-        title: "Project Loaded",
-        description: "Your existing project has been loaded successfully.",
-      });
-      
       return {
         script: projectScript,
         tracks: projectTracks,

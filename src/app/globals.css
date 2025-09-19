@@ -4,6 +4,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  .dark .bg-grid-pattern {
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  }
+}
+
 @layer base {
   :root {
     /* BRAND COLORS */
@@ -526,32 +541,43 @@
   .scrollbar-custom::-webkit-scrollbar-thumb:hover {
     @apply bg-foreground;
   }
-  
-  /* CUSTOM SCROLLBAR FOR CREATE-MUSIC POPUP */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 10px;
+
+  /* MODERN WHITE SCROLLBAR */
+  .scrollbar-modern::-webkit-scrollbar {
+    width: 8px;
   }
   
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 5px;
+  .scrollbar-modern::-webkit-scrollbar-track {
+    background: transparent;
   }
   
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
-    border: 2px solid rgba(0, 0, 0, 0.05);
+  .scrollbar-modern::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
   }
   
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.3);
+  .scrollbar-modern::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.1);
   }
   
-  .custom-scrollbar::-webkit-scrollbar-thumb:active {
-    background: rgba(0, 0, 0, 0.4);
+  .scrollbar-modern::-webkit-scrollbar-thumb:active {
+    background: rgba(255, 255, 255, 0.15);
   }
   
-  .custom-scrollbar::-webkit-scrollbar-corner {
-    background: rgba(0, 0, 0, 0.05);
+  .scrollbar-modern::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* HIDE SCROLLBAR */
+  .scrollbar-hide {
+    /* IE and Edge */
+    -ms-overflow-style: none;
+    /* Firefox */
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }

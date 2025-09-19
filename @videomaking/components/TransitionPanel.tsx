@@ -16,6 +16,7 @@ import {
   Play,
   Pause
 } from 'lucide-react';
+import { Tabs } from '@/components/ui/tabs';
 
 interface TransitionPanelProps {
   project: VideoProject;

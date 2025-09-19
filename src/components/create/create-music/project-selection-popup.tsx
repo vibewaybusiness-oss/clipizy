@@ -5,8 +5,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Music, Calendar, Clock, Plus, ArrowRight } from "lucide-react";
+import { Music, Calendar, Clock, Plus, ArrowRight, Trash2, AlertTriangle } from "lucide-react";
 import { musicClipAPI } from "@/lib/api/music-clip";
+import { useToast } from "@/hooks/use-toast";
 
 interface Project {
   project_id: string;
@@ -35,9 +36,13 @@ export function ProjectSelectionPopup({
   onNewProject,
   onContinueProject,
 }: ProjectSelectionPopupProps) {
+  const { toast } = useToast();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Reset and fetch projects when popup opens
   useEffect(() => {
@@ -102,6 +107,51 @@ export function ProjectSelectionPopup({
     }
   };
 
+  const handleDeleteClick = (e: React.MouseEvent, project: Project) => {
+    e.stopPropagation();
+    setProjectToDelete(project);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!projectToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await musicClipAPI.deleteProject(projectToDelete.project_id);
+      
+      // Remove the project from the local state
+      setProjects(prev => prev.filter(p => p.project_id !== projectToDelete.project_id));
+      
+      // Clear selection if the deleted project was selected
+      if (selectedProjectId === projectToDelete.project_id) {
+        setSelectedProjectId(null);
+      }
+      
+      setDeleteConfirmOpen(false);
+      setProjectToDelete(null);
+      
+      toast({
+        title: "Project Deleted",
+        description: `"${projectToDelete.name}" has been successfully deleted.`,
+      });
+    } catch (error) {
+      console.error('Failed to delete project:', error);
+      toast({
+        variant: "destructive",
+        title: "Delete Failed",
+        description: "Failed to delete the project. Please try again.",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteConfirmOpen(false);
+    setProjectToDelete(null);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
@@ -160,11 +210,11 @@ export function ProjectSelectionPopup({
                 <p className="text-sm">Start your first project above!</p>
               </div>
             ) : (
-              <div className="grid gap-4 max-h-96 overflow-y-auto custom-scrollbar">
+              <div className="grid gap-4 max-h-96 overflow-y-auto scrollbar-modern">
                 {projects.map((project) => (
                   <Card
                     key={project.project_id}
-                    className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                    className={`cursor-pointer transition-all duration-200  ${
                       selectedProjectId === project.project_id
                         ? 'ring-2 ring-primary border-primary'
                         : 'hover:border-primary/50'
@@ -229,11 +279,21 @@ export function ProjectSelectionPopup({
                           )}
                         </div>
 
-                        {selectedProjectId === project.project_id && (
-                          <div className="flex items-center text-primary">
-                            <ArrowRight className="w-5 h-5" />
-                          </div>
-                        )}
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleDeleteClick(e, project)}
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                          {selectedProjectId === project.project_id && (
+                            <div className="flex items-center text-primary">
+                              <ArrowRight className="w-5 h-5" />
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -260,6 +320,64 @@ export function ProjectSelectionPopup({
           )}
         </div>
       </DialogContent>
+
+      {/* DELETE CONFIRMATION DIALOG */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-destructive/10 rounded-full flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-destructive" />
+              </div>
+              <div>
+                <DialogTitle className="text-lg font-semibold">Delete Project</DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground">
+                  This action cannot be undone.
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <p className="text-sm text-foreground">
+              Are you sure you want to delete <span className="font-semibold">"{projectToDelete?.name}"</span>?
+            </p>
+            {projectToDelete?.tracks && projectToDelete.tracks.length > 0 && (
+              <p className="text-xs text-muted-foreground mt-2">
+                This will also delete {projectToDelete.tracks.length} track{projectToDelete.tracks.length !== 1 ? 's' : ''} associated with this project.
+              </p>
+            )}
+          </div>
+
+          <div className="flex justify-end space-x-3">
+            <Button
+              variant="outline"
+              onClick={handleDeleteCancel}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="flex items-center space-x-2"
+            >
+              {isDeleting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Deleting...</span>
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete Project</span>
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }

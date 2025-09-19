@@ -70,6 +70,7 @@ export default function VideoMakerDemo() {
       }
     ],
     transitions: [],
+    keyframes: [],
     settings: {
       resolution: { width: 1920, height: 1080, name: '1080p' },
       frameRate: 30,

@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Film, Upload, FileVideo, ChevronRight, X, Volume2 } from "lucide-react";
+import { Loader2, Film, Upload, FileVideo, ChevronRight, X, Volume2, Video, ChevronLeft } from "lucide-react";
 import { OverviewSchema, PromptSchema, SettingsSchema } from "@/components/vibewave-generator";
 
 type StepOverviewProps = {
@@ -40,6 +40,8 @@ export function StepOverview({
 }: StepOverviewProps) {
   const audioVisualizerEnabled = form.watch("audioVisualizerEnabled");
   const [showAudioVisualizerSelector, setShowAudioVisualizerSelector] = useState(false);
+  const [showAudioTransitionSelector, setShowAudioTransitionSelector] = useState(false);
+  const [showVideoTransitionSelector, setShowVideoTransitionSelector] = useState(false);
   const [introAnimationFile, setIntroAnimationFile] = useState<File | null>(null);
   const [outroAnimationFile, setOutroAnimationFile] = useState<File | null>(null);
 
@@ -92,11 +94,11 @@ export function StepOverview({
 
   return (
     <div className="h-full flex flex-col">
-      <Card className="w-full animate-fade-in-up bg-background/50 flex-1 flex flex-col shadow-lg border-border">
+      <Card className="w-full animate-fade-in-up bg-background/50 flex-1 flex flex-col border-border">
         <CardContent className="flex-1 flex flex-col p-6">
         <Form {...form}>
           <div className="flex-1 flex flex-col">
-            <div className="flex-1 overflow-y-auto space-y-8 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto space-y-8">
               {/* Channel Animation Section - 2 Side by Side */}
               <div className="space-y-6">
                 <div className="space-y-2">
@@ -117,9 +119,9 @@ export function StepOverview({
                         <FormItem>
                           <FormLabel>Upload Intro Animation</FormLabel>
                           <FormControl>
-                            <label htmlFor="intro-animation-upload" className={`flex flex-col items-center justify-center p-8 rounded-xl cursor-pointer border-2 border-dashed transition-all duration-300 group hover:shadow-md ${
+                            <label htmlFor="intro-animation-upload" className={`flex flex-col items-center justify-center p-8 rounded-xl cursor-pointer border-2 border-dashed transition-all duration-300 group  ${
                               introAnimationFile 
-                                ? 'border-primary bg-primary/5 shadow-sm' 
+                                ? 'border-primary bg-primary/5 ' 
                                 : 'border-border hover:border-primary/50 bg-muted/30 hover:bg-muted/50'
                             }`}>
                               <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 ${
@@ -153,9 +155,9 @@ export function StepOverview({
                         <FormItem>
                           <FormLabel>Upload Outro Animation</FormLabel>
                           <FormControl>
-                            <label htmlFor="outro-animation-upload" className={`flex flex-col items-center justify-center p-8 rounded-xl cursor-pointer border-2 border-dashed transition-all duration-300 group hover:shadow-md ${
+                            <label htmlFor="outro-animation-upload" className={`flex flex-col items-center justify-center p-8 rounded-xl cursor-pointer border-2 border-dashed transition-all duration-300 group  ${
                               outroAnimationFile 
-                                ? 'border-accent bg-accent/5 shadow-sm' 
+                                ? 'border-accent bg-accent/5 ' 
                                 : 'border-border hover:border-accent/50 bg-muted/30 hover:bg-muted/50'
                             }`}>
                               <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 ${
@@ -295,7 +297,7 @@ export function StepOverview({
                   <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" onClick={() => setShowAudioVisualizerSelector(false)}>
                     <div className="flex items-center justify-center min-h-screen p-4">
                       <div 
-                        className="bg-background rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar"
+                        className="bg-background rounded-2xl  max-w-6xl w-full max-h-[90vh] overflow-y-auto"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="p-8">
@@ -379,12 +381,18 @@ export function StepOverview({
                                 key={type.id}
                                 className={`p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-105 ${
                                   form.watch("audioVisualizerType") === type.id
-                                    ? "border-primary bg-primary/5 shadow-xl"
+                                    ? "border-primary bg-primary/5 "
                                     : "border-border hover:border-primary/50 hover:bg-muted/50"
                                 }`}
                                 onClick={() => {
                                   form.setValue("audioVisualizerType", type.id);
                                   form.setValue("audioVisualizerEnabled", type.id !== "none");
+                                  // Set default values when visualizer is selected
+                                  if (type.id !== "none") {
+                                    form.setValue("audioVisualizerSize", "medium");
+                                    form.setValue("audioVisualizerPositionV", "center");
+                                    form.setValue("audioVisualizerPositionH", "center");
+                                  }
                                   setShowAudioVisualizerSelector(false);
                                 }}
                               >
@@ -416,56 +424,12 @@ export function StepOverview({
                 )}
               </div>
 
-              {/* Position and Size Settings - Always visible when visualizer is enabled */}
+              {/* Size & Position Settings - Always visible when visualizer is enabled */}
               {audioVisualizerEnabled && form.watch("audioVisualizerType") !== "none" && (
-                <div className="space-y-4 pt-4 border-t border-border">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    {/* Size Section - Left */}
                     <div className="space-y-3">
-                      <h4 className="font-semibold text-sm">Position</h4>
-                      <div className="grid grid-cols-2 gap-2">
-                        <FormField
-                          control={form.control}
-                          name="audioVisualizerPositionV"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-xs">Vertical</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger><SelectValue /></SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="top">Top</SelectItem>
-                                  <SelectItem value="center">Center</SelectItem>
-                                  <SelectItem value="bottom">Bottom</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="audioVisualizerPositionH"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-xs">Horizontal</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger><SelectValue /></SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="left">Left</SelectItem>
-                                  <SelectItem value="center">Center</SelectItem>
-                                  <SelectItem value="right">Right</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <h4 className="font-semibold text-sm">Size</h4>
+                      <FormLabel className="text-xs font-semibold">Size</FormLabel>
                       <FormField
                         control={form.control}
                         name="audioVisualizerSize"
@@ -473,7 +437,7 @@ export function StepOverview({
                           <FormItem>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectTrigger><SelectValue placeholder="Select size" /></SelectTrigger>
                               </FormControl>
                               <SelectContent>
                                 <SelectItem value="small">Small</SelectItem>
@@ -485,9 +449,420 @@ export function StepOverview({
                         )}
                       />
                     </div>
+                    
+                    {/* Vertical Position Section - Center */}
+                    <div className="space-y-3">
+                      <FormLabel className="text-xs font-semibold">Vertical position</FormLabel>
+                      <FormField
+                        control={form.control}
+                        name="audioVisualizerPositionV"
+                        render={({ field }) => (
+                          <FormItem>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger><SelectValue placeholder="Vertical" /></SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="top">Top</SelectItem>
+                                <SelectItem value="center">Center</SelectItem>
+                                <SelectItem value="bottom">Bottom</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Horizontal Position Section - Right */}
+                    <div className="space-y-3">
+                      <FormLabel className="text-xs font-semibold">Horizontal position</FormLabel>
+                      <FormField
+                        control={form.control}
+                        name="audioVisualizerPositionH"
+                        render={({ field }) => (
+                          <FormItem>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger><SelectValue placeholder="Horizontal" /></SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="left">Left</SelectItem>
+                                <SelectItem value="center">Center</SelectItem>
+                                <SelectItem value="right">Right</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+               )}
+             </div>
+
+             {/* Transition Section */}
+             <div className="space-y-6">
+                <div className="space-y-2">
+                  <h3 className="font-bold text-xl text-foreground">Transition</h3>
+                  <p className="text-sm text-muted-foreground">Configure audio and video transitions</p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Audio Visualizer Button */}
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <h4 className="font-semibold text-base text-foreground">Visualizer</h4>
+                    </div>
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      className="w-full justify-between h-12 text-left font-normal btn-secondary-hover"
+                      onClick={() => setShowAudioVisualizerSelector(true)}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Volume2 className="w-5 h-5 text-muted-foreground" />
+                        <div>
+                          {form.watch("audioVisualizerType") ? (
+                            <span>
+                              {[
+                                { id: "none", name: "None" },
+                                { id: "bar", name: "Bar" },
+                                { id: "wave", name: "Wave" },
+                                { id: "points", name: "Points" },
+                                { id: "circle", name: "Circle" },
+                                { id: "spectrum", name: "Spectrum" },
+                                { id: "minimal", name: "Minimal" }
+                              ].find(s => s.id === form.watch("audioVisualizerType"))?.name}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">Select visualizer type</span>
+                          )}
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    </Button>
+                  </div>
+
+                  {/* Audio Transition */}
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      <h4 className="font-semibold text-base text-foreground">Audio</h4>
+                    </div>
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      className="w-full justify-between h-12 text-left font-normal btn-secondary-hover"
+                      onClick={() => setShowAudioTransitionSelector(true)}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Volume2 className="w-5 h-5 text-muted-foreground" />
+                        <div>
+                          {form.watch("audioTransition") ? (
+                            <span>
+                              {[
+                                { id: "none", name: "None" },
+                                { id: "fade", name: "Fade" },
+                                { id: "crossfade", name: "Crossfade" },
+                                { id: "dissolve", name: "Dissolve" },
+                                { id: "wipe", name: "Wipe" },
+                                { id: "slide", name: "Slide" },
+                                { id: "zoom", name: "Zoom" },
+                                { id: "spin", name: "Spin" }
+                              ].find(t => t.id === form.watch("audioTransition"))?.name}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">Select audio transition</span>
+                          )}
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    </Button>
+                  </div>
+
+                  {/* Video Transition */}
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-accent rounded-full"></div>
+                      <h4 className="font-semibold text-base text-foreground">Video</h4>
+                    </div>
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      className="w-full justify-between h-12 text-left font-normal btn-secondary-hover"
+                      onClick={() => setShowVideoTransitionSelector(true)}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Film className="w-5 h-5 text-muted-foreground" />
+                        <div>
+                          {form.watch("videoTransition") ? (
+                            <span>
+                              {[
+                                { id: "none", name: "None" },
+                                { id: "fade", name: "Fade" },
+                                { id: "dissolve", name: "Dissolve" },
+                                { id: "wipe", name: "Wipe" },
+                                { id: "slide", name: "Slide" },
+                                { id: "zoom", name: "Zoom" },
+                                { id: "spin", name: "Spin" },
+                                { id: "flip", name: "Flip" },
+                                { id: "cube", name: "Cube" },
+                                { id: "page", name: "Page Turn" }
+                              ].find(t => t.id === form.watch("videoTransition"))?.name}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">Select video transition</span>
+                          )}
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    </Button>
                   </div>
                 </div>
-              )}
+
+                {/* Audio Transition Selector Modal */}
+                {showAudioTransitionSelector && (
+                  <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" onClick={() => setShowAudioTransitionSelector(false)}>
+                    <div className="flex items-center justify-center min-h-screen p-4">
+                      <div 
+                        className="bg-background rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="p-8">
+                          <div className="flex items-center justify-between mb-8">
+                            <div>
+                              <h2 className="text-3xl font-bold">Choose Audio Transition</h2>
+                              <p className="text-muted-foreground mt-2">
+                                Select the type of audio transition you want to apply.
+                              </p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setShowAudioTransitionSelector(false)}
+                              className="h-10 w-10"
+                            >
+                              <X className="h-6 w-6" />
+                            </Button>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {[
+                              {
+                                id: "none",
+                                name: "None",
+                                description: "No audio transition",
+                                icon: "🚫",
+                                gradient: "from-gray-500/20 to-gray-600/20"
+                              },
+                              {
+                                id: "fade",
+                                name: "Fade",
+                                description: "Smooth fade in/out",
+                                icon: "🌅",
+                                gradient: "from-blue-500/20 to-cyan-500/20"
+                              },
+                              {
+                                id: "crossfade",
+                                name: "Crossfade",
+                                description: "Blend between tracks",
+                                icon: "🔄",
+                                gradient: "from-green-500/20 to-teal-500/20"
+                              },
+                              {
+                                id: "dissolve",
+                                name: "Dissolve",
+                                description: "Gradual audio dissolve",
+                                icon: "💧",
+                                gradient: "from-purple-500/20 to-pink-500/20"
+                              },
+                              {
+                                id: "wipe",
+                                name: "Wipe",
+                                description: "Directional audio wipe",
+                                icon: "🧹",
+                                gradient: "from-orange-500/20 to-red-500/20"
+                              },
+                              {
+                                id: "slide",
+                                name: "Slide",
+                                description: "Sliding audio transition",
+                                icon: "📱",
+                                gradient: "from-indigo-500/20 to-purple-500/20"
+                              },
+                              {
+                                id: "zoom",
+                                name: "Zoom",
+                                description: "Zoom-based transition",
+                                icon: "🔍",
+                                gradient: "from-yellow-500/20 to-orange-500/20"
+                              },
+                              {
+                                id: "spin",
+                                name: "Spin",
+                                description: "Rotational transition",
+                                icon: "🌀",
+                                gradient: "from-pink-500/20 to-rose-500/20"
+                              }
+                            ].map((transition) => (
+                              <div
+                                key={transition.id}
+                                className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-105 ${
+                                  form.watch("audioTransition") === transition.id
+                                    ? "border-primary bg-primary/5"
+                                    : "border-border hover:border-primary/50 hover:bg-muted/50"
+                                }`}
+                                onClick={() => {
+                                  form.setValue("audioTransition", transition.id);
+                                  setShowAudioTransitionSelector(false);
+                                }}
+                              >
+                                <div className="space-y-3">
+                                  <div className={`w-full h-24 bg-gradient-to-br ${transition.gradient} rounded-lg flex items-center justify-center`}>
+                                    <span className="text-3xl">{transition.icon}</span>
+                                  </div>
+                                  <div>
+                                    <h3 className="font-bold text-lg">{transition.name}</h3>
+                                    <p className="text-sm text-muted-foreground">{transition.description}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Video Transition Selector Modal */}
+                {showVideoTransitionSelector && (
+                  <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" onClick={() => setShowVideoTransitionSelector(false)}>
+                    <div className="flex items-center justify-center min-h-screen p-4">
+                      <div 
+                        className="bg-background rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="p-8">
+                          <div className="flex items-center justify-between mb-8">
+                            <div>
+                              <h2 className="text-3xl font-bold">Choose Video Transition</h2>
+                              <p className="text-muted-foreground mt-2">
+                                Select the type of video transition you want to apply.
+                              </p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setShowVideoTransitionSelector(false)}
+                              className="h-10 w-10"
+                            >
+                              <X className="h-6 w-6" />
+                            </Button>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {[
+                              {
+                                id: "none",
+                                name: "None",
+                                description: "No video transition",
+                                icon: "🚫",
+                                gradient: "from-gray-500/20 to-gray-600/20"
+                              },
+                              {
+                                id: "fade",
+                                name: "Fade",
+                                description: "Smooth fade in/out",
+                                icon: "🌅",
+                                gradient: "from-blue-500/20 to-cyan-500/20"
+                              },
+                              {
+                                id: "dissolve",
+                                name: "Dissolve",
+                                description: "Gradual video dissolve",
+                                icon: "💧",
+                                gradient: "from-green-500/20 to-teal-500/20"
+                              },
+                              {
+                                id: "wipe",
+                                name: "Wipe",
+                                description: "Directional video wipe",
+                                icon: "🧹",
+                                gradient: "from-purple-500/20 to-pink-500/20"
+                              },
+                              {
+                                id: "slide",
+                                name: "Slide",
+                                description: "Sliding video transition",
+                                icon: "📱",
+                                gradient: "from-orange-500/20 to-red-500/20"
+                              },
+                              {
+                                id: "zoom",
+                                name: "Zoom",
+                                description: "Zoom-based transition",
+                                icon: "🔍",
+                                gradient: "from-indigo-500/20 to-purple-500/20"
+                              },
+                              {
+                                id: "spin",
+                                name: "Spin",
+                                description: "Rotational transition",
+                                icon: "🌀",
+                                gradient: "from-yellow-500/20 to-orange-500/20"
+                              },
+                              {
+                                id: "flip",
+                                name: "Flip",
+                                description: "3D flip transition",
+                                icon: "🔄",
+                                gradient: "from-pink-500/20 to-rose-500/20"
+                              },
+                              {
+                                id: "cube",
+                                name: "Cube",
+                                description: "3D cube rotation",
+                                icon: "🧊",
+                                gradient: "from-cyan-500/20 to-blue-500/20"
+                              },
+                              {
+                                id: "page",
+                                name: "Page Turn",
+                                description: "Book page flip effect",
+                                icon: "📖",
+                                gradient: "from-amber-500/20 to-yellow-500/20"
+                              }
+                            ].map((transition) => (
+                              <div
+                                key={transition.id}
+                                className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-105 ${
+                                  form.watch("videoTransition") === transition.id
+                                    ? "border-primary bg-primary/5"
+                                    : "border-border hover:border-primary/50 hover:bg-muted/50"
+                                }`}
+                                onClick={() => {
+                                  form.setValue("videoTransition", transition.id);
+                                  setShowVideoTransitionSelector(false);
+                                }}
+                              >
+                                <div className="space-y-3">
+                                  <div className={`w-full h-24 bg-gradient-to-br ${transition.gradient} rounded-lg flex items-center justify-center`}>
+                                    <span className="text-3xl">{transition.icon}</span>
+                                  </div>
+                                  <div>
+                                    <h3 className="font-bold text-lg">{transition.name}</h3>
+                                    <p className="text-sm text-muted-foreground">{transition.description}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

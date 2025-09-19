@@ -5,6 +5,8 @@ from .export_router import router as export_router
 from .stats_router import router as stats_router
 from .prompt_router import router as prompt_router
 from .music_clip_router import router as music_clip_router
+from .runpod_router import router as runpod_router
+from .qwen_router import router as qwen_router
 
 all_routers = [
     project_router,
@@ -14,4 +16,6 @@ all_routers = [
     stats_router,
     prompt_router,
     music_clip_router,
+    runpod_router,
+    qwen_router,
 ]

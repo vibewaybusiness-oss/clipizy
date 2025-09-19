@@ -1,6 +1,19 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+interface PricingPlan {
+  id: string;
+  name: string;
+  price: number;
+  currency: string;
+  interval: 'month' | 'year' | 'one-time';
+  features: string[];
+  popular?: boolean;
+  credits?: number;
+  maxVideos?: number;
+  maxDuration?: number; // in minutes
+}
 
 export interface PricingConfig {
   credits_rate: number;
@@ -44,15 +57,75 @@ export interface PricingConfig {
 }
 
 interface PricingContextType {
-  pricing: PricingConfig | null;
+  plans: PricingPlan[];
+  selectedPlan: PricingPlan | null;
   loading: boolean;
-  error: string | null;
-  refreshPricing: () => Promise<void>;
+  pricing: PricingConfig;
+  selectPlan: (plan: PricingPlan) => void;
+  getPlanById: (id: string) => PricingPlan | undefined;
+  calculatePrice: (plan: PricingPlan, isYearly?: boolean) => number;
 }
 
-const PricingContext = createContext<PricingContextType | undefined>(undefined);
+const defaultPlans: PricingPlan[] = [
+  {
+    id: 'free',
+    name: 'Free',
+    price: 0,
+    currency: 'USD',
+    interval: 'month',
+    features: [
+      '3 music videos per month',
+      'Up to 2 minutes duration',
+      'Basic AI styles',
+      'Standard quality export',
+      'Community support'
+    ],
+    credits: 3,
+    maxVideos: 3,
+    maxDuration: 2,
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    price: 19,
+    currency: 'USD',
+    interval: 'month',
+    features: [
+      'Unlimited music videos',
+      'Up to 10 minutes duration',
+      'Premium AI styles',
+      'HD quality export',
+      'Priority support',
+      'Custom branding',
+      'Advanced editing tools'
+    ],
+    popular: true,
+    credits: -1, // unlimited
+    maxVideos: -1, // unlimited
+    maxDuration: 10,
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    price: 99,
+    currency: 'USD',
+    interval: 'month',
+    features: [
+      'Everything in Pro',
+      'Custom AI training',
+      'API access',
+      'White-label solution',
+      'Dedicated support',
+      'Custom integrations',
+      'Team collaboration'
+    ],
+    credits: -1, // unlimited
+    maxVideos: -1, // unlimited
+    maxDuration: 30,
+  },
+];
 
-const DEFAULT_PRICING: PricingConfig = {
+const defaultPricingConfig: PricingConfig = {
   credits_rate: 20,
   music_generator: {
     "stable-audio": {
@@ -93,54 +166,72 @@ const DEFAULT_PRICING: PricingConfig = {
   }
 };
 
-interface PricingProviderProps {
-  children: ReactNode;
-}
+const PricingContext = createContext<PricingContextType | undefined>(undefined);
 
-export function PricingProvider({ children }: PricingProviderProps) {
-  const [pricing, setPricing] = useState<PricingConfig | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
+export function PricingProvider({ children }: { children: React.ReactNode }) {
+  const [plans, setPlans] = useState<PricingPlan[]>(defaultPlans);
+  const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const fetchPricing = async () => {
+  useEffect(() => {
+    // Load pricing plans from API or localStorage
+    loadPricingPlans();
+  }, []);
+
+  const loadPricingPlans = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      setError(null);
+      // TODO: Load from API
+      // For now, use default plans
+      setPlans(defaultPlans);
       
-      const response = await fetch('/api/pricing');
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch pricing config: ${response.statusText}`);
+      // Load selected plan from localStorage
+      if (typeof window !== 'undefined') {
+        const storedPlan = localStorage.getItem('selectedPlan');
+        if (storedPlan) {
+          const plan = JSON.parse(storedPlan);
+          setSelectedPlan(plan);
+        }
       }
-      
-      const data = await response.json();
-      setPricing(data);
-    } catch (err) {
-      console.error('Error fetching pricing:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
-      setPricing(DEFAULT_PRICING);
+    } catch (error) {
+      console.error('Error loading pricing plans:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const refreshPricing = async () => {
-    await fetchPricing();
+  const selectPlan = (plan: PricingPlan) => {
+    setSelectedPlan(plan);
+    
+    // Store in localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedPlan', JSON.stringify(plan));
+    }
   };
 
-  useEffect(() => {
-    if (!isInitialized) {
-      fetchPricing();
-      setIsInitialized(true);
+  const getPlanById = (id: string): PricingPlan | undefined => {
+    return plans.find(plan => plan.id === id);
+  };
+
+  const calculatePrice = (plan: PricingPlan, isYearly: boolean = false): number => {
+    if (plan.price === 0) return 0;
+    
+    if (isYearly && plan.interval === 'month') {
+      // Apply yearly discount (2 months free)
+      return plan.price * 10;
     }
-  }, [isInitialized]);
+    
+    return plan.price;
+  };
 
   const value: PricingContextType = {
-    pricing,
+    plans,
+    selectedPlan,
     loading,
-    error,
-    refreshPricing
+    pricing: defaultPricingConfig,
+    selectPlan,
+    getPlanById,
+    calculatePrice,
   };
 
   return (
@@ -150,10 +241,10 @@ export function PricingProvider({ children }: PricingProviderProps) {
   );
 }
 
-export function usePricingContext() {
+export function usePricing() {
   const context = useContext(PricingContext);
   if (context === undefined) {
-    throw new Error('usePricingContext must be used within a PricingProvider');
+    throw new Error('usePricing must be used within a PricingProvider');
   }
   return context;
 }

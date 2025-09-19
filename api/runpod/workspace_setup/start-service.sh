@@ -1,59 +1,44 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Starting comfyui setup and launch..."
+echo "🚀 Starting ComfyUI setup and launch..."
 
-# Check if comfyui is already installed
-if [ ! -d "/comfyui" ]; then
-    echo "📦 Installing comfyui..."
+# Check if ComfyUI is already installed
+if [ ! -d "/workspace/ComfyUI" ]; then
+    echo "📦 Installing ComfyUI..."
     
-    # Install comfyui
-    cd 
-    git clone https://github.com/comfyanonymous/comfyui.git
-    cd comfyui
+    # Install ComfyUI
+    cd /workspace
+    git clone https://github.com/comfyanonymous/ComfyUI.git
+    cd ComfyUI
+    
+    # Create virtual environment
+    python3 -m venv .comfyui
+    source .comfyui/bin/activate
     
     # Install requirements
-    python -m ensurepip --upgrade
-    python -m pip install --upgrade setuptools
-    apt update && apt install -y python3-venv
-
-    python3 -m venv .comfyui && source .comfyui/bin/activate
     pip install -r requirements.txt
-
+    
     # Install additional packages
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
     
-    pip install onnxruntime-gpu wheel setuptools packaging ninja "accelerate >= 1.1.1" "diffusers >= 0.31.0" "transformers >= 4.39.3" Triton
-
-    git clone https://github.com/thu-ml/SageAttention
-    cd SageAttention
-    pip install -e .
-    
-    cd ../
-    cd custom_nodes
-
-    git clone https://github.com/welltop-cn/comfyui-TeaCache.git
-    cd comfyui-TeaCache
-    pip install -r requirements.txt
-    cd ../
-
-    echo "✅ comfyui installed successfully"
+    echo "✅ ComfyUI installed successfully"
 else
-    echo "✅ comfyui already installed, activating environment..."
-    cd /comfyui
+    echo "✅ ComfyUI already installed, activating environment..."
+    cd /workspace/ComfyUI
     source .comfyui/bin/activate
 fi
 
-# Start comfyui
-echo "🎨 Starting comfyui..."
+# Start ComfyUI
+echo "🎨 Starting ComfyUI..."
 nohup python3 main.py --listen 0.0.0.0 --port 8188 > comfyui.log 2>&1 &
 
-# Wait a moment for comfyui to start
+# Wait a moment for ComfyUI to start
 sleep 5
 
-# Check if comfyui is running
+# Check if ComfyUI is running
 if pgrep -f "python3 main.py" > /dev/null; then
-    echo "✅ comfyui started successfully on port 8188"
+    echo "✅ ComfyUI started successfully on port 8188"
     echo "🌐 Internal access: http://$(hostname -I | awk '{print $1}'):8188"
     
     # Get pod ID from environment variable
@@ -96,7 +81,7 @@ if pgrep -f "python3 main.py" > /dev/null; then
                 
                 if [ $? -eq 0 ] && echo "$UPDATE_RESPONSE" | grep -q '"id"'; then
                     echo "✅ Port 8188 exposed successfully via RunPod API"
-                    echo "🌐 comfyui will be accessible at: https://$POD_ID-8188.proxy.runpod.net"
+                    echo "🌐 ComfyUI will be accessible at: https://$POD_ID-8188.proxy.runpod.net"
                 else
                     echo "⚠️ Failed to expose port 8188 via API, manual setup required"
                     echo "📋 API Response: $UPDATE_RESPONSE"
@@ -120,9 +105,9 @@ if pgrep -f "python3 main.py" > /dev/null; then
     echo ""
     echo "📋 Your pod ID: $POD_ID"
 else
-    echo "❌ Failed to start comfyui"
+    echo "❌ Failed to start ComfyUI"
     echo "📄 Check comfyui.log for details:"
     tail -20 comfyui.log
 fi
 
-echo "✅ Services started: comfyui (8188)"
+echo "✅ Services started: ComfyUI (8188)"

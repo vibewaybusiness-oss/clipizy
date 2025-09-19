@@ -51,12 +51,14 @@ export const OverviewSchema = z.object({
     outroAnimationFile: z.any().optional(),
     playMusicDuringIntro: z.boolean(),
     playMusicDuringOutro: z.boolean(),
-    videoDescription: z.string().min(10, "Video description is too short.").max(500, "Video description is too long."),
+    videoDescription: z.string().optional(),
     audioVisualizerEnabled: z.boolean(),
     audioVisualizerPositionV: z.string().optional(),
     audioVisualizerPositionH: z.string().optional(),
     audioVisualizerSize: z.string().optional(),
     audioVisualizerType: z.string().optional(),
+    audioTransition: z.string().optional(),
+    videoTransition: z.string().optional(),
 });
 
 

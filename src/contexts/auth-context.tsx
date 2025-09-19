@@ -1,177 +1,141 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface User {
   id: string;
-  name: string;
   email: string;
+  name?: string;
   avatar?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, password: string) => Promise<boolean>;
-  loginWithGoogle: () => Promise<boolean>;
-  loginWithGithub: () => Promise<boolean>;
-  logout: () => void;
-  isAuthenticated: boolean;
+  loading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, name?: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  updateProfile: (updates: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
-  // Check for existing session on mount
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        // Check localStorage for existing session
-        const storedUser = localStorage.getItem("vibewave_user");
+    // Check for existing session on mount
+    checkAuthState();
+  }, []);
+
+  const checkAuthState = async () => {
+    try {
+      // Check localStorage for user data
+      if (typeof window !== 'undefined') {
+        const storedUser = localStorage.getItem('user');
         if (storedUser) {
           setUser(JSON.parse(storedUser));
         }
-      } catch (error) {
-        console.error("Auth check failed:", error);
-      } finally {
-        setIsLoading(false);
       }
-    };
-
-    checkAuth();
-  }, []);
-
-  const login = async (email: string, password: string): Promise<boolean> => {
-    try {
-      setIsLoading(true);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // For demo purposes, accept any email/password
-      if (email && password) {
-        const userData: User = {
-          id: "1",
-          name: email.split("@")[0],
-          email: email,
-        };
-        
-        setUser(userData);
-        localStorage.setItem("vibewave_user", JSON.stringify(userData));
-        return true;
-      }
-      
-      return false;
     } catch (error) {
-      console.error("Login failed:", error);
-      return false;
+      console.error('Error checking auth state:', error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+  const signIn = async (email: string, password: string) => {
+    setLoading(true);
     try {
-      setIsLoading(true);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // For demo purposes, accept any valid form data
-      if (name && email && password) {
-        const userData: User = {
-          id: "1",
-          name: name,
-          email: email,
-        };
-        
-        setUser(userData);
-        localStorage.setItem("vibewave_user", JSON.stringify(userData));
-        return true;
-      }
-      
-      return false;
-    } catch (error) {
-      console.error("Registration failed:", error);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loginWithGoogle = async (): Promise<boolean> => {
-    try {
-      setIsLoading(true);
-      
-      // Simulate Google OAuth flow
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock Google user data
-      const userData: User = {
-        id: "google_123",
-        name: "Google User",
-        email: "user@gmail.com",
-        avatar: "https://via.placeholder.com/40",
+      // TODO: Implement actual authentication logic
+      // For now, create a mock user
+      const mockUser: User = {
+        id: '1',
+        email,
+        name: email.split('@')[0],
       };
       
-      setUser(userData);
-      localStorage.setItem("vibewave_user", JSON.stringify(userData));
-      return true;
+      setUser(mockUser);
+      
+      // Store in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user', JSON.stringify(mockUser));
+      }
     } catch (error) {
-      console.error("Google login failed:", error);
-      return false;
+      console.error('Sign in error:', error);
+      throw error;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const loginWithGithub = async (): Promise<boolean> => {
+  const signUp = async (email: string, password: string, name?: string) => {
+    setLoading(true);
     try {
-      setIsLoading(true);
-      
-      // Simulate GitHub OAuth flow
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock GitHub user data
-      const userData: User = {
-        id: "github_456",
-        name: "GitHub User",
-        email: "user@github.com",
-        avatar: "https://via.placeholder.com/40",
+      // TODO: Implement actual registration logic
+      // For now, create a mock user
+      const mockUser: User = {
+        id: '1',
+        email,
+        name: name || email.split('@')[0],
       };
       
-      setUser(userData);
-      localStorage.setItem("vibewave_user", JSON.stringify(userData));
-      return true;
+      setUser(mockUser);
+      
+      // Store in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user', JSON.stringify(mockUser));
+      }
     } catch (error) {
-      console.error("GitHub login failed:", error);
-      return false;
+      console.error('Sign up error:', error);
+      throw error;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("vibewave_user");
-    router.push("/");
+  const signOut = async () => {
+    setLoading(true);
+    try {
+      setUser(null);
+      
+      // Remove from localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('user');
+      }
+    } catch (error) {
+      console.error('Sign out error:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateProfile = async (updates: Partial<User>) => {
+    if (!user) return;
+    
+    try {
+      const updatedUser = { ...user, ...updates };
+      setUser(updatedUser);
+      
+      // Update localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+    } catch (error) {
+      console.error('Update profile error:', error);
+      throw error;
+    }
   };
 
   const value: AuthContextType = {
     user,
-    isLoading,
-    login,
-    register,
-    loginWithGoogle,
-    loginWithGithub,
-    logout,
-    isAuthenticated: !!user,
+    loading,
+    signIn,
+    signUp,
+    signOut,
+    updateProfile,
   };
 
   return (
@@ -184,8 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }
-

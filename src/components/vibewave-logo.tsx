@@ -1,40 +1,75 @@
 import { cn } from "@/lib/utils";
 
-export const VibewaveLogo = ({ className }: { className?: string }) => (
-  <svg
-    viewBox="0 0 100 100"
-    xmlns="http://www.w3.org/2000/svg"
-    className={cn("w-12 h-12", className)}
-  >
-    <defs>
-      <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style={{ stopColor: "hsl(var(--primary))" }} />
-        <stop offset="100%" style={{ stopColor: "hsl(var(--accent))" }} />
-      </linearGradient>
-    </defs>
-    <g transform="translate(50, 50)">
-      <circle cx="0" cy="0" r="48" fill="none" stroke="url(#logoGradient)" strokeWidth="4" />
+interface VibewaveLogoProps {
+  className?: string;
+}
+
+export function VibewaveLogo({ className }: VibewaveLogoProps) {
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      className={cn("w-8 h-8", className)}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Outer circle with gradient */}
+      <defs>
+        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="hsl(var(--brand-primary))" />
+          <stop offset="100%" stopColor="hsl(var(--brand-accent))" />
+        </linearGradient>
+        <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="hsl(var(--brand-primary))" />
+          <stop offset="50%" stopColor="hsl(var(--brand-secondary))" />
+          <stop offset="100%" stopColor="hsl(var(--brand-accent))" />
+        </linearGradient>
+      </defs>
+      
+      {/* Background circle */}
+      <circle
+        cx="16"
+        cy="16"
+        r="15"
+        fill="url(#logoGradient)"
+        className="opacity-20"
+      />
+      
+      {/* Main circle */}
+      <circle
+        cx="16"
+        cy="16"
+        r="12"
+        fill="none"
+        stroke="url(#logoGradient)"
+        strokeWidth="2"
+      />
+      
+      {/* Wave pattern */}
       <path
-        d="M -30 15 Q -15 25 0 15 T 30 15"
+        d="M8 16 Q12 8, 16 16 T24 16"
+        stroke="url(#waveGradient)"
+        strokeWidth="2.5"
         fill="none"
-        stroke="url(#logoGradient)"
-        strokeWidth="4"
         strokeLinecap="round"
       />
+      
+      {/* Inner wave */}
       <path
-        d="M -30 0 Q -15 -10 0 0 T 30 0"
+        d="M10 16 Q14 12, 18 16 T26 16"
+        stroke="url(#waveGradient)"
+        strokeWidth="1.5"
         fill="none"
-        stroke="url(#logoGradient)"
-        strokeWidth="4"
         strokeLinecap="round"
+        opacity="0.7"
       />
-       <path
-        d="M -30 -15 Q -15 -25 0 -15 T 30 -15"
-        fill="none"
-        stroke="url(#logoGradient)"
-        strokeWidth="4"
-        strokeLinecap="round"
+      
+      {/* Center dot */}
+      <circle
+        cx="16"
+        cy="16"
+        r="2"
+        fill="url(#logoGradient)"
       />
-    </g>
-  </svg>
-);
+    </svg>
+  );
+}

@@ -18,8 +18,8 @@ interface TimelineHeaderProps {
 
 const steps: TimelineStep[] = [
   { id: 1, title: "Music", description: "Get your music" },
-  { id: 2, title: "Settings", description: "Configure options" },
-  { id: 3, title: "Analysis", description: "Analyze audio" },
+  { id: 2, title: "Video", description: "Configure options" },
+  { id: 3, title: "Settings", description: "Final settings" },
   { id: 4, title: "Overview", description: "Review details" }
 ];
 

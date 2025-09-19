@@ -53,7 +53,7 @@ export function FileUploadArea({
               <Upload className="w-8 h-8 text-primary" />
             </div>
             <p className="font-semibold text-foreground text-lg mb-2">Click to upload</p>
-            <p className="text-sm text-muted-foreground">or drag & drop files here</p>
+            <p className="text-sm text-foreground/70">or drag & drop files here</p>
           </div>
         )}
       </div>

@@ -3,10 +3,11 @@ import { checkWorkflowStatus } from '../../../../../../backendOLD/comfyUI/api';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { promptId: string } }
+  { params }: { params: Promise<{ promptId: string }> }
 ) {
   try {
-    return await checkWorkflowStatus(params.promptId);
+    const { promptId } = await params;
+    return await checkWorkflowStatus(promptId);
   } catch (error) {
     console.error('ComfyUI status check error:', error);
     return NextResponse.json(

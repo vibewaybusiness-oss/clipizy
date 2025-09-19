@@ -6,11 +6,12 @@ const USE_MOCK_DATA = process.env.NODE_ENV === 'development';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     if (USE_MOCK_DATA) {
-      const project = mockProjects.find(p => p.id === params.id);
+      const project = mockProjects.find(p => p.id === id);
       if (!project) {
         return NextResponse.json(
           { error: 'Project not found' },
@@ -20,7 +21,7 @@ export async function GET(
       return NextResponse.json(project);
     }
 
-    const response = await fetch(`${BACKEND_URL}/projects/${params.id}`, {
+    const response = await fetch(`${BACKEND_URL}/projects/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -49,12 +50,13 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     
-    const response = await fetch(`${BACKEND_URL}/projects/${params.id}`, {
+    const response = await fetch(`${BACKEND_URL}/projects/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -84,11 +86,12 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     if (USE_MOCK_DATA) {
-      const projectIndex = mockProjects.findIndex(p => p.id === params.id);
+      const projectIndex = mockProjects.findIndex(p => p.id === id);
       if (projectIndex === -1) {
         return NextResponse.json(
           { error: 'Project not found' },
@@ -99,7 +102,7 @@ export async function DELETE(
       return NextResponse.json({ success: true });
     }
 
-    const response = await fetch(`${BACKEND_URL}/projects/${params.id}`, {
+    const response = await fetch(`${BACKEND_URL}/projects/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

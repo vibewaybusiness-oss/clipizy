@@ -282,6 +282,19 @@ export class MusicClipAPI {
 
     return response.json();
   }
+
+  async deleteProject(projectId: string): Promise<{ message: string; project_id: string }> {
+    const response = await fetch(`${this.baseUrl}/projects/${projectId}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(`Failed to delete project: ${errorData.error || response.statusText}`);
+    }
+
+    return response.json();
+  }
 }
 
 export const musicClipAPI = new MusicClipAPI();
