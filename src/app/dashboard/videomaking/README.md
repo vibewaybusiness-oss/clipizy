@@ -1,6 +1,6 @@
 # Video Making Dashboard Integration
 
-This directory contains the integration of the advanced videomaking interface into the Vibewave Studio dashboard.
+This directory contains the integration of the advanced videomaking interface into the clipizi Studio dashboard.
 
 ## Files
 

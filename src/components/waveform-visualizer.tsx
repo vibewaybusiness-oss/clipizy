@@ -5,7 +5,7 @@ import React, { useState, useRef, useEffect, useCallback, useImperativeHandle, f
 import { Play, Pause, Plus, Trash2, MapPin, Loader2, RotateCcw } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
-import { Scene } from './vibewave-generator';
+import { Scene } from './clipizi-generator';
 
 export interface WaveformVisualizerRef {
   generateWaveformImage: () => string | null;

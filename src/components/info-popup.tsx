@@ -120,7 +120,7 @@ export function InfoPopup({ className = "" }: InfoPopupProps) {
             <div className="pt-2 border-t border-border/50">
               <div className="flex items-center justify-between">
                 <Badge variant="secondary" className="text-xs">
-                  Vibewave AI
+                  clipizi AI
                 </Badge>
                 <span className="text-xs text-muted-foreground">
                   Always here to help

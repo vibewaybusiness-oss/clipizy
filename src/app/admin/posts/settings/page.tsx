@@ -26,8 +26,8 @@ export default function ContentCalendarSettingsPage() {
     geminiApiKey: '',
     autoGenerate: false,
     defaultAuthor: {
-      name: 'Vibewave Team',
-      email: 'content@vibewave.com'
+      name: 'clipizi Team',
+      email: 'content@clipizi.com'
     },
     publishingSchedule: {
       days: ['tuesday', 'friday'],

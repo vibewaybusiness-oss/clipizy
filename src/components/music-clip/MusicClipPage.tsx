@@ -19,7 +19,7 @@ import { useDragAndDrop } from "@/hooks/use-drag-and-drop";
 import { musicClipAPI } from "@/lib/api/music-clip";
 import { formatDuration, getTotalDuration, fileToDataUri } from "@/utils/music-clip-utils";
 import type { MusicTrack } from "@/types/music-clip";
-import { SettingsSchema, PromptSchema, OverviewSchema } from "@/components/vibewave-generator";
+import { SettingsSchema, PromptSchema, OverviewSchema } from "@/components/clipizi-generator";
 import * as z from "zod";
 import WaveformVisualizer, { type WaveformVisualizerRef } from "@/components/waveform-visualizer";
 import { StepUpload } from "@/components/create/create-music/step-upload";

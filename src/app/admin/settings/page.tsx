@@ -20,11 +20,11 @@ import {
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState({
-    siteName: 'Vibewave',
+    siteName: 'clipizi',
     siteDescription: 'AI-Powered Music Video Creation',
-    siteUrl: 'https://vibewave.ai',
-    adminEmail: 'admin@vibewave.com',
-    supportEmail: 'support@vibewave.com',
+    siteUrl: 'https://clipizi.ai',
+    adminEmail: 'admin@clipizi.com',
+    supportEmail: 'support@clipizi.com',
     timezone: 'UTC',
     language: 'en',
     allowComments: true,

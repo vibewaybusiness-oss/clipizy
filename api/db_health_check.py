@@ -19,7 +19,7 @@ def check_database_connection(max_attempts=30, delay=2):
             conn = psycopg2.connect(
                 host="localhost",
                 port=5432,
-                database="vibewave",
+                database="clipizi",
                 user="postgres",
                 password="postgres"
             )

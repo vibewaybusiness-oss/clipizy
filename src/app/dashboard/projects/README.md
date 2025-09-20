@@ -1,6 +1,6 @@
 # Projects Page
 
-This page displays and manages user projects in the Vibewave application.
+This page displays and manages user projects in the clipizi application.
 
 ## Features
 

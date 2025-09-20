@@ -2,7 +2,7 @@
 
 ## ✅ **MISSION ACCOMPLISHED**
 
-The unified visualizer system has been successfully integrated with the Vibewave API backend and tested with the song from the current directory.
+The unified visualizer system has been successfully integrated with the clipizi API backend and tested with the song from the current directory.
 
 ---
 

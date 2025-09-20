@@ -2,23 +2,23 @@ UNIFIED PARTICLE SYSTEM - FINAL TEST SUMMARY
 ==================================================
 
 Test Date: 2025-09-19 17:00:46
-Audio File: \\wsl.localhost\Ubuntu\home\unix\code\vibewave\api\processing\music\generator\particles\song.wav
-Output Directory: \\wsl.localhost\Ubuntu\home\unix\code\vibewave\api\tests\final_outputs
+Audio File: \\wsl.localhost\Ubuntu\home\unix\code\clipizi\api\processing\music\generator\particles\song.wav
+Output Directory: \\wsl.localhost\Ubuntu\home\unix\code\clipizi\api\tests\final_outputs
 
 PARTICLE TYPES TESTED:
 -------------------------
-• SNOW
-• ZEN
-• ENHANCED
-• BOUNCING
-• CONTINUOUS_SPAWNING
-• NO_MUSIC
+ï¿½ SNOW
+ï¿½ ZEN
+ï¿½ ENHANCED
+ï¿½ BOUNCING
+ï¿½ CONTINUOUS_SPAWNING
+ï¿½ NO_MUSIC
 
 SPECIAL CONFIGURATIONS:
 -------------------------
-• SNOW_HIGH_QUALITY - High-quality snow particles
-• ENHANCED_RAINBOW - Rainbow colored enhanced particles
-• CONTINUOUS_ENERGY - High-energy continuous spawning
+ï¿½ SNOW_HIGH_QUALITY - High-quality snow particles
+ï¿½ ENHANCED_RAINBOW - Rainbow colored enhanced particles
+ï¿½ CONTINUOUS_ENERGY - High-energy continuous spawning
 
 RESULTS:
 ----------

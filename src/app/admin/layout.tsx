@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { VibewaveLogo } from "@/components/vibewave-logo";
+import { ClipiziLogo } from "@/components/vibewave-logo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -56,7 +56,7 @@ export default function AdminLayout({
           {/* SIDEBAR HEADER */}
           <div className="flex items-center justify-between p-4">
             <Link href="/admin" className="flex items-center gap-2 group">
-              <VibewaveLogo className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
+              <ClipiziLogo className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
               <span className="text-white font-semibold">Admin Panel</span>
             </Link>
             <Button

@@ -5,7 +5,8 @@
         "pause": 5,
         "terminate": 500
       },
-      "network-volume": "spwpjg3lk3"
+      "network-volume": "spwpjg3lk3",
+      "template": "fdcc1twlxx"
     },
     "comfyui_image_qwen": {
       "timeouts": {

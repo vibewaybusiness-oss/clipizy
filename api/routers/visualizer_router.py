@@ -7,7 +7,7 @@ import uuid
 import tempfile
 from pathlib import Path
 
-from ..processing.music.generator.unified_visualizers import (
+from ..workflows.generator.unified_visualizers import (
     UnifiedVisualizerService, 
     VisualizerConfig, 
     VisualizerType

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Heart, Github, Twitter, Mail, Sparkles } from "lucide-react";
-import { VibewaveLogo } from "@/components/vibewave-logo";
+import { ClipiziLogo } from "@/components/vibewave-logo";
 
 const footerLinks = {
   product: [
@@ -32,9 +32,9 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { name: "GitHub", href: "https://github.com/vibewave", icon: Github },
-  { name: "Twitter", href: "https://twitter.com/vibewave", icon: Twitter },
-  { name: "Email", href: "mailto:hello@vibewave.com", icon: Mail },
+  { name: "GitHub", href: "https://github.com/clipizi", icon: Github },
+  { name: "Twitter", href: "https://twitter.com/clipizi", icon: Twitter },
+  { name: "Email", href: "mailto:hello@clipizi.com", icon: Mail },
 ];
 
 export function Footer() {
@@ -47,8 +47,8 @@ export function Footer() {
             {/* Brand Section */}
             <div className="lg:col-span-2">
               <Link href="/" className="flex items-center space-x-2 group mb-6">
-                <VibewaveLogo className="w-8 h-8 group-hover:scale-110 transition-transform duration-200" />
-                <span className="text-xl font-bold gradient-text">Vibewave</span>
+                <ClipiziLogo className="w-8 h-8 group-hover:scale-110 transition-transform duration-200" />
+                <span className="text-xl font-bold gradient-text">clipizi</span>
               </Link>
               <p className="text-muted-foreground mb-6 max-w-md">
                 Create stunning music videos with AI. Transform your audio into visual masterpieces 
@@ -157,7 +157,7 @@ export function Footer() {
         <div className="py-6 border-t border-border">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-1 text-muted-foreground">
-              <span>© 2024 Vibewave. Made with</span>
+              <span>© 2024 clipizi. Made with</span>
               <Heart className="w-4 h-4 text-red-500 fill-current" />
               <span>for creators worldwide.</span>
             </div>

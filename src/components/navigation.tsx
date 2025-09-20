@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Sparkles, Zap, Users, FileText, Mail, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { VibewaveLogo } from "@/components/vibewave-logo";
+import { ClipiziLogo } from "@/components/vibewave-logo";
 import { useTheme } from "@/contexts/ThemeContext";
 
 const navigation = [
@@ -35,8 +35,8 @@ export function Navigation() {
         <div className="flex items-center justify-between h-16">
           {/* LOGO */}
           <Link href="/" className="flex items-center space-x-2 group">
-            <VibewaveLogo className="w-8 h-8 group-hover:scale-110 transition-transform duration-200" />
-            <span className="text-xl font-bold gradient-text">Vibewave</span>
+            <ClipiziLogo className="w-8 h-8 group-hover:scale-110 transition-transform duration-200" />
+            <span className="text-xl font-bold gradient-text">clipizi</span>
           </Link>
 
           {/* DESKTOP NAVIGATION */}

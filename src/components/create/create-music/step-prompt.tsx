@@ -7,7 +7,7 @@ import * as z from "zod";
 import { Form, FormField } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
-import { PromptSchema, SettingsSchema, Scene } from "@/components/vibewave-generator";
+import { PromptSchema, SettingsSchema, Scene } from "@/components/clipizi-generator";
 import WaveformVisualizer from "@/components/waveform-visualizer";
 import { usePromptGeneration } from "@/hooks/use-prompt-generation";
 import type { MusicTrack } from "@/types/music-clip";

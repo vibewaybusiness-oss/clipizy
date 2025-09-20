@@ -1,7 +1,7 @@
-# Vibewave Backend Logging Guide
+# clipizi Backend Logging Guide
 
 ## Overview
-The Vibewave backend uses a centralized logging system that provides detailed logging across all services with different log levels and separate log files for better debugging and monitoring.
+The clipizi backend uses a centralized logging system that provides detailed logging across all services with different log levels and separate log files for better debugging and monitoring.
 
 ## Log Files Structure
 

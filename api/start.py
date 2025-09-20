@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Vibewave Backend Startup Script
+clipizi Backend Startup Script
 """
 import uvicorn
 import os
@@ -22,6 +22,19 @@ def check_database_health():
         print(f"❌ Database health check failed: {e}")
         return False
 
+def create_database_tables():
+    """
+    Create database tables if they don't exist
+    """
+    try:
+        from api.db import create_tables
+        create_tables()
+        print("✅ Database tables created/verified")
+        return True
+    except Exception as e:
+        print(f"❌ Failed to create database tables: {e}")
+        return False
+
 def setup_fallback_database():
     """
     Set up SQLite fallback database if PostgreSQL is not available
@@ -36,7 +49,7 @@ def setup_fallback_database():
 
 if __name__ == "__main__":
     # Set environment variables
-    os.environ.setdefault("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/vibewave")
+    os.environ.setdefault("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/clipizi")
     os.environ.setdefault("BACKEND_URL", "http://localhost:8000")
     
     print("🔍 Checking database health before starting FastAPI...")
@@ -48,6 +61,12 @@ if __name__ == "__main__":
         print("✅ Using SQLite fallback database.")
     else:
         print("✅ PostgreSQL database is ready.")
+    
+    # Create database tables
+    print("🔧 Creating/verifying database tables...")
+    if not create_database_tables():
+        print("❌ Failed to create database tables. Exiting.")
+        sys.exit(1)
     
     print("🚀 Starting FastAPI server...")
     

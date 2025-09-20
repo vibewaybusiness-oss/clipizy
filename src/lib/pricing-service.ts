@@ -8,28 +8,51 @@ export interface PriceResult {
 
 class PricingService {
   private config: PricingConfig | null = null;
+  private configPromise: Promise<PricingConfig> | null = null;
 
   setConfig(config: PricingConfig) {
     this.config = config;
   }
 
-  getConfig(): PricingConfig {
-    if (!this.config) {
-      // Return default config if not initialized yet
-      return {
+  async getConfig(): Promise<PricingConfig> {
+    if (this.config) {
+      return this.config;
+    }
+
+    if (this.configPromise) {
+      return this.configPromise;
+    }
+
+    this.configPromise = this.fetchConfig();
+    return this.configPromise;
+  }
+
+  private async fetchConfig(): Promise<PricingConfig> {
+    try {
+      const response = await fetch('/api/pricing/config');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch pricing config: ${response.statusText}`);
+      }
+      const config = await response.json();
+      this.config = config;
+      return config;
+    } catch (error) {
+      console.error('Error fetching pricing config:', error);
+      // Return default config as fallback
+      const defaultConfig: PricingConfig = {
         credits_rate: 20,
         music_generator: {
           "stable-audio": {
             price: 0.5,
             description: "Generate a music track based on the description."
           },
-          "vibewave-model": {
+          "clipizi-model": {
             price: 1.0,
             description: "Generate a music track based on the description."
           }
         },
         image_generator: {
-          "vibewave-model": {
+          "clipizi-model": {
             minute_rate: 0.10,
             unit_rate: 0.50,
             min: 3,
@@ -38,7 +61,7 @@ class PricingService {
           }
         },
         looped_animation_generator: {
-          "vibewave-model": {
+          "clipizi-model": {
             minute_rate: 0.11,
             unit_rate: 1,
             min: 3,
@@ -47,7 +70,7 @@ class PricingService {
           }
         },
         video_generator: {
-          "vibewave-model": {
+          "clipizi-model": {
             "video-duration": 5,
             minute_rate: 10,
             min: 20,
@@ -56,16 +79,17 @@ class PricingService {
           }
         }
       };
+      this.config = defaultConfig;
+      return defaultConfig;
     }
-    return this.config;
   }
 
   private toCredits(dollars: number, creditsRate: number): number {
     return Math.ceil(dollars * creditsRate);
   }
 
-  calculateMusicPrice(numTracks: number, model: 'stable-audio' | 'vibewave-model' = 'stable-audio'): PriceResult {
-    const config = this.getConfig();
+  async calculateMusicPrice(numTracks: number, model: 'stable-audio' | 'clipizi-model' = 'stable-audio'): Promise<PriceResult> {
+    const config = await this.getConfig();
     const modelConfig = config.music_generator[model];
     const price = numTracks * modelConfig.price;
     return {
@@ -74,8 +98,8 @@ class PricingService {
     };
   }
 
-  calculateImagePrice(numUnits: number, totalMinutes: number, model: 'vibewave-model' = 'vibewave-model'): PriceResult {
-    const config = this.getConfig();
+  async calculateImagePrice(numUnits: number, totalMinutes: number, model: 'clipizi-model' = 'clipizi-model'): Promise<PriceResult> {
+    const config = await this.getConfig();
     const modelConfig = config.image_generator[model];
     const base = (numUnits * modelConfig.unit_rate) + (totalMinutes * modelConfig.minute_rate);
     const price = Math.max(base, modelConfig.min);
@@ -85,8 +109,8 @@ class PricingService {
     };
   }
 
-  calculateLoopedAnimationPrice(numUnits: number, totalMinutes: number, model: 'vibewave-model' = 'vibewave-model'): PriceResult {
-    const config = this.getConfig();
+  async calculateLoopedAnimationPrice(numUnits: number, totalMinutes: number, model: 'clipizi-model' = 'clipizi-model'): Promise<PriceResult> {
+    const config = await this.getConfig();
     const modelConfig = config.looped_animation_generator[model];
     const base = (numUnits * modelConfig.unit_rate) + (totalMinutes * modelConfig.minute_rate);
     let price = Math.max(base, modelConfig.min);
@@ -99,8 +123,8 @@ class PricingService {
     };
   }
 
-  calculateVideoPrice(durationMinutes: number, model: 'vibewave-model' = 'vibewave-model'): PriceResult {
-    const config = this.getConfig();
+  async calculateVideoPrice(durationMinutes: number, model: 'clipizi-model' = 'clipizi-model'): Promise<PriceResult> {
+    const config = await this.getConfig();
     const modelConfig = config.video_generator[model];
     const base = durationMinutes * modelConfig.minute_rate;
     const price = Math.max(base, modelConfig.min);
@@ -111,31 +135,31 @@ class PricingService {
   }
 
   // Helper function to calculate budget based on settings
-  calculateBudget(settings: {
+  async calculateBudget(settings: {
     videoType: string;
     trackCount: number;
     trackDurations: number[];
     useSameVideoForAll: boolean;
     model?: string;
-  }): number {
+  }): Promise<number> {
     const totalMinutes = settings.trackDurations.reduce((sum, duration) => sum + duration, 0) / 60;
     const longestTrackMinutes = Math.max(...settings.trackDurations) / 60;
-    const model = settings.model as 'vibewave-model' || 'vibewave-model';
+    const model = settings.model as 'clipizi-model' || 'clipizi-model';
 
     switch (settings.videoType) {
       case 'looped-static':
         const imageUnits = settings.useSameVideoForAll ? 1 : settings.trackCount;
-        const imagePrice = this.calculateImagePrice(imageUnits, totalMinutes, model);
+        const imagePrice = await this.calculateImagePrice(imageUnits, totalMinutes, model);
         return imagePrice.credits;
 
       case 'looped-animation':
         const animationUnits = settings.useSameVideoForAll ? 1 : settings.trackCount;
-        const animationPrice = this.calculateLoopedAnimationPrice(animationUnits, totalMinutes, model);
+        const animationPrice = await this.calculateLoopedAnimationPrice(animationUnits, totalMinutes, model);
         return animationPrice.credits;
 
       case 'video':
         const videoDuration = settings.useSameVideoForAll ? longestTrackMinutes : totalMinutes;
-        const videoPrice = this.calculateVideoPrice(videoDuration, model);
+        const videoPrice = await this.calculateVideoPrice(videoDuration, model);
         return videoPrice.credits;
 
       default:

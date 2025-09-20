@@ -138,7 +138,7 @@ const testimonials = [
   {
     name: "Sarah Chen",
     role: "Music Producer",
-    content: "Vibewave has revolutionized how I create music videos. What used to take days now takes minutes!",
+    content: "clipizi has revolutionized how I create music videos. What used to take days now takes minutes!",
     avatar: "SC"
   },
   {
@@ -496,7 +496,7 @@ export default function Home() {
               Loved by <span className="gradient-text">Creators Worldwide</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              See what our users are saying about Vibewave
+              See what our users are saying about clipizi
             </p>
           </div>
           
@@ -649,7 +649,7 @@ export default function Home() {
             <span className="block">AI Music Video?</span>
           </h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
-            Join thousands of creators who are already using Vibewave to bring their music to life
+            Join thousands of creators who are already using clipizi to bring their music to life
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" className="text-lg px-8 py-4" asChild>

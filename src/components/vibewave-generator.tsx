@@ -79,10 +79,10 @@ export const calculateLoopedBudget = (
     const units = reuseVideo ? 1 : trackCount;
     
     if (videoType === 'looped-static') {
-        const price = pricingService.calculateImagePrice(units, totalMinutes, 'vibewave-model');
+        const price = pricingService.calculateImagePrice(units, totalMinutes, 'clipizi-model');
         return price.credits;
     } else if (videoType === 'looped-animated') {
-        const price = pricingService.calculateLoopedAnimationPrice(units, totalMinutes, 'vibewave-model');
+        const price = pricingService.calculateLoopedAnimationPrice(units, totalMinutes, 'clipizi-model');
         return price.credits;
     }
     
@@ -99,7 +99,7 @@ export const calculateScenesBudget = (
     const longestTrackMinutes = Math.max(...trackDurations) / 60;
     const videoDuration = reuseVideo ? longestTrackMinutes : totalMinutes;
     
-    const price = pricingService.calculateVideoPrice(videoDuration, 'vibewave-model');
+    const price = pricingService.calculateVideoPrice(videoDuration, 'clipizi-model');
     return price.credits;
 };
 
@@ -127,7 +127,7 @@ export const getScenesInfo = (
 };
 
 
-export default function VibewaveGenerator() {
+export default function clipiziGenerator() {
   const [step, setStep] = useState<Step>("UPLOAD");
   const [generationMode, setGenerationMode] = useState<GenerationMode>("upload");
   const [audioFile, setAudioFile] = useState<File | null>(null);

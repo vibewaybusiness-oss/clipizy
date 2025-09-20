@@ -115,7 +115,7 @@ export default function About() {
           <div className="text-center max-w-4xl mx-auto">
             <Badge className="mb-6 px-4 py-2 text-sm font-medium gradient-primary text-white">
               <Sparkles className="w-4 h-4 mr-2" />
-              About Vibewave
+              About clipizi
             </Badge>
             
             <h1 className="heading-responsive font-bold mb-6 fade-in-up">
@@ -133,7 +133,7 @@ export default function About() {
               <Button size="lg" className="btn-gradient text-lg px-8 py-4" asChild>
                 <Link href="/dashboard/create">
                   <Play className="w-5 h-5 mr-2" />
-                  Try Vibewave
+                  Try clipizi
                 </Link>
               </Button>
               <Button size="lg" variant="outline" className="text-lg px-8 py-4" asChild>
@@ -173,7 +173,7 @@ export default function About() {
               <p className="text-lg text-muted-foreground mb-8">
                 Through advanced AI technology, we're breaking down the traditional barriers that have 
                 prevented many talented creators from bringing their musical visions to life. Whether 
-                you're an independent artist, content creator, or marketing professional, Vibewave 
+                you're an independent artist, content creator, or marketing professional, clipizi 
                 empowers you to create stunning visuals that match your audio perfectly.
               </p>
               <div className="flex items-center space-x-4">
@@ -249,7 +249,7 @@ export default function About() {
               Meet Our <span className="gradient-text">Team</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              The passionate people behind Vibewave's innovation
+              The passionate people behind clipizi's innovation
             </p>
           </div>
           

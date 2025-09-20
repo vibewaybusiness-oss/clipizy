@@ -8,6 +8,9 @@ from .export_service import ExportService
 from .stats_services import StatsService
 from .storage_service import storage_service
 from .auth_service import auth_service
+from .analysis_service import analysis_service
+from .points_service import points_service
+from .stripe_service import stripe_service
 from api.storage.json_store import JSONStore
 
 # Initialize services
@@ -25,5 +28,8 @@ __all__ = [
     "StatsService",
     "storage_service",
     "auth_service",
+    "analysis_service",
     "project_service",
+    "points_service",
+    "stripe_service",
 ]

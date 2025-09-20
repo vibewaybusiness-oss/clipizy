@@ -24,37 +24,6 @@ import {
   ArrowRight
 } from "lucide-react";
 
-const contactInfo = [
-  {
-    icon: Mail,
-    title: "Email Us",
-    description: "Get in touch via email",
-    value: "hello@vibewave.ai",
-    href: "mailto:hello@vibewave.ai"
-  },
-  {
-    icon: Phone,
-    title: "Call Us",
-    description: "Speak with our team",
-    value: "+1 (555) 123-4567",
-    href: "tel:+15551234567"
-  },
-  {
-    icon: MapPin,
-    title: "Visit Us",
-    description: "Our office location",
-    value: "San Francisco, CA",
-    href: "#"
-  },
-  {
-    icon: Clock,
-    title: "Business Hours",
-    description: "When we're available",
-    value: "Mon-Fri, 9AM-6PM PST",
-    href: "#"
-  }
-];
-
 const supportTopics = [
   {
     icon: HelpCircle,
@@ -168,37 +137,9 @@ export default function Contact() {
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto fade-in-up">
-              Have questions about Vibewave? Need help with your account? Want to discuss 
+              Have questions about clipizi? Need help with your account? Want to discuss 
               enterprise solutions? We're here to help and would love to hear from you.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* CONTACT METHODS */}
-      <section className="section-padding">
-        <div className="container-custom">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            {contactInfo.map((info, index) => {
-              const Icon = info.icon;
-              return (
-                <Card key={index} className="text-center p-6 hover:shadow-lg transition-shadow duration-200 fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <CardContent className="p-0">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Icon className="w-6 h-6 text-primary" />
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2">{info.title}</h3>
-                    <p className="text-muted-foreground text-sm mb-3">{info.description}</p>
-                    <Link 
-                      href={info.href} 
-                      className="text-primary hover:text-primary/80 font-medium transition-colors duration-200"
-                    >
-                      {info.value}
-                    </Link>
-                  </CardContent>
-                </Card>
-              );
-            })}
           </div>
         </div>
       </section>
@@ -371,7 +312,7 @@ export default function Contact() {
               Frequently Asked <span className="gradient-text">Questions</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Find answers to common questions about Vibewave
+              Find answers to common questions about clipizi
             </p>
           </div>
           
@@ -402,7 +343,7 @@ export default function Contact() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" className="text-lg px-8 py-4" asChild>
-              <Link href="mailto:hello@vibewave.ai">
+              <Link href="mailto:hello@clipizi.ai">
                 <Mail className="w-5 h-5 mr-2" />
                 Email Support
               </Link>
@@ -410,7 +351,7 @@ export default function Contact() {
             <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-primary" asChild>
               <Link href="/dashboard/create">
                 <Sparkles className="w-5 h-5 mr-2" />
-                Try Vibewave
+                Try clipizi
               </Link>
             </Button>
           </div>

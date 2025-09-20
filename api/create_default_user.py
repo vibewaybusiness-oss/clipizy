@@ -31,7 +31,7 @@ def create_default_user():
         # Create the default user
         default_user = User(
             id=uuid.UUID("00000000-0000-0000-0000-000000000001"),
-            email="demo@vibewave.com",
+            email="demo@clipizi.com",
             username="Demo User",
             hashed_password=auth_service.get_password_hash("demo123"),
             is_active=True,
@@ -44,7 +44,7 @@ def create_default_user():
         db.refresh(default_user)
         
         print("✅ Default user created successfully")
-        print(f"   Email: demo@vibewave.com")
+        print(f"   Email: demo@clipizi.com")
         print(f"   Password: demo123")
         print(f"   User ID: {default_user.id}")
         

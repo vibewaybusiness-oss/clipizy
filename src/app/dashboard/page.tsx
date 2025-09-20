@@ -14,9 +14,11 @@ import {
   Sparkles,
   Video,
   Download,
-  Share2
+  Share2,
+  Coins
 } from "lucide-react";
 import Link from "next/link";
+import { usePoints } from "@/hooks/use-points";
 
 const stats = [
   {
@@ -104,6 +106,8 @@ const quickActions = [
 ];
 
 export default function DashboardPage() {
+  const { balance, loading } = usePoints();
+
   return (
     <div className="p-8 space-y-8">
       {/* WELCOME SECTION */}
@@ -116,12 +120,34 @@ export default function DashboardPage() {
             Ready to create your next amazing music video?
           </p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90 text-white" asChild>
-          <Link href="/dashboard/create">
-            <Plus className="w-4 h-4 mr-2" />
-            Create Video
-          </Link>
-        </Button>
+        <div className="flex items-center space-x-4">
+          {/* POINTS BALANCE */}
+          <Card className="bg-card border border-border">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-2">
+                <Coins className="w-4 h-4 text-yellow-500" />
+                <div>
+                  <div className="text-sm text-muted-foreground">Points</div>
+                  <div className="font-semibold">
+                    {loading ? "..." : balance?.current_balance?.toLocaleString() || 0}
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/dashboard/points">
+                    <Plus className="w-3 h-3" />
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Button className="bg-primary hover:bg-primary/90 text-white" asChild>
+            <Link href="/dashboard/create">
+              <Plus className="w-4 h-4 mr-2" />
+              Create Video
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* STATS GRID */}

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Vibewave Development Environment Startup Script
+# clipizi Development Environment Startup Script
 # This script starts all required services for local development
 
-echo "🚀 Starting Vibewave Development Environment..."
+echo "🚀 Starting clipizi Development Environment..."
 echo "================================================"
 
 # Colors for output
@@ -20,8 +20,8 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-docker stop vibewave-minio vibewave-postgres
-docker rm vibewave-minio vibewave-postgres
+docker stop clipizi-minio clipizi-postgres
+docker rm clipizi-minio clipizi-postgres
 
 # Function to check if a port is in use
 port_in_use() {
@@ -53,7 +53,7 @@ echo -e "${BLUE}🗄️  Starting MinIO (S3 replacement)...${NC}"
 if port_in_use 9000; then
     echo -e "${YELLOW}⚠️  Port 9000 is already in use. MinIO might already be running.${NC}"
 else
-    sudo docker run -d --name vibewave-minio \
+    sudo docker run -d --name clipizi-minio \
         -p 9000:9000 -p 9001:9001 \
         -e "MINIO_ROOT_USER=admin" \
         -e "MINIO_ROOT_PASSWORD=admin123" \
@@ -66,9 +66,9 @@ echo -e "${BLUE}🗄️  Starting PostgreSQL...${NC}"
 if port_in_use 5432; then
     echo -e "${YELLOW}⚠️  Port 5432 is already in use. PostgreSQL might already be running.${NC}"
 else
-    sudo docker run -d --name vibewave-postgres \
+    sudo docker run -d --name clipizi-postgres \
         -e POSTGRES_PASSWORD=postgres \
-        -e POSTGRES_DB=vibewave \
+        -e POSTGRES_DB=clipizi \
         -p 5432:5432 \
         postgres:15
     echo -e "${GREEN}✅ PostgreSQL started at localhost:5432${NC}"
@@ -135,7 +135,7 @@ else
 fi
 
 echo ""
-echo -e "${GREEN}🎉 Vibewave Development Environment Started!${NC}"
+echo -e "${GREEN}🎉 clipizi Development Environment Started!${NC}"
 echo "================================================"
 echo -e "${BLUE}📱 Frontend:${NC} http://localhost:3000"
 echo -e "${BLUE}🔧 API Docs:${NC} http://localhost:8000/docs"
@@ -144,6 +144,6 @@ echo -e "${BLUE}🎨 ComfyUI:${NC} http://localhost:8188"
 echo -e "${BLUE}🗄️  PostgreSQL:${NC} localhost:5432 (postgres/postgres)"
 echo ""
 echo -e "${YELLOW}💡 To stop all services, run: ./stop.sh${NC}"
-echo -e "${YELLOW}💡 To view logs, run: docker logs -f vibewave-minio${NC}"
+echo -e "${YELLOW}💡 To view logs, run: docker logs -f clipizi-minio${NC}"
 echo ""
 echo -e "${GREEN}Happy coding! 🚀${NC}"

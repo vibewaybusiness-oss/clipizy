@@ -33,7 +33,7 @@ src/
 │   │   ├── step-generating.tsx # Generation progress
 │   │   └── step-preview.tsx   # Video preview and download
 │   ├── ui/                # Reusable UI components
-│   └── vibewave-generator.tsx # Main generator component
+│   └── clipizi-generator.tsx # Main generator component
 └── contexts/              # React contexts
 ```
 
@@ -303,7 +303,7 @@ export function StepExample({ form, onSubmit, onBack }: StepExampleProps) {
 - **Generator Steps**: `src/components/generator/`
 - **UI Components**: `src/components/ui/`
 - **Global Styles**: `src/app/globals.css`
-- **Type Definitions**: `src/components/vibewave-generator.tsx` (types section)
+- **Type Definitions**: `src/components/clipizi-generator.tsx` (types section)
 - **Configuration**: `src/lib/config.ts`
 
 This documentation provides a comprehensive overview of the dashboard component architecture, styling system, and development patterns used throughout the application.

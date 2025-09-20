@@ -3,7 +3,7 @@ import { useToast } from './use-toast';
 import { musicClipAPI } from '@/lib/api/music-clip';
 import type { MusicTrack } from '@/types/music-clip';
 import * as z from 'zod';
-import { SettingsSchema } from '@/components/vibewave-generator';
+import { SettingsSchema } from '@/components/clipizi-generator';
 
 export interface Project {
   project_id: string;

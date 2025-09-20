@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     """Application settings"""
     
     # Database settings
-    database_url: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/vibewave")
+    database_url: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/clipizi")
     database_echo: bool = os.getenv("DATABASE_ECHO", "false").lower() == "true"
     
     # JWT settings
@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
     
     # Storage settings
-    s3_bucket: str = os.getenv("S3_BUCKET", "vibewave")
+    s3_bucket: str = os.getenv("S3_BUCKET", "clipizi")
     s3_endpoint_url: str = os.getenv("S3_ENDPOINT_URL", "http://localhost:9000")
     s3_access_key: str = os.getenv("S3_ACCESS_KEY", "admin")
     s3_secret_key: str = os.getenv("S3_SECRET_KEY", "admin123")
@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     # External services
     gemini_api_key: Optional[str] = os.getenv("GEMINI_API_KEY")
     runpod_api_key: Optional[str] = os.getenv("RUNPOD_API_KEY")
+    stripe_secret_key: Optional[str] = os.getenv("STRIPE_SECRET_KEY")
+    stripe_publishable_key: Optional[str] = os.getenv("STRIPE_PUBLISHABLE_KEY")
+    stripe_webhook_secret: Optional[str] = os.getenv("STRIPE_WEBHOOK_SECRET")
     
     # Development settings
     debug: bool = os.getenv("DEBUG", "false").lower() == "true"

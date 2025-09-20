@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { SettingsSchema, OverviewSchema } from '@/components/vibewave-generator';
+import { SettingsSchema, OverviewSchema } from '@/components/clipizi-generator';
 
 const PromptSchema = z.object({
   musicDescription: z.string().min(1, "Music description is required"),
@@ -11,11 +11,6 @@ const PromptSchema = z.object({
   mood: z.string().optional(),
 });
 
-const OverviewSchema = z.object({
-  projectName: z.string().min(1, "Project name is required"),
-  description: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-});
 
 // STATE INTERFACES
 export interface MusicClipState {

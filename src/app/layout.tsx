@@ -8,29 +8,29 @@ import { ThemeProvider } from "@/contexts/ThemeContext"
 import { InfoPopup } from "@/components/info-popup"
 
 export const metadata: Metadata = {
-  title: 'Vibewave - AI-Powered Music Video Creation',
+  title: 'clipizi - AI-Powered Music Video Creation',
   description: 'Transform your audio into stunning music videos with the power of AI. Create professional content in minutes, not hours.',
   keywords: 'AI, music video, content creation, video generation, artificial intelligence, creative tools',
-  authors: [{ name: 'Vibewave Team' }],
-  creator: 'Vibewave',
-  publisher: 'Vibewave',
+  authors: [{ name: 'clipizi Team' }],
+  creator: 'clipizi',
+  publisher: 'clipizi',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://vibewave.ai'),
+  metadataBase: new URL('https://clipizi.ai'),
   openGraph: {
-    title: 'Vibewave - AI-Powered Music Video Creation',
+    title: 'clipizi - AI-Powered Music Video Creation',
     description: 'Transform your audio into stunning music videos with the power of AI. Create professional content in minutes, not hours.',
-    url: 'https://vibewave.ai',
-    siteName: 'Vibewave',
+    url: 'https://clipizi.ai',
+    siteName: 'clipizi',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Vibewave - AI Music Video Creation',
+        alt: 'clipizi - AI Music Video Creation',
       },
     ],
     locale: 'en_US',
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Vibewave - AI-Powered Music Video Creation',
+    title: 'clipizi - AI-Powered Music Video Creation',
     description: 'Transform your audio into stunning music videos with the power of AI.',
     images: ['/og-image.jpg'],
   },

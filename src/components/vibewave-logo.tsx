@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils";
 
-interface VibewaveLogoProps {
+interface ClipiziLogoProps {
   className?: string;
 }
 
-export function VibewaveLogo({ className }: VibewaveLogoProps) {
+export function ClipiziLogo({ className }: ClipiziLogoProps) {
   return (
     <svg
       viewBox="0 0 32 32"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { VibewaveLogo } from "@/components/vibewave-logo";
+import { ClipiziLogo } from "@/components/vibewave-logo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,8 @@ import {
   Menu,
   X,
   TestTube,
-  Video
+  Video,
+  Coins
 } from "lucide-react";
 // import { ProtectedRoute } from "@/components/protected-route";
 // import { useAuth } from "@/contexts/auth-context";
@@ -26,6 +27,7 @@ const navigation = [
   { name: "Overview", href: "/dashboard", icon: Home },
   { name: "Projects", href: "/dashboard/projects", icon: FolderOpen },
   { name: "Video Editor", href: "/dashboard/videomaking", icon: Video },
+  { name: "Points", href: "/dashboard/points", icon: Coins },
   { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
   { name: "Test", href: "/dashboard/test", icon: TestTube },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
@@ -63,7 +65,7 @@ export default function DashboardLayout({
             {/* SIDEBAR HEADER */}
             <div className="flex items-center justify-center p-4">
               <Link href="/" className="flex items-center justify-center w-8 h-8 group">
-                <VibewaveLogo className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
+                <ClipiziLogo className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
               </Link>
               <Button
                 variant="ghost"

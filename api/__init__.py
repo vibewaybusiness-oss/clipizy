@@ -1,3 +1,3 @@
 """
-Vibewave Backend API Package
+clipizi Backend API Package
 """

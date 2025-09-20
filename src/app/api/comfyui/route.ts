@@ -96,7 +96,7 @@ async function getWorkflows(): Promise<NextResponse> {
   try {
     const fs = require('fs');
     const path = require('path');
-    const configPath = path.join(process.cwd(), 'backend', 'comfyUI', 'workflows-config.json');
+    const configPath = path.join(process.cwd(), 'api', 'config', 'comfyui_config.json');
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     
     return NextResponse.json({
@@ -116,7 +116,7 @@ async function getWorkflowConfig(workflowName: string): Promise<NextResponse> {
   try {
     const fs = require('fs');
     const path = require('path');
-    const configPath = path.join(process.cwd(), 'backend', 'comfyUI', 'workflows-config.json');
+    const configPath = path.join(process.cwd(), 'api', 'config', 'comfyui_config.json');
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     
     const workflowConfig = config.workflows[workflowName];

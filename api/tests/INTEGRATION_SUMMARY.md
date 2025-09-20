@@ -107,7 +107,7 @@ The music analyzer integration is **PRODUCTION READY** with:
 
 ## 🔗 Usage
 
-The music analyzer is now fully integrated into the Vibewave API and can be accessed at:
+The music analyzer is now fully integrated into the clipizi API and can be accessed at:
 - **Base URL**: `http://localhost:8000/api/music-analysis/`
 - **Documentation**: Available at `/docs` when the API is running
 - **Health Check**: `GET /api/music-analysis/health`

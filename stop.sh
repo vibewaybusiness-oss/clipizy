@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Vibewave Development Environment Stop Script
+# clipizi Development Environment Stop Script
 # This script stops all running services
 
-echo "🛑 Stopping Vibewave Development Environment..."
+echo "🛑 Stopping clipizi Development Environment..."
 echo "================================================"
 
 # Colors for output
@@ -17,18 +17,18 @@ NC='\033[0m' # No Color
 echo -e "${BLUE}🐳 Stopping Docker containers...${NC}"
 
 # Stop MinIO
-if sudo docker ps -q -f name=vibewave-minio | grep -q .; then
-    sudo docker stop vibewave-minio
-    sudo docker rm vibewave-minio
+if sudo docker ps -q -f name=clipizi-minio | grep -q .; then
+    sudo docker stop clipizi-minio
+    sudo docker rm clipizi-minio
     echo -e "${GREEN}✅ MinIO stopped and removed${NC}"
 else
     echo -e "${YELLOW}⚠️  MinIO container not found${NC}"
 fi
 
 # Stop PostgreSQL
-if sudo docker ps -q -f name=vibewave-postgres | grep -q .; then
-    sudo docker stop vibewave-postgres
-    sudo docker rm vibewave-postgres
+if sudo docker ps -q -f name=clipizi-postgres | grep -q .; then
+    sudo docker stop clipizi-postgres
+    sudo docker rm clipizi-postgres
     echo -e "${GREEN}✅ PostgreSQL stopped and removed${NC}"
 else
     echo -e "${YELLOW}⚠️  PostgreSQL container not found${NC}"

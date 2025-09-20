@@ -22,7 +22,7 @@ import {
   PromptSchema, 
   SettingsSchema, 
   OverviewSchema
-} from "@/components/vibewave-generator";
+} from "@/components/clipizi-generator";
 import { useToast } from "@/hooks/use-toast";
 import { analyzeAudioAction, generateVideoAction, generateMusicAction } from "@/app/actions";
 

@@ -1,124 +1,248 @@
-2025-09-17 06:16:11 - services.auth_service - ERROR - test_logging:19 - Testing auth logger - ERROR level
-2025-09-17 06:16:11 - services.storage_service - ERROR - test_logging:26 - Testing storage logger - ERROR level
-2025-09-17 06:16:12 - services.prompt_service - ERROR - test_logging:33 - Testing prompt logger - ERROR level
-2025-09-17 06:16:12 - services.job_service - ERROR - test_logging:40 - Testing job logger - ERROR level
-2025-09-17 07:04:11 - services.prompt_service - ERROR - get_random_prompt:60 - Error generating prompt: 'list' object has no attribute 'keys'
-2025-09-17 07:09:48 - services.prompt_service - ERROR - get_random_prompt:60 - Error generating prompt: 'list' object has no attribute 'keys'
-2025-09-17 07:26:11 - services.prompt_service - ERROR - get_random_prompt:109 - Error generating prompt: 'Lo-Fi'
-2025-09-17 17:45:54 - services.project_service - ERROR - create_music_clip_project:45 - Failed to create music-clip project: Mapper 'Mapper[SocialAccount(social_accounts)]' has no property 'user'.  If this property was indicated from other mappers or configure events, ensure registry.configure() has been called.
-2025-09-17 17:46:04 - services.project_service - ERROR - create_music_clip_project:45 - Failed to create music-clip project: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: Mapper 'Mapper[SocialAccount(social_accounts)]' has no property 'user'.  If this property was indicated from other mappers or configure events, ensure registry.configure() has been called.
-2025-09-17 17:46:26 - services.project_service - ERROR - create_music_clip_project:45 - Failed to create music-clip project: Mapper 'Mapper[Track(tracks)]' has no property 'project'.  If this property was indicated from other mappers or configure events, ensure registry.configure() has been called.
-2025-09-17 17:46:47 - services.project_service - ERROR - create_music_clip_project:45 - Failed to create music-clip project: Mapper 'Mapper[Video(videos)]' has no property 'project'.  If this property was indicated from other mappers or configure events, ensure registry.configure() has been called.
-2025-09-17 17:46:59 - services.project_service - ERROR - create_music_clip_project:45 - Failed to create music-clip project: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[Project(projects)]'. Original exception was: Mapper 'Mapper[Video(videos)]' has no property 'project'.  If this property was indicated from other mappers or configure events, ensure registry.configure() has been called.
-2025-09-17 17:47:13 - services.project_service - ERROR - create_music_clip_project:45 - Failed to create music-clip project: Mapper 'Mapper[Video(videos)]' has no property 'project'.  If this property was indicated from other mappers or configure events, ensure registry.configure() has been called.
-2025-09-17 17:48:14 - services.project_service - ERROR - create_music_clip_project:45 - Failed to create music-clip project: Could not determine join condition between parent/child tables on relationship Project.stats - there are no foreign keys linking these tables.  Ensure that referencing columns are associated with a ForeignKey or ForeignKeyConstraint, or specify a 'primaryjoin' expression.
-2025-09-17 17:48:36 - services.project_service - ERROR - create_music_clip_project:45 - Failed to create music-clip project: (psycopg2.errors.InvalidTextRepresentation) invalid input syntax for type uuid: "demo-user"
-LINE 1: ...ES ('7871df3e-e14e-4e76-afc9-1c332143c346'::UUID, 'demo-user...
-                                                             ^
+2025-09-20 08:43:35 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
 
-[SQL: INSERT INTO projects (id, user_id, type, name, description, status, created_at, updated_at) VALUES (%(id)s::UUID, %(user_id)s::UUID, %(type)s, %(name)s, %(description)s, %(status)s, %(created_at)s, %(updated_at)s)]
-[parameters: {'id': '7871df3e-e14e-4e76-afc9-1c332143c346', 'user_id': 'demo-user', 'type': 'music-clip', 'name': 'music-clip-7871df3e', 'description': None, 'status': 'DRAFT', 'created_at': datetime.datetime(2025, 9, 17, 15, 48, 36, 554736), 'updated_at': datetime.datetime(2025, 9, 17, 15, 48, 36, 568308)}]
-(Background on this error at: https://sqlalche.me/e/20/9h9h)
-2025-09-17 17:48:49 - services.project_service - ERROR - create_music_clip_project:45 - Failed to create music-clip project: (psycopg2.errors.ForeignKeyViolation) insert or update on table "projects" violates foreign key constraint "projects_user_id_fkey"
-DETAIL:  Key (user_id)=(00000000-0000-0000-0000-000000000001) is not present in table "users".
-
-[SQL: INSERT INTO projects (id, user_id, type, name, description, status, created_at, updated_at) VALUES (%(id)s::UUID, %(user_id)s::UUID, %(type)s, %(name)s, %(description)s, %(status)s, %(created_at)s, %(updated_at)s)]
-[parameters: {'id': 'b18ca54b-5d04-44fe-998c-52c48c29e66c', 'user_id': '00000000-0000-0000-0000-000000000001', 'type': 'music-clip', 'name': 'music-clip-b18ca54b', 'description': None, 'status': 'DRAFT', 'created_at': datetime.datetime(2025, 9, 17, 15, 48, 49, 142688), 'updated_at': datetime.datetime(2025, 9, 17, 15, 48, 49, 160267)}]
-(Background on this error at: https://sqlalche.me/e/20/gkpj)
-2025-09-17 17:49:15 - services.project_service - ERROR - create_music_clip_project:45 - Failed to create music-clip project: An error occurred (NoSuchBucket) when calling the PutObject operation: The specified bucket does not exist
-2025-09-17 17:50:04 - services.storage_service - ERROR - upload_file_object:36 - File upload failed for projects/94c51bf8-5528-4d3c-9f85-89290972e92a/music/8d14cb2a-a30b-4bd7-a5bc-fae7ec1f4568.wav: An error occurred (NoSuchBucket) when calling the PutObject operation: The specified bucket does not exist
-2025-09-17 17:50:04 - services.project_service - ERROR - upload_music_track:127 - Failed to upload track: An error occurred (NoSuchBucket) when calling the PutObject operation: The specified bucket does not exist
-2025-09-17 17:50:15 - services.storage_service - ERROR - upload_file_object:36 - File upload failed for projects/d5497acb-79b6-4eeb-a3c5-73f96f57703d/music/5c116e90-40e3-4c95-aa26-f073c7b9e86f.wav: An error occurred (NoSuchBucket) when calling the PutObject operation: The specified bucket does not exist
-2025-09-17 17:50:15 - services.project_service - ERROR - upload_music_track:127 - Failed to upload track: An error occurred (NoSuchBucket) when calling the PutObject operation: The specified bucket does not exist
-2025-09-17 17:50:38 - services.project_service - ERROR - upload_music_track:136 - Failed to upload track: local variable 'os' referenced before assignment
-2025-09-17 17:50:49 - services.project_service - ERROR - upload_music_track:135 - Failed to upload track: An error occurred (NoSuchBucket) when calling the GetObject operation: The specified bucket does not exist
-2025-09-17 17:51:08 - services.project_service - ERROR - update_project_settings:175 - Failed to update project settings: An error occurred (NoSuchBucket) when calling the GetObject operation: The specified bucket does not exist
-2025-09-17 17:51:10 - services.project_service - ERROR - get_project_script:207 - Failed to get project script: An error occurred (NoSuchBucket) when calling the GetObject operation: The specified bucket does not exist
-2025-09-17 18:38:34 - services.project_service - ERROR - upload_music_track:153 - Failed to upload track: 'prompt' is an invalid keyword argument for Track
-2025-09-17 18:38:35 - services.project_service - ERROR - upload_music_track:153 - Failed to upload track: 'prompt' is an invalid keyword argument for Track
-2025-09-17 18:38:36 - services.project_service - ERROR - upload_music_track:153 - Failed to upload track: 'prompt' is an invalid keyword argument for Track
-2025-09-17 18:38:37 - services.project_service - ERROR - upload_music_track:153 - Failed to upload track: 'prompt' is an invalid keyword argument for Track
-2025-09-17 18:38:37 - services.project_service - ERROR - upload_music_track:153 - Failed to upload track: 'prompt' is an invalid keyword argument for Track
-2025-09-17 18:43:39 - services.project_service - ERROR - create_music_clip_project:44 - Failed to create music-clip project: (psycopg2.errors.ForeignKeyViolation) insert or update on table "projects" violates foreign key constraint "projects_user_id_fkey"
-DETAIL:  Key (user_id)=(00000000-0000-0000-0000-000000000001) is not present in table "users".
-
-[SQL: INSERT INTO projects (id, user_id, type, name, description, status, created_at, updated_at) VALUES (%(id)s::UUID, %(user_id)s::UUID, %(type)s, %(name)s, %(description)s, %(status)s, %(created_at)s, %(updated_at)s)]
-[parameters: {'id': '3550bacc-fabf-41cd-a35e-5ff5a92343ad', 'user_id': '00000000-0000-0000-0000-000000000001', 'type': 'music-clip', 'name': 'Music Clip 17/09/2025', 'description': 'AI-generated music video project', 'status': 'DRAFT', 'created_at': datetime.datetime(2025, 9, 17, 16, 43, 39, 903442), 'updated_at': datetime.datetime(2025, 9, 17, 16, 43, 39, 918550)}]
-(Background on this error at: https://sqlalche.me/e/20/gkpj)
-2025-09-17 18:44:16 - services.project_service - ERROR - create_music_clip_project:44 - Failed to create music-clip project: (psycopg2.errors.ForeignKeyViolation) insert or update on table "projects" violates foreign key constraint "projects_user_id_fkey"
-DETAIL:  Key (user_id)=(00000000-0000-0000-0000-000000000001) is not present in table "users".
-
-[SQL: INSERT INTO projects (id, user_id, type, name, description, status, created_at, updated_at) VALUES (%(id)s::UUID, %(user_id)s::UUID, %(type)s, %(name)s, %(description)s, %(status)s, %(created_at)s, %(updated_at)s)]
-[parameters: {'id': 'cd3376c9-faf2-468e-b718-14668b2c7fdf', 'user_id': '00000000-0000-0000-0000-000000000001', 'type': 'music-clip', 'name': 'Music Clip 17/09/2025', 'description': 'AI-generated music video project', 'status': 'DRAFT', 'created_at': datetime.datetime(2025, 9, 17, 16, 44, 16, 225583), 'updated_at': datetime.datetime(2025, 9, 17, 16, 44, 16, 244375)}]
-(Background on this error at: https://sqlalche.me/e/20/gkpj)
-2025-09-17 20:00:16 - services.project_service - ERROR - create_music_clip_project:44 - Failed to create music-clip project: (psycopg2.errors.ForeignKeyViolation) insert or update on table "projects" violates foreign key constraint "projects_user_id_fkey"
-DETAIL:  Key (user_id)=(00000000-0000-0000-0000-000000000001) is not present in table "users".
-
-[SQL: INSERT INTO projects (id, user_id, type, name, description, status, created_at, updated_at) VALUES (%(id)s::UUID, %(user_id)s::UUID, %(type)s, %(name)s, %(description)s, %(status)s, %(created_at)s, %(updated_at)s)]
-[parameters: {'id': '53d261ab-f13c-4f0e-b0f6-3fd83bcf5258', 'user_id': '00000000-0000-0000-0000-000000000001', 'type': 'music-clip', 'name': 'Music Clip 17/09/2025', 'description': 'AI-generated music video project', 'status': 'DRAFT', 'created_at': datetime.datetime(2025, 9, 17, 18, 0, 16, 918908), 'updated_at': datetime.datetime(2025, 9, 17, 18, 0, 16, 934237)}]
-(Background on this error at: https://sqlalche.me/e/20/gkpj)
-2025-09-17 20:01:14 - services.auth_service - ERROR - get_password_hash:46 - Password hashing error: bcrypt: no backends available -- recommend you install one (e.g. 'pip install bcrypt')
-2025-09-17 21:48:22 - services.project_service - ERROR - create_music_clip_project:89 - Failed to create music-clip project: (psycopg2.errors.ForeignKeyViolation) insert or update on table "projects" violates foreign key constraint "projects_user_id_fkey"
-DETAIL:  Key (user_id)=(00000000-0000-0000-0000-000000000001) is not present in table "users".
-
-[SQL: INSERT INTO projects (id, user_id, type, name, description, status, created_at, updated_at) VALUES (%(id)s::UUID, %(user_id)s::UUID, %(type)s, %(name)s, %(description)s, %(status)s, %(created_at)s, %(updated_at)s)]
-[parameters: {'id': '3c9cddfb-fd11-4d04-a7e7-f6ee8c7e61a1', 'user_id': '00000000-0000-0000-0000-000000000001', 'type': 'music-clip', 'name': 'Music Clip 17/09/2025', 'description': 'AI-generated music video project', 'status': 'DRAFT', 'created_at': datetime.datetime(2025, 9, 17, 19, 48, 22, 503490), 'updated_at': datetime.datetime(2025, 9, 17, 19, 48, 22, 508216)}]
-(Background on this error at: https://sqlalche.me/e/20/gkpj)
-2025-09-17 21:48:24 - services.project_service - ERROR - create_music_clip_project:89 - Failed to create music-clip project: (psycopg2.errors.ForeignKeyViolation) insert or update on table "projects" violates foreign key constraint "projects_user_id_fkey"
-DETAIL:  Key (user_id)=(00000000-0000-0000-0000-000000000001) is not present in table "users".
-
-[SQL: INSERT INTO projects (id, user_id, type, name, description, status, created_at, updated_at) VALUES (%(id)s::UUID, %(user_id)s::UUID, %(type)s, %(name)s, %(description)s, %(status)s, %(created_at)s, %(updated_at)s)]
-[parameters: {'id': '07b235ce-cb62-4f35-afa2-692f55324e25', 'user_id': '00000000-0000-0000-0000-000000000001', 'type': 'music-clip', 'name': 'Music Clip 17/09/2025', 'description': 'AI-generated music video project', 'status': 'DRAFT', 'created_at': datetime.datetime(2025, 9, 17, 19, 48, 24, 664859), 'updated_at': datetime.datetime(2025, 9, 17, 19, 48, 24, 666157)}]
-(Background on this error at: https://sqlalche.me/e/20/gkpj)
-2025-09-17 22:18:28 - services.project_service - ERROR - list_music_clip_projects:67 - Failed to list music-clip projects: 'Track' object has no attribute 'duration'
-2025-09-18 18:25:03 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (builtins.AttributeError) 'str' object has no attribute 'hex'
-[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users."plan" AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
 FROM users 
-WHERE users.id = ?
- LIMIT ? OFFSET ?]
-[parameters: [{}]]
-2025-09-18 18:25:03 - services.project_service - ERROR - list_music_clip_projects:68 - Failed to list music-clip projects: (builtins.AttributeError) 'str' object has no attribute 'hex'
-[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users."plan" AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
-FROM users 
-WHERE users.id = ?
- LIMIT ? OFFSET ?]
-[parameters: [{}]]
-2025-09-18 18:25:22 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (builtins.AttributeError) 'str' object has no attribute 'hex'
-[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users."plan" AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
-FROM users 
-WHERE users.id = ?
- LIMIT ? OFFSET ?]
-[parameters: [{}]]
-2025-09-18 18:25:22 - services.project_service - ERROR - list_music_clip_projects:68 - Failed to list music-clip projects: (builtins.AttributeError) 'str' object has no attribute 'hex'
-[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users."plan" AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
-FROM users 
-WHERE users.id = ?
- LIMIT ? OFFSET ?]
-[parameters: [{}]]
-2025-09-18 18:25:32 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (builtins.AttributeError) 'str' object has no attribute 'hex'
-[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users."plan" AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
-FROM users 
-WHERE users.id = ?
- LIMIT ? OFFSET ?]
-[parameters: [{}]]
-2025-09-18 18:25:32 - services.project_service - ERROR - list_music_clip_projects:68 - Failed to list music-clip projects: (builtins.AttributeError) 'str' object has no attribute 'hex'
-[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users."plan" AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
-FROM users 
-WHERE users.id = ?
- LIMIT ? OFFSET ?]
-[parameters: [{}]]
-2025-09-18 18:25:56 - services.project_service - ERROR - list_music_clip_projects:70 - Failed to list music-clip projects: (builtins.AttributeError) 'str' object has no attribute 'hex'
-[SQL: SELECT projects.id AS projects_id, projects.user_id AS projects_user_id, projects.type AS projects_type, projects.name AS projects_name, projects.description AS projects_description, projects.status AS projects_status, projects.created_at AS projects_created_at, projects.updated_at AS projects_updated_at 
-FROM projects 
-WHERE projects.user_id = ? AND projects.type = ? ORDER BY projects.created_at DESC]
-[parameters: [{}]]
-2025-09-19 17:38:26 - services.project_service - ERROR - update_project_settings:461 - Failed to update project settings: (psycopg2.errors.InvalidTextRepresentation) invalid input syntax for type uuid: "test-project"
-LINE 3: WHERE projects.id = 'test-project'::UUID AND projects.user_i...
-                            ^
-
-[SQL: SELECT projects.id AS projects_id, projects.user_id AS projects_user_id, projects.type AS projects_type, projects.name AS projects_name, projects.description AS projects_description, projects.status AS projects_status, projects.created_at AS projects_created_at, projects.updated_at AS projects_updated_at 
-FROM projects 
-WHERE projects.id = %(id_1)s::UUID AND projects.user_id = %(user_id_1)s::UUID AND projects.type = %(type_1)s 
+WHERE users.id = %(id_1)s::UUID 
  LIMIT %(param_1)s]
-[parameters: {'id_1': 'test-project', 'user_id_1': '00000000-0000-0000-0000-000000000001', 'type_1': 'music-clip', 'param_1': 1}]
-(Background on this error at: https://sqlalche.me/e/20/9h9h)
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 08:43:35 - services.project_service - ERROR - list_music_clip_projects:68 - Failed to list music-clip projects: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 08:43:39 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 08:43:39 - services.project_service - ERROR - create_music_clip_project:103 - Failed to create music-clip project: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 08:53:20 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 08:53:20 - services.project_service - ERROR - update_project_settings:470 - Failed to update project settings: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 09:00:59 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 09:00:59 - services.project_service - ERROR - update_project_settings:470 - Failed to update project settings: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 17:25:10 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 17:25:10 - services.project_service - ERROR - list_music_clip_projects:68 - Failed to list music-clip projects: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 17:29:31 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 17:29:31 - services.project_service - ERROR - create_music_clip_project:103 - Failed to create music-clip project: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 17:34:52 - services.project_service - ERROR - ensure_project_folders_exist:99 - Error creating S3 project folders: 'Settings' object has no attribute 's3_endpoint'
+2025-09-20 17:34:52 - services.project_service - ERROR - ensure_project_folders_exist:99 - Error creating S3 project folders: 'Settings' object has no attribute 's3_endpoint'
+2025-09-20 17:34:52 - services.project_service - ERROR - ensure_project_folders_exist:99 - Error creating S3 project folders: 'Settings' object has no attribute 's3_endpoint'
+2025-09-20 19:46:04 - services.project_service - ERROR - get_user_balance:44 - Error getting user balance for 00000000-0000-0000-0000-000000000001: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 19:46:04 - services.project_service - ERROR - get_transaction_history:143 - Error getting transaction history for user 00000000-0000-0000-0000-000000000001: (psycopg2.errors.UndefinedTable) relation "points_transactions" does not exist
+LINE 2: FROM points_transactions 
+             ^
+
+[SQL: SELECT points_transactions.id AS points_transactions_id, points_transactions.user_id AS points_transactions_user_id, points_transactions.transaction_type AS points_transactions_transaction_type, points_transactions.amount AS points_transactions_amount, points_transactions.balance_after AS points_transactions_balance_after, points_transactions.description AS points_transactions_description, points_transactions.reference_id AS points_transactions_reference_id, points_transactions.reference_type AS points_transactions_reference_type, points_transactions.created_at AS points_transactions_created_at 
+FROM points_transactions 
+WHERE points_transactions.user_id = %(user_id_1)s::UUID ORDER BY points_transactions.created_at DESC 
+ LIMIT %(param_1)s]
+[parameters: {'user_id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 50}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 19:46:04 - services.project_service - ERROR - get_user_balance:44 - Error getting user balance for 00000000-0000-0000-0000-000000000001: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 19:46:04 - services.project_service - ERROR - get_transaction_history:143 - Error getting transaction history for user 00000000-0000-0000-0000-000000000001: (psycopg2.errors.UndefinedTable) relation "points_transactions" does not exist
+LINE 2: FROM points_transactions 
+             ^
+
+[SQL: SELECT points_transactions.id AS points_transactions_id, points_transactions.user_id AS points_transactions_user_id, points_transactions.transaction_type AS points_transactions_transaction_type, points_transactions.amount AS points_transactions_amount, points_transactions.balance_after AS points_transactions_balance_after, points_transactions.description AS points_transactions_description, points_transactions.reference_id AS points_transactions_reference_id, points_transactions.reference_type AS points_transactions_reference_type, points_transactions.created_at AS points_transactions_created_at 
+FROM points_transactions 
+WHERE points_transactions.user_id = %(user_id_1)s::UUID ORDER BY points_transactions.created_at DESC 
+ LIMIT %(param_1)s]
+[parameters: {'user_id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 50}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 19:46:04 - services.project_service - ERROR - get_user_balance:44 - Error getting user balance for 00000000-0000-0000-0000-000000000001: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 19:46:04 - services.project_service - ERROR - get_transaction_history:143 - Error getting transaction history for user 00000000-0000-0000-0000-000000000001: (psycopg2.errors.UndefinedTable) relation "points_transactions" does not exist
+LINE 2: FROM points_transactions 
+             ^
+
+[SQL: SELECT points_transactions.id AS points_transactions_id, points_transactions.user_id AS points_transactions_user_id, points_transactions.transaction_type AS points_transactions_transaction_type, points_transactions.amount AS points_transactions_amount, points_transactions.balance_after AS points_transactions_balance_after, points_transactions.description AS points_transactions_description, points_transactions.reference_id AS points_transactions_reference_id, points_transactions.reference_type AS points_transactions_reference_type, points_transactions.created_at AS points_transactions_created_at 
+FROM points_transactions 
+WHERE points_transactions.user_id = %(user_id_1)s::UUID ORDER BY points_transactions.created_at DESC 
+ LIMIT %(param_1)s]
+[parameters: {'user_id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 50}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 20:25:51 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 20:25:51 - services.project_service - ERROR - list_music_clip_projects:68 - Failed to list music-clip projects: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 20:25:57 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 20:25:57 - services.project_service - ERROR - create_music_clip_project:103 - Failed to create music-clip project: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 20:26:30 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 20:26:30 - services.project_service - ERROR - create_music_clip_project:103 - Failed to create music-clip project: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-20 20:30:51 - services.project_service - ERROR - ensure_project_folders_exist:99 - Error creating S3 project folders: 'Settings' object has no attribute 's3_endpoint'
+2025-09-20 20:30:52 - services.project_service - ERROR - ensure_project_folders_exist:99 - Error creating S3 project folders: 'Settings' object has no attribute 's3_endpoint'
+2025-09-20 20:30:55 - services.project_service - ERROR - ensure_project_folders_exist:99 - Error creating S3 project folders: 'Settings' object has no attribute 's3_endpoint'
+2025-09-20 20:31:21 - services.project_service - ERROR - ensure_project_folders_exist:99 - Error creating S3 project folders: 'Settings' object has no attribute 's3_endpoint'
+2025-09-20 20:32:19 - services.project_service - ERROR - ensure_project_folders_exist:99 - Error creating S3 project folders: 'Settings' object has no attribute 's3_endpoint'

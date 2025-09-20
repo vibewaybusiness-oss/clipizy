@@ -363,29 +363,48 @@ class PodManager:
                     # readiness checks
                     has_public_ip = bool(pod.publicIp)
                     has_ports = bool(pod.portMappings) and len(pod.portMappings) > 0
+                    
+                    # Check specifically for ComfyUI port 8188
+                    has_comfyui_port = False
+                    if pod.portMappings:
+                        for port_mapping in pod.portMappings:
+                            if port_mapping.get('publicPort') == 8188 or port_mapping.get('privatePort') == 8188:
+                                has_comfyui_port = True
+                                break
 
                     logger.info(
                         f"📊 Pod status (attempt {attempt}/{max_attempts}): "
-                        f"{status} (IP: {'Yes' if has_public_ip else 'No'}, Ports: {'Yes' if has_ports else 'No'})"
+                        f"{status} (IP: {'Yes' if has_public_ip else 'No'}, ComfyUI Port 8188: {'Yes' if has_comfyui_port else 'No'})"
                     )
 
                     if status == "RUNNING":
-                        # TS code used 10s uptime + IP + ports; we mimic with attempts * 5s >= 10s
-                        uptime_ready = (attempt * 5) >= 10
-                        # If we have IP and ports, we can proceed even without full uptime
-                        if (uptime_ready and has_public_ip and has_ports) or (has_public_ip and has_ports and attempt >= 3):
-                            logger.info(f"✅ Pod {pod_id} is fully loaded and ready")
+                        # Try to expose ComfyUI port as soon as pod is running
+                        if not has_comfyui_port and attempt >= 2:
                             try:
-                                logger.info("🔧 Automatically exposing port 8188 for ComfyUI...")
+                                logger.info("🔧 Exposing port 8188 for ComfyUI...")
                                 await self.expose_comfyui_port(pod_id)
                                 logger.info("✅ Port 8188 exposed successfully for ComfyUI")
+                                # Re-check port status after exposing
+                                pod_status = await self.get_pod_status(pod_id)
+                                if pod_status.success and pod_status.data:
+                                    pod = pod_status.data
+                                    if pod.portMappings:
+                                        for port_mapping in pod.portMappings:
+                                            if port_mapping.get('publicPort') == 8188 or port_mapping.get('privatePort') == 8188:
+                                                has_comfyui_port = True
+                                                break
                             except Exception as e:
                                 logger.info(f"⚠️ Failed to expose port 8188: {e}")
-
+                        
+                        # TS code used 10s uptime + IP + ports; we mimic with attempts * 5s >= 10s
+                        uptime_ready = (attempt * 5) >= 10
+                        # If we have IP and ComfyUI port, we can proceed even without full uptime
+                        if (uptime_ready and has_public_ip and has_comfyui_port) or (has_public_ip and has_comfyui_port and attempt >= 3):
+                            logger.info(f"✅ Pod {pod_id} is fully loaded and ready")
                             pod_info = PodConnectionInfo(
                                 id=pod_id,
                                 ip=pod.publicIp or pod.ip or "",
-                                port=11434,
+                                port=8188,  # Use ComfyUI port instead of 11434
                                 status=status or "",
                                 ready=True,
                             )
@@ -396,8 +415,8 @@ class PodManager:
                                 reason += " uptime < 10s"
                             if not has_public_ip:
                                 reason += " no public IP"
-                            if not has_ports:
-                                reason += " no port mappings"
+                            if not has_comfyui_port:
+                                reason += " no ComfyUI port 8188"
                             logger.info(f"⏳ {reason}")
                     elif status in {"FAILED", "TERMINATED", "EXITED"}:
                         return {"success": False, "error": f"Pod failed to start - status: {status}", "finalStatus": status}

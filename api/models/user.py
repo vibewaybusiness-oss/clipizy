@@ -25,6 +25,8 @@ class User(Base):
     projects = relationship("Project", back_populates="user", cascade="all, delete-orphan")
     jobs = relationship("Job", back_populates="user", cascade="all, delete-orphan")
     social_accounts = relationship("SocialAccount", back_populates="user", cascade="all, delete-orphan")
+    points_transactions = relationship("PointsTransaction", back_populates="user", cascade="all, delete-orphan")
+    payments = relationship("Payment", back_populates="user", cascade="all, delete-orphan")
 
     # Profile
     avatar_url = Column(String(500), nullable=True)
@@ -44,6 +46,11 @@ class User(Base):
     billing_id = Column(String, nullable=True)
     total_projects = Column(String(10), default="0", nullable=False)
     storage_used_bytes = Column(String(20), default="0", nullable=False)
+    
+    # 💎 Points system
+    points_balance = Column(Integer, default=0, nullable=False)
+    total_points_earned = Column(Integer, default=0, nullable=False)
+    total_points_spent = Column(Integer, default=0, nullable=False)
     
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email}, username={self.username})>"

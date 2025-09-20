@@ -1,5 +1,5 @@
 """
-Centralized logging configuration for Vibewave Backend
+Centralized logging configuration for clipizi Backend
 """
 import logging
 import os
@@ -167,4 +167,4 @@ def cleanup_old_logs(days_to_keep: int = 30):
             print(f"Deleted old log file: {log_file}")
 
 # Initialize main application logger
-app_logger = setup_logger("vibewave_app")
+app_logger = setup_logger("clipizi_app")

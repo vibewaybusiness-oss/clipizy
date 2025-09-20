@@ -1,5 +1,5 @@
 """
-Database models for Vibewave Backend
+Database models for clipizi Backend
 """
 from .user import User
 from .social_account import SocialAccount
@@ -12,6 +12,26 @@ from .export import Export
 from .audio import Audio
 from .job import Job
 from .user_settings import UserSettings
+from .points import PointsTransaction, PointsTransactionType
+from .payment import Payment, PaymentStatus, PaymentMethod
+from .comfyui import (
+    ComfyUIWorkflowExecution,
+    ComfyUIPod,
+    ComfyUIWorkflowConfig,
+    ComfyUIExecutionLog,
+    ComfyUIResourceUsage
+)
+from .runpod import (
+    RunPodUser,
+    RunPodPod,
+    RunPodExecution,
+    RunPodNetworkVolume,
+    RunPodGpuType,
+    RunPodTemplate,
+    RunPodHealthCheck,
+    RunPodUsageLog,
+    RunPodConfiguration
+)
 
 __all__ = [
     "User",
@@ -25,4 +45,20 @@ __all__ = [
     "Audio",
     "Job",
     "UserSettings",
+    "ComfyUIWorkflowExecution",
+    "ComfyUIPod",
+    "ComfyUIWorkflowConfig",
+    "ComfyUIExecutionLog",
+    "ComfyUIResourceUsage",
+
+    # RunPod
+    "RunPodUser",
+    "RunPodPod",
+    "RunPodExecution",
+    "RunPodNetworkVolume",
+    "RunPodGpuType",
+    "RunPodTemplate",
+    "RunPodHealthCheck",
+    "RunPodUsageLog",
+    "RunPodConfiguration",
 ]

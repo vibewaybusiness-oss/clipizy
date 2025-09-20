@@ -1,7 +1,7 @@
 {
   "name": "@videomaking/core",
   "version": "1.0.0",
-  "description": "Advanced videomaking interface for Vibewave Studio",
+  "description": "Advanced videomaking interface for clipizi Studio",
   "main": "index.ts",
   "types": "index.ts",
   "scripts": {

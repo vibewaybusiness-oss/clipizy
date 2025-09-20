@@ -1,5 +1,5 @@
 """
-Configuration management for Vibewave Backend
+Configuration management for clipizi Backend
 """
 import os
 from typing import Optional
@@ -8,14 +8,14 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # Database
-    database_url: str = "sqlite:///./vibewave.db"
+    database_url: str = "sqlite:///./clipizi.db"
     database_echo: bool = False
     
     # Storage (S3/MinIO)
     s3_endpoint: str = "http://127.0.0.1:9000"
     s3_access_key: str = "admin"
     s3_secret_key: str = "admin123"
-    s3_bucket: str = "vibewave"
+    s3_bucket: str = "clipizi"
     s3_region: str = "us-east-1"
     
     # RunPod

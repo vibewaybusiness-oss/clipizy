@@ -1,8 +1,8 @@
 @echo off
-REM Vibewave Development Environment Startup Script for Windows
+REM clipizi Development Environment Startup Script for Windows
 REM This script starts all required services for local development
 
-echo 🚀 Starting Vibewave Development Environment...
+echo 🚀 Starting clipizi Development Environment...
 echo ================================================
 
 REM Check if Docker is running
@@ -15,12 +15,12 @@ if %errorlevel% neq 0 (
 
 REM Start MinIO (S3 replacement)
 echo 🗄️  Starting MinIO (S3 replacement)...
-docker run -d --name vibewave-minio -p 9000:9000 -p 9001:9001 -e "MINIO_ROOT_USER=admin" -e "MINIO_ROOT_PASSWORD=admin123" quay.io/minio/minio server /data --console-address ":9001"
+docker run -d --name clipizi-minio -p 9000:9000 -p 9001:9001 -e "MINIO_ROOT_USER=admin" -e "MINIO_ROOT_PASSWORD=admin123" quay.io/minio/minio server /data --console-address ":9001"
 echo ✅ MinIO started at http://localhost:9000 (Console: http://localhost:9001)
 
 REM Start PostgreSQL
 echo 🗄️  Starting PostgreSQL...
-docker run -d --name vibewave-postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=vibewave -p 5432:5432 postgres:15
+docker run -d --name clipizi-postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=clipizi -p 5432:5432 postgres:15
 echo ✅ PostgreSQL started at localhost:5432
 
 REM Wait for services to be ready
@@ -58,7 +58,7 @@ cd ..
 echo ✅ Next.js started at http://localhost:3000
 
 echo.
-echo 🎉 Vibewave Development Environment Started!
+echo 🎉 clipizi Development Environment Started!
 echo ================================================
 echo 📱 Frontend: http://localhost:3000
 echo 🔧 API Docs: http://localhost:8000/docs

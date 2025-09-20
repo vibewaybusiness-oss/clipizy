@@ -23,6 +23,7 @@ import {
   Smartphone
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import Link from "next/link";
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -96,9 +97,17 @@ export default function SettingsPage() {
                   <Shield className="w-4 h-4 mr-2" />
                   Privacy
                 </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <CreditCard className="w-4 h-4 mr-2" />
-                  Billing
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link href="/dashboard/points">
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Points Management
+                  </Link>
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link href="/dashboard/settings/billing">
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Billing & Payment
+                  </Link>
                 </Button>
               </nav>
             </CardContent>

@@ -6,8 +6,8 @@ import { VideoProject, ExportFormat } from './types';
 import { createRunPodIntegration } from './integrations/runpod-integration';
 import { createOllamaIntegration } from './integrations/ollama-integration';
 
-// Example integration with the main Vibewave project
-export function VibewaveVideoEditor() {
+// Example integration with the main clipizi project
+export function clipiziVideoEditor() {
   const runpod = createRunPodIntegration();
   const ollama = createOllamaIntegration();
 
@@ -90,7 +90,7 @@ export function VibewaveVideoEditor() {
 export default function VideoEditorPage() {
   return (
     <div className="min-h-screen bg-background">
-      <VibewaveVideoEditor />
+      <clipiziVideoEditor />
     </div>
   );
 }

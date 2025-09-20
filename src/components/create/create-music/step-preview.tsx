@@ -23,7 +23,7 @@ export function StepPreview({ videoUri, onReset }: StepPreviewProps) {
       </CardContent>
       <CardFooter className="flex flex-col sm:flex-row gap-4">
         <Button asChild size="lg" className="w-full sm:w-auto flex-1">
-          <a href={videoUri} download="vibewave-video.mp4">
+          <a href={videoUri} download="clipizi-video.mp4">
             <Download className="w-5 h-5 mr-2" />
             Download
           </a>

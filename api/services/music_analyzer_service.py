@@ -1,5 +1,5 @@
 """
-Integrated Music Analysis Service for Vibewave API
+Integrated Music Analysis Service for clipizi API
 Combines all music analysis capabilities into a single FastAPI service
 """
 

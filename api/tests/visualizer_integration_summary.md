@@ -133,7 +133,7 @@ api/
 
 ## 🎉 **Integration Success**
 
-The unified visualizer system has been successfully integrated with the Vibewave API backend. All 5 visualizer types are working correctly, producing high-quality video outputs with comprehensive configuration options.
+The unified visualizer system has been successfully integrated with the clipizi API backend. All 5 visualizer types are working correctly, producing high-quality video outputs with comprehensive configuration options.
 
 ### **Key Achievements:**
 - ✅ **100% Test Success Rate**

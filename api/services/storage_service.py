@@ -12,7 +12,7 @@ from api.config.logging import get_storage_logger
 logger = get_storage_logger()
 
 class StorageService:
-    def __init__(self, bucket: str = "vibewave", endpoint_url: str = "http://localhost:9000"):
+    def __init__(self, bucket: str = "clipizi", endpoint_url: str = "http://localhost:9000"):
         logger.info(f"StorageService initialized with bucket: {bucket}, endpoint: {endpoint_url}")
         self.bucket = bucket
         self.endpoint_url = endpoint_url

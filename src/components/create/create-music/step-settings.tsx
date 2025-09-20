@@ -12,7 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BudgetSlider } from "@/components/budget-slider";
-import { SettingsSchema } from "@/components/vibewave-generator";
+import { SettingsSchema } from "@/components/clipizi-generator";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -61,12 +61,12 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
     
     // Calculate for looped-static (same as looped-animated for display purposes)
     const loopedUnits = reuseVideo ? 1 : trackCount;
-    const loopedImagePrice = pricingService.calculateImagePrice(loopedUnits, totalMinutes, 'vibewave-model');
-    const loopedAnimationPrice = pricingService.calculateLoopedAnimationPrice(loopedUnits, totalMinutes, 'vibewave-model');
+    const loopedImagePrice = pricingService.calculateImagePrice(loopedUnits, totalMinutes, 'clipizi-model');
+    const loopedAnimationPrice = pricingService.calculateLoopedAnimationPrice(loopedUnits, totalMinutes, 'clipizi-model');
     
     // Calculate for scenes
     const scenesDuration = reuseVideo ? longestTrackMinutes : totalMinutes;
-    const scenesPrice = pricingService.calculateVideoPrice(scenesDuration, 'vibewave-model');
+    const scenesPrice = pricingService.calculateVideoPrice(scenesDuration, 'clipizi-model');
     
     return {
       loopedVideoCost: Math.min(loopedImagePrice.credits, loopedAnimationPrice.credits),

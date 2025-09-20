@@ -1,5 +1,5 @@
 """
-Music Analysis Router for Vibewave API
+Music Analysis Router for clipizi API
 Provides endpoints for comprehensive music analysis
 """
 

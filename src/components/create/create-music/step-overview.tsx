@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Film, Upload, FileVideo, ChevronRight, X, Volume2, Video, ChevronLeft } from "lucide-react";
-import { OverviewSchema, PromptSchema, SettingsSchema } from "@/components/vibewave-generator";
+import { OverviewSchema, PromptSchema, SettingsSchema } from "@/components/clipizi-generator";
 
 type StepOverviewProps = {
   form: UseFormReturn<z.infer<typeof OverviewSchema>>;

@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   
   if (!metadata) {
     return {
-      title: 'Blog Post Not Found - Vibewave',
+      title: 'Blog Post Not Found - clipizi',
       description: 'The requested blog post could not be found.',
     };
   }
@@ -37,11 +37,11 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       publishedTime: metadata.publishedAt,
       authors: [metadata.author],
       tags: metadata.tags,
-      url: `https://vibewave.ai/blog/${metadata.slug}`,
-      siteName: 'Vibewave',
+      url: `https://clipizi.ai/blog/${metadata.slug}`,
+      siteName: 'clipizi',
       images: [
         {
-          url: `https://vibewave.ai/blog/${metadata.slug}.jpg`,
+          url: `https://clipizi.ai/blog/${metadata.slug}.jpg`,
           width: 1200,
           height: 630,
           alt: metadata.title,
@@ -52,10 +52,10 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       card: 'summary_large_image',
       title: metadata.title,
       description: metadata.description,
-      images: [`https://vibewave.ai/blog/${metadata.slug}.jpg`],
+      images: [`https://clipizi.ai/blog/${metadata.slug}.jpg`],
     },
     alternates: {
-      canonical: `https://vibewave.ai/blog/${metadata.slug}`,
+      canonical: `https://clipizi.ai/blog/${metadata.slug}`,
     },
   };
 }

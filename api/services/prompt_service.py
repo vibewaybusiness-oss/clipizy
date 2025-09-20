@@ -8,8 +8,8 @@ from api.config.logging import get_prompt_logger
 logger = get_prompt_logger()
 
 # Path to your prompt JSON
-PROMPTS_PATH = Path(__file__).resolve().parent.parent / "library" / "prompts_random.json"
-PROMPT_RULES_PATH = Path(__file__).resolve().parent.parent / "library" / "prompt_rules.json"
+PROMPTS_PATH = Path(__file__).resolve().parent.parent / "config" / "prompts_random.json"
+PROMPT_RULES_PATH = Path(__file__).resolve().parent.parent / "config" / "prompt_rules.json"
 
 # Load once at startup
 try:

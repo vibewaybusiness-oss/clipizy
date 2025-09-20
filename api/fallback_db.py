@@ -11,7 +11,7 @@ def get_fallback_database_url():
     """
     Get SQLite database URL as fallback
     """
-    db_path = os.path.join(os.path.dirname(__file__), "..", "vibewave_fallback.db")
+    db_path = os.path.join(os.path.dirname(__file__), "..", "clipizi_fallback.db")
     return f"sqlite:///{db_path}"
 
 def create_fallback_engine():

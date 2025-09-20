@@ -1,4 +1,4 @@
-# Vibewave Backend API
+# clipizi Backend API
 
 
 godaddy:
@@ -156,11 +156,11 @@ users/
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `DATABASE_URL` | Database connection string | `sqlite:///./vibewave.db` |
+| `DATABASE_URL` | Database connection string | `sqlite:///./clipizi.db` |
 | `S3_ENDPOINT` | S3/MinIO endpoint | `http://127.0.0.1:9000` |
 | `S3_ACCESS_KEY` | S3 access key | `admin` |
 | `S3_SECRET_KEY` | S3 secret key | `admin123` |
-| `S3_BUCKET` | S3 bucket name | `vibewave` |
+| `S3_BUCKET` | S3 bucket name | `clipizi` |
 | `RUNPOD_API_KEY` | RunPod API key | `changeme` |
 | `SECRET_KEY` | JWT secret key | `your-secret-key` |
 

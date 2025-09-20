@@ -49,21 +49,21 @@ export const getTotalDuration = (tracks: MusicTrack[]): number => {
 
 // Storage keys constants
 export const STORAGE_KEYS = {
-  CURRENT_STEP: 'vibewave_current_step',
-  MAX_REACHED_STEP: 'vibewave_max_reached_step',
-  GENERATION_MODE: 'vibewave_generation_mode',
-  MUSIC_PROMPT: 'vibewave_music_prompt',
-  SETTINGS: 'vibewave_settings',
-  PROMPTS: 'vibewave_prompts',
-  CURRENT_PROJECT_ID: 'vibewave_current_project_id',
-  IS_PROJECT_CREATED: 'vibewave_is_project_created',
-  MUSIC_TRACKS_TO_GENERATE: 'vibewave_music_tracks_to_generate',
-  IS_INSTRUMENTAL: 'vibewave_is_instrumental',
-  SCENES: 'vibewave_scenes',
-  ANALYZED_SCENES: 'vibewave_analyzed_scenes',
-  SHOW_SCENE_CONTROLS: 'vibewave_show_scene_controls',
-  GENERATED_VIDEO_URI: 'vibewave_generated_video_uri',
-  CHANNEL_ANIMATION_FILE: 'vibewave_channel_animation_file',
+  CURRENT_STEP: 'clipizi_current_step',
+  MAX_REACHED_STEP: 'clipizi_max_reached_step',
+  GENERATION_MODE: 'clipizi_generation_mode',
+  MUSIC_PROMPT: 'clipizi_music_prompt',
+  SETTINGS: 'clipizi_settings',
+  PROMPTS: 'clipizi_prompts',
+  CURRENT_PROJECT_ID: 'clipizi_current_project_id',
+  IS_PROJECT_CREATED: 'clipizi_is_project_created',
+  MUSIC_TRACKS_TO_GENERATE: 'clipizi_music_tracks_to_generate',
+  IS_INSTRUMENTAL: 'clipizi_is_instrumental',
+  SCENES: 'clipizi_scenes',
+  ANALYZED_SCENES: 'clipizi_analyzed_scenes',
+  SHOW_SCENE_CONTROLS: 'clipizi_show_scene_controls',
+  GENERATED_VIDEO_URI: 'clipizi_generated_video_uri',
+  CHANNEL_ANIMATION_FILE: 'clipizi_channel_animation_file',
 } as const;
 
 // Helper functions for localStorage persistence

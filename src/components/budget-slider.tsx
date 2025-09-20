@@ -5,7 +5,7 @@ import React, { useEffect, useMemo, useState, useRef } from "react";
 import { SimpleSlider } from "@/components/ui/simple-slider";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { getScenesInfo } from "@/components/vibewave-generator";
+import { getScenesInfo } from "@/components/clipizi-generator";
 import { usePricing } from "@/hooks/use-pricing";
 import { PricingConfig } from "@/contexts/pricing-context";
 import { usePricingService } from "@/hooks/use-pricing-service";
@@ -151,7 +151,7 @@ export function BudgetSlider({
   // For scenes, calculate scenes-per-video slider logic
   const totalVideos = memoizedTrackDurations.length || 1; // Fixed number of videos (music tracks)
   const videoDuration = reuseVideo ? Math.max(...memoizedTrackDurations) / 60 : totalDuration / 60; // Use longest track if reusing, total if not
-  const videoDurationFromConfig = (pricing?.video_generator?.['vibewave-model']?.['video-duration'] || 5) / 60; // Get from config and convert to minutes
+  const videoDurationFromConfig = (pricing?.video_generator?.['clipizi-model']?.['video-duration'] || 5) / 60; // Get from config and convert to minutes
   const totalScenes = Math.ceil(videoDuration / videoDurationFromConfig); // Total scenes based on video duration
   const minScenesPerVideo = 1; // Minimum 1 scene per video
   const videosToCreate = reuseVideo ? 1 : totalVideos;
@@ -160,7 +160,7 @@ export function BudgetSlider({
   // Calculate cost per scene
   const costPerScene = useMemo(() => {
     if (videoType === 'scenes' && pricing) {
-      const modelConfig = pricing.video_generator['vibewave-model'];
+      const modelConfig = pricing.video_generator['clipizi-model'];
       const durationPerSceneMinutes = videoDurationFromConfig; // Already in minutes
       return Math.round(durationPerSceneMinutes * modelConfig.minute_rate * pricing.credits_rate);
     }
