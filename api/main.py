@@ -27,7 +27,9 @@ from api.routers import (
     comfyui_router,
     runpod_router,
     points_router,
-    payment_router
+    payment_router,
+    social_media_router,
+    automation_router
 )
 
 # Import services for initialization
@@ -120,6 +122,8 @@ app.include_router(comfyui_router, prefix="/comfyui", tags=["comfyui"])
 app.include_router(runpod_router, prefix="/runpod", tags=["runpod"])
 app.include_router(points_router, prefix="/api", tags=["points"])
 app.include_router(payment_router, prefix="/api", tags=["payments"])
+app.include_router(social_media_router, tags=["social-media"])
+app.include_router(automation_router, tags=["automation"])
 
 # Root endpoint
 @app.get("/")
