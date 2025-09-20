@@ -195,7 +195,7 @@ async def get_templates(
 async def queue_workflow(workflow_input: WorkflowInput):
     """Queue a workflow for execution"""
     queue_manager = get_queue_manager()
-    request_id = await queue_manager.add_request("qwen-image", workflow_input)
+    request_id = await queue_manager.add_request("comfyui_image_qwen", workflow_input)
     
     return {"request_id": request_id, "status": "queued"}
 
@@ -226,7 +226,7 @@ async def generate_image(workflow_input: WorkflowInput):
     queue_manager = get_queue_manager()
     
     # Add request to queue
-    request_id = await queue_manager.add_request("qwen-image", workflow_input)
+    request_id = await queue_manager.add_request("comfyui_image_qwen", workflow_input)
     
     # Wait for completion (with timeout)
     import asyncio
@@ -256,7 +256,7 @@ async def generate_image_async(workflow_input: WorkflowInput):
     queue_manager = get_queue_manager()
     
     # Add request to queue
-    request_id = await queue_manager.add_request("qwen-image", workflow_input)
+    request_id = await queue_manager.add_request("comfyui_image_qwen", workflow_input)
     
     return {
         "request_id": request_id,
@@ -272,7 +272,7 @@ async def generate_multiple_images(workflow_inputs: List[WorkflowInput]):
     
     request_ids = []
     for workflow_input in workflow_inputs:
-        request_id = await queue_manager.add_request("qwen-image", workflow_input)
+        request_id = await queue_manager.add_request("comfyui_image_qwen", workflow_input)
         request_ids.append({
             "request_id": request_id,
             "status": "queued",

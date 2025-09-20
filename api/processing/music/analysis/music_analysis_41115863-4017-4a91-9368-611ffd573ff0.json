@@ -1,0 +1,1113 @@
+{
+  "audio_file": "41115863-4017-4a91-9368-611ffd573ff0.wav",
+  "title": "41115863 4017 4a91 9368 611ffd573ff0",
+  "analysis_timestamp": "2025-09-19T20:38:16",
+  "overall_analysis": {
+    "predicted_genre": "Hip Hop / Rap",
+    "confidence": 100.0,
+    "descriptors": [
+      "Moderate tempo (walking pace, comfortable)",
+      "Very high energy (intense, powerful, aggressive)",
+      "Highly variable energy (dynamic, fluctuating)",
+      "Stable energy trend (consistent level)",
+      "Low energy range (consistent level)",
+      "Harmonic (melodic, tonal)",
+      "Mid frequency content (balanced, natural)"
+    ],
+    "features": {
+      "duration": 175.35709750566895,
+      "tempo": 99.38401442307692,
+      "spectral_centroid": 2669.232993052378,
+      "rms_energy": 0.13026805222034454,
+      "harmonic_ratio": 0.7496412992477417,
+      "onset_rate": 6.7861524678893
+    },
+    "genre_scores": {
+      "Ambient": 0.3333333333333333,
+      "Synthwave / Electronic": 0.5,
+      "Reggae / Dub / Ska": 0.5,
+      "Hip Hop / Rap": 1.0,
+      "Trap": 0.0,
+      "Lofi / House": 1.0,
+      "Classical / Orchestral": 1.0,
+      "Rock / Metal / Punk": 0.5,
+      "Jazz / Blues": 1.0,
+      "World / Folk / Traditional": 1.0,
+      "Latin / Tango / Flamenco": 1.0,
+      "Pop / Indie / Folk": 1.0,
+      "Dance / EDM / Club": 0.0,
+      "World / Regional": 1.0,
+      "Cinematic / Trailer / Score": 1.0,
+      "Children / Playful": 1.0,
+      "Marches / Traditional Ensembles": 1.0
+    }
+  },
+  "peak_analysis": {
+    "total_peaks": 54,
+    "peaks": [
+      {
+        "index": 1,
+        "time_seconds": 0.0,
+        "time_formatted": "00:00.000",
+        "score": -1.1170547133939193
+      },
+      {
+        "index": 2,
+        "time_seconds": 1.8808163265306121,
+        "time_formatted": "00:01.881",
+        "score": 1.2218996127144632
+      },
+      {
+        "index": 3,
+        "time_seconds": 5.294149659863946,
+        "time_formatted": "00:05.294",
+        "score": 1.812104544892117
+      },
+      {
+        "index": 4,
+        "time_seconds": 8.103764172335602,
+        "time_formatted": "00:08.104",
+        "score": 1.2759290578316715
+      },
+      {
+        "index": 5,
+        "time_seconds": 10.576689342403627,
+        "time_formatted": "00:10.577",
+        "score": 0.8351465799515321
+      },
+      {
+        "index": 6,
+        "time_seconds": 12.945124716553288,
+        "time_formatted": "00:12.945",
+        "score": 1.2481898046462647
+      },
+      {
+        "index": 7,
+        "time_seconds": 15.928888888888888,
+        "time_formatted": "00:15.929",
+        "score": 1.522339136494286
+      },
+      {
+        "index": 8,
+        "time_seconds": 18.332154195011338,
+        "time_formatted": "00:18.332",
+        "score": 1.0445899820619682
+      },
+      {
+        "index": 9,
+        "time_seconds": 20.78185941043084,
+        "time_formatted": "00:20.782",
+        "score": 1.083033506658377
+      },
+      {
+        "index": 10,
+        "time_seconds": 23.53342403628118,
+        "time_formatted": "00:23.533",
+        "score": 1.3484654584624842
+      },
+      {
+        "index": 11,
+        "time_seconds": 26.076009070294784,
+        "time_formatted": "00:26.076",
+        "score": 1.1874223399242796
+      },
+      {
+        "index": 12,
+        "time_seconds": 28.757913832199545,
+        "time_formatted": "00:28.758",
+        "score": 1.0874703421901328
+      },
+      {
+        "index": 13,
+        "time_seconds": 31.230839002267572,
+        "time_formatted": "00:31.231",
+        "score": 2.471052934271206
+      },
+      {
+        "index": 14,
+        "time_seconds": 36.04897959183673,
+        "time_formatted": "00:36.049",
+        "score": 2.2397220221713483
+      },
+      {
+        "index": 15,
+        "time_seconds": 39.00952380952381,
+        "time_formatted": "00:39.010",
+        "score": 1.40313363813334
+      },
+      {
+        "index": 16,
+        "time_seconds": 43.79283446712018,
+        "time_formatted": "00:43.793",
+        "score": 1.2500525806172007
+      },
+      {
+        "index": 17,
+        "time_seconds": 46.76498866213152,
+        "time_formatted": "00:46.765",
+        "score": 1.3327998250208477
+      },
+      {
+        "index": 18,
+        "time_seconds": 51.536689342403626,
+        "time_formatted": "00:51.537",
+        "score": 1.911331382927707
+      },
+      {
+        "index": 19,
+        "time_seconds": 55.40281179138322,
+        "time_formatted": "00:55.403",
+        "score": 1.2086397350242892
+      },
+      {
+        "index": 20,
+        "time_seconds": 58.363356009070294,
+        "time_formatted": "00:58.363",
+        "score": 1.2998268157696389
+      },
+      {
+        "index": 21,
+        "time_seconds": 62.20625850340136,
+        "time_formatted": "01:02.206",
+        "score": 1.4915719681727357
+      },
+      {
+        "index": 22,
+        "time_seconds": 65.09714285714286,
+        "time_formatted": "01:05.097",
+        "score": 1.1307137204206326
+      },
+      {
+        "index": 23,
+        "time_seconds": 67.99963718820862,
+        "time_formatted": "01:08.000",
+        "score": 1.0098092809654187
+      },
+      {
+        "index": 24,
+        "time_seconds": 73.83945578231292,
+        "time_formatted": "01:13.839",
+        "score": 1.232006042115154
+      },
+      {
+        "index": 25,
+        "time_seconds": 77.682358276644,
+        "time_formatted": "01:17.682",
+        "score": 1.4179494745263659
+      },
+      {
+        "index": 26,
+        "time_seconds": 80.59646258503402,
+        "time_formatted": "01:20.596",
+        "score": 1.5921478734831673
+      },
+      {
+        "index": 27,
+        "time_seconds": 83.46412698412698,
+        "time_formatted": "01:23.464",
+        "score": 1.1857242372247097
+      },
+      {
+        "index": 28,
+        "time_seconds": 85.51909297052154,
+        "time_formatted": "01:25.519",
+        "score": 1.2590380524051858
+      },
+      {
+        "index": 29,
+        "time_seconds": 89.52453514739229,
+        "time_formatted": "01:29.525",
+        "score": 1.287827524031312
+      },
+      {
+        "index": 30,
+        "time_seconds": 93.18167800453514,
+        "time_formatted": "01:33.182",
+        "score": 1.8026808066822588
+      },
+      {
+        "index": 31,
+        "time_seconds": 97.98820861678004,
+        "time_formatted": "01:37.988",
+        "score": 2.199627795036368
+      },
+      {
+        "index": 32,
+        "time_seconds": 100.91392290249433,
+        "time_formatted": "01:40.914",
+        "score": 1.454931564601793
+      },
+      {
+        "index": 33,
+        "time_seconds": 105.73206349206349,
+        "time_formatted": "01:45.732",
+        "score": 1.443499408984763
+      },
+      {
+        "index": 34,
+        "time_seconds": 108.66938775510204,
+        "time_formatted": "01:48.669",
+        "score": 1.4969886414392537
+      },
+      {
+        "index": 35,
+        "time_seconds": 113.47591836734694,
+        "time_formatted": "01:53.476",
+        "score": 1.394522155402109
+      },
+      {
+        "index": 36,
+        "time_seconds": 116.39002267573696,
+        "time_formatted": "01:56.390",
+        "score": 1.565586842164794
+      },
+      {
+        "index": 37,
+        "time_seconds": 119.31573696145125,
+        "time_formatted": "01:59.316",
+        "score": 1.1990274267182353
+      },
+      {
+        "index": 38,
+        "time_seconds": 122.19501133786848,
+        "time_formatted": "02:02.195",
+        "score": 1.4717378983795995
+      },
+      {
+        "index": 39,
+        "time_seconds": 125.07428571428571,
+        "time_formatted": "02:05.074",
+        "score": 1.522976347203763
+      },
+      {
+        "index": 40,
+        "time_seconds": 128.96362811791383,
+        "time_formatted": "02:08.964",
+        "score": 0.9951764276691939
+      },
+      {
+        "index": 41,
+        "time_seconds": 131.87773242630385,
+        "time_formatted": "02:11.878",
+        "score": 0.9125390434386447
+      },
+      {
+        "index": 42,
+        "time_seconds": 136.69587301587302,
+        "time_formatted": "02:16.696",
+        "score": 1.3138361342352847
+      },
+      {
+        "index": 43,
+        "time_seconds": 141.56045351473924,
+        "time_formatted": "02:21.560",
+        "score": 2.0379666821891034
+      },
+      {
+        "index": 44,
+        "time_seconds": 144.43972789115645,
+        "time_formatted": "02:24.440",
+        "score": 2.0852766876132973
+      },
+      {
+        "index": 45,
+        "time_seconds": 147.377052154195,
+        "time_formatted": "02:27.377",
+        "score": 1.567266916695584
+      },
+      {
+        "index": 46,
+        "time_seconds": 150.27954648526077,
+        "time_formatted": "02:30.280",
+        "score": 1.0757705606448598
+      },
+      {
+        "index": 47,
+        "time_seconds": 153.18204081632652,
+        "time_formatted": "02:33.182",
+        "score": 1.5023185186735077
+      },
+      {
+        "index": 48,
+        "time_seconds": 156.03809523809525,
+        "time_formatted": "02:36.038",
+        "score": 1.4638552906382332
+      },
+      {
+        "index": 49,
+        "time_seconds": 159.9158276643991,
+        "time_formatted": "02:39.916",
+        "score": 1.5211658555533427
+      },
+      {
+        "index": 50,
+        "time_seconds": 162.85315192743764,
+        "time_formatted": "02:42.853",
+        "score": 1.5795903961453028
+      },
+      {
+        "index": 51,
+        "time_seconds": 167.65968253968254,
+        "time_formatted": "02:47.660",
+        "score": 1.6311806338020374
+      },
+      {
+        "index": 52,
+        "time_seconds": 170.57378684807256,
+        "time_formatted": "02:50.574",
+        "score": 1.5970386456523595
+      },
+      {
+        "index": 53,
+        "time_seconds": 173.49950113378685,
+        "time_formatted": "02:53.500",
+        "score": 1.7211209134233356
+      },
+      {
+        "index": 54,
+        "time_seconds": 175.35709750566895,
+        "time_formatted": "02:55.357",
+        "score": -5.821636856315115
+      }
+    ]
+  },
+  "segment_analysis": {
+    "total_segments": 5,
+    "segments": [
+      {
+        "index": 1,
+        "time_seconds": 36.04897959183673,
+        "time_formatted": "00:36.049",
+        "ma_long_gap": 9.321076404216672,
+        "ma_long_std": 2.7542911856796186,
+        "ma_long_mean": -23.81732949523538,
+        "ma_long_change_std": 0.02113741068699263,
+        "ma_long_change_mean": 0.028941567494262473,
+        "combined_score": 4.561059140596653,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Hip Hop / Rap",
+          "confidence": 100.0,
+          "descriptors": [
+            "Moderate tempo (walking pace, comfortable)",
+            "High energy (loud, dynamic, exciting)",
+            "Stable energy profile (relatively consistent)",
+            "Slight energy increase (gentle build-up)",
+            "Moderate energy range (some dynamic variation)",
+            "Harmonic (melodic, tonal)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 37.79047619047619,
+            "tempo": 99.38401442307692,
+            "spectral_centroid": 2407.299527334155,
+            "rms_energy": 0.1648048311471939,
+            "harmonic_ratio": 0.741940438747406,
+            "onset_rate": 7.091733870967742
+          },
+          "long_ma_analysis": {
+            "ma_long_mean": -12.296384578136026,
+            "ma_long_std": 1.5083198401801832,
+            "ma_long_min": -15.582886310510855,
+            "ma_long_max": -5.990272947522096,
+            "ma_long_range": 9.592613362988757,
+            "ma_long_trend": 0.05618335062543711,
+            "ma_long_stability": 0.6629893519471619,
+            "ma_divergence": 2.6036561179093067,
+            "ma_correlation": 0.24277827922398337,
+            "ma_long_energy_high": 0.3485872235872236,
+            "ma_long_energy_low": 0.6514127764127764,
+            "duration": 37.79047619047619
+          },
+          "enhanced_features": {
+            "duration": 37.79047619047619,
+            "tempo": 99.38401442307692,
+            "spectral_centroid": 2407.299527334155,
+            "rms_energy": 0.1648048311471939,
+            "harmonic_ratio": 0.741940438747406,
+            "onset_rate": 7.091733870967742,
+            "ma_long_mean": -12.296384578136026,
+            "ma_long_std": 1.5083198401801832,
+            "ma_long_min": -15.582886310510855,
+            "ma_long_max": -5.990272947522096,
+            "ma_long_range": 9.592613362988757,
+            "ma_long_trend": 0.05618335062543711,
+            "ma_long_stability": 0.6629893519471619,
+            "ma_divergence": 2.6036561179093067,
+            "ma_correlation": 0.24277827922398337,
+            "ma_long_energy_high": 0.3485872235872236,
+            "ma_long_energy_low": 0.6514127764127764
+          },
+          "peak_analysis": {
+            "total_peaks": 10,
+            "peaks": [
+              {
+                "index": 1,
+                "time_seconds": 2.9605442176870747,
+                "time_formatted": "00:02.961",
+                "score": 1.4562700912564681,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 2,
+                "time_seconds": 7.743854875283446,
+                "time_formatted": "00:07.744",
+                "score": 1.3029348629981279,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 3,
+                "time_seconds": 10.716009070294785,
+                "time_formatted": "00:10.716",
+                "score": 1.3858195122080361,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 4,
+                "time_seconds": 15.487709750566893,
+                "time_formatted": "00:15.488",
+                "score": 1.965311667632223,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 5,
+                "time_seconds": 19.353832199546485,
+                "time_formatted": "00:19.354",
+                "score": 1.2614532916132521,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 6,
+                "time_seconds": 22.31437641723356,
+                "time_formatted": "00:22.314",
+                "score": 1.35279172681592,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 7,
+                "time_seconds": 26.157278911564624,
+                "time_formatted": "00:26.157",
+                "score": 1.5448552733992087,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 8,
+                "time_seconds": 29.048163265306123,
+                "time_formatted": "00:29.048",
+                "score": 1.1833978674781065,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 9,
+                "time_seconds": 31.950657596371883,
+                "time_formatted": "00:31.951",
+                "score": 1.0622926506655235,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 10,
+                "time_seconds": 35.84,
+                "time_formatted": "00:35.840",
+                "score": 1.0715554793945463,
+                "confidence_level": 1.0
+              }
+            ],
+            "tempo_bpm": 99.38401442307692,
+            "rms_energy_mean": -12.547213554382324,
+            "rms_energy_std": 7.473132133483887,
+            "score_mean": -0.04275808449008182,
+            "score_std": 0.8927411996879614
+          }
+        }
+      },
+      {
+        "index": 2,
+        "time_seconds": 73.83945578231292,
+        "time_formatted": "01:13.839",
+        "ma_long_gap": 6.057883217353229,
+        "ma_long_std": 1.2960016310388072,
+        "ma_long_mean": -13.17763342807316,
+        "ma_long_change_std": 0.020800961101172653,
+        "ma_long_change_mean": 0.02672014780981346,
+        "combined_score": 2.8181940645832855,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Hip Hop / Rap",
+          "confidence": 100.0,
+          "descriptors": [
+            "Moderate tempo (walking pace, comfortable)",
+            "High energy (loud, dynamic, exciting)",
+            "Moderately variable energy (some fluctuations)",
+            "Fading energy trend (diminuendo, calming)",
+            "High energy range (very dynamic, wide variation)",
+            "Harmonic (melodic, tonal)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 15.685079365079366,
+            "tempo": 99.38401442307692,
+            "spectral_centroid": 3010.625644623091,
+            "rms_energy": 0.1212308406829834,
+            "harmonic_ratio": 0.7587848901748657,
+            "onset_rate": 7.39556347150259
+          },
+          "long_ma_analysis": {
+            "ma_long_mean": -14.233258410075033,
+            "ma_long_std": 2.697153493808803,
+            "ma_long_min": -17.726238040036936,
+            "ma_long_max": -6.325109176395475,
+            "ma_long_range": 11.40112886364146,
+            "ma_long_trend": -0.4231196633610951,
+            "ma_long_stability": 0.37076124832637203,
+            "ma_divergence": 2.680036143423313,
+            "ma_correlation": 0.5187839180061097,
+            "ma_long_energy_high": 0.48150887573964496,
+            "ma_long_energy_low": 0.518491124260355,
+            "duration": 15.68507936507936
+          },
+          "enhanced_features": {
+            "duration": 15.68507936507936,
+            "tempo": 99.38401442307692,
+            "spectral_centroid": 3010.625644623091,
+            "rms_energy": 0.1212308406829834,
+            "harmonic_ratio": 0.7587848901748657,
+            "onset_rate": 7.39556347150259,
+            "ma_long_mean": -14.233258410075033,
+            "ma_long_std": 2.697153493808803,
+            "ma_long_min": -17.726238040036936,
+            "ma_long_max": -6.325109176395475,
+            "ma_long_range": 11.40112886364146,
+            "ma_long_trend": -0.4231196633610951,
+            "ma_long_stability": 0.37076124832637203,
+            "ma_divergence": 2.680036143423313,
+            "ma_correlation": 0.5187839180061097,
+            "ma_long_energy_high": 0.48150887573964496,
+            "ma_long_energy_low": 0.518491124260355
+          },
+          "peak_analysis": {
+            "total_peaks": 5,
+            "peaks": [
+              {
+                "index": 1,
+                "time_seconds": 3.842902494331066,
+                "time_formatted": "00:03.843",
+                "score": 1.5282491587369518,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 2,
+                "time_seconds": 6.757006802721088,
+                "time_formatted": "00:06.757",
+                "score": 1.7057012710617614,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 3,
+                "time_seconds": 9.624671201814058,
+                "time_formatted": "00:09.625",
+                "score": 1.291686504584146,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 4,
+                "time_seconds": 11.679637188208616,
+                "time_formatted": "00:11.680",
+                "score": 1.3663696250184918,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 5,
+                "time_seconds": 14.164172335600908,
+                "time_formatted": "00:14.164",
+                "score": 0.9351179809028041,
+                "confidence_level": 1.0
+              }
+            ],
+            "tempo_bpm": 99.38401442307692,
+            "rms_energy_mean": -14.953413963317871,
+            "rms_energy_std": 7.054211616516113,
+            "score_mean": -0.13076503442127907,
+            "score_std": 0.9394902084694833
+          }
+        }
+      },
+      {
+        "index": 3,
+        "time_seconds": 89.52453514739229,
+        "time_formatted": "01:29.525",
+        "ma_long_gap": 12.94135940999023,
+        "ma_long_std": 4.574365795893351,
+        "ma_long_mean": -21.164059691521402,
+        "ma_long_change_std": 0.020662730884581496,
+        "ma_long_change_mean": 0.02665190853675896,
+        "combined_score": 6.555052322029472,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Lofi / House",
+          "confidence": 100.0,
+          "descriptors": [
+            "Up-tempo (energetic, driving)",
+            "Medium energy (balanced, moderate)",
+            "Moderately variable energy (some fluctuations)",
+            "Slight energy increase (gentle build-up)",
+            "High energy range (very dynamic, wide variation)",
+            "Harmonic (melodic, tonal)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 57.85251700680272,
+            "tempo": 123.046875,
+            "spectral_centroid": 2665.355162200366,
+            "rms_energy": 0.1445445418357849,
+            "harmonic_ratio": 0.7458018064498901,
+            "onset_rate": 6.827706389223359
+          },
+          "long_ma_analysis": {
+            "ma_long_mean": -15.174076901398552,
+            "ma_long_std": 4.618140443598101,
+            "ma_long_min": -29.61798254648844,
+            "ma_long_max": -7.123168081276176,
+            "ma_long_range": 22.494814465212265,
+            "ma_long_trend": 0.14214261693605795,
+            "ma_long_stability": 0.2165373725740361,
+            "ma_divergence": 2.7853080550227713,
+            "ma_correlation": 0.8175359396094315,
+            "ma_long_energy_high": 0.793338683788122,
+            "ma_long_energy_low": 0.206661316211878,
+            "duration": 57.85251700680273
+          },
+          "enhanced_features": {
+            "duration": 57.85251700680273,
+            "tempo": 123.046875,
+            "spectral_centroid": 2665.355162200366,
+            "rms_energy": 0.1445445418357849,
+            "harmonic_ratio": 0.7458018064498901,
+            "onset_rate": 6.827706389223359,
+            "ma_long_mean": -15.174076901398552,
+            "ma_long_std": 4.618140443598101,
+            "ma_long_min": -29.61798254648844,
+            "ma_long_max": -7.123168081276176,
+            "ma_long_range": 22.494814465212265,
+            "ma_long_trend": 0.14214261693605795,
+            "ma_long_stability": 0.2165373725740361,
+            "ma_divergence": 2.7853080550227713,
+            "ma_correlation": 0.8175359396094315,
+            "ma_long_energy_high": 0.793338683788122,
+            "ma_long_energy_low": 0.206661316211878
+          },
+          "peak_analysis": {
+            "total_peaks": 17,
+            "peaks": [
+              {
+                "index": 1,
+                "time_seconds": 1.6021768707482993,
+                "time_formatted": "00:01.602",
+                "score": 0.7740714974443147,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 2,
+                "time_seconds": 3.657142857142857,
+                "time_formatted": "00:03.657",
+                "score": 1.7344000038316958,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 3,
+                "time_seconds": 8.463673469387755,
+                "time_formatted": "00:08.464",
+                "score": 2.1064833317897733,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 4,
+                "time_seconds": 11.38938775510204,
+                "time_formatted": "00:11.389",
+                "score": 1.4084328115254756,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 5,
+                "time_seconds": 16.207528344671204,
+                "time_formatted": "00:16.208",
+                "score": 1.3977167344861798,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 6,
+                "time_seconds": 19.14485260770975,
+                "time_formatted": "00:19.145",
+                "score": 1.4478555495055683,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 7,
+                "time_seconds": 23.95138321995465,
+                "time_formatted": "00:23.951",
+                "score": 1.351807280473586,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 8,
+                "time_seconds": 26.865487528344673,
+                "time_formatted": "00:26.865",
+                "score": 1.5121569488529427,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 9,
+                "time_seconds": 29.791201814058958,
+                "time_formatted": "00:29.791",
+                "score": 1.1685578003639976,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 10,
+                "time_seconds": 32.670476190476194,
+                "time_formatted": "00:32.670",
+                "score": 1.4241864430840603,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 11,
+                "time_seconds": 35.54975056689342,
+                "time_formatted": "00:35.550",
+                "score": 1.472215457328393,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 12,
+                "time_seconds": 39.43909297052154,
+                "time_formatted": "00:39.439",
+                "score": 0.97747546353044,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 13,
+                "time_seconds": 42.353197278911566,
+                "time_formatted": "00:42.353",
+                "score": 0.9000142562650923,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 14,
+                "time_seconds": 47.17133786848073,
+                "time_formatted": "00:47.171",
+                "score": 1.2761752082920332,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 15,
+                "time_seconds": 52.03591836734694,
+                "time_formatted": "00:52.036",
+                "score": 1.954948223489729,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 16,
+                "time_seconds": 54.91519274376417,
+                "time_formatted": "00:54.915",
+                "score": 1.9992948611527037,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 17,
+                "time_seconds": 6.826666666666667,
+                "time_formatted": "00:06.827",
+                "score": 1.0189215854053049,
+                "confidence_level": 0.7
+              }
+            ],
+            "tempo_bpm": 123.046875,
+            "rms_energy_mean": -15.415553092956543,
+            "rms_energy_std": 8.94865608215332,
+            "score_mean": -0.040442793234890397,
+            "score_std": 0.8898120858336058
+          }
+        }
+      },
+      {
+        "index": 4,
+        "time_seconds": 147.377052154195,
+        "time_formatted": "02:27.377",
+        "ma_long_gap": 6.45245079014653,
+        "ma_long_std": 1.9891229996495443,
+        "ma_long_mean": -14.965239997766187,
+        "ma_long_change_std": 0.025990682389203174,
+        "ma_long_change_mean": 0.034284381014257403,
+        "combined_score": 3.185514420670237,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Lofi / House",
+          "confidence": 100.0,
+          "descriptors": [
+            "Up-tempo (energetic, driving)",
+            "High energy (loud, dynamic, exciting)",
+            "Stable energy profile (relatively consistent)",
+            "Stable energy trend (consistent level)",
+            "Moderate energy range (some dynamic variation)",
+            "Harmonic (melodic, tonal)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 26.122448979591837,
+            "tempo": 123.046875,
+            "spectral_centroid": 2457.78380812604,
+            "rms_energy": 0.166854128241539,
+            "harmonic_ratio": 0.7538243532180786,
+            "onset_rate": 7.54140625
+          },
+          "long_ma_analysis": {
+            "ma_long_mean": -13.185136857049576,
+            "ma_long_std": 1.3126035334988546,
+            "ma_long_min": -14.567028381565745,
+            "ma_long_max": -6.830679482267808,
+            "ma_long_range": 7.736348899297937,
+            "ma_long_trend": -0.011442542740912363,
+            "ma_long_stability": 0.7618446597625482,
+            "ma_divergence": 3.0916262773251493,
+            "ma_correlation": 0.00775250694532543,
+            "ma_long_energy_high": 0.2403376277210129,
+            "ma_long_energy_low": 0.7596623722789871,
+            "duration": 26.122448979591837
+          },
+          "enhanced_features": {
+            "duration": 26.122448979591837,
+            "tempo": 123.046875,
+            "spectral_centroid": 2457.78380812604,
+            "rms_energy": 0.166854128241539,
+            "harmonic_ratio": 0.7538243532180786,
+            "onset_rate": 7.54140625,
+            "ma_long_mean": -13.185136857049576,
+            "ma_long_std": 1.3126035334988546,
+            "ma_long_min": -14.567028381565745,
+            "ma_long_max": -6.830679482267808,
+            "ma_long_range": 7.736348899297937,
+            "ma_long_trend": -0.011442542740912363,
+            "ma_long_stability": 0.7618446597625482,
+            "ma_divergence": 3.0916262773251493,
+            "ma_correlation": 0.00775250694532543,
+            "ma_long_energy_high": 0.2403376277210129,
+            "ma_long_energy_low": 0.7596623722789871
+          },
+          "peak_analysis": {
+            "total_peaks": 8,
+            "peaks": [
+              {
+                "index": 1,
+                "time_seconds": 1.9156462585034013,
+                "time_formatted": "00:01.916",
+                "score": 1.1462067375423235,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 2,
+                "time_seconds": 5.804988662131519,
+                "time_formatted": "00:05.805",
+                "score": 1.2248813635545424,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 3,
+                "time_seconds": 8.661043083900227,
+                "time_formatted": "00:08.661",
+                "score": 1.1946367093803971,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 4,
+                "time_seconds": 12.538775510204081,
+                "time_formatted": "00:12.539",
+                "score": 1.2397015564091374,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 5,
+                "time_seconds": 15.47609977324263,
+                "time_formatted": "00:15.476",
+                "score": 1.2856423653236395,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 6,
+                "time_seconds": 20.28263038548753,
+                "time_formatted": "00:20.283",
+                "score": 1.3262091829312956,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 7,
+                "time_seconds": 24.160362811791384,
+                "time_formatted": "00:24.160",
+                "score": 1.3014969346101308,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 8,
+                "time_seconds": 21.28108843537415,
+                "time_formatted": "00:21.281",
+                "score": 1.1065285551587989,
+                "confidence_level": 0.7
+              }
+            ],
+            "tempo_bpm": 123.046875,
+            "rms_energy_mean": -13.563733100891113,
+            "rms_energy_std": 8.528846740722656,
+            "score_mean": -0.05466804519140295,
+            "score_std": 0.8063468236428406
+          }
+        }
+      },
+      {
+        "index": 5,
+        "time_seconds": 173.49950113378685,
+        "time_formatted": "02:53.500",
+        "ma_long_gap": 8.497948739417764,
+        "ma_long_std": 1.7956286519124744,
+        "ma_long_mean": -14.520813676307181,
+        "ma_long_change_std": 0.03815197410130326,
+        "ma_long_change_mean": 0.03690258969066734,
+        "combined_score": 3.9493136835712392,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Lofi / House",
+          "confidence": 100.0,
+          "descriptors": [
+            "Up-tempo (energetic, driving)",
+            "High energy (loud, dynamic, exciting)",
+            "Moderately variable energy (some fluctuations)",
+            "Fading energy trend (diminuendo, calming)",
+            "High energy range (very dynamic, wide variation)",
+            "Harmonic (melodic, tonal)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 1.8575963718820863,
+            "tempo": 123.046875,
+            "spectral_centroid": 3297.5390495736247,
+            "rms_energy": 0.07412774115800858,
+            "harmonic_ratio": 0.7757441401481628,
+            "onset_rate": 6.998291015625
+          },
+          "long_ma_analysis": {
+            "ma_long_mean": -12.553560368866309,
+            "ma_long_std": 3.932625335751543,
+            "ma_long_min": -15.995009190352388,
+            "ma_long_max": -5.5644333057625355,
+            "ma_long_range": 10.430575884589853,
+            "ma_long_trend": -6.714595419371292,
+            "ma_long_stability": 0.25428305828326886,
+            "ma_divergence": 10.328443702032125,
+            "ma_correlation": 0.6183008699634684,
+            "ma_long_energy_high": 0.42857142857142855,
+            "ma_long_energy_low": 0.5714285714285714,
+            "duration": 1.8575963718820958
+          },
+          "enhanced_features": {
+            "duration": 1.8575963718820958,
+            "tempo": 123.046875,
+            "spectral_centroid": 3297.5390495736247,
+            "rms_energy": 0.07412774115800858,
+            "harmonic_ratio": 0.7757441401481628,
+            "onset_rate": 6.998291015625,
+            "ma_long_mean": -12.553560368866309,
+            "ma_long_std": 3.932625335751543,
+            "ma_long_min": -15.995009190352388,
+            "ma_long_max": -5.5644333057625355,
+            "ma_long_range": 10.430575884589853,
+            "ma_long_trend": -6.714595419371292,
+            "ma_long_stability": 0.25428305828326886,
+            "ma_divergence": 10.328443702032125,
+            "ma_correlation": 0.6183008699634684,
+            "ma_long_energy_high": 0.42857142857142855,
+            "ma_long_energy_low": 0.5714285714285714
+          },
+          "peak_analysis": {
+            "total_peaks": 1,
+            "peaks": [
+              {
+                "index": 1,
+                "time_seconds": 1.0913378684807256,
+                "time_formatted": "00:01.091",
+                "score": 0.8448304814324634,
+                "confidence_level": 1.0
+              }
+            ],
+            "tempo_bpm": 123.046875,
+            "rms_energy_mean": -25.63175392150879,
+            "rms_energy_std": 18.94330596923828,
+            "score_mean": -0.21966562006044058,
+            "score_std": 1.122646718856771
+          }
+        }
+      }
+    ]
+  },
+  "summary": {
+    "duration_seconds": 175.35709750566895,
+    "tempo_bpm": 99.38401442307692,
+    "peak_times": [
+      0.0,
+      1.8808163265306121,
+      5.294149659863946,
+      8.103764172335602,
+      10.576689342403627,
+      12.945124716553288,
+      15.928888888888888,
+      18.332154195011338,
+      20.78185941043084,
+      23.53342403628118,
+      26.076009070294784,
+      28.757913832199545,
+      31.230839002267572,
+      36.04897959183673,
+      39.00952380952381,
+      43.79283446712018,
+      46.76498866213152,
+      51.536689342403626,
+      55.40281179138322,
+      58.363356009070294,
+      62.20625850340136,
+      65.09714285714286,
+      67.99963718820862,
+      73.83945578231292,
+      77.682358276644,
+      80.59646258503402,
+      83.46412698412698,
+      85.51909297052154,
+      89.52453514739229,
+      93.18167800453514,
+      97.98820861678004,
+      100.91392290249433,
+      105.73206349206349,
+      108.66938775510204,
+      113.47591836734694,
+      116.39002267573696,
+      119.31573696145125,
+      122.19501133786848,
+      125.07428571428571,
+      128.96362811791383,
+      131.87773242630385,
+      136.69587301587302,
+      141.56045351473924,
+      144.43972789115645,
+      147.377052154195,
+      150.27954648526077,
+      153.18204081632652,
+      156.03809523809525,
+      159.9158276643991,
+      162.85315192743764,
+      167.65968253968254,
+      170.57378684807256,
+      173.49950113378685,
+      175.35709750566895
+    ],
+    "segment_times": [
+      36.04897959183673,
+      73.83945578231292,
+      89.52453514739229,
+      147.377052154195,
+      173.49950113378685
+    ]
+  }
+}

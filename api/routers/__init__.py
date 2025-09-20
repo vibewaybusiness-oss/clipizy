@@ -7,6 +7,8 @@ from .prompt_router import router as prompt_router
 from .music_clip_router import router as music_clip_router
 from .runpod_router import router as runpod_router
 from .qwen_router import router as qwen_router
+from .music_analysis_router import router as music_analysis_router
+from .visualizer_router import router as visualizer_router
 
 all_routers = [
     project_router,
@@ -18,4 +20,6 @@ all_routers = [
     music_clip_router,
     runpod_router,
     qwen_router,
+    music_analysis_router,
+    visualizer_router,
 ]

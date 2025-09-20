@@ -399,36 +399,43 @@ function MusicClipPage() {
 
   // Push data to backend when leaving the page
   useEffect(() => {
-    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
-      try {
-        const projectId = searchParams.get('projectId');
-        if (projectId) {
-          // Get current data from hooks
-          const musicClipData = await musicClipState.actions.pushToBackend(projectId);
-          const tracksData = await musicTracks.pushToBackend(projectId);
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      const projectId = searchParams.get('projectId');
+      if (projectId) {
+        try {
+          // Use sendBeacon for reliable data saving on page unload
+          const musicClipData = musicClipState.actions.getCurrentState();
+          const tracksData = musicTracks.getCurrentState();
           
-          // Push to backend
-          await pushDataToBackend(projectId, musicClipData, tracksData);
+          const data = {
+            projectId,
+            musicClipData,
+            tracksData,
+            timestamp: Date.now()
+          };
+          
+          // Use sendBeacon for critical data saving
+          const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+          const success = navigator.sendBeacon('/api/music-clip/auto-save', blob);
+          
+          if (!success) {
+            console.warn('Failed to send beacon for auto-save');
+          } else {
+            console.log('Data saved via beacon on page unload');
+          }
+        } catch (error) {
+          console.error('Failed to prepare data for beacon save:', error);
         }
-      } catch (error) {
-        console.error('Failed to push data to backend on page leave:', error);
       }
     };
 
-    const handleVisibilityChange = async () => {
+    const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        try {
-          const projectId = searchParams.get('projectId');
-          if (projectId) {
-            // Get current data from hooks
-            const musicClipData = await musicClipState.actions.pushToBackend(projectId);
-            const tracksData = await musicTracks.pushToBackend(projectId);
-            
-            // Push to backend
-            await pushDataToBackend(projectId, musicClipData, tracksData);
-          }
-        } catch (error) {
-          console.error('Failed to push data to backend on visibility change:', error);
+        const projectId = searchParams.get('projectId');
+        if (projectId) {
+          // Use regular fetch for visibility change (less critical)
+          pushDataToBackend(projectId, musicClipState.actions.getCurrentState(), musicTracks.getCurrentState())
+            .catch(error => console.error('Failed to push data to backend on visibility change:', error));
         }
       }
     };
@@ -488,12 +495,18 @@ function MusicClipPage() {
       console.log('Pushing data to backend for project:', projectId);
       
       // Update project settings using the project management hook
-      if (musicClipData.settings) {
-        await projectManagement.actions.updateProjectSettings(projectId, musicClipData.settings);
+      if (musicClipData?.settings) {
+        try {
+          await projectManagement.actions.updateProjectSettings(projectId, musicClipData.settings);
+          console.log('Settings synced to backend successfully');
+        } catch (settingsError) {
+          console.error('Failed to save settings:', settingsError);
+          // Don't throw here, continue with other operations
+        }
       }
       
       // Update tracks if we have track data
-      if (tracksData.musicTracks && tracksData.musicTracks.length > 0) {
+      if (tracksData?.musicTracks && tracksData.musicTracks.length > 0) {
         // Update track descriptions and genres
         for (const track of tracksData.musicTracks) {
           const updates: any = {};
@@ -502,7 +515,7 @@ function MusicClipPage() {
           if (musicClipState.state.individualDescriptions[track.id]) {
             updates.video_description = musicClipState.state.individualDescriptions[track.id];
           }
-          if (tracksData.trackGenres[track.id]) {
+          if (tracksData.trackGenres?.[track.id]) {
             updates.genre = tracksData.trackGenres[track.id];
           }
           
@@ -1070,17 +1083,14 @@ function MusicClipPage() {
   };
 
   const onOverviewSubmit = async (values: z.infer<typeof OverviewSchema>) => {
-    musicClipState.actions.setIsGeneratingVideo(true);
+    console.log('=== onOverviewSubmit CALLED ===');
+    console.log('Values:', values);
+    console.log('Current step before:', musicClipState.state.currentStep);
     
-    try {
-      toast({
-        variant: "destructive",
-        title: "Feature Disabled",
-        description: "Video generation is currently disabled.",
-      });
-    } finally {
-      musicClipState.actions.setIsGeneratingVideo(false);
-    }
+    // Navigate to step 4
+    console.log('Navigating to step 4...');
+    musicClipState.actions.setCurrentStep(4);
+    console.log('Current step after setCurrentStep(4):', musicClipState.state.currentStep);
   };
 
   const handleBack = (e?: React.MouseEvent) => {
@@ -1478,7 +1488,19 @@ function MusicClipPage() {
                     {musicClipState.state.currentStep === 3 && (
                       <div className="flex-1 flex justify-end">
                         <Button 
-                          onClick={() => musicClipState.forms.overviewForm.handleSubmit(onOverviewSubmit)()} 
+                          onClick={() => {
+                            console.log('=== MUSIC CLIP STEP 3 CONTINUE BUTTON CLICKED ===');
+                            console.log('Current step:', musicClipState.state.currentStep);
+                            console.log('Form values:', musicClipState.forms.overviewForm.getValues());
+                            console.log('Form state:', musicClipState.forms.overviewForm.formState);
+                            console.log('Form errors:', musicClipState.forms.overviewForm.formState.errors);
+                            console.log('Form isValid:', musicClipState.forms.overviewForm.formState.isValid);
+                            
+                            // Directly navigate to step 4 without form validation
+                            console.log('Directly navigating to step 4 (bypassing form validation)...');
+                            musicClipState.actions.setCurrentStep(4);
+                            console.log('Current step after setCurrentStep(4):', musicClipState.state.currentStep);
+                          }} 
                           className="flex items-center space-x-2 text-white btn-ai-gradient"
                           disabled={musicClipState.state.isGeneratingVideo}
                         >

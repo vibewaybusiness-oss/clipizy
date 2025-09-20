@@ -6,7 +6,7 @@ from typing import List, Optional, Dict, Any
 from api.models.runpod import WorkflowInput, WorkflowResult, ComfyUIRequest
 from api.services.runpod_queue import get_queue_manager
 
-router = APIRouter(prefix="/api/qwen", tags=["qwen-image-generation"])
+router = APIRouter(prefix="/api/qwen", tags=["comfyui_image_qwen-generation"])
 
 
 @router.post("/generate", response_model=WorkflowResult)
@@ -35,7 +35,7 @@ async def generate_qwen_image(workflow_input: WorkflowInput):
     queue_manager = get_queue_manager()
     
     # Add request to queue
-    request_id = await queue_manager.add_request("qwen-image", workflow_input)
+    request_id = await queue_manager.add_request("comfyui_image_qwen", workflow_input)
     
     # Wait for completion (with timeout)
     import asyncio
@@ -76,7 +76,7 @@ async def generate_qwen_image_async(workflow_input: WorkflowInput):
         )
     
     queue_manager = get_queue_manager()
-    request_id = await queue_manager.add_request("qwen-image", workflow_input)
+    request_id = await queue_manager.add_request("comfyui_image_qwen", workflow_input)
     
     return {
         "request_id": request_id,
@@ -133,7 +133,7 @@ async def batch_generate_qwen_images(
             seed=-1  # Random seed
         )
         
-        request_id = await queue_manager.add_request("qwen-image", workflow_input)
+        request_id = await queue_manager.add_request("comfyui_image_qwen", workflow_input)
         request_ids.append({
             "request_id": request_id,
             "prompt": prompt,
@@ -231,7 +231,7 @@ async def qwen_health_check():
     
     return {
         "status": "healthy",
-        "service": "qwen-image-generation",
+        "service": "comfyui_image_qwen-generation",
         "active_pods": len(queue_status.active_pods),
         "pending_requests": len(queue_status.pending_requests),
         "completed_requests": len(queue_status.completed_requests),

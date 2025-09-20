@@ -1,0 +1,116 @@
+{
+  "test_timestamp": "2025-09-19T16:59:39.289901",
+  "test_suite": "Music Analyzer Standalone Integration",
+  "version": "1.0.0",
+  "tests": {
+    "music_theory_categorizer_initialization": {
+      "status": "PASSED",
+      "result": {
+        "genres_count": 15
+      },
+      "error": null
+    },
+    "simple_analyzer_initialization": {
+      "status": "PASSED",
+      "result": {
+        "genres_count": 15
+      },
+      "error": null
+    },
+    "metadata_extraction": {
+      "status": "PASSED",
+      "result": {
+        "title": "Tmpszcm7n",
+        "artist": "Unknown",
+        "album": "Unknown",
+        "genre": "Unknown",
+        "year": "Unknown",
+        "duration": 3.0,
+        "bitrate": 705600,
+        "sample_rate": 44100,
+        "channels": 1,
+        "file_size": 264644,
+        "file_type": ".wav"
+      },
+      "error": null
+    },
+    "audio_features_extraction": {
+      "status": "PASSED",
+      "result": {
+        "duration": 3.0,
+        "tempo": 129.19921875,
+        "spectral_centroid": 3085.9280766122224,
+        "rms_energy": 0.3800014853477478,
+        "harmonic_ratio": 0.9972618818283081,
+        "onset_rate": 6.0,
+        "key": "Unknown",
+        "time_signature": "Unknown"
+      },
+      "error": null
+    },
+    "simple_audio_features": {
+      "status": "PASSED",
+      "result": {
+        "duration": 3.0,
+        "tempo": 95.703125,
+        "spectral_centroid": 3079.219095063383,
+        "rms_energy": 0.38001251220703125,
+        "harmonic_ratio": 0.9972322583198547
+      },
+      "error": null
+    },
+    "music_descriptors_generation": {
+      "status": "PASSED",
+      "result": {
+        "descriptors_count": 3,
+        "descriptors": [
+          "Moderate tempo (walking pace, comfortable)",
+          "Very high energy (intense, powerful, aggressive)",
+          "Highly harmonic (very melodic, tonal, musical)"
+        ]
+      },
+      "error": null
+    },
+    "genre_score_calculation": {
+      "status": "PASSED",
+      "result": {
+        "genre_scores": {
+          "Ambient": 0.0,
+          "Synthwave / Electronic": 1.0,
+          "Jazz / Blues": 1.0,
+          "Classical / Orchestral": 1.0,
+          "Rock / Metal / Punk": 1.0
+        },
+        "predicted_genre": "Synthwave / Electronic",
+        "confidence": 100.0
+      },
+      "error": null
+    },
+    "peak_detection": {
+      "status": "FAILED",
+      "result": null,
+      "error": "Cannot cast ufunc 'multiply' output from dtype('float64') to dtype('int16') with casting rule 'same_kind'"
+    },
+    "comprehensive_analysis": {
+      "status": "PASSED",
+      "result": "<coroutine object MusicAnalyzerStandaloneTest.test_comprehensive_analysis at 0x0000017C6DB29AF0>",
+      "error": null
+    },
+    "simple_analysis_service": {
+      "status": "PASSED",
+      "result": "<coroutine object MusicAnalyzerStandaloneTest.test_simple_analysis_service at 0x0000017C6DB29B60>",
+      "error": null
+    },
+    "peak_detection_service": {
+      "status": "PASSED",
+      "result": "<coroutine object MusicAnalyzerStandaloneTest.test_peak_detection_service at 0x0000017C6DB29BD0>",
+      "error": null
+    }
+  },
+  "summary": {
+    "total_tests": 11,
+    "passed": 10,
+    "failed": 1,
+    "success_rate": 90.9090909090909
+  }
+}

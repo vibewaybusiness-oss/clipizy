@@ -1,0 +1,338 @@
+import numpy as np, librosa
+from scipy.signal import savgol_filter
+from functools import lru_cache
+import matplotlib.pyplot as plt
+import os
+from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import JSONResponse
+
+# ---------- helpers ----------
+
+def _beat_times(y, sr):
+    tempo, bt = librosa.beat.beat_track(y=y, sr=sr, units="time")
+    return tempo, np.asarray(bt)
+
+def _estimate_bars(beat_times, prefer={3,4}):
+    """Infer beats-per-bar (meter) from beat times by maximizing periodicity."""
+    if len(beat_times) < 8:
+        return 4, beat_times  # fallback
+    ibt = np.diff(beat_times)
+    median_ib = np.median(ibt)
+    # Try meters and pick the one that produces the most stable bar duration
+    candidates = sorted(prefer)
+    scores, bar_grids = [], []
+    for k in candidates:
+        # every k beats -> a bar
+        idx = np.arange(0, len(beat_times), k)
+        bars = beat_times[idx]
+        dur = np.diff(bars)
+        if len(dur) < 3:
+            score = 0
+        else:
+            score = -np.std(dur)  # lower variance is better
+        scores.append(score)
+        bar_grids.append(bars)
+    j = int(np.argmax(scores))
+    return candidates[j], bar_grids[j]
+
+def _beat_sync_features(y, sr, hop=512):
+    S = np.abs(librosa.stft(y, n_fft=2048, hop_length=hop))**2
+    mel = librosa.feature.melspectrogram(S=S, sr=sr)
+    chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
+    mfcc = librosa.feature.mfcc(S=librosa.power_to_db(mel), sr=sr, n_mfcc=13)
+    tempo, bt = _beat_times(y, sr)
+    bf = librosa.time_to_frames(bt, sr=sr, hop_length=hop)
+    if len(bf) < 3:
+        # fallback: fixed windows
+        idx = np.arange(mel.shape[1])
+        bins = np.array_split(idx, max(1, mel.shape[1]//20))
+        pooled = lambda X: np.vstack([X[:,b].mean(axis=1) for b in bins]).T
+        F = np.vstack([pooled(chroma), pooled(mfcc)]).T
+        times = librosa.frames_to_time([b[len(b)//2] for b in bins], sr=sr, hop_length=hop)
+        return F, times, bt
+    sync = lambda X: librosa.util.sync(X, bf, aggregate=np.mean)
+    F = np.vstack([sync(chroma), sync(mfcc)]).T     # beat-synced features (T_beats × D)
+    times = bt
+    return F, times, bt
+
+# ---------- bar novelty ----------
+
+def _bar_novelty(y, sr):
+    """Return downbeat times and a novelty score per bar boundary."""
+    Fb, beat_times, bt = _beat_sync_features(y, sr)
+    k, downbeats = _estimate_bars(bt)
+    if len(downbeats) < 3:
+        return np.array([]), np.array([])
+    # pool features per bar (mean across the beats in that bar)
+    # map each beat to its bar index
+    bar_idx = np.searchsorted(downbeats, beat_times, side="right") - 1
+    n_bars = int(bar_idx.max()) + 1
+    D = Fb.shape[1]
+    B = np.zeros((n_bars, D))
+    counts = np.zeros(n_bars) + 1e-9
+    for i, b in enumerate(bar_idx):
+        B[b] += Fb[i]
+        counts[b] += 1
+    B /= counts[:, None]
+
+    # novelty = contrast between adjacent bar feature means
+    diff = np.linalg.norm(B[1:] - B[:-1], axis=1)
+    # smooth and normalize
+    diff = savgol_filter(diff, max(5, (len(diff)//20)*2+1), 3, mode="interp") if len(diff) >= 7 else diff
+    diff = (diff - diff.min()) / (diff.max() - diff.min() + 1e-9)
+
+    # bar boundaries occur at downbeats[1:-1]; attach novelty to each boundary
+    boundary_times = downbeats[1:-1]
+    novelty = diff[:len(boundary_times)]
+    return boundary_times, novelty
+
+# ---------- DP selection on bar grid ----------
+
+def _dp_select(boundary_times, novelty, min_bars=4, max_bars=64, lam=0.15):
+    """
+    Select a subset of boundaries on a *bar* grid by maximizing:
+        sum(novelty at chosen cuts) - lam * (#cuts)
+    subject to each segment having at least min_bars and at most max_bars bars.
+    We solve this with DP on indices (bars), not seconds.
+    """
+    n = len(boundary_times)          # boundaries between bars
+    if n == 0:
+        return np.array([])
+    # Work in boundary indices i = 0..n-1 (between bars i and i+1)
+    # We allow a cut after boundary i, then the next cut must be >= i+min_bars.
+    # Precompute a benefit array
+    s = novelty
+    # DP arrays
+    best = -1e9 * np.ones(n+1)   # best score up to boundary i (exclusive)
+    prev = -np.ones(n+1, dtype=int)
+    best[0] = 0.0
+    for i in range(n):
+        if best[i] <= -1e8:
+            continue
+        # try placing next cut at j (>= i+min_bars, <= i+max_bars)
+        j_start = i + min_bars
+        j_end = min(n, i + max_bars)
+        for j in range(j_start, j_end + 1):
+            gain = s[j-1] - lam  # pay one penalty per cut
+            if best[i] + gain > best[j]:
+                best[j] = best[i] + gain
+                prev[j] = i
+    # backtrack from the farthest reachable j with finite score
+    j = int(np.argmax(best))
+    cuts_idx = []
+    while j > 0 and prev[j] >= 0:
+        cuts_idx.append(j-1)
+        j = int(prev[j])
+    cuts_idx = sorted(cuts_idx)
+    # map indices to times
+    return boundary_times[cuts_idx]
+
+# ---------- Public entry ----------
+
+def bar_level_segments(y, sr,
+                       min_segment_seconds=8.0,
+                       max_segment_seconds=90.0,
+                       penalty=0.15):
+    """
+    Returns segment boundary times (seconds), restricted to downbeats.
+    - min/max segment length are enforced *in bars* (estimated from tempo).
+    - penalty controls how many cuts are allowed (higher -> fewer).
+    """
+    # bar boundary candidates + novelty
+    b_times, nov = _bar_novelty(y, sr)
+    if len(b_times) == 0:
+        return np.array([])
+
+    # Convert seconds to bars using median bar length
+    bar_dur = np.median(np.diff(np.r_[0, b_times, b_times[-1] + np.median(np.diff(b_times))]))
+    min_bars = max(2, int(round(min_segment_seconds / max(bar_dur, 1e-6))))
+    max_bars = max(min_bars + 1, int(round(max_segment_seconds / max(bar_dur, 1e-6))))
+
+    cuts = _dp_select(b_times, nov, min_bars=min_bars, max_bars=max_bars, lam=penalty)
+
+    # Always include the *first* bar (0s) and do not add the last (end) cut
+    segs = cuts
+    return segs
+
+# ---------- Visualization ----------
+
+def create_visualization(y, sr, rms_t, rms, beat_times, downbeats, segments, bar_novelty, audio_file="audio.wav"):
+    """Create visualization for bar-level segmentation analysis"""
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(15, 12))
+    
+    # Convert RMS to dB for better visualization
+    rms_db = 20 * np.log10(rms + 1e-9)
+    
+    # PLOT 1: RMS ENERGY WITH SEGMENTS AND DOWNBEATS
+    ax1.plot(rms_t, rms_db, 'b-', alpha=0.7, label='RMS Energy (dB)')
+    
+    # Plot downbeats as PURPLE vertical lines
+    if len(downbeats) > 0:
+        for i, downbeat in enumerate(downbeats):
+            ax1.axvline(x=downbeat, color='purple', alpha=0.5, linewidth=1, linestyle='--',
+                       label='Downbeats (PURPLE)' if i == 0 else "")
+    
+    # Plot segment boundaries as GREEN VERTICAL LINES
+    if len(segments) > 0:
+        for i, seg_time in enumerate(segments):
+            ax1.axvline(x=seg_time, color='green', alpha=0.8, linewidth=2, 
+                       label='Segment Boundaries (GREEN)' if i == 0 else "")
+            # Add segment number
+            ax1.text(seg_time, ax1.get_ylim()[1] * 0.9, f'S{i+1}', 
+                    ha='center', va='bottom', fontsize=8, color='green', weight='bold')
+    
+    ax1.set_ylabel('RMS Energy (dB)')
+    ax1.set_title(f'Bar-Level Segmentation: Downbeats (PURPLE) + Segments (GREEN) - {os.path.basename(audio_file)}')
+    ax1.legend()
+    ax1.grid(True, alpha=0.3)
+    
+    # PLOT 2: BEAT TRACKING WITH DOWNBEATS
+    if len(beat_times) > 0:
+        # Create a simple beat visualization
+        beat_energy = np.interp(beat_times, rms_t, rms_db)
+        ax2.scatter(beat_times, beat_energy, color='orange', s=30, alpha=0.6, 
+                   label='All Beats', marker='|', linewidth=2)
+        
+        # Highlight downbeats
+        if len(downbeats) > 0:
+            downbeat_energy = np.interp(downbeats, rms_t, rms_db)
+            ax2.scatter(downbeats, downbeat_energy, color='purple', s=80, alpha=0.9, 
+                       label='Downbeats', marker='o', zorder=5)
+        
+        ax2.plot(rms_t, rms_db, 'b-', alpha=0.3, label='RMS Energy (background)')
+        
+        # Add segment markers to beat plot
+        if len(segments) > 0:
+            for i, seg_time in enumerate(segments):
+                ax2.axvline(x=seg_time, color='green', alpha=0.5, linewidth=1, linestyle='--')
+    else:
+        ax2.plot(rms_t, rms_db, 'b-', alpha=0.7, label='RMS Energy')
+    
+    ax2.set_ylabel('Energy (dB)')
+    ax2.set_title('Beat Tracking with Downbeats and Segment Markers')
+    ax2.legend()
+    ax2.grid(True, alpha=0.3)
+    
+    # PLOT 3: BAR NOVELTY FUNCTION
+    if len(bar_novelty) > 0 and len(bar_novelty) > 1:
+        # Get bar boundary times and novelty scores
+        bar_times, novelty_scores = bar_novelty
+        
+        if len(bar_times) > 0 and len(novelty_scores) > 0:
+            # Ensure arrays have the same length
+            min_len = min(len(bar_times), len(novelty_scores))
+            bar_times = bar_times[:min_len]
+            novelty_scores = novelty_scores[:min_len]
+            
+            ax3.plot(bar_times, novelty_scores, 'c-', alpha=0.8, linewidth=2, 
+                    label='Bar Novelty Function')
+            
+            # Highlight selected segment boundaries
+            if len(segments) > 0:
+                for i, seg_time in enumerate(segments):
+                    ax3.axvline(x=seg_time, color='green', alpha=0.8, linewidth=2,
+                               label='Selected Segments (GREEN)' if i == 0 else "")
+                    
+                    # Find closest bar boundary and show its novelty score
+                    closest_idx = np.argmin(np.abs(bar_times - seg_time))
+                    if closest_idx < len(novelty_scores):
+                        ax3.scatter(bar_times[closest_idx], novelty_scores[closest_idx], 
+                                   color='red', s=100, zorder=5, marker='o',
+                                   label='Selected Boundary Scores (RED)' if i == 0 else "")
+    else:
+        ax3.plot(rms_t, rms_db, 'b-', alpha=0.7, label='RMS Energy')
+    
+    ax3.set_xlabel('Time (seconds)')
+    ax3.set_ylabel('Novelty Score')
+    ax3.set_title('Bar-Level Novelty Function with Selected Segments')
+    ax3.legend()
+    ax3.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    return fig
+
+# ---------- Analysis Functions ----------
+
+def analyze_bytes(data: bytes, sr=22050, hop=512, create_plot=False, audio_file="audio.wav"):
+    import soundfile as sf, io
+    y, file_sr = sf.read(io.BytesIO(data), always_2d=False, dtype='float32')
+    
+    # Convert to mono if stereo
+    if y.ndim > 1: 
+        y = np.mean(y, axis=1)
+    
+    # Resample if needed
+    if file_sr != sr: 
+        y = librosa.resample(y, orig_sr=file_sr, target_sr=sr)
+    
+    # Ensure audio is floating-point and normalized
+    y = y.astype(np.float32)
+    y = librosa.util.normalize(y)
+
+    # Get basic audio features
+    rms = librosa.feature.rms(y=y, frame_length=2048, hop_length=hop)[0]
+    rms_t = librosa.frames_to_time(np.arange(len(rms)), sr=sr, hop_length=hop)
+    tempo, beat_times = _beat_times(y, sr)
+    
+    # Get bar-level segments
+    segments = bar_level_segments(y, sr)
+    
+    # Get downbeats and bar novelty for visualization
+    downbeats = np.array([])
+    bar_novelty = None
+    try:
+        Fb, beat_times_feat, bt = _beat_sync_features(y, sr, hop)
+        k, downbeats = _estimate_bars(bt)
+        bar_times, novelty_scores = _bar_novelty(y, sr)
+        if len(bar_times) > 0 and len(novelty_scores) > 0:
+            bar_novelty = (bar_times, novelty_scores)
+    except Exception as e:
+        print(f"Warning: Could not compute bar novelty: {e}")
+
+    result = {
+        "duration": len(y)/sr,
+        "tempo": float(tempo),
+        "segments_sec": segments.tolist(),
+        "beat_times_sec": beat_times.tolist(),
+        "downbeats_sec": downbeats.tolist(),
+        "debug": {
+            "bar_novelty_available": bar_novelty is not None
+        }
+    }
+
+    # Create visualization if requested
+    if create_plot:
+        fig = create_visualization(y, sr, rms_t, rms, beat_times, downbeats, segments, bar_novelty, audio_file)
+        result["plot"] = fig
+
+    return result
+
+def analyze_and_plot(data: bytes, audio_file="audio.wav", output_dir="."):
+    """Analyze audio and create visualization plot"""
+    result = analyze_bytes(data, create_plot=True, audio_file=audio_file)
+    
+    if "plot" in result:
+        fig = result["plot"]
+        output_image = os.path.join(output_dir, f"bar_level_analysis_{os.path.splitext(os.path.basename(audio_file))[0]}.png")
+        fig.savefig(output_image, dpi=300, bbox_inches='tight')
+        plt.close(fig)
+        result["plot_saved"] = output_image
+        del result["plot"]  # Remove the figure object from the result
+    
+    return result
+
+# ---------- FastAPI ----------
+
+app = FastAPI()
+
+@app.post("/analyze")
+async def analyze(file: UploadFile = File(...)):
+    data = await file.read()
+    result = analyze_bytes(data)
+    return JSONResponse(result)
+
+@app.post("/analyze_with_plot")
+async def analyze_with_plot(file: UploadFile = File(...)):
+    data = await file.read()
+    result = analyze_and_plot(data, audio_file=file.filename)
+    return JSONResponse(result)

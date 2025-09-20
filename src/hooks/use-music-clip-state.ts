@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { SettingsSchema } from '@/components/vibewave-generator';
+import { SettingsSchema, OverviewSchema } from '@/components/vibewave-generator';
 
 const PromptSchema = z.object({
   musicDescription: z.string().min(1, "Music description is required"),
@@ -86,6 +86,16 @@ export interface MusicClipActions {
   setShowGenreSelector: (show: boolean) => void;
   setVibeFile: (file: File | null) => void;
   setChannelAnimationFile: (file: File | null) => void;
+  
+  // State access
+  getCurrentState: () => {
+    currentStep: 1 | 2 | 3 | 4;
+    maxReachedStep: 1 | 2 | 3 | 4;
+    settings: z.infer<typeof SettingsSchema> | null;
+    prompts: any;
+    sharedDescription: string;
+    individualDescriptions: Record<string, string>;
+  };
 }
 
 export interface MusicClipForms {
@@ -225,24 +235,50 @@ export function useMusicClipState(projectId?: string | null) {
 
   const overviewForm = useForm<z.infer<typeof OverviewSchema>>({
     resolver: zodResolver(OverviewSchema),
-    defaultValues: (() => {
-      if (typeof window !== 'undefined' && projectId) {
-        const saved = localStorage.getItem(`musicClip_${projectId}_overviewForm`);
-        if (saved) {
-          try {
-            return JSON.parse(saved);
-          } catch (error) {
-            console.warn('Failed to parse saved overview form data:', error);
-          }
-        }
-      }
-      return {
-        projectName: '',
-        description: '',
-        tags: [],
-      };
-    })(),
+    defaultValues: {
+      channelAnimationFile: undefined,
+      animationHasAudio: false,
+      startAudioDuringAnimation: false,
+      introAnimationFile: undefined,
+      outroAnimationFile: undefined,
+      playMusicDuringIntro: false,
+      playMusicDuringOutro: false,
+      videoDescription: "A dynamic music video with synchronized visuals",
+      audioVisualizerEnabled: false,
+      audioVisualizerPositionV: "center",
+      audioVisualizerPositionH: "center",
+      audioVisualizerSize: "medium",
+      audioVisualizerType: "none",
+      audioTransition: "none",
+      videoTransition: "none",
+    },
   });
+
+  // Clear old localStorage data for overviewForm to fix schema mismatch
+  useEffect(() => {
+    if (typeof window !== 'undefined' && projectId) {
+      // Clear the old overviewForm data that has the wrong schema
+      localStorage.removeItem(`musicClip_${projectId}_overviewForm`);
+      // Reset the form to use the new default values
+      overviewForm.reset({
+        channelAnimationFile: undefined,
+        animationHasAudio: false,
+        startAudioDuringAnimation: false,
+        introAnimationFile: undefined,
+        outroAnimationFile: undefined,
+        playMusicDuringIntro: false,
+        playMusicDuringOutro: false,
+        videoDescription: "A dynamic music video with synchronized visuals",
+        audioVisualizerEnabled: false,
+        audioVisualizerPositionV: "center",
+        audioVisualizerPositionH: "center",
+        audioVisualizerSize: "medium",
+        audioVisualizerType: "none",
+        audioTransition: "none",
+        videoTransition: "none",
+      });
+    }
+  }, [projectId]); // Removed overviewForm from dependencies to fix the warning
 
   // PERSISTENCE: Save state changes to localStorage
   useEffect(() => {
@@ -528,6 +564,17 @@ export function useMusicClipState(projectId?: string | null) {
     channelAnimationFile,
   ]);
 
+  const getCurrentState = useCallback(() => {
+    return {
+      currentStep,
+      maxReachedStep,
+      settings,
+      prompts,
+      sharedDescription,
+      individualDescriptions,
+    };
+  }, [currentStep, maxReachedStep, settings, prompts, sharedDescription, individualDescriptions]);
+
   const actions: MusicClipActions = useMemo(() => ({
     setCurrentStep,
     setMaxReachedStep,
@@ -558,12 +605,14 @@ export function useMusicClipState(projectId?: string | null) {
     setShowGenreSelector,
     setVibeFile,
     setChannelAnimationFile,
+    getCurrentState,
   }), [
     handleContinue,
     handleBack,
     handleReset,
     loadFromBackend,
     pushToBackend,
+    getCurrentState,
   ]);
 
   const forms: MusicClipForms = useMemo(() => ({

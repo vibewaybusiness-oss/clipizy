@@ -4,6 +4,7 @@ This directory contains the RunPod GraphQL API integration for the WaveClip appl
 
 ## Directory Structure
 
+
 ```
 backend/
 ├── runpod-api/           # RunPod API module

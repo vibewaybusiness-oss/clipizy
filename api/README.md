@@ -1,5 +1,13 @@
 # Vibewave Backend API
 
+
+godaddy:
+
+Microsoft
+admin@clipizy.com
+PWD=clipiziouiOUI2007@@@
+
+
 FastAPI backend for AI-powered music video creation platform.
 
 ## 🏗️ Architecture

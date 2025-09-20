@@ -424,6 +424,15 @@ def update_project_settings(
 ):
     """Update music-clip project settings."""
     try:
+        # Validate project_id is a valid UUID
+        try:
+            uuid.UUID(project_id)
+        except ValueError:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
+            )
+        
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
         
@@ -469,6 +478,14 @@ def get_project_script(
 ):
     """Get project script data."""
     try:
+        # Validate project_id is a valid UUID
+        try:
+            uuid.UUID(project_id)
+        except ValueError:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
+            )
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
         
@@ -508,6 +525,14 @@ def get_project_tracks(
 ):
     """Get all tracks for a music-clip project."""
     try:
+        # Validate project_id is a valid UUID
+        try:
+            uuid.UUID(project_id)
+        except ValueError:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
+            )
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
         
@@ -565,6 +590,14 @@ def update_track(
 ):
     """Update a track's metadata."""
     try:
+        # Validate project_id is a valid UUID
+        try:
+            uuid.UUID(project_id)
+        except ValueError:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
+            )
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
         
@@ -628,6 +661,14 @@ def get_track_url(
 ):
     """Get a presigned URL for a track file."""
     try:
+        # Validate project_id is a valid UUID
+        try:
+            uuid.UUID(project_id)
+        except ValueError:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
+            )
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
         

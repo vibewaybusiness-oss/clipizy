@@ -1,0 +1,944 @@
+{
+  "audio_file": "audio.wav",
+  "title": "Audio",
+  "analysis_timestamp": "2025-09-19T17:47:35",
+  "overall_analysis": {
+    "predicted_genre": "Classical / Orchestral",
+    "confidence": 100.0,
+    "descriptors": [
+      "Fast tempo (very energetic, intense)",
+      "Medium energy (balanced, moderate)",
+      "Highly harmonic (very melodic, tonal, musical)",
+      "Mid frequency content (balanced, natural)"
+    ],
+    "features": {
+      "duration": 193.9330612244898,
+      "tempo": 151.99908088235293,
+      "spectral_centroid": 2913.731739295691,
+      "rms_energy": 0.14733709394931793,
+      "harmonic_ratio": 0.8835014700889587,
+      "onset_rate": 5.0739156788793105
+    },
+    "genre_scores": {
+      "Ambient": 0.3333333333333333,
+      "Synthwave / Electronic": 0.0,
+      "Reggae / Dub / Ska": 0.0,
+      "Hip Hop / Rap": 0.0,
+      "Trap": 0.5,
+      "Lofi / House": 0.0,
+      "Classical / Orchestral": 1.0,
+      "Rock / Metal / Punk": 0.5,
+      "Jazz / Blues": 1.0,
+      "World / Folk / Traditional": 1.0,
+      "Latin / Tango / Flamenco": 1.0,
+      "Pop / Indie / Folk": 0.5,
+      "Dance / EDM / Club": 0.3333333333333333,
+      "World / Regional": 1.0,
+      "Cinematic / Trailer / Score": 1.0,
+      "Children / Playful": 1.0,
+      "Marches / Traditional Ensembles": 0.0
+    }
+  },
+  "peak_analysis": {
+    "total_peaks": 44,
+    "peaks": [
+      {
+        "index": 1,
+        "time_seconds": 0.0,
+        "time_formatted": "00:00.000",
+        "score": -0.6518601800212178
+      },
+      {
+        "index": 2,
+        "time_seconds": 2.0317460317460316,
+        "time_formatted": "00:02.032",
+        "score": 0.6508752706398018
+      },
+      {
+        "index": 3,
+        "time_seconds": 13.096054421768708,
+        "time_formatted": "00:13.096",
+        "score": 0.9923503878665834
+      },
+      {
+        "index": 4,
+        "time_seconds": 37.61632653061225,
+        "time_formatted": "00:37.616",
+        "score": 2.0282013133052073
+      },
+      {
+        "index": 5,
+        "time_seconds": 40.63492063492063,
+        "time_formatted": "00:40.635",
+        "score": 2.8263353542744354
+      },
+      {
+        "index": 6,
+        "time_seconds": 44.640362811791384,
+        "time_formatted": "00:44.640",
+        "score": 1.4756614119566864
+      },
+      {
+        "index": 7,
+        "time_seconds": 51.46702947845805,
+        "time_formatted": "00:51.467",
+        "score": 5.832924147920741
+      },
+      {
+        "index": 8,
+        "time_seconds": 57.46938775510204,
+        "time_formatted": "00:57.469",
+        "score": 3.4592553845490377
+      },
+      {
+        "index": 9,
+        "time_seconds": 62.65904761904762,
+        "time_formatted": "01:02.659",
+        "score": 3.5458865192774978
+      },
+      {
+        "index": 10,
+        "time_seconds": 64.7372335600907,
+        "time_formatted": "01:04.737",
+        "score": 3.3951791049352757
+      },
+      {
+        "index": 11,
+        "time_seconds": 70.86730158730158,
+        "time_formatted": "01:10.867",
+        "score": 2.349787360509888
+      },
+      {
+        "index": 12,
+        "time_seconds": 75.20943310657596,
+        "time_formatted": "01:15.209",
+        "score": 4.795796999160748
+      },
+      {
+        "index": 13,
+        "time_seconds": 78.44861678004536,
+        "time_formatted": "01:18.449",
+        "score": 3.6687410073932445
+      },
+      {
+        "index": 14,
+        "time_seconds": 83.04616780045352,
+        "time_formatted": "01:23.046",
+        "score": 4.000654592349461
+      },
+      {
+        "index": 15,
+        "time_seconds": 88.6073469387755,
+        "time_formatted": "01:28.607",
+        "score": 4.794803163174324
+      },
+      {
+        "index": 16,
+        "time_seconds": 90.66231292517007,
+        "time_formatted": "01:30.662",
+        "score": 4.483321641378991
+      },
+      {
+        "index": 17,
+        "time_seconds": 93.84344671201814,
+        "time_formatted": "01:33.843",
+        "score": 0.6617451721495091
+      },
+      {
+        "index": 18,
+        "time_seconds": 97.63990929705216,
+        "time_formatted": "01:37.640",
+        "score": 4.07323913287008
+      },
+      {
+        "index": 19,
+        "time_seconds": 102.28390022675737,
+        "time_formatted": "01:42.284",
+        "score": 3.4866270759813673
+      },
+      {
+        "index": 20,
+        "time_seconds": 105.87138321995465,
+        "time_formatted": "01:45.871",
+        "score": 1.9442679704276826
+      },
+      {
+        "index": 21,
+        "time_seconds": 108.87836734693877,
+        "time_formatted": "01:48.878",
+        "score": 1.5513984796424456
+      },
+      {
+        "index": 22,
+        "time_seconds": 112.28009070294785,
+        "time_formatted": "01:52.280",
+        "score": 1.5216709463162017
+      },
+      {
+        "index": 23,
+        "time_seconds": 115.47283446712018,
+        "time_formatted": "01:55.473",
+        "score": 3.4897707444968153
+      },
+      {
+        "index": 24,
+        "time_seconds": 128.7546485260771,
+        "time_formatted": "02:08.755",
+        "score": 3.0613306783465655
+      },
+      {
+        "index": 25,
+        "time_seconds": 131.0418140589569,
+        "time_formatted": "02:11.042",
+        "score": 2.010355122782296
+      },
+      {
+        "index": 26,
+        "time_seconds": 133.07356009070295,
+        "time_formatted": "02:13.074",
+        "score": 1.1786469993861477
+      },
+      {
+        "index": 27,
+        "time_seconds": 139.0643083900227,
+        "time_formatted": "02:19.064",
+        "score": 5.138889204299744
+      },
+      {
+        "index": 28,
+        "time_seconds": 141.07283446712017,
+        "time_formatted": "02:21.073",
+        "score": 9.208289539791085
+      },
+      {
+        "index": 29,
+        "time_seconds": 144.462947845805,
+        "time_formatted": "02:24.463",
+        "score": 4.046696039558022
+      },
+      {
+        "index": 30,
+        "time_seconds": 147.02875283446713,
+        "time_formatted": "02:27.029",
+        "score": 5.5492893319073335
+      },
+      {
+        "index": 31,
+        "time_seconds": 152.23002267573696,
+        "time_formatted": "02:32.230",
+        "score": 3.6890330067505275
+      },
+      {
+        "index": 32,
+        "time_seconds": 157.32680272108843,
+        "time_formatted": "02:37.327",
+        "score": 0.6265929736680584
+      },
+      {
+        "index": 33,
+        "time_seconds": 160.49632653061224,
+        "time_formatted": "02:40.496",
+        "score": 3.047804629621137
+      },
+      {
+        "index": 34,
+        "time_seconds": 164.8152380952381,
+        "time_formatted": "02:44.815",
+        "score": 3.8159054494030293
+      },
+      {
+        "index": 35,
+        "time_seconds": 167.31138321995465,
+        "time_formatted": "02:47.311",
+        "score": 2.172665307867737
+      },
+      {
+        "index": 36,
+        "time_seconds": 169.8771882086168,
+        "time_formatted": "02:49.877",
+        "score": 5.398341144160734
+      },
+      {
+        "index": 37,
+        "time_seconds": 172.53587301587302,
+        "time_formatted": "02:52.536",
+        "score": 6.161163651699977
+      },
+      {
+        "index": 38,
+        "time_seconds": 178.20154195011338,
+        "time_formatted": "02:58.202",
+        "score": 5.5672213289338135
+      },
+      {
+        "index": 39,
+        "time_seconds": 180.46548752834468,
+        "time_formatted": "03:00.465",
+        "score": 4.229408060800344
+      },
+      {
+        "index": 40,
+        "time_seconds": 184.93532879818594,
+        "time_formatted": "03:04.935",
+        "score": 2.827084649528457
+      },
+      {
+        "index": 41,
+        "time_seconds": 187.23410430839002,
+        "time_formatted": "03:07.234",
+        "score": 3.7149883882728307
+      },
+      {
+        "index": 42,
+        "time_seconds": 190.11337868480726,
+        "time_formatted": "03:10.113",
+        "score": 4.160855634894842
+      },
+      {
+        "index": 43,
+        "time_seconds": 192.2960544217687,
+        "time_formatted": "03:12.296",
+        "score": 6.800857229887351
+      },
+      {
+        "index": 44,
+        "time_seconds": 193.9330612244898,
+        "time_formatted": "03:13.933",
+        "score": -7.167045780289298
+      }
+    ]
+  },
+  "segment_analysis": {
+    "total_segments": 12,
+    "segments": [
+      {
+        "index": 1,
+        "time_seconds": 37.61632653061225,
+        "time_formatted": "00:37.616",
+        "ma_short_gap": 14.095111591871397,
+        "ma_long_gap": 3.955109914143881,
+        "ma_divergence": 0.66488046910214,
+        "combined_gap": 7.024041751722366,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Ambient",
+          "confidence": 100.0,
+          "descriptors": [
+            "Slow tempo (relaxed, chill)",
+            "Low energy (soft, gentle, relaxed)",
+            "Harmonic (melodic, tonal)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 13.850702947845805,
+            "tempo": 74.89809782608695,
+            "spectral_centroid": 3792.8269565074224,
+            "rms_energy": 0.08616101741790771,
+            "harmonic_ratio": 0.6613003015518188,
+            "onset_rate": 6.281269645850796
+          },
+          "genre_scores": {
+            "Ambient": 1.0,
+            "Synthwave / Electronic": 0.0,
+            "Reggae / Dub / Ska": 0.5,
+            "Hip Hop / Rap": 1.0,
+            "Trap": 0.0,
+            "Lofi / House": 1.0,
+            "Classical / Orchestral": 1.0,
+            "Rock / Metal / Punk": 0.0,
+            "Jazz / Blues": 1.0,
+            "World / Folk / Traditional": 1.0,
+            "Latin / Tango / Flamenco": 1.0,
+            "Pop / Indie / Folk": 1.0,
+            "Dance / EDM / Club": 0.0,
+            "World / Regional": 1.0,
+            "Cinematic / Trailer / Score": 1.0,
+            "Children / Playful": 1.0,
+            "Marches / Traditional Ensembles": 0.0
+          }
+        }
+      },
+      {
+        "index": 2,
+        "time_seconds": 51.46702947845805,
+        "time_formatted": "00:51.467",
+        "ma_short_gap": 15.10083290033562,
+        "ma_long_gap": 8.832507041073587,
+        "ma_divergence": 1.379183599309019,
+        "combined_gap": 9.10384035224903,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "Medium energy (balanced, moderate)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 13.270204081632652,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3079.242500235127,
+            "rms_energy": 0.18435639142990112,
+            "harmonic_ratio": 0.8765146136283875,
+            "onset_rate": 3.391055610236221
+          },
+          "genre_scores": {
+            "Ambient": 0.3333333333333333,
+            "Synthwave / Electronic": 0.0,
+            "Reggae / Dub / Ska": 0.0,
+            "Hip Hop / Rap": 0.0,
+            "Trap": 0.5,
+            "Lofi / House": 0.0,
+            "Classical / Orchestral": 1.0,
+            "Rock / Metal / Punk": 0.5,
+            "Jazz / Blues": 1.0,
+            "World / Folk / Traditional": 1.0,
+            "Latin / Tango / Flamenco": 1.0,
+            "Pop / Indie / Folk": 0.5,
+            "Dance / EDM / Club": 0.3333333333333333,
+            "World / Regional": 1.0,
+            "Cinematic / Trailer / Score": 1.0,
+            "Children / Playful": 1.0,
+            "Marches / Traditional Ensembles": 0.0
+          }
+        }
+      },
+      {
+        "index": 3,
+        "time_seconds": 64.7372335600907,
+        "time_formatted": "01:04.737",
+        "ma_short_gap": 20.153965079507167,
+        "ma_long_gap": 8.321079844652221,
+        "ma_divergence": 2.550067005145049,
+        "combined_gap": 11.322930086742048,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Trap",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "High energy (loud, dynamic, exciting)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 10.4721768707483,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3608.8519973020975,
+            "rms_energy": 0.20165468752384186,
+            "harmonic_ratio": 0.8723875284194946,
+            "onset_rate": 4.679065356207897
+          },
+          "genre_scores": {
+            "Ambient": 0.3333333333333333,
+            "Synthwave / Electronic": 0.0,
+            "Reggae / Dub / Ska": 0.0,
+            "Hip Hop / Rap": 0.0,
+            "Trap": 1.0,
+            "Lofi / House": 0.0,
+            "Classical / Orchestral": 1.0,
+            "Rock / Metal / Punk": 1.0,
+            "Jazz / Blues": 1.0,
+            "World / Folk / Traditional": 1.0,
+            "Latin / Tango / Flamenco": 1.0,
+            "Pop / Indie / Folk": 0.5,
+            "Dance / EDM / Club": 0.6666666666666666,
+            "World / Regional": 1.0,
+            "Cinematic / Trailer / Score": 1.0,
+            "Children / Playful": 1.0,
+            "Marches / Traditional Ensembles": 0.0
+          }
+        }
+      },
+      {
+        "index": 4,
+        "time_seconds": 75.20943310657596,
+        "time_formatted": "01:15.209",
+        "ma_short_gap": 17.87483652247939,
+        "ma_long_gap": 11.495505004890205,
+        "ma_divergence": 1.9863582160501982,
+        "combined_gap": 11.194493575273878,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "Medium energy (balanced, moderate)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 13.397936507936508,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3946.785566099543,
+            "rms_energy": 0.1638258993625641,
+            "harmonic_ratio": 0.8397634029388428,
+            "onset_rate": 5.075408437688817
+          },
+          "genre_scores": {
+            "Ambient": 0.3333333333333333,
+            "Synthwave / Electronic": 0.0,
+            "Reggae / Dub / Ska": 0.0,
+            "Hip Hop / Rap": 0.0,
+            "Trap": 0.5,
+            "Lofi / House": 0.0,
+            "Classical / Orchestral": 1.0,
+            "Rock / Metal / Punk": 0.5,
+            "Jazz / Blues": 1.0,
+            "World / Folk / Traditional": 1.0,
+            "Latin / Tango / Flamenco": 1.0,
+            "Pop / Indie / Folk": 0.5,
+            "Dance / EDM / Club": 0.3333333333333333,
+            "World / Regional": 1.0,
+            "Cinematic / Trailer / Score": 1.0,
+            "Children / Playful": 1.0,
+            "Marches / Traditional Ensembles": 0.0
+          }
+        }
+      },
+      {
+        "index": 5,
+        "time_seconds": 88.6073469387755,
+        "time_formatted": "01:28.607",
+        "ma_short_gap": 19.175759337669195,
+        "ma_long_gap": 8.741685659386391,
+        "ma_divergence": 2.6610974085980494,
+        "combined_gap": 11.091138655463011,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "Low energy (soft, gentle, relaxed)",
+            "Harmonic (melodic, tonal)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 26.865487528344673,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3403.7305943677366,
+            "rms_energy": 0.09885694086551666,
+            "harmonic_ratio": 0.7973594069480896,
+            "onset_rate": 4.838922050561798
+          },
+          "genre_scores": {
+            "Ambient": 0.6666666666666666,
+            "Synthwave / Electronic": 0.0,
+            "Reggae / Dub / Ska": 0.0,
+            "Hip Hop / Rap": 0.0,
+            "Trap": 0.5,
+            "Lofi / House": 0.0,
+            "Classical / Orchestral": 1.0,
+            "Rock / Metal / Punk": 0.5,
+            "Jazz / Blues": 1.0,
+            "World / Folk / Traditional": 1.0,
+            "Latin / Tango / Flamenco": 1.0,
+            "Pop / Indie / Folk": 0.5,
+            "Dance / EDM / Club": 0.3333333333333333,
+            "World / Regional": 1.0,
+            "Cinematic / Trailer / Score": 1.0,
+            "Children / Playful": 1.0,
+            "Marches / Traditional Ensembles": 0.0
+          }
+        }
+      },
+      {
+        "index": 6,
+        "time_seconds": 115.47283446712018,
+        "time_formatted": "01:55.473",
+        "ma_short_gap": 16.393527452335803,
+        "ma_long_gap": 12.814085208168322,
+        "ma_divergence": 1.5248479966012969,
+        "combined_gap": 10.859090942365206,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "Medium energy (balanced, moderate)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 13.281814058956916,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 2464.465963813091,
+            "rms_energy": 0.15825454890727997,
+            "harmonic_ratio": 0.9670119285583496,
+            "onset_rate": 5.044491641171328
+          },
+          "genre_scores": {
+            "Ambient": 0.3333333333333333,
+            "Synthwave / Electronic": 0.0,
+            "Reggae / Dub / Ska": 0.0,
+            "Hip Hop / Rap": 0.0,
+            "Trap": 0.5,
+            "Lofi / House": 0.0,
+            "Classical / Orchestral": 1.0,
+            "Rock / Metal / Punk": 0.5,
+            "Jazz / Blues": 1.0,
+            "World / Folk / Traditional": 1.0,
+            "Latin / Tango / Flamenco": 1.0,
+            "Pop / Indie / Folk": 0.5,
+            "Dance / EDM / Club": 0.3333333333333333,
+            "World / Regional": 1.0,
+            "Cinematic / Trailer / Score": 1.0,
+            "Children / Playful": 1.0,
+            "Marches / Traditional Ensembles": 0.0
+          }
+        }
+      },
+      {
+        "index": 7,
+        "time_seconds": 128.7546485260771,
+        "time_formatted": "02:08.755",
+        "ma_short_gap": 13.615677500880041,
+        "ma_long_gap": 4.406772127447203,
+        "ma_divergence": 1.0102862593458064,
+        "combined_gap": 7.071388516389919,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Hip Hop / Rap",
+          "confidence": 100.0,
+          "descriptors": [
+            "Slow tempo (relaxed, chill)",
+            "Low energy (soft, gentle, relaxed)",
+            "Mixed harmonic/percussive (balanced)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 10.309659863945578,
+            "tempo": 74.89809782608695,
+            "spectral_centroid": 3523.767669498514,
+            "rms_energy": 0.09378549456596375,
+            "harmonic_ratio": 0.5827130079269409,
+            "onset_rate": 9.11766258445946
+          },
+          "genre_scores": {
+            "Ambient": 0.6666666666666666,
+            "Synthwave / Electronic": 0.0,
+            "Reggae / Dub / Ska": 0.5,
+            "Hip Hop / Rap": 1.0,
+            "Trap": 0.0,
+            "Lofi / House": 1.0,
+            "Classical / Orchestral": 0.5,
+            "Rock / Metal / Punk": 0.0,
+            "Jazz / Blues": 0.5,
+            "World / Folk / Traditional": 0.5,
+            "Latin / Tango / Flamenco": 1.0,
+            "Pop / Indie / Folk": 1.0,
+            "Dance / EDM / Club": 0.0,
+            "World / Regional": 1.0,
+            "Cinematic / Trailer / Score": 1.0,
+            "Children / Playful": 1.0,
+            "Marches / Traditional Ensembles": 0.0
+          }
+        }
+      },
+      {
+        "index": 8,
+        "time_seconds": 139.0643083900227,
+        "time_formatted": "02:19.064",
+        "ma_short_gap": 30.29452103237773,
+        "ma_long_gap": 9.77544764215632,
+        "ma_divergence": 2.5321221215067182,
+        "combined_gap": 15.810079342050003,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Hip Hop / Rap",
+          "confidence": 100.0,
+          "descriptors": [
+            "Slow tempo (relaxed, chill)",
+            "Medium energy (balanced, moderate)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 13.165714285714285,
+            "tempo": 74.89809782608695,
+            "spectral_centroid": 3085.7012997088486,
+            "rms_energy": 0.16843439638614655,
+            "harmonic_ratio": 0.8817786574363708,
+            "onset_rate": 4.937065972222222
+          },
+          "genre_scores": {
+            "Ambient": 0.6666666666666666,
+            "Synthwave / Electronic": 0.0,
+            "Reggae / Dub / Ska": 0.5,
+            "Hip Hop / Rap": 1.0,
+            "Trap": 0.0,
+            "Lofi / House": 1.0,
+            "Classical / Orchestral": 1.0,
+            "Rock / Metal / Punk": 0.0,
+            "Jazz / Blues": 1.0,
+            "World / Folk / Traditional": 1.0,
+            "Latin / Tango / Flamenco": 1.0,
+            "Pop / Indie / Folk": 1.0,
+            "Dance / EDM / Club": 0.0,
+            "World / Regional": 1.0,
+            "Cinematic / Trailer / Score": 1.0,
+            "Children / Playful": 1.0,
+            "Marches / Traditional Ensembles": 0.0
+          }
+        }
+      },
+      {
+        "index": 9,
+        "time_seconds": 152.23002267573696,
+        "time_formatted": "02:32.230",
+        "ma_short_gap": 20.391721060109692,
+        "ma_long_gap": 9.324663821116896,
+        "ma_divergence": 3.3010552600366028,
+        "combined_gap": 11.944404148389927,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "Medium energy (balanced, moderate)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 15.081360544217688,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3242.117981720695,
+            "rms_energy": 0.18661880493164062,
+            "harmonic_ratio": 0.8904562592506409,
+            "onset_rate": 5.171947170900692
+          },
+          "genre_scores": {
+            "Ambient": 0.3333333333333333,
+            "Synthwave / Electronic": 0.0,
+            "Reggae / Dub / Ska": 0.0,
+            "Hip Hop / Rap": 0.0,
+            "Trap": 0.5,
+            "Lofi / House": 0.0,
+            "Classical / Orchestral": 1.0,
+            "Rock / Metal / Punk": 0.5,
+            "Jazz / Blues": 1.0,
+            "World / Folk / Traditional": 1.0,
+            "Latin / Tango / Flamenco": 1.0,
+            "Pop / Indie / Folk": 0.5,
+            "Dance / EDM / Club": 0.3333333333333333,
+            "World / Regional": 1.0,
+            "Cinematic / Trailer / Score": 1.0,
+            "Children / Playful": 1.0,
+            "Marches / Traditional Ensembles": 0.0
+          }
+        }
+      },
+      {
+        "index": 10,
+        "time_seconds": 167.31138321995465,
+        "time_formatted": "02:47.311",
+        "ma_short_gap": 25.597579185352764,
+        "ma_long_gap": 17.251161235247466,
+        "ma_divergence": 1.891039257976918,
+        "combined_gap": 15.98169182210842,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "Medium energy (balanced, moderate)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 10.89015873015873,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3197.9218036939587,
+            "rms_energy": 0.1762104630470276,
+            "harmonic_ratio": 0.9055342078208923,
+            "onset_rate": 4.866779384328359
+          },
+          "genre_scores": {
+            "Ambient": 0.3333333333333333,
+            "Synthwave / Electronic": 0.0,
+            "Reggae / Dub / Ska": 0.0,
+            "Hip Hop / Rap": 0.0,
+            "Trap": 0.5,
+            "Lofi / House": 0.0,
+            "Classical / Orchestral": 1.0,
+            "Rock / Metal / Punk": 0.5,
+            "Jazz / Blues": 1.0,
+            "World / Folk / Traditional": 1.0,
+            "Latin / Tango / Flamenco": 1.0,
+            "Pop / Indie / Folk": 0.5,
+            "Dance / EDM / Club": 0.3333333333333333,
+            "World / Regional": 1.0,
+            "Cinematic / Trailer / Score": 1.0,
+            "Children / Playful": 1.0,
+            "Marches / Traditional Ensembles": 0.0
+          }
+        }
+      },
+      {
+        "index": 11,
+        "time_seconds": 178.20154195011338,
+        "time_formatted": "02:58.202",
+        "ma_short_gap": 23.322105870690457,
+        "ma_long_gap": 15.510889444702356,
+        "ma_divergence": 3.6454164526540715,
+        "combined_gap": 15.07573411748311,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "Medium energy (balanced, moderate)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 14.094512471655328,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3411.1350811914194,
+            "rms_energy": 0.1694144606590271,
+            "harmonic_ratio": 0.8732859492301941,
+            "onset_rate": 6.314514260708402
+          },
+          "genre_scores": {
+            "Ambient": 0.3333333333333333,
+            "Synthwave / Electronic": 0.0,
+            "Reggae / Dub / Ska": 0.0,
+            "Hip Hop / Rap": 0.0,
+            "Trap": 0.5,
+            "Lofi / House": 0.0,
+            "Classical / Orchestral": 1.0,
+            "Rock / Metal / Punk": 0.5,
+            "Jazz / Blues": 1.0,
+            "World / Folk / Traditional": 1.0,
+            "Latin / Tango / Flamenco": 1.0,
+            "Pop / Indie / Folk": 0.5,
+            "Dance / EDM / Club": 0.3333333333333333,
+            "World / Regional": 1.0,
+            "Cinematic / Trailer / Score": 1.0,
+            "Children / Playful": 1.0,
+            "Marches / Traditional Ensembles": 0.0
+          }
+        }
+      },
+      {
+        "index": 12,
+        "time_seconds": 192.2960544217687,
+        "time_formatted": "03:12.296",
+        "ma_short_gap": 32.692092607187675,
+        "ma_long_gap": 18.957395783228463,
+        "ma_divergence": 3.4750317281110688,
+        "combined_gap": 19.80656529627693,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "Very low energy (quiet, ambient, meditative)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Low frequency content (bass-heavy, warm, deep)"
+          ],
+          "features": {
+            "duration": 1.6370068027210884,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 663.8761085881649,
+            "rms_energy": 0.032445866614580154,
+            "harmonic_ratio": 0.9581117033958435,
+            "onset_rate": 4.886968085106383
+          },
+          "genre_scores": {
+            "Ambient": 0.6666666666666666,
+            "Synthwave / Electronic": 0.0,
+            "Reggae / Dub / Ska": 0.5,
+            "Hip Hop / Rap": 0.0,
+            "Trap": 0.5,
+            "Lofi / House": 0.0,
+            "Classical / Orchestral": 1.0,
+            "Rock / Metal / Punk": 0.5,
+            "Jazz / Blues": 1.0,
+            "World / Folk / Traditional": 1.0,
+            "Latin / Tango / Flamenco": 1.0,
+            "Pop / Indie / Folk": 0.0,
+            "Dance / EDM / Club": 0.3333333333333333,
+            "World / Regional": 1.0,
+            "Cinematic / Trailer / Score": 1.0,
+            "Children / Playful": 0.5,
+            "Marches / Traditional Ensembles": 0.0
+          }
+        }
+      }
+    ]
+  },
+  "summary": {
+    "duration_seconds": 193.9330612244898,
+    "tempo_bpm": 151.99908088235293,
+    "peak_times": [
+      0.0,
+      2.0317460317460316,
+      13.096054421768708,
+      37.61632653061225,
+      40.63492063492063,
+      44.640362811791384,
+      51.46702947845805,
+      57.46938775510204,
+      62.65904761904762,
+      64.7372335600907,
+      70.86730158730158,
+      75.20943310657596,
+      78.44861678004536,
+      83.04616780045352,
+      88.6073469387755,
+      90.66231292517007,
+      93.84344671201814,
+      97.63990929705216,
+      102.28390022675737,
+      105.87138321995465,
+      108.87836734693877,
+      112.28009070294785,
+      115.47283446712018,
+      128.7546485260771,
+      131.0418140589569,
+      133.07356009070295,
+      139.0643083900227,
+      141.07283446712017,
+      144.462947845805,
+      147.02875283446713,
+      152.23002267573696,
+      157.32680272108843,
+      160.49632653061224,
+      164.8152380952381,
+      167.31138321995465,
+      169.8771882086168,
+      172.53587301587302,
+      178.20154195011338,
+      180.46548752834468,
+      184.93532879818594,
+      187.23410430839002,
+      190.11337868480726,
+      192.2960544217687,
+      193.9330612244898
+    ],
+    "segment_times": [
+      37.61632653061225,
+      51.46702947845805,
+      64.7372335600907,
+      75.20943310657596,
+      88.6073469387755,
+      115.47283446712018,
+      128.7546485260771,
+      139.0643083900227,
+      152.23002267573696,
+      167.31138321995465,
+      178.20154195011338,
+      192.2960544217687
+    ]
+  }
+}

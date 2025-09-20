@@ -1,0 +1,40 @@
+Unified Particle System Integration Test Summary
+==================================================
+
+Test Date: 2025-09-19 16:58:15
+Audio File: \\wsl.localhost\Ubuntu\home\unix\code\vibewave\api\processing\music\generator\particles\song.wav
+Output Directory: \\wsl.localhost\Ubuntu\home\unix\code\vibewave\api\tests\particle_outputs
+
+Results:
+--------------------
+SNOW: SUCCESS
+  - Render Time: 1.9s
+  - File Size: 2.2MB
+  - Output: \\wsl.localhost\Ubuntu\home\unix\code\vibewave\api\tests\particle_outputs\particles_snow_1758293883.mp4
+
+ZEN: SUCCESS
+  - Render Time: 1.7s
+  - File Size: 2.6MB
+  - Output: \\wsl.localhost\Ubuntu\home\unix\code\vibewave\api\tests\particle_outputs\particles_zen_1758293885.mp4
+
+ENHANCED: SUCCESS
+  - Render Time: 1.7s
+  - File Size: 2.7MB
+  - Output: \\wsl.localhost\Ubuntu\home\unix\code\vibewave\api\tests\particle_outputs\particles_enhanced_1758293887.mp4
+
+BOUNCING: SUCCESS
+  - Render Time: 1.7s
+  - File Size: 2.6MB
+  - Output: \\wsl.localhost\Ubuntu\home\unix\code\vibewave\api\tests\particle_outputs\particles_bouncing_1758293889.mp4
+
+CONTINUOUS_SPAWNING: SUCCESS
+  - Render Time: 1.7s
+  - File Size: 3.3MB
+  - Output: \\wsl.localhost\Ubuntu\home\unix\code\vibewave\api\tests\particle_outputs\particles_continuous_spawning_1758293891.mp4
+
+NO_MUSIC: SUCCESS
+  - Render Time: 1.6s
+  - File Size: 2.7MB
+  - Output: \\wsl.localhost\Ubuntu\home\unix\code\vibewave\api\tests\particle_outputs\particles_no_music_1758293893.mp4
+
+Overall: 6/6 successful

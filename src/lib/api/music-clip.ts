@@ -18,6 +18,12 @@ interface MusicTrack {
   created_at: string;
 }
 
+// Utility function to validate UUID format
+function isValidUUID(uuid: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+}
+
 interface ProjectSettings {
   videoType: string;
   budget: number[];
@@ -160,6 +166,11 @@ export class MusicClipAPI {
     projectId: string,
     settings: Partial<ProjectSettings>
   ): Promise<{ project_id: string; settings: ProjectSettings }> {
+    // Validate project ID format
+    if (!isValidUUID(projectId)) {
+      throw new Error(`Invalid project ID format: '${projectId}'. Project ID must be a valid UUID.`);
+    }
+
     const response = await fetch(`${this.baseUrl}/projects/${projectId}/settings`, {
       method: 'POST',
       headers: {
@@ -177,6 +188,11 @@ export class MusicClipAPI {
   }
 
   async getProjectScript(projectId: string): Promise<ProjectScript> {
+    // Validate project ID format
+    if (!isValidUUID(projectId)) {
+      throw new Error(`Invalid project ID format: '${projectId}'. Project ID must be a valid UUID.`);
+    }
+
     const response = await fetch(`${this.baseUrl}/projects/${projectId}/script`);
 
     if (!response.ok) {
@@ -188,6 +204,11 @@ export class MusicClipAPI {
   }
 
   async getProjectTracks(projectId: string): Promise<{ project_id: string; tracks: MusicTrack[] }> {
+    // Validate project ID format
+    if (!isValidUUID(projectId)) {
+      throw new Error(`Invalid project ID format: '${projectId}'. Project ID must be a valid UUID.`);
+    }
+
     const response = await fetch(`${this.baseUrl}/projects/${projectId}/tracks`);
 
     if (!response.ok) {
@@ -214,6 +235,11 @@ export class MusicClipAPI {
     prompt?: string;
     instrumental?: boolean;
   }> {
+    // Validate project ID format
+    if (!isValidUUID(projectId)) {
+      throw new Error(`Invalid project ID format: '${projectId}'. Project ID must be a valid UUID.`);
+    }
+
     const response = await fetch(`${this.baseUrl}/projects/${projectId}/tracks/${trackId}`, {
       method: 'PATCH',
       headers: {
@@ -273,6 +299,11 @@ export class MusicClipAPI {
   }
 
   async getTrackUrl(projectId: string, trackId: string): Promise<{ url: string }> {
+    // Validate project ID format
+    if (!isValidUUID(projectId)) {
+      throw new Error(`Invalid project ID format: '${projectId}'. Project ID must be a valid UUID.`);
+    }
+
     const response = await fetch(`${this.baseUrl}/projects/${projectId}/tracks/${trackId}/url`);
 
     if (!response.ok) {
@@ -284,6 +315,11 @@ export class MusicClipAPI {
   }
 
   async deleteProject(projectId: string): Promise<{ message: string; project_id: string }> {
+    // Validate project ID format
+    if (!isValidUUID(projectId)) {
+      throw new Error(`Invalid project ID format: '${projectId}'. Project ID must be a valid UUID.`);
+    }
+
     const response = await fetch(`${this.baseUrl}/projects/${projectId}`, {
       method: 'DELETE',
     });

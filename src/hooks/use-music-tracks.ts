@@ -371,6 +371,16 @@ export function useMusicTracks(projectId?: string | null) {
     };
   }, []); // Empty dependency array to only run on unmount
 
+  const getCurrentState = useCallback(() => {
+    return {
+      musicTracks,
+      selectedTrackId,
+      selectedTrackIds,
+      trackDescriptions,
+      trackGenres,
+    };
+  }, [musicTracks, selectedTrackId, selectedTrackIds, trackDescriptions, trackGenres]);
+
   return {
     musicTracks,
     selectedTrackId,
@@ -395,5 +405,6 @@ export function useMusicTracks(projectId?: string | null) {
     clearAllTracks,
     loadFromBackend,
     pushToBackend,
+    getCurrentState,
   };
 }

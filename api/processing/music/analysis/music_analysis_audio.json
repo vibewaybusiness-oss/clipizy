@@ -1,0 +1,993 @@
+{
+  "audio_file": "audio.wav",
+  "title": "Audio",
+  "analysis_timestamp": "2025-09-19T22:17:15",
+  "overall_analysis": {
+    "predicted_genre": "Classical / Orchestral",
+    "confidence": 100.0,
+    "descriptors": [
+      "Fast tempo (very energetic, intense)",
+      "Very high energy (intense, powerful, aggressive)",
+      "Highly variable energy (dynamic, fluctuating)",
+      "Stable energy trend (consistent level)",
+      "Low energy range (consistent level)",
+      "Highly harmonic (very melodic, tonal, musical)",
+      "Mid frequency content (balanced, natural)"
+    ],
+    "features": {
+      "duration": 193.9330612244898,
+      "tempo": 151.99908088235293,
+      "spectral_centroid": 2913.731739295691,
+      "rms_energy": 0.14733709394931793,
+      "harmonic_ratio": 0.8835014700889587,
+      "onset_rate": 5.0739156788793105
+    },
+    "genre_scores": {
+      "Ambient": 0.3333333333333333,
+      "Synthwave / Electronic": 0.0,
+      "Reggae / Dub / Ska": 0.0,
+      "Hip Hop / Rap": 0.0,
+      "Trap": 0.5,
+      "Lofi / House": 0.0,
+      "Classical / Orchestral": 1.0,
+      "Rock / Metal / Punk": 0.5,
+      "Jazz / Blues": 1.0,
+      "World / Folk / Traditional": 1.0,
+      "Latin / Tango / Flamenco": 1.0,
+      "Pop / Indie / Folk": 0.5,
+      "Dance / EDM / Club": 0.3333333333333333,
+      "World / Regional": 1.0,
+      "Cinematic / Trailer / Score": 1.0,
+      "Children / Playful": 1.0,
+      "Marches / Traditional Ensembles": 0.0
+    }
+  },
+  "peak_analysis": {
+    "total_peaks": 3,
+    "peaks": [
+      {
+        "index": 1,
+        "time_seconds": 0.0,
+        "time_formatted": "00:00.000",
+        "score": 3.1730683089051266
+      },
+      {
+        "index": 2,
+        "time_seconds": 92.46766439909297,
+        "time_formatted": "01:32.468",
+        "score": 3.1730683089051266
+      },
+      {
+        "index": 3,
+        "time_seconds": 184.93532879818594,
+        "time_formatted": "03:04.935",
+        "score": 3.1730683089051266
+      }
+    ]
+  },
+  "segment_analysis": {
+    "total_segments": 9,
+    "segments": [
+      {
+        "index": 1,
+        "time_seconds": 51.46702947845805,
+        "time_formatted": "00:51.467",
+        "ma_long_gap": 8.832507041073587,
+        "ma_long_std": 2.3401450860327913,
+        "ma_long_mean": -16.871611567302853,
+        "ma_long_change_std": 0.019166717415963718,
+        "ma_long_change_mean": 0.025445167235579335,
+        "combined_score": 4.2407963574640615,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "Very high energy (intense, powerful, aggressive)",
+            "Stable energy profile (relatively consistent)",
+            "Slight energy decrease (gentle fade)",
+            "Low energy range (consistent level)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 13.270204081632652,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3079.242500235127,
+            "rms_energy": 0.18435639142990112,
+            "harmonic_ratio": 0.8765146136283875,
+            "onset_rate": 3.391055610236221
+          },
+          "long_ma_analysis": {
+            "ma_long_mean": -7.062206329799344,
+            "ma_long_std": 1.628560760353237,
+            "ma_long_min": -9.616916590882827,
+            "ma_long_max": -4.82379858207333,
+            "ma_long_range": 4.793118008809497,
+            "ma_long_trend": -0.0966744705791229,
+            "ma_long_stability": 0.6140391063104748,
+            "ma_divergence": 2.807282374686808,
+            "ma_correlation": 0.3750052807185383,
+            "ma_long_energy_high": 0.5236013986013986,
+            "ma_long_energy_low": 0.4763986013986014,
+            "duration": 13.270204081632649
+          },
+          "enhanced_features": {
+            "duration": 13.270204081632649,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3079.242500235127,
+            "rms_energy": 0.18435639142990112,
+            "harmonic_ratio": 0.8765146136283875,
+            "onset_rate": 3.391055610236221,
+            "ma_long_mean": -7.062206329799344,
+            "ma_long_std": 1.628560760353237,
+            "ma_long_min": -9.616916590882827,
+            "ma_long_max": -4.82379858207333,
+            "ma_long_range": 4.793118008809497,
+            "ma_long_trend": -0.0966744705791229,
+            "ma_long_stability": 0.6140391063104748,
+            "ma_divergence": 2.807282374686808,
+            "ma_correlation": 0.3750052807185383,
+            "ma_long_energy_high": 0.5236013986013986,
+            "ma_long_energy_low": 0.4763986013986014
+          },
+          "peak_analysis": {
+            "total_peaks": 3,
+            "peaks": [
+              {
+                "index": 1,
+                "time_seconds": 1.5789569160997732,
+                "time_formatted": "00:01.579",
+                "score": 1.2214072495350103,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 2,
+                "time_seconds": 6.002358276643991,
+                "time_formatted": "00:06.002",
+                "score": 1.8645135886202129,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 3,
+                "time_seconds": 11.19201814058957,
+                "time_formatted": "00:11.192",
+                "score": 1.9129603764894165,
+                "confidence_level": 1.0
+              }
+            ],
+            "tempo_bpm": 151.99908088235293,
+            "rms_energy_mean": -7.674072265625,
+            "rms_energy_std": 6.2527174949646,
+            "score_mean": -0.35922011791672337,
+            "score_std": 1.9082937883022302
+          }
+        }
+      },
+      {
+        "index": 2,
+        "time_seconds": 64.7372335600907,
+        "time_formatted": "01:04.737",
+        "ma_long_gap": 11.495505004890205,
+        "ma_long_std": 3.404989985934006,
+        "ma_long_mean": -9.207687988052722,
+        "ma_long_change_std": 0.027074844729090553,
+        "ma_long_change_mean": 0.02368478097304544,
+        "combined_score": 5.627821451155011,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "Very high energy (intense, powerful, aggressive)",
+            "Moderately variable energy (some fluctuations)",
+            "Slight energy decrease (gentle fade)",
+            "High energy range (very dynamic, wide variation)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 23.870113378684806,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3798.7933555044283,
+            "rms_energy": 0.180470809340477,
+            "harmonic_ratio": 0.8564269542694092,
+            "onset_rate": 4.9015267813715955
+          },
+          "long_ma_analysis": {
+            "ma_long_mean": -7.598836118094794,
+            "ma_long_std": 3.210745348732853,
+            "ma_long_min": -16.57150521019632,
+            "ma_long_max": -2.5693299659462863,
+            "ma_long_range": 14.002175244250035,
+            "ma_long_trend": -0.06662618003309487,
+            "ma_long_stability": 0.31145416041173013,
+            "ma_divergence": 1.957768668911539,
+            "ma_correlation": 0.7945723909143423,
+            "ma_long_energy_high": 0.5712202236266407,
+            "ma_long_energy_low": 0.42877977637335923,
+            "duration": 23.870113378684806
+          },
+          "enhanced_features": {
+            "duration": 23.870113378684806,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3798.7933555044283,
+            "rms_energy": 0.180470809340477,
+            "harmonic_ratio": 0.8564269542694092,
+            "onset_rate": 4.9015267813715955,
+            "ma_long_mean": -7.598836118094794,
+            "ma_long_std": 3.210745348732853,
+            "ma_long_min": -16.57150521019632,
+            "ma_long_max": -2.5693299659462863,
+            "ma_long_range": 14.002175244250035,
+            "ma_long_trend": -0.06662618003309487,
+            "ma_long_stability": 0.31145416041173013,
+            "ma_divergence": 1.957768668911539,
+            "ma_correlation": 0.7945723909143423,
+            "ma_long_energy_high": 0.5712202236266407,
+            "ma_long_energy_low": 0.42877977637335923
+          },
+          "peak_analysis": {
+            "total_peaks": 6,
+            "peaks": [
+              {
+                "index": 1,
+                "time_seconds": 6.130068027210885,
+                "time_formatted": "00:06.130",
+                "score": 1.7449444677084553,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 2,
+                "time_seconds": 10.47219954648526,
+                "time_formatted": "00:10.472",
+                "score": 3.5811413150680402,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 3,
+                "time_seconds": 13.711383219954648,
+                "time_formatted": "00:13.711",
+                "score": 2.735070771269367,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 4,
+                "time_seconds": 18.308934240362813,
+                "time_formatted": "00:18.309",
+                "score": 2.984235218383788,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 5,
+                "time_seconds": 4.31891156462585,
+                "time_formatted": "00:04.319",
+                "score": 1.5058008513750027,
+                "confidence_level": 0.7
+              },
+              {
+                "index": 6,
+                "time_seconds": 12.039546485260772,
+                "time_formatted": "00:12.040",
+                "score": 0.9235437705336729,
+                "confidence_level": 0.7
+              }
+            ],
+            "tempo_bpm": 151.99908088235293,
+            "rms_energy_mean": -7.762176036834717,
+            "rms_energy_std": 5.919973373413086,
+            "score_mean": -0.15691728798160645,
+            "score_std": 1.6798788636409552
+          }
+        }
+      },
+      {
+        "index": 3,
+        "time_seconds": 88.6073469387755,
+        "time_formatted": "01:28.607",
+        "ma_long_gap": 8.741685659386391,
+        "ma_long_std": 2.6727076550958215,
+        "ma_long_mean": -9.906560862295262,
+        "ma_long_change_std": 0.026564886877494562,
+        "ma_long_change_mean": 0.026594221480591724,
+        "combined_score": 4.3064560263465514,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "High energy (loud, dynamic, exciting)",
+            "Highly variable energy (dynamic, fluctuating)",
+            "Fading energy trend (diminuendo, calming)",
+            "High energy range (very dynamic, wide variation)",
+            "Harmonic (melodic, tonal)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 26.865487528344673,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3403.7305943677366,
+            "rms_energy": 0.09885694086551666,
+            "harmonic_ratio": 0.7973594069480896,
+            "onset_rate": 4.838922050561798
+          },
+          "long_ma_analysis": {
+            "ma_long_mean": -14.693582598778283,
+            "ma_long_std": 5.289144686217018,
+            "ma_long_min": -21.59722578063492,
+            "ma_long_max": -5.3929061894268955,
+            "ma_long_range": 16.204319591208023,
+            "ma_long_trend": -0.5488491188779459,
+            "ma_long_stability": 0.18906648568628406,
+            "ma_divergence": 2.2354388551350217,
+            "ma_correlation": 0.8678912354784696,
+            "ma_long_energy_high": 0.4531317494600432,
+            "ma_long_energy_low": 0.5468682505399568,
+            "duration": 26.865487528344673
+          },
+          "enhanced_features": {
+            "duration": 26.865487528344673,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3403.7305943677366,
+            "rms_energy": 0.09885694086551666,
+            "harmonic_ratio": 0.7973594069480896,
+            "onset_rate": 4.838922050561798,
+            "ma_long_mean": -14.693582598778283,
+            "ma_long_std": 5.289144686217018,
+            "ma_long_min": -21.59722578063492,
+            "ma_long_max": -5.3929061894268955,
+            "ma_long_range": 16.204319591208023,
+            "ma_long_trend": -0.5488491188779459,
+            "ma_long_stability": 0.18906648568628406,
+            "ma_divergence": 2.2354388551350217,
+            "ma_correlation": 0.8678912354784696,
+            "ma_long_energy_high": 0.4531317494600432,
+            "ma_long_energy_low": 0.5468682505399568
+          },
+          "peak_analysis": {
+            "total_peaks": 6,
+            "peaks": [
+              {
+                "index": 1,
+                "time_seconds": 2.0549659863945577,
+                "time_formatted": "00:02.055",
+                "score": 2.5813424498111583,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 2,
+                "time_seconds": 9.032562358276644,
+                "time_formatted": "00:09.033",
+                "score": 2.3529918870206936,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 3,
+                "time_seconds": 13.676553287981859,
+                "time_formatted": "00:13.677",
+                "score": 2.026342688392372,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 4,
+                "time_seconds": 17.264036281179138,
+                "time_formatted": "00:17.264",
+                "score": 1.1674948492199584,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 5,
+                "time_seconds": 20.271020408163267,
+                "time_formatted": "00:20.271",
+                "score": 0.9487291575557988,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 6,
+                "time_seconds": 23.672743764172335,
+                "time_formatted": "00:23.673",
+                "score": 0.9321757093311569,
+                "confidence_level": 1.0
+              }
+            ],
+            "tempo_bpm": 151.99908088235293,
+            "rms_energy_mean": -15.13676643371582,
+            "rms_energy_std": 7.735896110534668,
+            "score_mean": -0.13548789850690626,
+            "score_std": 1.3574940541604874
+          }
+        }
+      },
+      {
+        "index": 4,
+        "time_seconds": 115.47283446712018,
+        "time_formatted": "01:55.473",
+        "ma_long_gap": 12.814085208168322,
+        "ma_long_std": 2.6189401049814833,
+        "ma_long_mean": -19.9457113805224,
+        "ma_long_change_std": 0.02049581558191988,
+        "ma_long_change_mean": 0.0192930880780468,
+        "combined_score": 5.9174648594363495,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "Very high energy (intense, powerful, aggressive)",
+            "Stable energy profile (relatively consistent)",
+            "Fading energy trend (diminuendo, calming)",
+            "Moderate energy range (some dynamic variation)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 13.281814058956916,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 2464.465963813091,
+            "rms_energy": 0.15825454890727997,
+            "harmonic_ratio": 0.9670119285583496,
+            "onset_rate": 5.044491641171328
+          },
+          "long_ma_analysis": {
+            "ma_long_mean": -4.5956725120786555,
+            "ma_long_std": 1.2688542000500522,
+            "ma_long_min": -7.6059006489524545,
+            "ma_long_max": -1.92758748974911,
+            "ma_long_range": 5.678313159203345,
+            "ma_long_trend": -0.28531243234222686,
+            "ma_long_stability": 0.7881126074843171,
+            "ma_divergence": 0.9384927303675392,
+            "ma_correlation": 0.598559896575648,
+            "ma_long_energy_high": 0.611353711790393,
+            "ma_long_energy_low": 0.388646288209607,
+            "duration": 13.281814058956911
+          },
+          "enhanced_features": {
+            "duration": 13.281814058956911,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 2464.465963813091,
+            "rms_energy": 0.15825454890727997,
+            "harmonic_ratio": 0.9670119285583496,
+            "onset_rate": 5.044491641171328,
+            "ma_long_mean": -4.5956725120786555,
+            "ma_long_std": 1.2688542000500522,
+            "ma_long_min": -7.6059006489524545,
+            "ma_long_max": -1.92758748974911,
+            "ma_long_range": 5.678313159203345,
+            "ma_long_trend": -0.28531243234222686,
+            "ma_long_stability": 0.7881126074843171,
+            "ma_divergence": 0.9384927303675392,
+            "ma_correlation": 0.598559896575648,
+            "ma_long_energy_high": 0.611353711790393,
+            "ma_long_energy_low": 0.388646288209607
+          },
+          "peak_analysis": {
+            "total_peaks": 1,
+            "peaks": [
+              {
+                "index": 1,
+                "time_seconds": 11.505487528344672,
+                "time_formatted": "00:11.505",
+                "score": 13.745419802886133,
+                "confidence_level": 1.0
+              }
+            ],
+            "tempo_bpm": 151.99908088235293,
+            "rms_energy_mean": -4.930992603302002,
+            "rms_energy_std": 3.3116555213928223,
+            "score_mean": -0.9817779000733391,
+            "score_std": 7.528941561375163
+          }
+        }
+      },
+      {
+        "index": 5,
+        "time_seconds": 128.7546485260771,
+        "time_formatted": "02:08.755",
+        "ma_long_gap": 4.406772127447203,
+        "ma_long_std": 1.437657784412097,
+        "ma_long_mean": -9.237209907543814,
+        "ma_long_change_std": 0.01514340002278243,
+        "ma_long_change_mean": 0.008496325692212514,
+        "combined_score": 2.198549206309345,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Ambient",
+          "confidence": 100.0,
+          "descriptors": [
+            "Slow tempo (relaxed, chill)",
+            "High energy (loud, dynamic, exciting)",
+            "Moderately variable energy (some fluctuations)",
+            "Fading energy trend (diminuendo, calming)",
+            "High energy range (very dynamic, wide variation)",
+            "Harmonic (melodic, tonal)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 12.318185941043083,
+            "tempo": 74.89809782608695,
+            "spectral_centroid": 3565.5258256722036,
+            "rms_energy": 0.09183311462402344,
+            "harmonic_ratio": 0.6104792952537537,
+            "onset_rate": 8.442801602262017
+          },
+          "long_ma_analysis": {
+            "ma_long_mean": -14.55295518880964,
+            "ma_long_std": 3.677385684248846,
+            "ma_long_min": -18.12839888232623,
+            "ma_long_max": -4.137769763783891,
+            "ma_long_range": 13.99062911854234,
+            "ma_long_trend": -0.6001102499532758,
+            "ma_long_stability": 0.2719323136444253,
+            "ma_divergence": 2.3430256396956257,
+            "ma_correlation": 0.7102400506705684,
+            "ma_long_energy_high": 0.3644067796610169,
+            "ma_long_energy_low": 0.635593220338983,
+            "duration": 12.318185941043083
+          },
+          "enhanced_features": {
+            "duration": 12.318185941043083,
+            "tempo": 74.89809782608695,
+            "spectral_centroid": 3565.5258256722036,
+            "rms_energy": 0.09183311462402344,
+            "harmonic_ratio": 0.6104792952537537,
+            "onset_rate": 8.442801602262017,
+            "ma_long_mean": -14.55295518880964,
+            "ma_long_std": 3.677385684248846,
+            "ma_long_min": -18.12839888232623,
+            "ma_long_max": -4.137769763783891,
+            "ma_long_range": 13.99062911854234,
+            "ma_long_trend": -0.6001102499532758,
+            "ma_long_stability": 0.2719323136444253,
+            "ma_divergence": 2.3430256396956257,
+            "ma_correlation": 0.7102400506705684,
+            "ma_long_energy_high": 0.3644067796610169,
+            "ma_long_energy_low": 0.635593220338983
+          },
+          "peak_analysis": {
+            "total_peaks": 3,
+            "peaks": [
+              {
+                "index": 1,
+                "time_seconds": 2.2871655328798184,
+                "time_formatted": "00:02.287",
+                "score": 2.0770130836611385,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 2,
+                "time_seconds": 4.31891156462585,
+                "time_formatted": "00:04.319",
+                "score": 1.3946750830401147,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 3,
+                "time_seconds": 10.309659863945578,
+                "time_formatted": "00:10.310",
+                "score": 4.643679668112095,
+                "confidence_level": 1.0
+              }
+            ],
+            "tempo_bpm": 74.89809782608695,
+            "rms_energy_mean": -15.351279258728027,
+            "rms_energy_std": 8.785113334655762,
+            "score_mean": -0.10696327444381083,
+            "score_std": 2.3360262627284527
+          }
+        }
+      },
+      {
+        "index": 6,
+        "time_seconds": 141.07283446712017,
+        "time_formatted": "02:21.073",
+        "ma_long_gap": 9.77544764215632,
+        "ma_long_std": 2.791660342882447,
+        "ma_long_mean": -16.58940568998546,
+        "ma_long_change_std": 0.028756493052776524,
+        "ma_long_change_mean": 0.029865092874789903,
+        "combined_score": 4.7563041076430945,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "Very high energy (intense, powerful, aggressive)",
+            "Moderately variable energy (some fluctuations)",
+            "Building energy trend (crescendo, intensifying)",
+            "High energy range (very dynamic, wide variation)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 23.742403628117913,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 2976.586871138637,
+            "rms_energy": 0.19833987951278687,
+            "harmonic_ratio": 0.8986132740974426,
+            "onset_rate": 5.222723105134475
+          },
+          "long_ma_analysis": {
+            "ma_long_mean": -8.010442479776334,
+            "ma_long_std": 2.5249309243896785,
+            "ma_long_min": -14.675030480521594,
+            "ma_long_max": -3.1959918497144715,
+            "ma_long_range": 11.479038630807121,
+            "ma_long_trend": 0.22697207700150354,
+            "ma_long_stability": 0.39605043701590126,
+            "ma_divergence": 2.6273420199155546,
+            "ma_correlation": 0.6217335591567661,
+            "ma_long_energy_high": 0.48826979472140764,
+            "ma_long_energy_low": 0.5117302052785924,
+            "duration": 23.742403628117927
+          },
+          "enhanced_features": {
+            "duration": 23.742403628117927,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 2976.586871138637,
+            "rms_energy": 0.19833987951278687,
+            "harmonic_ratio": 0.8986132740974426,
+            "onset_rate": 5.222723105134475,
+            "ma_long_mean": -8.010442479776334,
+            "ma_long_std": 2.5249309243896785,
+            "ma_long_min": -14.675030480521594,
+            "ma_long_max": -3.1959918497144715,
+            "ma_long_range": 11.479038630807121,
+            "ma_long_trend": 0.22697207700150354,
+            "ma_long_stability": 0.39605043701590126,
+            "ma_divergence": 2.6273420199155546,
+            "ma_correlation": 0.6217335591567661,
+            "ma_long_energy_high": 0.48826979472140764,
+            "ma_long_energy_low": 0.5117302052785924
+          },
+          "peak_analysis": {
+            "total_peaks": 5,
+            "peaks": [
+              {
+                "index": 1,
+                "time_seconds": 3.3901133786848074,
+                "time_formatted": "00:03.390",
+                "score": 2.1280208441721102,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 2,
+                "time_seconds": 5.955918367346939,
+                "time_formatted": "00:05.956",
+                "score": 2.9537758839170944,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 3,
+                "time_seconds": 11.15718820861678,
+                "time_formatted": "00:11.157",
+                "score": 1.931465966205902,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 4,
+                "time_seconds": 19.423492063492063,
+                "time_formatted": "00:19.423",
+                "score": 1.579076825708741,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 5,
+                "time_seconds": 17.57750566893424,
+                "time_formatted": "00:17.578",
+                "score": 1.4135510002082268,
+                "confidence_level": 0.7
+              }
+            ],
+            "tempo_bpm": 151.99908088235293,
+            "rms_energy_mean": -8.272196769714355,
+            "rms_energy_std": 6.171882152557373,
+            "score_mean": -0.23725550476798013,
+            "score_std": 1.6542466425093219
+          }
+        }
+      },
+      {
+        "index": 7,
+        "time_seconds": 164.8152380952381,
+        "time_formatted": "02:44.815",
+        "ma_long_gap": 17.251161235247466,
+        "ma_long_std": 5.594607280607358,
+        "ma_long_mean": -10.075929959333605,
+        "ma_long_change_std": 0.025938022813680465,
+        "ma_long_change_mean": 0.026697075632985897,
+        "combined_score": 8.5866280851253,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "High energy (loud, dynamic, exciting)",
+            "Highly variable energy (dynamic, fluctuating)",
+            "Building energy trend (crescendo, intensifying)",
+            "High energy range (very dynamic, wide variation)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 13.386303854875283,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3438.90790339059,
+            "rms_energy": 0.15535783767700195,
+            "harmonic_ratio": 0.8840451836585999,
+            "onset_rate": 5.005115730702515
+          },
+          "long_ma_analysis": {
+            "ma_long_mean": -11.297884417849358,
+            "ma_long_std": 5.633037852419617,
+            "ma_long_min": -22.24777606984442,
+            "ma_long_max": -3.2169368410295296,
+            "ma_long_range": 19.03083922881489,
+            "ma_long_trend": 1.1831417688323085,
+            "ma_long_stability": 0.17752410411998537,
+            "ma_divergence": 2.9563307819846383,
+            "ma_correlation": 0.8521506785165011,
+            "ma_long_energy_high": 0.6351819757365684,
+            "ma_long_energy_low": 0.3648180242634315,
+            "duration": 13.38630385487528
+          },
+          "enhanced_features": {
+            "duration": 13.38630385487528,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3438.90790339059,
+            "rms_energy": 0.15535783767700195,
+            "harmonic_ratio": 0.8840451836585999,
+            "onset_rate": 5.005115730702515,
+            "ma_long_mean": -11.297884417849358,
+            "ma_long_std": 5.633037852419617,
+            "ma_long_min": -22.24777606984442,
+            "ma_long_max": -3.2169368410295296,
+            "ma_long_range": 19.03083922881489,
+            "ma_long_trend": 1.1831417688323085,
+            "ma_long_stability": 0.17752410411998537,
+            "ma_divergence": 2.9563307819846383,
+            "ma_correlation": 0.8521506785165011,
+            "ma_long_energy_high": 0.6351819757365684,
+            "ma_long_energy_low": 0.3648180242634315
+          },
+          "peak_analysis": {
+            "total_peaks": 3,
+            "peaks": [
+              {
+                "index": 1,
+                "time_seconds": 1.8459863945578232,
+                "time_formatted": "00:01.846",
+                "score": 0.9265239759078889,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 2,
+                "time_seconds": 5.061950113378685,
+                "time_formatted": "00:05.062",
+                "score": 2.177958430391347,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 3,
+                "time_seconds": 7.720634920634921,
+                "time_formatted": "00:07.721",
+                "score": 2.486456206320751,
+                "confidence_level": 1.0
+              }
+            ],
+            "tempo_bpm": 151.99908088235293,
+            "rms_energy_mean": -11.90762710571289,
+            "rms_energy_std": 8.587538719177246,
+            "score_mean": -0.20533571455025737,
+            "score_std": 1.2335774751269113
+          }
+        }
+      },
+      {
+        "index": 8,
+        "time_seconds": 178.20154195011338,
+        "time_formatted": "02:58.202",
+        "ma_long_gap": 15.510889444702356,
+        "ma_long_std": 3.7978562561126257,
+        "ma_long_mean": -10.856637605514722,
+        "ma_long_change_std": 0.028085123789803552,
+        "ma_long_change_mean": 0.0390903844608365,
+        "combined_score": 7.3521381918516715,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "High energy (loud, dynamic, exciting)",
+            "Moderately variable energy (some fluctuations)",
+            "Fading energy trend (diminuendo, calming)",
+            "High energy range (very dynamic, wide variation)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Mid frequency content (balanced, natural)"
+          ],
+          "features": {
+            "duration": 14.094512471655328,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3411.1350811914194,
+            "rms_energy": 0.1694144606590271,
+            "harmonic_ratio": 0.8732859492301941,
+            "onset_rate": 6.314514260708402
+          },
+          "long_ma_analysis": {
+            "ma_long_mean": -10.134174690376032,
+            "ma_long_std": 3.554531156927638,
+            "ma_long_min": -17.72805360768192,
+            "ma_long_max": -5.630489666794622,
+            "ma_long_range": 12.0975639408873,
+            "ma_long_trend": -0.22455663159800726,
+            "ma_long_stability": 0.2813310540935138,
+            "ma_divergence": 3.702027133153295,
+            "ma_correlation": 0.8106302940380857,
+            "ma_long_energy_high": 0.4806584362139918,
+            "ma_long_energy_low": 0.5193415637860083,
+            "duration": 14.094512471655321
+          },
+          "enhanced_features": {
+            "duration": 14.094512471655321,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 3411.1350811914194,
+            "rms_energy": 0.1694144606590271,
+            "harmonic_ratio": 0.8732859492301941,
+            "onset_rate": 6.314514260708402,
+            "ma_long_mean": -10.134174690376032,
+            "ma_long_std": 3.554531156927638,
+            "ma_long_min": -17.72805360768192,
+            "ma_long_max": -5.630489666794622,
+            "ma_long_range": 12.0975639408873,
+            "ma_long_trend": -0.22455663159800726,
+            "ma_long_stability": 0.2813310540935138,
+            "ma_divergence": 3.702027133153295,
+            "ma_correlation": 0.8106302940380857,
+            "ma_long_energy_high": 0.4806584362139918,
+            "ma_long_energy_low": 0.5193415637860083
+          },
+          "peak_analysis": {
+            "total_peaks": 4,
+            "peaks": [
+              {
+                "index": 1,
+                "time_seconds": 2.2639455782312927,
+                "time_formatted": "00:02.264",
+                "score": 1.2715615489999967,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 2,
+                "time_seconds": 6.733786848072563,
+                "time_formatted": "00:06.734",
+                "score": 0.8126742340102285,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 3,
+                "time_seconds": 9.032562358276644,
+                "time_formatted": "00:09.033",
+                "score": 1.1032261561750543,
+                "confidence_level": 1.0
+              },
+              {
+                "index": 4,
+                "time_seconds": 11.911836734693878,
+                "time_formatted": "00:11.912",
+                "score": 1.2491288930185358,
+                "confidence_level": 1.0
+              }
+            ],
+            "tempo_bpm": 151.99908088235293,
+            "rms_energy_mean": -11.145367622375488,
+            "rms_energy_std": 8.520354270935059,
+            "score_mean": -0.3752262567021632,
+            "score_std": 1.227684168495067
+          }
+        }
+      },
+      {
+        "index": 9,
+        "time_seconds": 192.2960544217687,
+        "time_formatted": "03:12.296",
+        "ma_long_gap": 18.957395783228463,
+        "ma_long_std": 5.623301160601469,
+        "ma_long_mean": -11.29056369395005,
+        "ma_long_change_std": 0.032398301019475814,
+        "ma_long_change_mean": 0.04157303161779919,
+        "combined_score": 9.279668151777669,
+        "fitted_to_tempo": true,
+        "analysis": {
+          "predicted_genre": "Classical / Orchestral",
+          "confidence": 100.0,
+          "descriptors": [
+            "Fast tempo (very energetic, intense)",
+            "Very high energy (intense, powerful, aggressive)",
+            "Stable energy profile (relatively consistent)",
+            "Fading energy trend (diminuendo, calming)",
+            "Moderate energy range (some dynamic variation)",
+            "Highly harmonic (very melodic, tonal, musical)",
+            "Low frequency content (bass-heavy, warm, deep)"
+          ],
+          "features": {
+            "duration": 1.6370068027210884,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 663.8761085881649,
+            "rms_energy": 0.032445866614580154,
+            "harmonic_ratio": 0.9581117033958435,
+            "onset_rate": 4.886968085106383
+          },
+          "long_ma_analysis": {
+            "ma_long_mean": -5.43044416313414,
+            "ma_long_std": 1.922742097001748,
+            "ma_long_min": -7.086367081764132,
+            "ma_long_max": -1.9236523157866425,
+            "ma_long_range": 5.16271476597749,
+            "ma_long_trend": -3.72316797797915,
+            "ma_long_stability": 0.5200905500318826,
+            "ma_divergence": 6.014571790781614,
+            "ma_correlation": 0.8413662025848612,
+            "ma_long_energy_high": 0.4225352112676056,
+            "ma_long_energy_low": 0.5774647887323944,
+            "duration": 1.6370068027210891
+          },
+          "enhanced_features": {
+            "duration": 1.6370068027210891,
+            "tempo": 151.99908088235293,
+            "spectral_centroid": 663.8761085881649,
+            "rms_energy": 0.032445866614580154,
+            "harmonic_ratio": 0.9581117033958435,
+            "onset_rate": 4.886968085106383,
+            "ma_long_mean": -5.43044416313414,
+            "ma_long_std": 1.922742097001748,
+            "ma_long_min": -7.086367081764132,
+            "ma_long_max": -1.9236523157866425,
+            "ma_long_range": 5.16271476597749,
+            "ma_long_trend": -3.72316797797915,
+            "ma_long_stability": 0.5200905500318826,
+            "ma_divergence": 6.014571790781614,
+            "ma_correlation": 0.8413662025848612,
+            "ma_long_energy_high": 0.4225352112676056,
+            "ma_long_energy_low": 0.5774647887323944
+          },
+          "peak_analysis": {
+            "total_peaks": 0,
+            "peaks": [],
+            "tempo_bpm": 151.99908088235293,
+            "rms_energy_mean": -12.87523078918457,
+            "rms_energy_std": 9.452378273010254,
+            "score_mean": -0.5122290584069789,
+            "score_std": 1.5477828861785334
+          }
+        }
+      }
+    ]
+  },
+  "summary": {
+    "duration_seconds": 193.9330612244898,
+    "tempo_bpm": 151.99908088235293,
+    "peak_times": [
+      0.0,
+      92.46766439909297,
+      184.93532879818594
+    ],
+    "segment_times": [
+      51.46702947845805,
+      64.7372335600907,
+      88.6073469387755,
+      115.47283446712018,
+      128.7546485260771,
+      141.07283446712017,
+      164.8152380952381,
+      178.20154195011338,
+      192.2960544217687
+    ]
+  }
+}

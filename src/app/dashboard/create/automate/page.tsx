@@ -40,6 +40,13 @@ export default function MusicClipPage() {
   const [isGeneratingMusic, setIsGeneratingMusic] = useState(false);
   const [showSceneControls, setShowSceneControls] = useState(false);
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
+  
+  // Debug logging for currentStep changes
+  useEffect(() => {
+    console.log('=== CURRENT STEP CHANGED ===');
+    console.log('New currentStep:', currentStep);
+    console.log('Timestamp:', new Date().toISOString());
+  }, [currentStep]);
   const [generatedVideoUri, setGeneratedVideoUri] = useState<string | null>(null);
   const [settings, setSettings] = useState<z.infer<typeof SettingsSchema> | null>(null);
   const [prompts, setPrompts] = useState<z.infer<typeof PromptSchema> | null>(null);
@@ -74,7 +81,7 @@ export default function MusicClipPage() {
     defaultValues: {
       animationHasAudio: false,
       startAudioDuringAnimation: false,
-      videoDescription: "",
+      videoDescription: "A dynamic music video with synchronized visuals",
       audioVisualizerEnabled: false,
       audioVisualizerPositionV: "center",
       audioVisualizerPositionH: "center",
@@ -221,9 +228,13 @@ export default function MusicClipPage() {
     setCurrentStep(3);
   };
 
-  const onPromptSubmit = (values: z.infer<typeof PromptSchema>) => {
+  const onPromptSubmit = (values: z.infer<typeof PromptSchema>, trackDescriptions?: Record<string, string>, trackGenres?: Record<string, string>) => {
+    console.log('onPromptSubmit called with values:', values);
+    console.log('trackDescriptions:', trackDescriptions);
+    console.log('trackGenres:', trackGenres);
     setPrompts(values);
     setCurrentStep(4);
+    console.log('Current step set to 4');
   };
   
   const onOverviewSubmit = (values: z.infer<typeof OverviewSchema>) => {
@@ -566,6 +577,9 @@ export default function MusicClipPage() {
                       settings={settings}
                       audioFile={audioFile}
                       audioDuration={audioDuration}
+                      musicTracks={[]}
+                      selectedTrackId={null}
+                      onTrackSelect={() => {}}
                       onSubmit={onPromptSubmit}
                       onBack={() => setCurrentStep(2)}
                       fileToDataUri={fileToDataUri}
@@ -698,6 +712,7 @@ export default function MusicClipPage() {
           {/* NAVIGATION BUTTONS - For Steps 1, 2, and 3 */}
           {audioFile && (currentStep === 1 || currentStep === 2 || currentStep === 3) && (
             <div className="flex items-center justify-between pt-2">
+              {console.log('=== NAVIGATION BUTTONS DEBUG ===', { audioFile: !!audioFile, currentStep, shouldShow: audioFile && (currentStep === 1 || currentStep === 2 || currentStep === 3) })}
               <Button variant="outline" onClick={handleBack} className="flex items-center space-x-2 btn-secondary-hover">
                 <ChevronLeft className="w-4 h-4" />
                 <span>Back</span>
@@ -727,16 +742,44 @@ export default function MusicClipPage() {
                 </Button>
               )}
               {currentStep === 3 && (
-                <Button 
-                  onClick={() => promptForm.handleSubmit(onPromptSubmit)()} 
-                  className={`flex items-center space-x-2 text-white ${
-                    promptForm.formState.isValid ? 'btn-ai-gradient' : 'bg-muted text-muted-foreground cursor-not-allowed'
-                  }`}
-                  disabled={!promptForm.formState.isValid}
-                >
-                  <span>Continue</span>
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
+                <>
+                  {console.log('=== STEP 3 BUTTON RENDERED ===', { currentStep, audioFile: !!audioFile })}
+                  <Button 
+                    onClick={() => {
+                      console.log('=== STEP 3 CONTINUE BUTTON DEBUG ===');
+                      console.log('Step 3 continue button clicked');
+                      console.log('Current step before:', currentStep);
+                      console.log('Form values:', promptForm.getValues());
+                      console.log('Form state:', promptForm.formState);
+                      console.log('Form errors:', promptForm.formState.errors);
+                      console.log('Form isValid:', promptForm.formState.isValid);
+                      console.log('Form isDirty:', promptForm.formState.isDirty);
+                      console.log('Form isSubmitting:', promptForm.formState.isSubmitting);
+                      
+                      try {
+                        console.log('Calling promptForm.handleSubmit...');
+                        const result = promptForm.handleSubmit(onPromptSubmit)();
+                        console.log('handleSubmit result:', result);
+                        
+                        // Fallback: if handleSubmit doesn't work, try direct navigation
+                        setTimeout(() => {
+                          console.log('Fallback: Setting currentStep to 4 directly');
+                          setCurrentStep(4);
+                        }, 100);
+                      } catch (error) {
+                        console.error('Error in handleSubmit:', error);
+                        // Fallback on error
+                        console.log('Error fallback: Setting currentStep to 4 directly');
+                        setCurrentStep(4);
+                      }
+                    }} 
+                    className="flex items-center space-x-2 text-white btn-ai-gradient border-2 border-red-500"
+                    style={{ backgroundColor: 'red', minWidth: '200px', minHeight: '50px' }}
+                  >
+                    <span>Continue (DEBUG)</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </>
               )}
             </div>
           )}

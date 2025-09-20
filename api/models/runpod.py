@@ -88,15 +88,21 @@ class WorkflowInput(BaseModel):
     height: int = 1328
     seed: int = -1
     steps: int = 4
+    cfg: Optional[float] = Field(default=1.0)
+    sampler: Optional[str] = Field(default="euler")
+    scheduler: Optional[str] = Field(default="simple")
 
 
 class WorkflowResult(BaseModel):
     success: bool
     files: Optional[List[str]] = None
+    images: Optional[List[Dict[str, Any]]] = None
     error: Optional[str] = None
     request_id: Optional[str] = Field(alias="requestId", default=None)
     pod_id: Optional[str] = Field(alias="podId", default=None)
     pod_ip: Optional[str] = Field(alias="podIp", default=None)
+    prompt_id: Optional[str] = Field(alias="promptId", default=None)
+    status: Optional[str] = None
 
 
 class ComfyUIRequest(BaseModel):
@@ -105,8 +111,11 @@ class ComfyUIRequest(BaseModel):
     inputs: WorkflowInput
     status: str = "pending"  # pending, processing, completed, failed
     pod_id: Optional[str] = Field(alias="podId", default=None)
+    pod_ip: Optional[str] = Field(alias="podIp", default=None)
+    prompt_id: Optional[str] = Field(alias="promptId", default=None)
     created_at: datetime = Field(alias="createdAt", default_factory=datetime.now)
     updated_at: datetime = Field(alias="updatedAt", default_factory=datetime.now)
+    completed_at: Optional[datetime] = Field(alias="completedAt", default=None)
     result: Optional[WorkflowResult] = None
     error: Optional[str] = None
 

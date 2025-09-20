@@ -28,7 +28,7 @@ export type Scene = z.infer<typeof SceneSchema>;
 
 export const PromptSchema = z.object({
   musicDescription: z.string().optional(),
-  videoDescription: z.string().min(10, "Video description is too short.").max(500, "Video description is too long."),
+  videoDescription: z.string().optional(),
   scenes: z.array(SceneSchema).optional(),
 });
 
@@ -51,7 +51,7 @@ export const OverviewSchema = z.object({
     outroAnimationFile: z.any().optional(),
     playMusicDuringIntro: z.boolean(),
     playMusicDuringOutro: z.boolean(),
-    videoDescription: z.string().optional(),
+    videoDescription: z.string().min(10, "Video description is too short.").max(500, "Video description is too long."),
     audioVisualizerEnabled: z.boolean(),
     audioVisualizerPositionV: z.string().optional(),
     audioVisualizerPositionH: z.string().optional(),

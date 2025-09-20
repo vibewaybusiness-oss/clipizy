@@ -1,0 +1,55 @@
+{
+  "workflows": {
+    "comfyui_image_qwen": {
+      "maxQueueSize": 3,
+      "network-volume": "spwpjg3lk3",
+      "template": "fdcc1twlxx",
+      "description": "Qwen image generation and editing workflows"
+    },
+    "comfyui_image_flux": {
+      "maxQueueSize": 3,
+      "network-volume": "spwpjg3lk3",
+      "template": "fdcc1twlxx",
+      "description": "Flux image generation with LoRA support"
+    },
+    "comfyui_video_wan": {
+      "maxQueueSize": 2,
+      "network-volume": "spwpjg3lk3",
+      "template": "fdcc1twlxx",
+      "description": "WAN video generation (text-to-video and image-to-video)"
+    },
+    "comfyui_audio_mmaudio": {
+      "maxQueueSize": 2,
+      "network-volume": "spwpjg3lk3",
+      "template": "fdcc1twlxx",
+      "description": "MMAudio for video audio generation"
+    },
+    "comfyui_voice_voicemaker": {
+      "maxQueueSize": 4,
+      "network-volume": "spwpjg3lk3",
+      "template": "fdcc1twlxx",
+      "description": "Voicemaker for text-to-speech generation"
+    },
+    "comfyui_upscaling": {
+      "maxQueueSize": 2,
+      "network-volume": "spwpjg3lk3",
+      "template": "fdcc1twlxx",
+      "description": "Video upscaling workflows"
+    },
+    "comfyui_interpolation": {
+      "maxQueueSize": 2,
+      "network-volume": "spwpjg3lk3",
+      "template": "fdcc1twlxx",
+      "description": "Video interpolation workflows"
+    }
+  },
+  "defaults": {
+    "timeouts": {
+      "pause": 5,
+      "terminate": 500
+    },
+    "network-volume": "spwpjg3lk3",
+    "template": "fdcc1twlxx",
+    "maxQueueSize": 3
+  }
+}

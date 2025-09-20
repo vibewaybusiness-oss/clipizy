@@ -1,8 +1,9 @@
 # Vibewave - AI-Powered Music Video Creation
 
-Transform your audio into stunning music videos with the power of AI. Create professional content in minutes, not hours.
 
-## 🏗️ Architecture
+
+NEVER USE MOCK DATA OR TEST FUNCTIONS: RUN ACTUAL TEST: USING REAL FUNCTIONS IF AVAILABLE.
+
 
 ### Production (Cloud)
 - **Frontend**: Vercel (Next.js)

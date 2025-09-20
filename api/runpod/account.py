@@ -15,7 +15,7 @@ load_dotenv(dotenv_path=Path.cwd() / ".env.local")
 
 # If your client module is a sibling of this file in a package, keep the relative import.
 # Adjust as needed for your project structure.
-from client import (  # type: ignore
+from .client import (
     fetchAccountInfo,
     fetchPods,
     fetchPodById,

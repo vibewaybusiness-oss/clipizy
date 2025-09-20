@@ -5,14 +5,62 @@
         "pause": 5,
         "terminate": 500
       },
-      "network-volume": "ktsq4ji8l0"
+      "network-volume": "spwpjg3lk3"
     },
-    "comfyui": {
+    "comfyui_image_qwen": {
       "timeouts": {
         "pause": 5,
         "terminate": 500
       },
-      "network-volume": "ktsq4ji8l0",
+      "network-volume": "spwpjg3lk3",
+      "template": "fdcc1twlxx"
+    },
+    "comfyui_image_flux": {
+      "timeouts": {
+        "pause": 5,
+        "terminate": 500
+      },
+      "network-volume": "spwpjg3lk3",
+      "template": "fdcc1twlxx"
+    },
+    "comfyui_video_wan": {
+      "timeouts": {
+        "pause": 10,
+        "terminate": 1000
+      },
+      "network-volume": "spwpjg3lk3",
+      "template": "fdcc1twlxx"
+    },
+    "comfyui_audio_mmaudio": {
+      "timeouts": {
+        "pause": 10,
+        "terminate": 1000
+      },
+      "network-volume": "spwpjg3lk3",
+      "template": "fdcc1twlxx"
+    },
+    "comfyui_voice_voicemaker": {
+      "timeouts": {
+        "pause": 5,
+        "terminate": 500
+      },
+      "network-volume": "spwpjg3lk3",
+      "template": "fdcc1twlxx"
+    },
+    "comfyui_upscaling": {
+      "timeouts": {
+        "pause": 15,
+        "terminate": 1500
+      },
+      "network-volume": "spwpjg3lk3",
+      "template": "fdcc1twlxx"
+    },
+    "comfyui_interpolation": {
+      "timeouts": {
+        "pause": 15,
+        "terminate": 1500
+      },
+      "network-volume": "spwpjg3lk3",
       "template": "fdcc1twlxx"
     }
   },
@@ -30,6 +78,6 @@
     "defaultPorts": "22,8080,8888,11434",
     "defaultCountryCode": "CA",
     "supportPublicIp": true,
-    "networkVolumeId": "ktsq4ji8l0"
+    "networkVolumeId": "spwpjg3lk3"
   }
 }

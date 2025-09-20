@@ -112,3 +112,13 @@ WHERE users.id = ?
 FROM projects 
 WHERE projects.user_id = ? AND projects.type = ? ORDER BY projects.created_at DESC]
 [parameters: [{}]]
+2025-09-19 17:38:26 - services.project_service - ERROR - update_project_settings:461 - Failed to update project settings: (psycopg2.errors.InvalidTextRepresentation) invalid input syntax for type uuid: "test-project"
+LINE 3: WHERE projects.id = 'test-project'::UUID AND projects.user_i...
+                            ^
+
+[SQL: SELECT projects.id AS projects_id, projects.user_id AS projects_user_id, projects.type AS projects_type, projects.name AS projects_name, projects.description AS projects_description, projects.status AS projects_status, projects.created_at AS projects_created_at, projects.updated_at AS projects_updated_at 
+FROM projects 
+WHERE projects.id = %(id_1)s::UUID AND projects.user_id = %(user_id_1)s::UUID AND projects.type = %(type_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': 'test-project', 'user_id_1': '00000000-0000-0000-0000-000000000001', 'type_1': 'music-clip', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)

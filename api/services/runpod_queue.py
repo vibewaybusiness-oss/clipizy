@@ -60,7 +60,7 @@ class WorkflowQueueManager:
             # Find available pods
             available_pods = [
                 pod for pod in self.active_pods.values()
-                if pod.get("status") == "running" and pod.get("workflow_name") == "qwen-image"
+                if pod.get("status") == "running" and pod.get("workflow_name") == "comfyui_image_qwen"
             ]
             
             if not available_pods:
@@ -95,7 +95,7 @@ class WorkflowQueueManager:
             pod_config = RestPodConfig(
                 gpu_type_ids=["NVIDIA GeForce RTX 4090"],  # Default GPU type
                 image_name="runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04",
-                name=f"qwen-image-{uuid.uuid4().hex[:8]}",
+                name=f"comfyui_image_qwen-{uuid.uuid4().hex[:8]}",
                 container_disk_in_gb=50,
                 gpu_count=1,
                 support_public_ip=True
@@ -109,7 +109,7 @@ class WorkflowQueueManager:
                     "id": pod_id,
                     "name": result.data.name,
                     "status": "creating",
-                    "workflow_name": "qwen-image",
+                    "workflow_name": "comfyui_image_qwen",
                     "created_at": datetime.now(),
                     "ip": None
                 }
@@ -181,7 +181,7 @@ class WorkflowQueueManager:
             workflow_path = os.path.join(
                 os.path.dirname(__file__), 
                 "..", "..", "BACKEND OLD", "runpod", "comfyui", "workflows", 
-                "qwen_image", "qwen-image-8steps.json"
+                "qwen_image", "comfyui_image_qwen-8steps.json"
             )
             
             if os.path.exists(workflow_path):

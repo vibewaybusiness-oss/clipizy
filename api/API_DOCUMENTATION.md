@@ -100,7 +100,7 @@ http://localhost:8000
 ```json
 {
   "id": "req-12345",
-  "workflow_name": "qwen-image",
+  "workflow_name": "comfyui_image_qwen",
   "inputs": {
     "prompt": "A beautiful landscape",
     "negative_prompt": "blurry, low quality",
@@ -127,17 +127,17 @@ http://localhost:8000
   "active_pods": [
     {
       "id": "pod-67890",
-      "name": "qwen-image-pod",
+      "name": "comfyui_image_qwen-pod",
       "status": "running",
       "ip": "192.168.1.100",
-      "workflow_name": "qwen-image"
+      "workflow_name": "comfyui_image_qwen"
     }
   ],
   "pending_requests": [],
   "completed_requests": [
     {
       "id": "req-12345",
-      "workflow_name": "qwen-image",
+      "workflow_name": "comfyui_image_qwen",
       "status": "completed"
     }
   ],

@@ -253,8 +253,8 @@ async function recruitComfyUIPod(): Promise<NextResponse> {
       await queueManager.start();
     }
     
-    // Check if there's already a pod for qwen-image workflow (used for image generation)
-    const existingPod = queueManager.getPodForWorkflow('qwen-image');
+    // Check if there's already a pod for comfyui_image_qwen workflow (used for image generation)
+    const existingPod = queueManager.getPodForWorkflow('comfyui_image_qwen');
     
     if (existingPod) {
       return NextResponse.json({
@@ -267,9 +267,9 @@ async function recruitComfyUIPod(): Promise<NextResponse> {
     }
     
     // Add a request to trigger pod creation for image generation
-    const requestId = await queueManager.addWorkflowRequest('qwen-image', {
+    const requestId = await queueManager.addWorkflowRequest('comfyui_image_qwen', {
       prompt: 'Initialize image generation pod',
-      workflow: 'qwen-image'
+      workflow: 'comfyui_image_qwen'
     });
     
     return NextResponse.json({
