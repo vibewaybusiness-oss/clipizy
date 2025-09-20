@@ -44,7 +44,7 @@ class MMAudio:
         seed = seed or str(random.randint(1, 2**63 - 1))
         
         # Load workflow
-        workflow_path = os.path.join(self.package_dir, "mmAudio.json")
+        workflow_path = os.path.join(self.package_dir, "mmAudio_workflow.json")
         with open(workflow_path, 'r', encoding='utf-8-sig') as file:
             mmaudio_workflow = json.load(file)
 

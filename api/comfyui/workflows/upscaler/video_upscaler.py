@@ -22,7 +22,7 @@ class VideoUpscaler:
         seed = seed or str(random.randint(1, 2**63 - 1))
         
         # Load workflow
-        workflow_path = os.path.join(self.package_dir, "videoUpscaler.json")
+        workflow_path = os.path.join(self.package_dir, "video_upscaler_workflow.json")
         with open(workflow_path, 'r', encoding='utf-8-sig') as file:
             upscaler_workflow = json.load(file)
             

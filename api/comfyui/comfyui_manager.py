@@ -21,7 +21,7 @@ from .workflows.qwen_image.qwen_image import QwenImage
 from .workflows.flux.flux import Flux
 from .workflows.wan.wan import Wan
 from .workflows.mmAudio.mmAudio import MMAudio
-from .workflows.voicemaker.flux import Voicemaker
+from .workflows.voicemaker.voicemaker import Voicemaker
 from .workflows.upscaler.video_upscaler import VideoUpscaler
 from .workflows.interpolator.rife_interpolator import RifeInterpolator
 

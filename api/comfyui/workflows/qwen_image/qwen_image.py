@@ -40,7 +40,7 @@ class QwenImage:
             Tuple[Dict, str, str]: (qwen_workflow, pattern, download_directory)
         """
         # Load the workflow template
-        workflow_path = os.path.join(self.package_dir, "qwen_image_4_steps.json")
+        workflow_path = os.path.join(self.package_dir, "qwen_image_4_steps_workflow.json")
         with open(workflow_path, 'r', encoding='utf-8-sig') as file:
             qwen_workflow = json.load(file)
 
@@ -70,7 +70,7 @@ class QwenImage:
             Tuple[Dict, str, str]: (qwen_workflow, pattern, download_directory)
         """
         # Load the workflow template
-        workflow_path = os.path.join(self.package_dir, "qwen_image_edit_4_steps.json")
+        workflow_path = os.path.join(self.package_dir, "qwen_image_edit_4_steps_workflow.json")
         with open(workflow_path, 'r', encoding='utf-8-sig') as file:
             qwen_workflow = json.load(file)
         

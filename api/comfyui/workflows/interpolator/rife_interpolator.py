@@ -35,7 +35,7 @@ class RifeInterpolator:
         seed = seed or str(random.randint(1, 2**63 - 1))
         
         # Load workflow
-        workflow_path = os.path.join(self.package_dir, "rifeInterpolator.json")
+        workflow_path = os.path.join(self.package_dir, "rife_interpolator_workflow.json")
         with open(workflow_path, 'r', encoding='utf-8-sig') as file:
             rife_workflow = json.load(file)
         

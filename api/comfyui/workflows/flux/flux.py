@@ -25,7 +25,7 @@ class Flux:
         """
         
         # Load the workflow template
-        workflow_path = os.path.join(self.package_dir, "flux_lora.json")
+        workflow_path = os.path.join(self.package_dir, "flux_lora_workflow.json")
         with open(workflow_path, 'r', encoding='utf-8-sig') as file:
             flux_lora_workflow = json.load(file)
         
@@ -48,7 +48,7 @@ class Flux:
 
     def generate_image_without_lora(self, prompt: str="", steps: int=20, width: int=1920, height: int=1080, seed: str="", model: str="flux1-schnell.safetensors", negative_prompt: str="") -> Tuple[Dict[str, Any], str, str]:
         """
-        Generate image without LoRA using flux.json workflow
+        Generate image without LoRA using flux_workflow.json workflow
         Args:
             prompt (str): Text prompt for image generation
             steps (int): Number of generation steps
@@ -62,7 +62,7 @@ class Flux:
         """
         
         # Load the workflow template
-        workflow_path = os.path.join(self.package_dir, "flux.json")
+        workflow_path = os.path.join(self.package_dir, "flux_workflow.json")
         with open(workflow_path, 'r', encoding='utf-8-sig') as file:
             flux_workflow = json.load(file)
         

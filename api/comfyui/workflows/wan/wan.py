@@ -34,7 +34,7 @@ class Wan:
         seed = seed or str(random.randint(1, 2**63 - 1))
 
         # Load workflow
-        workflow_path = os.path.join(self.package_dir, "wan2.2_t2v_lightx.json")
+        workflow_path = os.path.join(self.package_dir, "wan2.2_t2v_lightx_workflow.json")
         with open(workflow_path, 'r', encoding='utf-8-sig') as file:
             wan_workflow = json.load(file)
         
@@ -98,7 +98,7 @@ class Wan:
         camera_motions = camera_motions[:6]
 
         # Load workflow
-        workflow_path = os.path.join(self.package_dir, "wan2.2_itv_camera_control.json")
+        workflow_path = os.path.join(self.package_dir, "wan2.2_itv_camera_control_workflow.json")
         with open(workflow_path, 'r', encoding='utf-8-sig') as file:
             wan_workflow = json.load(file)
 
