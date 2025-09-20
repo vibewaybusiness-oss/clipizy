@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from typing import Dict, List, Any, Optional
 from api.db import get_db
 from api.services.automation_pipeline import AutomationPipeline
-from api.storage.json_store import JSONStore
+from api.services import json_store
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/automation", tags=["automation"])
 
 # Initialize services
-json_store = JSONStore()
 automation_pipeline = AutomationPipeline(json_store)
 
 @router.post("/workflows")

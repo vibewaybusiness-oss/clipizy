@@ -9,21 +9,39 @@ export async function POST(
   try {
     const { projectId } = await params;
     console.log('Music-clip upload track API route called for project:', projectId);
+    console.log('BACKEND_URL env var:', process.env.BACKEND_URL);
     
     const formData = await request.formData();
     console.log('Form data keys:', Array.from(formData.keys()));
+    
+    // Check if file exists in form data
+    const file = formData.get('file');
+    if (!file) {
+      console.error('No file found in form data');
+      return NextResponse.json(
+        { error: 'No file provided' },
+        { status: 400 }
+      );
+    }
+    console.log('File details:', {
+      name: (file as File).name,
+      size: (file as File).size,
+      type: (file as File).type
+    });
     
     const backendUrl = `${BACKEND_URL}/music-clip/projects/${projectId}/upload-track`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout for file upload
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout for file upload
     
+    console.log('Starting fetch request to backend...');
     const response = await fetch(backendUrl, {
       method: 'POST',
       body: formData,
       signal: controller.signal,
     });
+    console.log('Fetch request completed');
     
     clearTimeout(timeoutId);
 
@@ -44,6 +62,7 @@ export async function POST(
     return NextResponse.json(data);
   } catch (error) {
     console.error('Music-clip upload track API error:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -15,6 +15,8 @@ from .analysis_router import router as analysis_router
 from .particle_router import router as particle_router
 from .points_router import router as points_router
 from .payment_router import router as payment_router
+from .social_media_router import router as social_media_router
+from .automation_router import router as automation_router
 
 all_routers = [
     auth_router,
@@ -34,4 +36,6 @@ all_routers = [
     particle_router,
     points_router,
     payment_router,
+    social_media_router,
+    automation_router,
 ]

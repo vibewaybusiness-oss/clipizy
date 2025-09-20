@@ -2,9 +2,10 @@
 """
 clipizi FastAPI Main Application
 """
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 import uvicorn
 import os
 from contextlib import asynccontextmanager
@@ -36,6 +37,40 @@ from api.routers import (
 from api.services.comfyui_service import get_comfyui_manager
 from api.services.queues_service import get_queue_manager
 from api.db import create_tables
+
+class LargeBodyMiddleware(BaseHTTPMiddleware):
+    """Middleware to handle large request bodies"""
+    def __init__(self, app, max_body_size: int = 100 * 1024 * 1024):  # 100MB default
+        super().__init__(app)
+        self.max_body_size = max_body_size
+
+    async def dispatch(self, request: Request, call_next):
+        # Check content length if available
+        content_length = request.headers.get('content-length')
+        if content_length and int(content_length) > self.max_body_size:
+            return JSONResponse(
+                status_code=413,
+                content={"error": "Payload Too Large", "max_size": self.max_body_size}
+            )
+        
+        # Read the body to prevent uvicorn's default 1MB limit
+        try:
+            body = await request.body()
+            if len(body) > self.max_body_size:
+                return JSONResponse(
+                    status_code=413,
+                    content={"error": "Payload Too Large", "max_size": self.max_body_size}
+                )
+            # Store the body for later use
+            request._body = body
+        except Exception as e:
+            return JSONResponse(
+                status_code=413,
+                content={"error": "Failed to read request body", "detail": str(e)}
+            )
+        
+        response = await call_next(request)
+        return response
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -95,6 +130,9 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Add middleware for large request bodies (100MB limit)
+app.add_middleware(LargeBodyMiddleware, max_body_size=100 * 1024 * 1024)
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -114,7 +152,7 @@ app.include_router(job_router, prefix="/jobs", tags=["jobs"])
 app.include_router(prompt_router, prefix="/prompts", tags=["prompts"])
 app.include_router(pricing_router, prefix="/pricing", tags=["pricing"])
 app.include_router(analysis_router, prefix="/analysis", tags=["analysis"])
-app.include_router(music_analysis_router, prefix="/music-analysis", tags=["music-analysis"])
+app.include_router(music_analysis_router)
 app.include_router(music_clip_router)
 app.include_router(particle_router, prefix="/particles", tags=["particles"])
 app.include_router(visualizer_router, prefix="/visualizers", tags=["visualizers"])

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkWorkflowStatus } from '../../../../../../backendOLD/comfyUI/api';
+import { getWorkflowStatus } from '@/lib/comfyui-api';
 
 export async function GET(
   request: NextRequest,
@@ -7,7 +7,7 @@ export async function GET(
 ) {
   try {
     const { promptId } = await params;
-    return await checkWorkflowStatus(promptId);
+    return await getWorkflowStatus(promptId);
   } catch (error) {
     console.error('ComfyUI status check error:', error);
     return NextResponse.json(

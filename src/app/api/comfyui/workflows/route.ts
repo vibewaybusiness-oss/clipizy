@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getWorkflows } from '../../../../../backendOLD/comfyUI/api';
+import { getAvailableWorkflows } from '@/lib/comfyui-api';
 
 export async function GET(request: NextRequest) {
   try {
-    return await getWorkflows();
+    return await getAvailableWorkflows();
   } catch (error) {
     console.error('ComfyUI workflows error:', error);
     return NextResponse.json(

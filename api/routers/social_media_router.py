@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Optional
 from api.db import get_db
 from api.services.social_media_service import SocialMediaService
-from api.storage.json_store import JSONStore
+from api.services import json_store
 from api.schemas.social_account import SocialAccountCreate, SocialAccountRead
 from api.models import SocialAccount, Export
 import logging
@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/social-media", tags=["social-media"])
 
 # Initialize services
-json_store = JSONStore()
 social_media_service = SocialMediaService(json_store)
 
 @router.post("/connect/{platform}")

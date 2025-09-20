@@ -11,6 +11,7 @@ from .auth_service import auth_service
 from .analysis_service import analysis_service
 from .points_service import points_service
 from .stripe_service import stripe_service
+from .pricing_service import PRICES, calculate_music_price, calculate_image_price, calculate_looped_animation_price, calculate_video_price
 from api.storage.json_store import JSONStore
 
 # Initialize services

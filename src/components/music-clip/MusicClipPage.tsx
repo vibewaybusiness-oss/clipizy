@@ -16,6 +16,7 @@ import { usePricingService } from "@/hooks/use-pricing-service";
 import { useMusicClipState } from "@/hooks/use-music-clip-state";
 import { useProjectManagement } from "@/hooks/use-project-management";
 import { useDragAndDrop } from "@/hooks/use-drag-and-drop";
+import { useMusicAnalysis } from "@/hooks/use-music-analysis";
 import { musicClipAPI } from "@/lib/api/music-clip";
 import { musicAnalysisAPI } from "@/lib/api/music-analysis";
 import { formatDuration, getTotalDuration, fileToDataUri } from "@/utils/music-clip-utils";
@@ -50,6 +51,7 @@ function MusicClipPage() {
   const pricingService = usePricingService();
   const musicClipState = useMusicClipState(projectId);
   const dragAndDrop = useDragAndDrop();
+  const musicAnalysis = useMusicAnalysis(projectId);
   const waveformRef = useRef<WaveformVisualizerRef>(null);
   const lastProcessedDuration = useRef<number>(0);
   
@@ -359,6 +361,21 @@ function MusicClipPage() {
     }
   }, [projectId, urlProjectId, projectManagement.state.isLoadingProject, musicClipState.state.settings, musicTracks.musicTracks.length]);
 
+  // Auto-analyze tracks that need analysis
+  useEffect(() => {
+    if (projectId && musicTracks.musicTracks.length > 0 && !musicAnalysis.isAnalyzing) {
+      const tracksNeedingAnalysis = musicAnalysis.getTracksNeedingAnalysis(musicTracks.musicTracks);
+      
+      if (tracksNeedingAnalysis.length > 0) {
+        console.log(`Auto-analyzing ${tracksNeedingAnalysis.length} tracks that need analysis:`, 
+          tracksNeedingAnalysis.map(t => t.name));
+        
+        // Trigger analysis in the background
+        musicAnalysis.analyzeMissingTracks(musicTracks.musicTracks);
+      }
+    }
+  }, [projectId, musicTracks.musicTracks, musicAnalysis]);
+
   // Update URL when step changes (with throttling to prevent browser hanging)
   const prevStepRef = useRef(musicClipState.state.currentStep);
   const urlUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -417,7 +434,7 @@ function MusicClipPage() {
           
           // Use sendBeacon for critical data saving
           const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-          const success = navigator.sendBeacon('/api/music-clip/auto-save', blob);
+          const success = navigator.sendBeacon('/music-clip/auto-save', blob);
           
           if (!success) {
             console.warn('Failed to send beacon for auto-save');
@@ -542,6 +559,16 @@ function MusicClipPage() {
         // This could be saved as a project-level setting or in a separate table
       }
       
+      // Save analysis data to project if available
+      if (musicAnalysis.analysisData) {
+        try {
+          await musicClipAPI.updateProjectAnalysis(projectId, musicAnalysis.analysisData);
+          console.log('Analysis data saved to project');
+        } catch (error) {
+          console.error('Failed to save analysis data:', error);
+        }
+      }
+      
       console.log('Successfully pushed data to backend');
     } catch (error) {
       console.error('Failed to push data to backend:', error);
@@ -626,6 +653,12 @@ function MusicClipPage() {
         // Reset validation state when loading project
         console.log('Resetting validation state for loaded project');
         setTrackValidity({});
+      }
+      
+      // Load analysis data if available
+      if (projectData?.analysis) {
+        console.log('Loading analysis data from project:', projectData.analysis);
+        musicAnalysis.updateAnalysisData(projectData.analysis);
       }
     } catch (error) {
       console.error('Failed to load existing project:', error);
@@ -920,62 +953,6 @@ function MusicClipPage() {
       } catch (error) {
         console.error('Failed to save settings:', error);
       }
-    }
-    
-    // Start music analysis in parallel before proceeding to overview
-    try {
-      musicClipState.actions.setIsAnalyzingMusic(true);
-      
-      // Get tracks that have files (for analysis)
-      const tracksWithFiles = musicTracks.musicTracks.filter(track => track.file);
-      
-      if (tracksWithFiles.length > 0) {
-        console.log(`Starting parallel analysis for ${tracksWithFiles.length} tracks`);
-        
-        const analysisResults = await musicAnalysisAPI.analyzeTracksInParallel(tracksWithFiles);
-        
-        // Store analysis results in project data
-        const analysisData = {
-          music: analysisResults.reduce((acc, result) => {
-            if (!result.error) {
-              acc[result.trackId] = result.analysis;
-            }
-            return acc;
-          }, {} as Record<string, any>),
-          analyzed_at: new Date().toISOString(),
-          total_tracks: tracksWithFiles.length,
-          successful_analyses: analysisResults.filter(r => !r.error).length,
-          failed_analyses: analysisResults.filter(r => r.error).length
-        };
-        
-        // Save analysis data to project
-        if (projectManagement.state.currentProjectId) {
-          try {
-            await musicClipAPI.updateProjectAnalysis(projectManagement.state.currentProjectId, analysisData);
-            console.log('Analysis data saved to project');
-          } catch (error) {
-            console.error('Failed to save analysis data:', error);
-          }
-        }
-        
-        // Also save to localStorage for immediate access
-        if (typeof window !== 'undefined' && projectId) {
-          localStorage.setItem(`musicClip_${projectId}_analysis`, JSON.stringify(analysisData));
-        }
-        
-        console.log('Music analysis completed successfully');
-      } else {
-        console.log('No tracks with files to analyze');
-      }
-    } catch (error) {
-      console.error('Music analysis failed:', error);
-      toast({
-        variant: "destructive",
-        title: "Analysis Failed",
-        description: "Failed to analyze music tracks. You can continue without analysis.",
-      });
-    } finally {
-      musicClipState.actions.setIsAnalyzingMusic(false);
     }
     
     musicClipState.actions.setCurrentStep(3);
@@ -1545,7 +1522,7 @@ function MusicClipPage() {
                     {musicClipState.state.currentStep === 3 && (
                       <div className="flex-1 flex justify-end">
                         <Button 
-                          onClick={() => {
+                          onClick={async () => {
                             console.log('=== MUSIC CLIP STEP 3 CONTINUE BUTTON CLICKED ===');
                             console.log('Current step:', musicClipState.state.currentStep);
                             console.log('Form values:', musicClipState.forms.overviewForm.getValues());
@@ -1553,15 +1530,56 @@ function MusicClipPage() {
                             console.log('Form errors:', musicClipState.forms.overviewForm.formState.errors);
                             console.log('Form isValid:', musicClipState.forms.overviewForm.formState.isValid);
                             
-                            // Directly navigate to step 4 without form validation
+                            // Ensure all tracks are analyzed before proceeding
+                            try {
+                              musicClipState.actions.setIsAnalyzingMusic(true);
+                              
+                              // Get tracks that need analysis
+                              const tracksNeedingAnalysis = musicAnalysis.getTracksNeedingAnalysis(musicTracks.musicTracks);
+                              
+                              if (tracksNeedingAnalysis.length > 0) {
+                                console.log(`Analyzing ${tracksNeedingAnalysis.length} tracks before proceeding to step 4`);
+                                await musicAnalysis.analyzeMissingTracks(musicTracks.musicTracks);
+                              } else {
+                                console.log('All tracks already analyzed');
+                              }
+                              
+                              // Save analysis data to project if we have any
+                              if (musicAnalysis.analysisData && projectManagement.state.currentProjectId) {
+                                try {
+                                  await musicClipAPI.updateProjectAnalysis(projectManagement.state.currentProjectId, musicAnalysis.analysisData);
+                                  console.log('Analysis data saved to project');
+                                } catch (error) {
+                                  console.error('Failed to save analysis data:', error);
+                                }
+                              }
+                            } catch (error) {
+                              console.error('Music analysis failed:', error);
+                              toast({
+                                variant: "destructive",
+                                title: "Analysis Failed",
+                                description: "Failed to analyze music tracks. You can continue without analysis.",
+                              });
+                            } finally {
+                              musicClipState.actions.setIsAnalyzingMusic(false);
+                            }
+                            
+                            // Navigate to step 4
                             console.log('Directly navigating to step 4 (bypassing form validation)...');
                             musicClipState.actions.setCurrentStep(4);
                             console.log('Current step after setCurrentStep(4):', musicClipState.state.currentStep);
                           }} 
-                          className="flex items-center space-x-2 text-white btn-ai-gradient"
-                          disabled={musicClipState.state.isGeneratingVideo}
+                          className={`flex items-center space-x-2 text-white ${
+                            !musicClipState.state.isAnalyzingMusic ? 'btn-ai-gradient' : 'bg-muted text-foreground/50 cursor-not-allowed'
+                          }`}
+                          disabled={musicClipState.state.isGeneratingVideo || musicClipState.state.isAnalyzingMusic}
                         >
-                          {musicClipState.state.isGeneratingVideo ? (
+                          {musicClipState.state.isAnalyzingMusic ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              <span>Analyzing Music...</span>
+                            </>
+                          ) : musicClipState.state.isGeneratingVideo ? (
                             <>
                               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                               <span>Generating...</span>

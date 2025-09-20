@@ -53,25 +53,39 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
   const pricingService = usePricingService();
   
   // Calculate dynamic pricing for each video type
-  const videoTypeCosts = useMemo(() => {
-    if (!pricing) return { loopedVideoCost: 100, scenesVideoCost: 200 };
-    
-    const totalMinutes = totalDuration / 60;
-    const longestTrackMinutes = Math.max(...trackDurations) / 60;
-    
-    // Calculate for looped-static (same as looped-animated for display purposes)
-    const loopedUnits = reuseVideo ? 1 : trackCount;
-    const loopedImagePrice = pricingService.calculateImagePrice(loopedUnits, totalMinutes, 'clipizi-model');
-    const loopedAnimationPrice = pricingService.calculateLoopedAnimationPrice(loopedUnits, totalMinutes, 'clipizi-model');
-    
-    // Calculate for scenes
-    const scenesDuration = reuseVideo ? longestTrackMinutes : totalMinutes;
-    const scenesPrice = pricingService.calculateVideoPrice(scenesDuration, 'clipizi-model');
-    
-    return {
-      loopedVideoCost: Math.min(loopedImagePrice.credits, loopedAnimationPrice.credits),
-      scenesVideoCost: scenesPrice.credits
+  const [videoTypeCosts, setVideoTypeCosts] = useState({ loopedVideoCost: 100, scenesVideoCost: 200 });
+  
+  useEffect(() => {
+    const calculateCosts = async () => {
+      if (!pricing) {
+        setVideoTypeCosts({ loopedVideoCost: 100, scenesVideoCost: 200 });
+        return;
+      }
+      
+      try {
+        const totalMinutes = totalDuration / 60;
+        const longestTrackMinutes = Math.max(...trackDurations) / 60;
+        
+        // Calculate for looped-static (same as looped-animated for display purposes)
+        const loopedUnits = reuseVideo ? 1 : trackCount;
+        const loopedImagePrice = await pricingService.calculateImagePrice(loopedUnits, totalMinutes, 'clipizi-model');
+        const loopedAnimationPrice = await pricingService.calculateLoopedAnimationPrice(loopedUnits, totalMinutes, 'clipizi-model');
+        
+        // Calculate for scenes
+        const scenesDuration = reuseVideo ? longestTrackMinutes : totalMinutes;
+        const scenesPrice = await pricingService.calculateVideoPrice(scenesDuration, 'clipizi-model');
+        
+        setVideoTypeCosts({
+          loopedVideoCost: Math.min(loopedImagePrice.credits, loopedAnimationPrice.credits),
+          scenesVideoCost: scenesPrice.credits
+        });
+      } catch (error) {
+        console.error('Error calculating video type costs:', error);
+        setVideoTypeCosts({ loopedVideoCost: 100, scenesVideoCost: 200 });
+      }
     };
+    
+    calculateCosts();
   }, [pricing, totalDuration, trackCount, trackDurations, reuseVideo, pricingService]);
 
   return (

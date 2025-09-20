@@ -64,7 +64,7 @@ class UserSafetyService:
             # Initialize S3 storage
             s3_storage = S3Storage(
                 bucket=settings.s3_bucket,
-                endpoint_url=settings.s3_endpoint,
+                endpoint_url=settings.s3_endpoint_url,
                 access_key=settings.s3_access_key,
                 secret_key=settings.s3_secret_key
             )

@@ -38,9 +38,17 @@ async def analyze_music_comprehensive(
         if not file.content_type or not file.content_type.startswith('audio/'):
             raise HTTPException(status_code=400, detail="File must be an audio file")
         
-        # Create temporary file
+        # Create temporary file with correct extension
         import tempfile
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as tmp_file:
+        import os
+        
+        # Get the original file extension
+        original_filename = file.filename or "audio_file"
+        file_ext = os.path.splitext(original_filename)[1].lower()
+        if not file_ext:
+            file_ext = '.wav'  # Default to wav if no extension
+        
+        with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as tmp_file:
             content = await file.read()
             tmp_file.write(content)
             tmp_file_path = tmp_file.name
@@ -79,9 +87,17 @@ async def analyze_music_simple(
         if not file.content_type or not file.content_type.startswith('audio/'):
             raise HTTPException(status_code=400, detail="File must be an audio file")
         
-        # Create temporary file
+        # Create temporary file with correct extension
         import tempfile
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as tmp_file:
+        import os
+        
+        # Get the original file extension
+        original_filename = file.filename or "audio_file"
+        file_ext = os.path.splitext(original_filename)[1].lower()
+        if not file_ext:
+            file_ext = '.wav'  # Default to wav if no extension
+        
+        with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as tmp_file:
             content = await file.read()
             tmp_file.write(content)
             tmp_file_path = tmp_file.name
@@ -118,9 +134,17 @@ async def detect_music_peaks(
         if not file.content_type or not file.content_type.startswith('audio/'):
             raise HTTPException(status_code=400, detail="File must be an audio file")
         
-        # Create temporary file
+        # Create temporary file with correct extension
         import tempfile
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as tmp_file:
+        import os
+        
+        # Get the original file extension
+        original_filename = file.filename or "audio_file"
+        file_ext = os.path.splitext(original_filename)[1].lower()
+        if not file_ext:
+            file_ext = '.wav'  # Default to wav if no extension
+        
+        with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as tmp_file:
             content = await file.read()
             tmp_file.write(content)
             tmp_file_path = tmp_file.name

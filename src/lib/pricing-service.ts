@@ -24,63 +24,74 @@ class PricingService {
     }
 
     this.configPromise = this.fetchConfig();
-    return this.configPromise;
+    try {
+      return await this.configPromise;
+    } catch (error) {
+      // If fetchConfig fails, return the fallback config
+      console.warn('Using fallback pricing config due to API error');
+      return this.getFallbackConfig();
+    }
+  }
+
+  private getFallbackConfig(): PricingConfig {
+    return {
+      credits_rate: 20,
+      music_generator: {
+        "stable-audio": {
+          price: 0.5,
+          description: "Generate a music track based on the description."
+        },
+        "clipizi-model": {
+          price: 1.0,
+          description: "Generate a music track based on the description."
+        }
+      },
+      image_generator: {
+        "clipizi-model": {
+          minute_rate: 0.10,
+          unit_rate: 0.50,
+          min: 3,
+          max: null,
+          description: "Generate an image based on the description."
+        }
+      },
+      looped_animation_generator: {
+        "clipizi-model": {
+          minute_rate: 0.11,
+          unit_rate: 1,
+          min: 3,
+          max: null,
+          description: "Generate a looping animation based on the description."
+        }
+      },
+      video_generator: {
+        "clipizi-model": {
+          "video-duration": 5,
+          minute_rate: 10,
+          min: 20,
+          max: null,
+          description: "Generate a video based on the description."
+        }
+      }
+    };
   }
 
   private async fetchConfig(): Promise<PricingConfig> {
     try {
       const response = await fetch('/api/pricing/config');
       if (!response.ok) {
+        console.warn(`Pricing API not available (${response.status}): ${response.statusText}. Using fallback config.`);
         throw new Error(`Failed to fetch pricing config: ${response.statusText}`);
       }
       const config = await response.json();
       this.config = config;
       return config;
     } catch (error) {
-      console.error('Error fetching pricing config:', error);
-      // Return default config as fallback
-      const defaultConfig: PricingConfig = {
-        credits_rate: 20,
-        music_generator: {
-          "stable-audio": {
-            price: 0.5,
-            description: "Generate a music track based on the description."
-          },
-          "clipizi-model": {
-            price: 1.0,
-            description: "Generate a music track based on the description."
-          }
-        },
-        image_generator: {
-          "clipizi-model": {
-            minute_rate: 0.10,
-            unit_rate: 0.50,
-            min: 3,
-            max: null,
-            description: "Generate an image based on the description."
-          }
-        },
-        looped_animation_generator: {
-          "clipizi-model": {
-            minute_rate: 0.11,
-            unit_rate: 1,
-            min: 3,
-            max: null,
-            description: "Generate a looping animation based on the description."
-          }
-        },
-        video_generator: {
-          "clipizi-model": {
-            "video-duration": 5,
-            minute_rate: 10,
-            min: 20,
-            max: null,
-            description: "Generate a video based on the description."
-          }
-        }
-      };
-      this.config = defaultConfig;
-      return defaultConfig;
+      console.warn('Error fetching pricing config, using fallback:', error);
+      // Return fallback config
+      const fallbackConfig = this.getFallbackConfig();
+      this.config = fallbackConfig;
+      return fallbackConfig;
     }
   }
 

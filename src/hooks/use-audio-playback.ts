@@ -266,45 +266,50 @@ export function useAudioPlayback() {
       
       // Check if it's a blob URL that might have been revoked
       if (track.url.startsWith('blob:')) {
-        // Test if the blob URL is still accessible
+        console.log('Testing blob URL accessibility for track:', track.id, 'URL:', track.url);
+        // Test if the blob URL is still accessible by creating a test audio element
         try {
-          const testResponse = await fetch(track.url);
-          if (!testResponse.ok) {
-            console.error('Blob URL is no longer accessible:', testResponse.status, testResponse.statusText);
-            // If the blob URL is no longer accessible, try to recreate it from the file
-            if (track.file && track.file.size > 0) {
-              console.log('Recreating blob URL from file for track:', track.id);
-              audioUrl = URL.createObjectURL(track.file);
-              trackBlobUrl(audioUrl, `use-audio-playback:playTrack:recreate:${track.id}`);
-            } else {
-              toast({
-                variant: "destructive",
-                title: "Playback Error",
-                description: "Audio file is no longer accessible. Please try uploading again.",
-              });
-              return;
-            }
-          } else {
-            console.log('Blob URL accessibility test passed');
-            audioUrl = track.url;
-          }
-        } catch (fetchError) {
-          console.error('Failed to test blob URL accessibility:', fetchError);
+          const testAudio = new Audio(track.url);
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+              reject(new Error('Blob URL test timeout'));
+            }, 2000);
+            
+            testAudio.addEventListener('canplaythrough', () => {
+              clearTimeout(timeout);
+              resolve(true);
+            });
+            
+            testAudio.addEventListener('error', (e) => {
+              clearTimeout(timeout);
+              reject(new Error('Blob URL is no longer accessible'));
+            });
+            
+            // Start loading the audio
+            testAudio.load();
+          });
+          
+          console.log('Blob URL accessibility test passed for track:', track.id);
+          audioUrl = track.url;
+        } catch (testError) {
+          console.error('Blob URL is no longer accessible for track:', track.id, testError);
           // If the blob URL is no longer accessible, try to recreate it from the file
           if (track.file && track.file.size > 0) {
             console.log('Recreating blob URL from file for track:', track.id);
             audioUrl = URL.createObjectURL(track.file);
             trackBlobUrl(audioUrl, `use-audio-playback:playTrack:recreate:${track.id}`);
           } else {
+            console.warn('Track file not available for blob URL recreation:', track.id, 'File available:', !!track.file);
             toast({
               variant: "destructive",
-              title: "Playback Error",
-              description: "Audio file is no longer accessible. Please try uploading again.",
+              title: "Audio Playback Error",
+              description: "This audio track is no longer accessible. Please re-upload the track to continue playback.",
             });
             return;
           }
         }
       } else {
+        console.log('Using non-blob URL for track:', track.id, 'URL:', track.url);
         audioUrl = track.url;
       }
       

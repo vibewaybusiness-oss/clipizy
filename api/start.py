@@ -51,6 +51,10 @@ if __name__ == "__main__":
     # Set environment variables
     os.environ.setdefault("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/clipizi")
     os.environ.setdefault("BACKEND_URL", "http://localhost:8000")
+    # Set uvicorn configuration for large request bodies
+    os.environ.setdefault("UVICORN_LIMIT_MAX_REQUESTS", "1000")
+    os.environ.setdefault("UVICORN_LIMIT_CONCURRENCY", "1000")
+    os.environ.setdefault("UVICORN_TIMEOUT_KEEP_ALIVE", "30")
     
     print("🔍 Checking database health before starting FastAPI...")
     if not check_database_health():
@@ -76,5 +80,8 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8000,
         reload=True,
-        log_level="info"
+        log_level="info",
+        limit_max_requests=1000,
+        limit_concurrency=1000,
+        timeout_keep_alive=30
     )

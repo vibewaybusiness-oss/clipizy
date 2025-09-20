@@ -24,23 +24,23 @@ type BudgetSliderProps = {
 
 
 // Calculate cost per unit based on video type using the new pricing service
-const getCostPerUnit = (videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricingService: any, reuseVideo: boolean = false) => {
+const getCostPerUnit = async (videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricingService: any, reuseVideo: boolean = false) => {
   try {
     const totalMinutes = totalDuration / 60;
     
     if (videoType === 'looped-static') {
       const units = reuseVideo ? 1 : trackCount;
-      const price = pricingService.calculateImagePrice(units, totalMinutes);
-      return price.credits;
+      const price = await pricingService.calculateImagePrice(units, totalMinutes);
+      return price?.credits || 0;
     } else if (videoType === 'looped-animated') {
       const units = reuseVideo ? 1 : trackCount;
-      const price = pricingService.calculateLoopedAnimationPrice(units, totalMinutes);
-      return price.credits;
+      const price = await pricingService.calculateLoopedAnimationPrice(units, totalMinutes);
+      return price?.credits || 0;
     } else if (videoType === 'scenes') {
       const longestTrackMinutes = Math.max(...trackDurations) / 60;
       const videoDuration = reuseVideo ? longestTrackMinutes : totalMinutes;
-      const price = pricingService.calculateVideoPrice(videoDuration);
-      return price.credits;
+      const price = await pricingService.calculateVideoPrice(videoDuration);
+      return price?.credits || 0;
     }
   } catch (error) {
     console.error('Error calculating cost:', error);
@@ -50,20 +50,20 @@ const getCostPerUnit = (videoType: string, trackCount: number, totalDuration: nu
 };
 
 // Calculate budget value from number of units
-const getBudgetFromUnits = (units: number, videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricingService: any, reuseVideo: boolean = false) => {
-  const costPerUnit = getCostPerUnit(videoType, trackCount, totalDuration, trackDurations, pricingService, reuseVideo);
+const getBudgetFromUnits = async (units: number, videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricingService: any, reuseVideo: boolean = false) => {
+  const costPerUnit = await getCostPerUnit(videoType, trackCount, totalDuration, trackDurations, pricingService, reuseVideo);
   return Math.round(units * costPerUnit);
 };
 
 // Calculate number of units from budget
-const getUnitsFromBudget = (budget: number, videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricingService: any, reuseVideo: boolean = false) => {
-  const costPerUnit = getCostPerUnit(videoType, trackCount, totalDuration, trackDurations, pricingService, reuseVideo);
+const getUnitsFromBudget = async (budget: number, videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricingService: any, reuseVideo: boolean = false) => {
+  const costPerUnit = await getCostPerUnit(videoType, trackCount, totalDuration, trackDurations, pricingService, reuseVideo);
   return Math.floor(budget / costPerUnit);
 };
 
 // Calculate number of videos that can be created based on budget
-const calculateVideoCount = (budget: number, videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricingService: any, reuseVideo: boolean = false) => {
-  const units = getUnitsFromBudget(budget, videoType, trackCount, totalDuration, trackDurations, pricingService, reuseVideo);
+const calculateVideoCount = async (budget: number, videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricingService: any, reuseVideo: boolean = false) => {
+  const units = await getUnitsFromBudget(budget, videoType, trackCount, totalDuration, trackDurations, pricingService, reuseVideo);
   
   if (videoType === 'scenes') {
     // For scenes, when reusing video, we create 1 video with all scenes
@@ -119,12 +119,19 @@ export function BudgetSlider({
   });
 
   useEffect(() => {
-    const updateCost = () => {
+    const updateCost = async () => {
       if (pricing) {
-        const cost = getCostPerUnit(videoType, trackCount, totalDuration, memoizedTrackDurations, pricingService, reuseVideo);
-        // Round up to nearest 5 for scenes
-        const roundedCost = videoType === 'scenes' ? Math.ceil(cost / 5) * 5 : cost;
-        setCalculatedCost(roundedCost);
+        try {
+          const cost = await getCostPerUnit(videoType, trackCount, totalDuration, memoizedTrackDurations, pricingService, reuseVideo);
+          // Ensure cost is a valid number
+          const validCost = isNaN(cost) || cost < 0 ? 100 : cost;
+          // Round up to nearest 5 for scenes
+          const roundedCost = videoType === 'scenes' ? Math.ceil(validCost / 5) * 5 : validCost;
+          setCalculatedCost(roundedCost);
+        } catch (error) {
+          console.error('Error updating cost:', error);
+          setCalculatedCost(100);
+        }
       }
     };
     
@@ -189,7 +196,7 @@ export function BudgetSlider({
 
   // Set initial budget based on video type and reset when reuseVideo changes
   useEffect(() => {
-    if (pricing && calculatedCost > 0) {
+    if (pricing && calculatedCost > 0 && !isNaN(calculatedCost)) {
       if (videoType === 'scenes') {
         // For scenes, always start with maximum scenes per video
         const maxScenesCost = maxScenesPerVideo * costPerScene * videosToCreate;
@@ -246,7 +253,7 @@ export function BudgetSlider({
     if (videoType === 'scenes') {
       let budget = inputValue;
       const minBudget = costPerScene * videosToCreate; // 1 scene per video
-      const maxBudget = calculatedCost; // Use calculated cost as maximum
+      const maxBudget = isNaN(calculatedCost) ? 1000 : calculatedCost; // Use calculated cost as maximum
       
       if (isNaN(budget) || budget < minBudget) budget = minBudget;
       if (budget > maxBudget) budget = maxBudget;
@@ -264,9 +271,24 @@ export function BudgetSlider({
   }
 
   // Calculate video count for current budget
-  const videoCount = videoType === 'scenes' 
-    ? calculateVideoCount(inputValue, videoType, trackCount, totalDuration, memoizedTrackDurations, pricingService, reuseVideo)
-    : trackCount; // For static/animated, show track count
+  const [videoCount, setVideoCount] = useState(trackCount);
+  
+  useEffect(() => {
+    const updateVideoCount = async () => {
+      if (videoType === 'scenes') {
+        try {
+          const count = await calculateVideoCount(inputValue, videoType, trackCount, totalDuration, memoizedTrackDurations, pricingService, reuseVideo);
+          setVideoCount(count);
+        } catch (error) {
+          console.error('Error calculating video count:', error);
+          setVideoCount(trackCount);
+        }
+      } else {
+        setVideoCount(trackCount); // For static/animated, show track count
+      }
+    };
+    updateVideoCount();
+  }, [inputValue, videoType, trackCount, totalDuration, memoizedTrackDurations, pricingService, reuseVideo]);
   
   // Get scenes info for display
   const scenesInfo = videoType === 'scenes' 
@@ -342,7 +364,7 @@ export function BudgetSlider({
                     onBlur={handleInputBlur}
                     className="w-32 pl-12 pr-2 text-right font-semibold"
                     min={costPerScene * videosToCreate}
-                    max={calculatedCost}
+                    max={isNaN(calculatedCost) ? 1000 : calculatedCost}
                     step={costPerScene * videosToCreate}
                 />
             </div>

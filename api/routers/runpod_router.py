@@ -5,10 +5,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-from ..runpod.client import (
-    RunPodRestClient,
-    get_runpod_rest_client,
-)
+# RunPod client functionality is integrated into PodManager
 from ..services.runpod_manager import (
     get_pod_manager,
     PodManager,

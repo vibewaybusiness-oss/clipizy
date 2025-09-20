@@ -75,7 +75,13 @@ class MusicTheoryCategorizer:
             file_ext = os.path.splitext(file_path)[1].lower()
             metadata['file_type'] = file_ext
             
-            audio_file = mutagen.File(file_path)
+            # Try to load with mutagen, but handle format errors gracefully
+            try:
+                audio_file = mutagen.File(file_path)
+            except Exception as mutagen_error:
+                print(f"Mutagen failed to load file {file_path}: {mutagen_error}")
+                audio_file = None
+            
             if audio_file is not None:
                 if 'TIT2' in audio_file:
                     metadata['title'] = str(audio_file['TIT2'][0])
@@ -98,6 +104,16 @@ class MusicTheoryCategorizer:
                         
         except Exception as e:
             print(f"Metadata extraction failed: {e}")
+        
+        # If duration is still 0, try to get it using librosa
+        if metadata['duration'] == 0:
+            try:
+                import librosa
+                y, sr = librosa.load(file_path, sr=None)
+                metadata['duration'] = len(y) / sr
+                metadata['sample_rate'] = sr
+            except Exception as librosa_error:
+                print(f"Librosa duration calculation failed: {librosa_error}")
         
         if metadata['title'] == 'Unknown':
             filename = os.path.basename(file_path)
@@ -129,18 +145,27 @@ class MusicTheoryCategorizer:
             onset_frames = librosa.onset.onset_detect(y=y, sr=sr)
             features['onset_rate'] = len(onset_frames) / (len(y) / sr)
             
-            # Music21 analysis
+            # Music21 analysis (skip if file format is not supported)
             try:
-                stream = music21.converter.parse(file_path)
-                key_analyzer = music21.analysis.discrete.KrumhanslSchmuckler()
-                key = key_analyzer.getSolution(stream)
-                features['key'] = str(key) if key else "Unknown"
+                # Check if file extension is supported by Music21
+                file_ext = os.path.splitext(file_path)[1].lower()
+                supported_extensions = ['.mid', '.midi', '.xml', '.mxl', '.musicxml']
                 
-                time_signatures = stream.getTimeSignatures()
-                if time_signatures:
-                    ts = time_signatures[0]
-                    features['time_signature'] = f"{ts.numerator}/{ts.denominator}"
+                if file_ext in supported_extensions:
+                    stream = music21.converter.parse(file_path)
+                    key_analyzer = music21.analysis.discrete.KrumhanslSchmuckler()
+                    key = key_analyzer.getSolution(stream)
+                    features['key'] = str(key) if key else "Unknown"
+                    
+                    time_signatures = stream.getTimeSignatures()
+                    if time_signatures:
+                        ts = time_signatures[0]
+                        features['time_signature'] = f"{ts.numerator}/{ts.denominator}"
+                    else:
+                        features['time_signature'] = "Unknown"
                 else:
+                    # For audio files, skip Music21 analysis
+                    features['key'] = "Unknown"
                     features['time_signature'] = "Unknown"
                     
             except Exception as e:

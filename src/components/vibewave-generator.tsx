@@ -68,39 +68,48 @@ const convertToCredits = (dollars: number, creditsRate: number): number => {
     return Math.ceil(credits / 5) * 5; // Round up to nearest 5
 };
 
-export const calculateLoopedBudget = (
-    totalDurationSeconds: number, 
-    trackCount: number, 
+export const calculateLoopedBudget = async (
+    totalDurationSeconds: number,
+    trackCount: number,
     pricingService: any,
     reuseVideo: boolean = false,
     videoType: 'looped-static' | 'looped-animated' = 'looped-static'
-): number => {
+): Promise<number> => {
     const totalMinutes = totalDurationSeconds / 60;
     const units = reuseVideo ? 1 : trackCount;
     
-    if (videoType === 'looped-static') {
-        const price = pricingService.calculateImagePrice(units, totalMinutes, 'clipizi-model');
-        return price.credits;
-    } else if (videoType === 'looped-animated') {
-        const price = pricingService.calculateLoopedAnimationPrice(units, totalMinutes, 'clipizi-model');
-        return price.credits;
+    try {
+        if (videoType === 'looped-static') {
+            const price = await pricingService.calculateImagePrice(units, totalMinutes, 'clipizi-model');
+            return price.credits;
+        } else if (videoType === 'looped-animated') {
+            const price = await pricingService.calculateLoopedAnimationPrice(units, totalMinutes, 'clipizi-model');
+            return price.credits;
+        }
+    } catch (error) {
+        console.error('Error calculating looped budget:', error);
     }
     
     return 100; // Fallback
 };
 
-export const calculateScenesBudget = (
+export const calculateScenesBudget = async (
     totalDurationSeconds: number,
     trackDurations: number[],
     pricingService: any,
     reuseVideo: boolean = false
-): number => {
+): Promise<number> => {
     const totalMinutes = totalDurationSeconds / 60;
     const longestTrackMinutes = Math.max(...trackDurations) / 60;
     const videoDuration = reuseVideo ? longestTrackMinutes : totalMinutes;
     
-    const price = pricingService.calculateVideoPrice(videoDuration, 'clipizi-model');
-    return price.credits;
+    try {
+        const price = await pricingService.calculateVideoPrice(videoDuration, 'clipizi-model');
+        return price.credits;
+    } catch (error) {
+        console.error('Error calculating scenes budget:', error);
+        return 100;
+    }
 };
 
 export const getScenesInfo = (

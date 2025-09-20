@@ -6,7 +6,7 @@ import os
 import uuid
 from datetime import datetime
 
-from ..processing.music.generator.particles.unified_particle_system import (
+from ..workflows.generator.particles.unified_particle_system import (
     UnifiedParticleSystem, 
     ParticleType, 
     ParticleConfig,
