@@ -39,9 +39,11 @@ next-env.d.ts
 
 .genkit/*
 .env*
-.venv
 
-logs/*
+.venv
+.api/tests
+@videomaking
+logs
 
 # firebase
 firebase-debug.log

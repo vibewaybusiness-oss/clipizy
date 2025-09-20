@@ -17,6 +17,7 @@ import { useMusicClipState } from "@/hooks/use-music-clip-state";
 import { useProjectManagement } from "@/hooks/use-project-management";
 import { useDragAndDrop } from "@/hooks/use-drag-and-drop";
 import { musicClipAPI } from "@/lib/api/music-clip";
+import { musicAnalysisAPI } from "@/lib/api/music-analysis";
 import { formatDuration, getTotalDuration, fileToDataUri } from "@/utils/music-clip-utils";
 import type { MusicTrack } from "@/types/music-clip";
 import { SettingsSchema, PromptSchema, OverviewSchema } from "@/components/clipizi-generator";
@@ -921,6 +922,62 @@ function MusicClipPage() {
       }
     }
     
+    // Start music analysis in parallel before proceeding to overview
+    try {
+      musicClipState.actions.setIsAnalyzingMusic(true);
+      
+      // Get tracks that have files (for analysis)
+      const tracksWithFiles = musicTracks.musicTracks.filter(track => track.file);
+      
+      if (tracksWithFiles.length > 0) {
+        console.log(`Starting parallel analysis for ${tracksWithFiles.length} tracks`);
+        
+        const analysisResults = await musicAnalysisAPI.analyzeTracksInParallel(tracksWithFiles);
+        
+        // Store analysis results in project data
+        const analysisData = {
+          music: analysisResults.reduce((acc, result) => {
+            if (!result.error) {
+              acc[result.trackId] = result.analysis;
+            }
+            return acc;
+          }, {} as Record<string, any>),
+          analyzed_at: new Date().toISOString(),
+          total_tracks: tracksWithFiles.length,
+          successful_analyses: analysisResults.filter(r => !r.error).length,
+          failed_analyses: analysisResults.filter(r => r.error).length
+        };
+        
+        // Save analysis data to project
+        if (projectManagement.state.currentProjectId) {
+          try {
+            await musicClipAPI.updateProjectAnalysis(projectManagement.state.currentProjectId, analysisData);
+            console.log('Analysis data saved to project');
+          } catch (error) {
+            console.error('Failed to save analysis data:', error);
+          }
+        }
+        
+        // Also save to localStorage for immediate access
+        if (typeof window !== 'undefined' && projectId) {
+          localStorage.setItem(`musicClip_${projectId}_analysis`, JSON.stringify(analysisData));
+        }
+        
+        console.log('Music analysis completed successfully');
+      } else {
+        console.log('No tracks with files to analyze');
+      }
+    } catch (error) {
+      console.error('Music analysis failed:', error);
+      toast({
+        variant: "destructive",
+        title: "Analysis Failed",
+        description: "Failed to analyze music tracks. You can continue without analysis.",
+      });
+    } finally {
+      musicClipState.actions.setIsAnalyzingMusic(false);
+    }
+    
     musicClipState.actions.setCurrentStep(3);
     musicClipState.actions.setMaxReachedStep(3);
   };
@@ -1536,12 +1593,21 @@ function MusicClipPage() {
                       <Button 
                         onClick={() => musicClipState.forms.settingsForm.handleSubmit(handleSettingsSubmit)()} 
                         className={`flex items-center space-x-2 text-white ${
-                          musicClipState.forms.settingsForm.formState.isValid ? 'btn-ai-gradient' : 'bg-muted text-foreground/50 cursor-not-allowed'
+                          musicClipState.forms.settingsForm.formState.isValid && !musicClipState.state.isAnalyzingMusic ? 'btn-ai-gradient' : 'bg-muted text-foreground/50 cursor-not-allowed'
                         }`}
-                        disabled={!musicClipState.forms.settingsForm.formState.isValid}
+                        disabled={!musicClipState.forms.settingsForm.formState.isValid || musicClipState.state.isAnalyzingMusic}
                       >
-                        <span>Continue</span>
-                        <ChevronRight className="w-4 h-4" />
+                        {musicClipState.state.isAnalyzingMusic ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <span>Analyzing Music...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Continue</span>
+                            <ChevronRight className="w-4 h-4" />
+                          </>
+                        )}
                       </Button>
                     )}
                     

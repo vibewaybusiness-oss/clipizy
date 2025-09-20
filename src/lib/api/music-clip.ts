@@ -314,6 +314,48 @@ export class MusicClipAPI {
     return response.json();
   }
 
+  async updateProjectAnalysis(projectId: string, analysisData: any): Promise<{ message: string; project_id: string }> {
+    // Validate project ID format
+    if (!isValidUUID(projectId)) {
+      throw new Error(`Invalid project ID format: '${projectId}'. Project ID must be a valid UUID.`);
+    }
+
+    const response = await fetch(`${this.baseUrl}/projects/${projectId}/analysis`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(analysisData),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(`Failed to update project analysis: ${errorData.error || response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getProjectAnalysis(projectId: string): Promise<{ analysis: any }> {
+    // Validate project ID format
+    if (!isValidUUID(projectId)) {
+      throw new Error(`Invalid project ID format: '${projectId}'. Project ID must be a valid UUID.`);
+    }
+
+    const response = await fetch(`${this.baseUrl}/projects/${projectId}/analysis`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(`Failed to get project analysis: ${errorData.error || response.statusText}`);
+    }
+
+    return response.json();
+  }
+
   async deleteProject(projectId: string): Promise<{ message: string; project_id: string }> {
     // Validate project ID format
     if (!isValidUUID(projectId)) {

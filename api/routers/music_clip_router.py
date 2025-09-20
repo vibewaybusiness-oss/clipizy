@@ -804,3 +804,78 @@ def reset_user_projects(
         logger.error(f"Failed to reset projects: {str(e)}")
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Failed to reset projects: {str(e)}")
+
+@router.put("/projects/{project_id}/analysis")
+def update_project_analysis(
+    project_id: str,
+    analysis_data: Dict[str, Any],
+    db: Session = Depends(get_db),
+    user_id: str = "00000000-0000-0000-0000-000000000001"
+):
+    """Update project analysis data."""
+    try:
+        # Ensure user exists and create if needed
+        user = user_safety_service.ensure_user_exists(db, user_id)
+        
+        # Get the project
+        project = db.query(Project).filter(
+            Project.id == project_id,
+            Project.user_id == user_id,
+            Project.type == "music-clip"
+        ).first()
+        
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        # Update project analysis data
+        if not project.analysis:
+            project.analysis = {}
+        
+        project.analysis.update(analysis_data)
+        db.commit()
+        db.refresh(project)
+        
+        logger.info(f"Updated analysis data for project {project_id}")
+        
+        return {
+            "message": "Analysis data updated successfully",
+            "project_id": project_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to update analysis for project {project_id}: {str(e)}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to update analysis: {str(e)}")
+
+@router.get("/projects/{project_id}/analysis")
+def get_project_analysis(
+    project_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = "00000000-0000-0000-0000-000000000001"
+):
+    """Get project analysis data."""
+    try:
+        # Ensure user exists and create if needed
+        user = user_safety_service.ensure_user_exists(db, user_id)
+        
+        # Get the project
+        project = db.query(Project).filter(
+            Project.id == project_id,
+            Project.user_id == user_id,
+            Project.type == "music-clip"
+        ).first()
+        
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        return {
+            "analysis": project.analysis or {}
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get analysis for project {project_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get analysis: {str(e)}")

@@ -30,6 +30,7 @@ export interface MusicClipState {
   isUploadingTracks: boolean;
   isGeneratingVideo: boolean;
   isLoadingExistingProject: boolean;
+  isAnalyzingMusic: boolean;
   
   // Settings and prompts
   settings: z.infer<typeof SettingsSchema> | null;
@@ -67,6 +68,7 @@ export interface MusicClipActions {
   setIsUploadingTracks: (isUploading: boolean) => void;
   setIsGeneratingVideo: (isGenerating: boolean) => void;
   setIsLoadingExistingProject: (isLoading: boolean) => void;
+  setIsAnalyzingMusic: (isAnalyzing: boolean) => void;
   
   // Settings and prompts
   setSettings: (settings: z.infer<typeof SettingsSchema>) => void;
@@ -143,6 +145,7 @@ export function useMusicClipState(projectId?: string | null) {
   const [isUploadingTracks, setIsUploadingTracks] = useState<boolean>(false);
   const [isGeneratingVideo, setIsGeneratingVideo] = useState<boolean>(false);
   const [isLoadingExistingProject, setIsLoadingExistingProject] = useState<boolean>(false);
+  const [isAnalyzingMusic, setIsAnalyzingMusic] = useState<boolean>(false);
   
   // SETTINGS AND PROMPTS STATE
   const [settings, setSettings] = useState<z.infer<typeof SettingsSchema> | null>(() => {
@@ -531,6 +534,7 @@ export function useMusicClipState(projectId?: string | null) {
     isUploadingTracks,
     isGeneratingVideo,
     isLoadingExistingProject,
+    isAnalyzingMusic,
     settings,
     prompts,
     sharedDescription,
@@ -550,6 +554,7 @@ export function useMusicClipState(projectId?: string | null) {
     isUploadingTracks,
     isGeneratingVideo,
     isLoadingExistingProject,
+    isAnalyzingMusic,
     settings,
     prompts,
     sharedDescription,
@@ -587,6 +592,7 @@ export function useMusicClipState(projectId?: string | null) {
     setIsUploadingTracks,
     setIsGeneratingVideo,
     setIsLoadingExistingProject,
+    setIsAnalyzingMusic,
     setSettings,
     setPrompts,
     setSharedDescription,
