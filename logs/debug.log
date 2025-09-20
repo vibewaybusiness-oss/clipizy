@@ -4368,3 +4368,43 @@ WHERE users.id = %(id_1)s::UUID
 2025-09-20 20:33:48 - services.prompt_service - INFO - <module>:19 - Available prompt types: ['music_prompts', 'image_prompts', 'video_prompts']
 2025-09-20 20:33:48 - services.prompt_service - INFO - <module>:28 - Loaded prompt rules from /home/unix/code/vibewave/api/config/prompt_rules.json
 2025-09-20 20:33:48 - services.project_service - INFO - __init__:15 - UserSafetyService initialized
+2025-09-20 20:33:50 - services.storage_service - INFO - __init__:16 - StorageService initialized with bucket: clipizi, endpoint: http://localhost:9000
+2025-09-20 20:33:50 - services.auth_service - INFO - __init__:27 - AuthService initialized
+2025-09-20 20:33:50 - services.project_service - INFO - __init__:18 - PointsService initialized
+2025-09-20 20:33:50 - services.project_service - INFO - __init__:24 - StripeService initialized
+2025-09-20 20:33:50 - services.project_service - WARNING - __init__:26 - STRIPE_SECRET_KEY not found in environment variables
+2025-09-20 20:33:50 - services.project_service - INFO - __init__:16 - ProjectService initialized
+2025-09-20 20:33:50 - services.prompt_service - INFO - <module>:18 - Loaded prompts from /home/unix/code/vibewave/api/config/prompts_random.json
+2025-09-20 20:33:50 - services.prompt_service - INFO - <module>:19 - Available prompt types: ['music_prompts', 'image_prompts', 'video_prompts']
+2025-09-20 20:33:50 - services.prompt_service - INFO - <module>:28 - Loaded prompt rules from /home/unix/code/vibewave/api/config/prompt_rules.json
+2025-09-20 20:33:50 - services.project_service - INFO - __init__:15 - UserSafetyService initialized
+2025-09-20 20:33:59 - services.storage_service - INFO - __init__:16 - StorageService initialized with bucket: clipizi, endpoint: http://localhost:9000
+2025-09-20 20:33:59 - services.auth_service - INFO - __init__:27 - AuthService initialized
+2025-09-20 20:34:00 - services.project_service - INFO - __init__:18 - PointsService initialized
+2025-09-20 20:34:01 - services.project_service - INFO - __init__:24 - StripeService initialized
+2025-09-20 20:34:01 - services.project_service - WARNING - __init__:26 - STRIPE_SECRET_KEY not found in environment variables
+2025-09-20 20:34:01 - services.project_service - INFO - __init__:16 - ProjectService initialized
+2025-09-20 20:34:01 - services.prompt_service - INFO - <module>:18 - Loaded prompts from \\wsl.localhost\Ubuntu\home\unix\code\vibewave\api\config\prompts_random.json
+2025-09-20 20:34:01 - services.prompt_service - INFO - <module>:19 - Available prompt types: ['music_prompts', 'image_prompts', 'video_prompts']
+2025-09-20 20:34:01 - services.prompt_service - INFO - <module>:28 - Loaded prompt rules from \\wsl.localhost\Ubuntu\home\unix\code\vibewave\api\config\prompt_rules.json
+2025-09-20 20:34:01 - services.project_service - INFO - __init__:15 - UserSafetyService initialized
+2025-09-20 20:35:35 - services.storage_service - INFO - __init__:16 - StorageService initialized with bucket: clipizi, endpoint: http://localhost:9000
+2025-09-20 20:35:35 - services.auth_service - INFO - __init__:27 - AuthService initialized
+2025-09-20 20:35:35 - services.project_service - INFO - __init__:18 - PointsService initialized
+2025-09-20 20:35:35 - services.project_service - INFO - __init__:24 - StripeService initialized
+2025-09-20 20:35:35 - services.project_service - WARNING - __init__:26 - STRIPE_SECRET_KEY not found in environment variables
+2025-09-20 20:35:35 - services.project_service - INFO - __init__:16 - ProjectService initialized
+2025-09-20 20:35:35 - services.prompt_service - INFO - <module>:18 - Loaded prompts from /home/unix/code/vibewave/api/config/prompts_random.json
+2025-09-20 20:35:35 - services.prompt_service - INFO - <module>:19 - Available prompt types: ['music_prompts', 'image_prompts', 'video_prompts']
+2025-09-20 20:35:35 - services.prompt_service - INFO - <module>:28 - Loaded prompt rules from /home/unix/code/vibewave/api/config/prompt_rules.json
+2025-09-20 20:35:35 - services.project_service - INFO - __init__:15 - UserSafetyService initialized
+2025-09-20 20:36:48 - services.storage_service - INFO - __init__:16 - StorageService initialized with bucket: clipizi, endpoint: http://localhost:9000
+2025-09-20 20:36:49 - services.auth_service - INFO - __init__:27 - AuthService initialized
+2025-09-20 20:36:49 - services.project_service - INFO - __init__:18 - PointsService initialized
+2025-09-20 20:36:50 - services.project_service - INFO - __init__:24 - StripeService initialized
+2025-09-20 20:36:50 - services.project_service - WARNING - __init__:26 - STRIPE_SECRET_KEY not found in environment variables
+2025-09-20 20:36:50 - services.project_service - INFO - __init__:16 - ProjectService initialized
+2025-09-20 20:36:50 - services.prompt_service - INFO - <module>:18 - Loaded prompts from \\wsl.localhost\Ubuntu\home\unix\code\vibewave\api\config\prompts_random.json
+2025-09-20 20:36:50 - services.prompt_service - INFO - <module>:19 - Available prompt types: ['music_prompts', 'image_prompts', 'video_prompts']
+2025-09-20 20:36:50 - services.prompt_service - INFO - <module>:28 - Loaded prompt rules from \\wsl.localhost\Ubuntu\home\unix\code\vibewave\api\config\prompt_rules.json
+2025-09-20 20:36:50 - services.project_service - INFO - __init__:15 - UserSafetyService initialized
