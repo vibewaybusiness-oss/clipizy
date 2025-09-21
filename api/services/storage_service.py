@@ -26,7 +26,7 @@ class StorageService:
     
     def generate_music_clip_path(self, user_id: str, project_id: str, file_type: str, filename: str) -> str:
         """Generate a music-clip specific path for S3 storage"""
-        path = f"{user_id}/music-clip/{project_id}/{file_type}/{filename}"
+        path = f"users/{user_id}/music-clip/projects/{project_id}/{file_type}/{filename}"
         logger.debug(f"Generated music-clip path: {path}")
         return path
     
@@ -122,5 +122,12 @@ class StorageService:
             logger.error(f"Presigned URL generation failed for {key}: {str(e)}")
             raise
 
-# Create a default instance
-storage_service = StorageService()
+# Create a default instance with proper configuration
+def get_storage_service():
+    from api.config import settings
+    return StorageService(
+        bucket=settings.s3_bucket,
+        endpoint_url=settings.s3_endpoint_url
+    )
+
+storage_service = get_storage_service()

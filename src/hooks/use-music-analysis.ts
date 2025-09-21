@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useToast } from './use-toast';
 import { musicAnalysisAPI } from '@/lib/api/music-analysis';
+import { autoSaveService } from '@/lib/auto-save-service';
 import type { MusicTrack } from '@/types/music-clip';
 
 export interface AnalysisData {
@@ -27,6 +28,11 @@ export function useMusicAnalysis(projectId?: string | null) {
   useEffect(() => {
     if (typeof window !== 'undefined' && projectId && analysisData) {
       localStorage.setItem(`musicClip_${projectId}_analysis`, JSON.stringify(analysisData));
+      
+      // Schedule auto-save to backend
+      autoSaveService.scheduleSave(projectId, {
+        analysisData
+      });
     }
   }, [analysisData, projectId]);
 

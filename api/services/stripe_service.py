@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from api.models import User, Payment
 from api.models.payment import PaymentStatus, PaymentMethod
 from api.schemas import PaymentIntentCreate, PaymentIntentResponse, PaymentWebhookData
-from api.services.points_service import points_service
+from api.services.pricing_service import points_service
 from api.config.logging import get_project_logger
 from typing import Optional, Dict, Any
 import json

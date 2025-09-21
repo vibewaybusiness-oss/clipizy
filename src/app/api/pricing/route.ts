@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     // Fetch pricing configuration from the backend API
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
+    const backendUrl = process.env.BACKEND_URL || 'http://127.0.0.1:8000';
     const response = await fetch(`${backendUrl}/pricing/config`);
     
     if (!response.ok) {

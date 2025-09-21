@@ -25,8 +25,12 @@ from api.schemas.comfyui import WorkflowType, ActivePod, WorkflowRequest
 # --- env + config ------------------------------------------------------------
 
 CWD = Path(os.getcwd())
-load_dotenv(CWD / ".env")
-load_dotenv(CWD / ".env.local", override=True)
+# Load .env files safely, ignore errors
+try:
+    load_dotenv(CWD / ".env")
+    load_dotenv(CWD / ".env.local", override=True)
+except Exception as e:
+    print(f"Warning: Could not load .env files: {e}")
 
 # Load both configuration files
 # Handle both cases: running from root or from api directory

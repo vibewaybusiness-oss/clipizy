@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, DateTime, Integer, ForeignKey, Text, Enum
-from sqlalchemy.dialects.postgresql import UUID
+from api.db import GUID
 from sqlalchemy.orm import relationship
 from api.db import Base
 import enum
@@ -17,8 +17,8 @@ class PointsTransactionType(str, enum.Enum):
 class PointsTransaction(Base):
     __tablename__ = "points_transactions"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     
     transaction_type = Column(Enum(PointsTransactionType), nullable=False)
     amount = Column(Integer, nullable=False)  # Positive for earned/purchased, negative for spent

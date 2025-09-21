@@ -1,15 +1,15 @@
 import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, DateTime, ForeignKey, Integer
-from sqlalchemy.dialects.postgresql import UUID
+from api.db import GUID
 from sqlalchemy.orm import relationship
 from api.db import Base
 
 class Export(Base):
     __tablename__ = "exports"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    project_id = Column(GUID(), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
 
     file_path = Column(String, nullable=False)   # final_video/final_v1.mp4
     format = Column(String, nullable=True)       # mp4 | mov | gif

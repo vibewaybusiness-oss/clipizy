@@ -12,14 +12,23 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from api.db import get_db, create_tables
 from api.models import User
 from api.services.auth_service import auth_service
+from api.fallback_db import setup_fallback_database
 
 def create_default_user():
     """Create a default user with the hardcoded ID used in music-clip router"""
-    # Create tables first
-    create_tables()
+    # Set up fallback database first
+    setup_fallback_database()
     
-    # Get database session
-    db = next(get_db())
+    # Create tables using SQLite engine directly
+    from api.fallback_db import create_fallback_engine
+    from api.db import Base
+    engine = create_fallback_engine()
+    Base.metadata.create_all(bind=engine)
+    
+    # Create session using SQLite engine
+    from sqlalchemy.orm import sessionmaker
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    db = SessionLocal()
     
     try:
         # Check if user already exists

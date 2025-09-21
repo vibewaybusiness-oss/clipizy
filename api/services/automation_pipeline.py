@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from api.models import Project, Export, Job, SocialAccount
 from api.services.social_media_service import SocialMediaService
 from api.services.job_service import JobService
-from api.services.export_service import ExportService
+from api.services.media_service import MediaService
 from api.storage.json_store import JSONStore
 import logging
 
@@ -21,7 +21,7 @@ class AutomationPipeline:
         self.json_store = json_store
         self.social_media_service = SocialMediaService(json_store)
         self.job_service = JobService(json_store)
-        self.export_service = ExportService(None, json_store)  # Storage will be injected
+        self.media_service = MediaService(None, json_store)  # Storage will be injected
 
     async def create_automated_workflow(
         self, 

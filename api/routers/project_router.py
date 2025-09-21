@@ -55,10 +55,12 @@ def upload_audio_file(
     if ext not in [".mp3", ".wav", ".flac", ".aac", ".m4a"]:
         raise HTTPException(status_code=400, detail="Invalid file type")
 
-    # Generate S3 path
-    s3_key = storage_service.generate_project_path(
+    # Generate S3 path with proper user directory structure
+    s3_key = storage_service.generate_music_clip_path(
+        user_id=str(current_user.id),
         project_id=project_id,
-        filename=f"music/{uuid.uuid4()}{ext}"
+        file_type="music",
+        filename=f"{uuid.uuid4()}{ext}"
     )
     file_url = storage_service.upload_file_object(file.file, s3_key, content_type=file.content_type)
 

@@ -179,6 +179,37 @@ class MusicTheoryCategorizer:
             print(f"Error analyzing audio: {e}")
             return {}
     
+    def analyze_audio_features_from_array(self, y: np.ndarray, sr: int) -> Dict[str, Any]:
+        """Extract comprehensive audio features from audio array using librosa"""
+        try:
+            features = {}
+            
+            features['duration'] = len(y) / sr
+            tempo, beats = librosa.beat.beat_track(y=y, sr=sr)
+            features['tempo'] = float(tempo)
+            
+            spectral_centroids = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
+            features['spectral_centroid'] = float(np.mean(spectral_centroids))
+            
+            rms = librosa.feature.rms(y=y)[0]
+            features['rms_energy'] = float(np.mean(rms))
+            
+            harmonic, percussive = librosa.effects.hpss(y)
+            features['harmonic_ratio'] = float(np.sum(harmonic**2) / (np.sum(harmonic**2) + np.sum(percussive**2)))
+            
+            onset_frames = librosa.onset.onset_detect(y=y, sr=sr)
+            features['onset_rate'] = len(onset_frames) / (len(y) / sr)
+            
+            # For segment analysis, we'll skip music21 analysis as it requires file paths
+            features['key'] = 'Unknown'
+            features['time_signature'] = 'Unknown'
+            
+            return features
+            
+        except Exception as e:
+            print(f"Error analyzing audio array: {e}")
+            return {}
+    
     def calculate_genre_scores(self, features: Dict[str, Any], metadata: Dict[str, Any]) -> Dict[str, float]:
         """Calculate genre scores based on audio features and metadata"""
         scores = {}
@@ -367,17 +398,61 @@ class MusicAnalyzerService:
         self.peak_detector = MusicPeakDetector()
     
     async def analyze_music_comprehensive(self, file_path: str) -> Dict[str, Any]:
-        """Perform comprehensive music analysis including theory, genre, and peaks"""
+        """Perform comprehensive music analysis including theory, genre, peaks, and segmentation"""
         try:
-            # Extract metadata
+            # Read audio file as bytes for the complete workflow
+            with open(file_path, 'rb') as audio_file:
+                audio_data = audio_file.read()
+            
+            # Use the complete music_analyzer workflow
+            import sys
+            import os
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            analyzer_dir = os.path.join(current_dir, '..', 'workflows', 'analyzer')
+            sys.path.insert(0, analyzer_dir)
+            
+            try:
+                from music_analyzer import analyze_audio_bytes
+            except ImportError:
+                import importlib.util
+                spec = importlib.util.spec_from_file_location("music_analyzer", os.path.join(analyzer_dir, "music_analyzer.py"))
+                music_analyzer = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(music_analyzer)
+                analyze_audio_bytes = music_analyzer.analyze_audio_bytes
+            
+            # Perform comprehensive analysis with segmentation
+            try:
+                result = analyze_audio_bytes(
+                    data=audio_data,
+                    create_plot=False,  # No visualization for API
+                    audio_file=os.path.basename(file_path),
+                    use_beat_energy=True,
+                    short_ma_beats=4,
+                    long_ma_beats=16,
+                    min_gap_seconds=11.0
+                )
+            except Exception as e:
+                # If segmentation fails, try with simpler parameters
+                print(f"Segmentation failed with complex parameters: {e}")
+                print("Trying with simpler parameters...")
+                result = analyze_audio_bytes(
+                    data=audio_data,
+                    create_plot=False,  # No visualization for API
+                    audio_file=os.path.basename(file_path),
+                    use_beat_energy=False,  # Disable beat energy segmentation
+                    short_ma_beats=4,
+                    long_ma_beats=16,
+                    min_gap_seconds=2.0  # Shorter minimum gap
+                )
+            
+            # Extract metadata using existing service
             metadata = self.theory_categorizer.extract_metadata(file_path)
             
-            # Analyze audio features
+            # Calculate genre scores using existing service
             features = self.theory_categorizer.analyze_audio_features(file_path)
             if not features:
                 raise HTTPException(status_code=400, detail="Could not analyze audio features")
             
-            # Calculate genre scores
             genre_scores = self.theory_categorizer.calculate_genre_scores(features, metadata)
             
             # Get predicted genre
@@ -385,10 +460,56 @@ class MusicAnalyzerService:
             predicted_genre = sorted_scores[0][0] if sorted_scores else "Unknown"
             confidence = sorted_scores[0][1] * 100 if sorted_scores else 0
             
-            # Detect peaks
+            # Detect peaks using existing service
             peak_analysis = self.peak_detector.detect_music_peaks(file_path)
             
-            return {
+            # Process segments from segments_sec
+            segments_sec = result.get('segments_sec', [])
+            segments = []
+            segment_analysis = []
+            
+            if len(segments_sec) > 1:
+                # Load audio for segment analysis
+                import librosa
+                y, sr = librosa.load(file_path, sr=22050)
+                
+                for i in range(len(segments_sec) - 1):
+                    start_time = segments_sec[i]
+                    end_time = segments_sec[i + 1]
+                    
+                    # Create segment object
+                    segment = {
+                        'segment_index': i,
+                        'start_time': start_time,
+                        'end_time': end_time,
+                        'duration': end_time - start_time
+                    }
+                    segments.append(segment)
+                    
+                    # Extract segment audio for analysis
+                    start_frame = int(start_time * sr)
+                    end_frame = int(end_time * sr)
+                    segment_audio = y[start_frame:end_frame]
+                    
+                    if len(segment_audio) > 0:
+                        # Analyze segment features using the theory categorizer
+                        segment_features = self.theory_categorizer.analyze_audio_features_from_array(segment_audio, sr)
+                        if segment_features:
+                            segment_features['start_time'] = start_time
+                            segment_features['end_time'] = end_time
+                            segment_features['duration'] = end_time - start_time
+                            
+                            # Generate descriptors for segment
+                            segment_descriptors = self.simple_analyzer.generate_music_descriptors(segment_features)
+                            
+                            # Add analysis to segment
+                            segment['features'] = segment_features
+                            segment['descriptors'] = segment_descriptors
+                            
+                            segment_analysis.append(segment)
+            
+            # Combine all results
+            comprehensive_result = {
                 'file_path': file_path,
                 'metadata': metadata,
                 'features': features,
@@ -396,10 +517,25 @@ class MusicAnalyzerService:
                 'predicted_genre': predicted_genre,
                 'confidence': confidence,
                 'peak_analysis': peak_analysis,
-                'analysis_timestamp': str(np.datetime64('now'))
+                'analysis_timestamp': str(np.datetime64('now')),
+                # Add segmentation results from music_analyzer
+                'segments_sec': segments_sec,
+                'segments': segments,
+                'segment_analysis': segment_analysis,
+                'beat_times_sec': result.get('beat_times_sec', []),
+                'downbeats_sec': result.get('downbeats_sec', []),
+                'tempo': result.get('tempo', 0),
+                'duration': result.get('duration', 0),
+                'debug': result.get('debug', {})
             }
             
+            return comprehensive_result
+            
         except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"Music analysis error: {str(e)}")
+            print(f"Full traceback: {error_details}")
             raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
     
     async def analyze_music_simple(self, file_path: str) -> Dict[str, Any]:

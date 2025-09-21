@@ -70,6 +70,10 @@ async def analyze_music_comprehensive(
                 os.unlink(tmp_file_path)
                 
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Router error: {str(e)}")
+        print(f"Full traceback: {error_details}")
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 @router.post("/analyze/simple")

@@ -37,6 +37,8 @@ from api.routers import (
 from api.services.comfyui_service import get_comfyui_manager
 from api.services.queues_service import get_queue_manager
 from api.db import create_tables
+from api.config import settings
+from api.fallback_db import setup_fallback_database
 
 class LargeBodyMiddleware(BaseHTTPMiddleware):
     """Middleware to handle large request bodies"""
@@ -80,10 +82,17 @@ async def lifespan(app: FastAPI):
     
     # Create database tables
     try:
+        from api.db import create_tables
         create_tables()
         print("✅ Database tables created/verified")
     except Exception as e:
         print(f"⚠️ Database table creation failed: {e}")
+        # Try fallback database if main database fails
+        try:
+            setup_fallback_database()
+            print("✅ Fallback database setup successful")
+        except Exception as fallback_error:
+            print(f"⚠️ Fallback database setup failed: {fallback_error}")
     
     # Initialize ComfyUI manager
     try:
@@ -131,12 +140,12 @@ app = FastAPI(
 )
 
 # Add middleware for large request bodies (100MB limit)
-app.add_middleware(LargeBodyMiddleware, max_body_size=100 * 1024 * 1024)
+# app.add_middleware(LargeBodyMiddleware, max_body_size=100 * 1024 * 1024)  # Disabled to fix upload timeout
 
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

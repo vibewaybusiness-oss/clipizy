@@ -267,7 +267,9 @@ class AnalysisService:
         except FileNotFoundError:
             return {"error": f"Audio file not found: {file_path}"}
         except Exception as e:
-            return {"error": f"Analysis failed: {str(e)}"}
+            import traceback
+            error_details = traceback.format_exc()
+            return {"error": f"Analysis failed: {str(e)}", "traceback": error_details}
     
     def analyze_video(self, file_path: str) -> Dict[str, Any]:
         """Analyze video file and return analysis results"""

@@ -186,6 +186,12 @@ const WaveformVisualizer = forwardRef<WaveformVisualizerRef, WaveformVisualizerP
 
   useEffect(() => {
     if (audioFile) {
+      // Validate that audioFile is actually a File or Blob object
+      if (!(audioFile instanceof File) && !(audioFile instanceof Blob)) {
+        console.warn('WaveformVisualizer: audioFile is not a File or Blob object:', typeof audioFile);
+        return;
+      }
+      
       const audio = new Audio(URL.createObjectURL(audioFile));
       audioRef.current = audio;
       

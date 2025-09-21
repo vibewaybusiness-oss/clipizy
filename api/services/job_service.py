@@ -44,7 +44,7 @@ class JobService:
         logger.info(f"Starting job execution: {job.id} (type: {job.type})")
         try:
             # Import services here to avoid circular imports
-            from . import track_service, video_service, image_service, export_service
+            from . import media_service
             from . import pricing_service as price_service
             from . import videomaking_service
             
@@ -59,19 +59,19 @@ class JobService:
 
             elif job.type == "music_generation":
                 logger.info(f"Executing music generation for job {job.id}")
-                result = track_service.handle_music(db, job.project_id, job.params, job.user_id, storage, self.json_store)
+                result = media_service.handle_music(db, job.project_id, job.params, job.user_id, storage, self.json_store)
 
             elif job.type == "music_analysis":
                 logger.info(f"Executing music analysis for job {job.id}")
-                result = track_service.analyze_track(job.project_id, storage, self.json_store)
+                result = media_service.analyze_track(job.project_id, storage, self.json_store)
 
             elif job.type == "image_generation":
                 logger.info(f"Executing image generation for job {job.id}")
-                result = image_service.generate_images(db, job.project_id, job.params, storage, self.json_store)
+                result = media_service.generate_images(db, job.project_id, job.params, job.user_id)
 
             elif job.type == "video_generation":
                 logger.info(f"Executing video generation for job {job.id}")
-                result = video_service.generate_videos(db, job.project_id, job.params, storage, self.json_store)
+                result = media_service.generate_videos(db, job.project_id, job.params, job.user_id)
 
             elif job.type == "videomaking":
                 logger.info(f"Executing videomaking for job {job.id}")

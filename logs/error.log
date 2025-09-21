@@ -312,3 +312,267 @@ connection to server at "localhost" (127.0.0.1), port 5432 failed: Connection re
 	Is the server running on that host and accepting TCP/IP connections?
 
 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-21 02:09:42 - services.project_service - ERROR - ensure_project_folders_exist:99 - Error creating S3 project folders: 'Settings' object has no attribute 's3_endpoint'
+2025-09-21 02:09:46 - services.project_service - ERROR - ensure_project_folders_exist:99 - Error creating S3 project folders: 'Settings' object has no attribute 's3_endpoint'
+2025-09-21 02:09:51 - services.project_service - ERROR - ensure_project_folders_exist:99 - Error creating S3 project folders: 'Settings' object has no attribute 's3_endpoint'
+2025-09-21 02:11:11 - services.project_service - ERROR - ensure_project_folders_exist:99 - Error creating S3 project folders: 'Settings' object has no attribute 's3_endpoint'
+2025-09-21 02:41:22 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 02:41:22 - services.project_service - ERROR - list_music_clip_projects:73 - Failed to list music-clip projects: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/home/unix/code/vibewave/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/unix/code/vibewave/.venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedTable: relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/unix/code/vibewave/api/routers/music_clip_router.py", line 28, in list_music_clip_projects
+    user = user_safety_service.ensure_user_exists(db, user_id)
+  File "/home/unix/code/vibewave/api/services/user_safety_service.py", line 21, in ensure_user_exists
+    user = db.query(User).filter(User.id == user_id).first()
+  File "/home/unix/code/vibewave/.venv/lib/python3.10/site-packages/sqlalchemy/orm/query.py", line 2748, in first
+    return self.limit(1)._iter().first()  # type: ignore
+  File "/home/unix/code/vibewave/.venv/lib/python3.10/site-packages/sqlalchemy/orm/query.py", line 2847, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+  File "/home/unix/code/vibewave/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2308, in execute
+    return self._execute_internal(
+  File "/home/unix/code/vibewave/.venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2190, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+  File "/home/unix/code/vibewave/.venv/lib/python3.10/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+  File "/home/unix/code/vibewave/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
+    return meth(
+  File "/home/unix/code/vibewave/.venv/lib/python3.10/site-packages/sqlalchemy/sql/elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+  File "/home/unix/code/vibewave/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1639, in _execute_clauseelement
+    ret = self._execute_context(
+  File "/home/unix/code/vibewave/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+  File "/home/unix/code/vibewave/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/unix/code/vibewave/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 2343, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/unix/code/vibewave/.venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/unix/code/vibewave/.venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 02:51:41 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (sqlite3.OperationalError) database is locked
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users."plan" AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('00000000-0000-0000-0000-000000000001', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-21 04:23:30 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:23:30 - services.project_service - ERROR - update_project_settings:493 - Failed to update project settings: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:23:31 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:23:31 - services.project_service - ERROR - update_project_settings:493 - Failed to update project settings: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:23:33 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:23:33 - services.project_service - ERROR - update_project_settings:493 - Failed to update project settings: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:23:38 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:23:38 - services.project_service - ERROR - update_project_settings:493 - Failed to update project settings: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:23:58 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:23:58 - services.project_service - ERROR - update_project_settings:493 - Failed to update project settings: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:23:58 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:23:58 - services.project_service - ERROR - update_project_settings:493 - Failed to update project settings: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:24:01 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:24:01 - services.project_service - ERROR - update_project_settings:493 - Failed to update project settings: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:24:05 - services.project_service - ERROR - ensure_user_exists:53 - Error ensuring user exists: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:24:05 - services.project_service - ERROR - update_project_settings:493 - Failed to update project settings: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:28:19 - services.project_service - ERROR - get_user_balance:44 - Error getting user balance for 00000000-0000-0000-0000-000000000001: (psycopg2.errors.UndefinedTable) relation "users" does not exist
+LINE 2: FROM users 
+             ^
+
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.hashed_password AS users_hashed_password, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.is_verified AS users_is_verified, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login AS users_last_login, users.avatar_url AS users_avatar_url, users.bio AS users_bio, users.settings AS users_settings, users.plan AS users_plan, users.billing_id AS users_billing_id, users.total_projects AS users_total_projects, users.storage_used_bytes AS users_storage_used_bytes, users.points_balance AS users_points_balance, users.total_points_earned AS users_total_points_earned, users.total_points_spent AS users_total_points_spent 
+FROM users 
+WHERE users.id = %(id_1)s::UUID 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-09-21 04:28:19 - services.project_service - ERROR - get_transaction_history:143 - Error getting transaction history for user 00000000-0000-0000-0000-000000000001: (psycopg2.errors.UndefinedTable) relation "points_transactions" does not exist
+LINE 2: FROM points_transactions 
+             ^
+
+[SQL: SELECT points_transactions.id AS points_transactions_id, points_transactions.user_id AS points_transactions_user_id, points_transactions.transaction_type AS points_transactions_transaction_type, points_transactions.amount AS points_transactions_amount, points_transactions.balance_after AS points_transactions_balance_after, points_transactions.description AS points_transactions_description, points_transactions.reference_id AS points_transactions_reference_id, points_transactions.reference_type AS points_transactions_reference_type, points_transactions.created_at AS points_transactions_created_at 
+FROM points_transactions 
+WHERE points_transactions.user_id = %(user_id_1)s::UUID ORDER BY points_transactions.created_at DESC 
+ LIMIT %(param_1)s]
+[parameters: {'user_id_1': '00000000-0000-0000-0000-000000000001', 'param_1': 50}]
+(Background on this error at: https://sqlalche.me/e/20/f405)

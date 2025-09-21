@@ -36,13 +36,8 @@ def setup_fallback_database():
     # Set environment variable to use SQLite
     os.environ["DATABASE_URL"] = get_fallback_database_url()
     
-    # Import and create tables
-    from api.db import Base
-    engine = create_fallback_engine()
-    Base.metadata.create_all(bind=engine)
-    
     print("✅ Fallback SQLite database ready!")
-    return engine
+    return True
 
 if __name__ == "__main__":
     setup_fallback_database()

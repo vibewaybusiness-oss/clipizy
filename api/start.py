@@ -27,9 +27,18 @@ def create_database_tables():
     Create database tables if they don't exist
     """
     try:
-        from api.db import create_tables
-        create_tables()
-        print("✅ Database tables created/verified")
+        # Check if we're using SQLite or PostgreSQL
+        db_url = os.environ.get("DATABASE_URL", "sqlite:///./vibewave_fresh.db")
+        if db_url.startswith("sqlite"):
+            from api.fallback_db import create_fallback_engine
+            from api.db import Base
+            engine = create_fallback_engine()
+            Base.metadata.create_all(bind=engine)
+            print("✅ SQLite database tables created/verified")
+        else:
+            from api.db import create_tables
+            create_tables()
+            print("✅ Database tables created/verified")
         return True
     except Exception as e:
         print(f"❌ Failed to create database tables: {e}")
@@ -49,7 +58,9 @@ def setup_fallback_database():
 
 if __name__ == "__main__":
     # Set environment variables
-    os.environ.setdefault("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/clipizi")
+    # Only set default if not already set by the calling script
+    if "DATABASE_URL" not in os.environ:
+        os.environ.setdefault("DATABASE_URL", "sqlite:///./vibewave_fresh.db")
     os.environ.setdefault("BACKEND_URL", "http://localhost:8000")
     # Set uvicorn configuration for large request bodies
     os.environ.setdefault("UVICORN_LIMIT_MAX_REQUESTS", "1000")
@@ -57,14 +68,24 @@ if __name__ == "__main__":
     os.environ.setdefault("UVICORN_TIMEOUT_KEEP_ALIVE", "30")
     
     print("🔍 Checking database health before starting FastAPI...")
-    if not check_database_health():
-        print("⚠️  PostgreSQL is not available. Trying fallback SQLite database...")
+    print(f"🗄️  Using database URL: {os.environ.get('DATABASE_URL', 'Not set')}")
+    
+    # Check if we're using SQLite (default) or PostgreSQL
+    db_url = os.environ.get('DATABASE_URL', 'sqlite:///./vibewave_fresh.db')
+    if db_url.startswith('sqlite://'):
+        print("✅ Using SQLite database (no health check needed)")
         if not setup_fallback_database():
-            print("❌ Failed to setup any database. Exiting.")
+            print("❌ Failed to setup SQLite database. Exiting.")
             sys.exit(1)
-        print("✅ Using SQLite fallback database.")
     else:
-        print("✅ PostgreSQL database is ready.")
+        if not check_database_health():
+            print("⚠️  PostgreSQL is not available. Trying fallback SQLite database...")
+            if not setup_fallback_database():
+                print("❌ Failed to setup any database. Exiting.")
+                sys.exit(1)
+            print("✅ Using SQLite fallback database.")
+        else:
+            print("✅ PostgreSQL database is ready.")
     
     # Create database tables
     print("🔧 Creating/verifying database tables...")
@@ -83,5 +104,6 @@ if __name__ == "__main__":
         log_level="info",
         limit_max_requests=1000,
         limit_concurrency=1000,
-        timeout_keep_alive=30
+        timeout_keep_alive=300,  # 5 minutes for large file uploads
+        timeout_graceful_shutdown=30
     )

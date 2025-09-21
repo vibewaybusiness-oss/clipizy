@@ -48,7 +48,20 @@ interface ProjectScript {
 }
 
 export class MusicClipAPI {
-  private baseUrl = '/api/music-clip';
+  private baseUrl: string;
+
+  constructor() {
+    // Check if we're in a server-side context
+    if (typeof window === 'undefined') {
+      // Server-side: use full URL
+      this.baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL 
+        ? `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/music-clip`
+        : 'http://localhost:3000/api/music-clip';
+    } else {
+      // Client-side: use relative URL
+      this.baseUrl = '/api/music-clip';
+    }
+  }
 
   async createProject(name?: string, description?: string): Promise<{ project_id: string; name: string; description?: string; status: string; created_at: string }> {
     const response = await fetch(`${this.baseUrl}/projects`, {

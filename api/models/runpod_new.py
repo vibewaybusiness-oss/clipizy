@@ -3,7 +3,7 @@
 # ----------------------------------------------------------
 
 from sqlalchemy import Column, String, Text, DateTime, Boolean, Integer, Float, JSON, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from api.db import GUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -15,7 +15,7 @@ class RunPodUser(Base):
     """Database model for RunPod users"""
     __tablename__ = "runpod_users"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     runpod_user_id = Column(String(255), unique=True, nullable=False, index=True)
     email = Column(String(255), nullable=False, unique=True)
     min_balance = Column(Float, default=0.0)
@@ -33,7 +33,7 @@ class RunPodPod(Base):
     """Database model for RunPod pods"""
     __tablename__ = "runpod_pods"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     runpod_pod_id = Column(String(255), unique=True, nullable=False, index=True)
     name = Column(String(255), nullable=False)
     image_name = Column(String(255), nullable=False)
@@ -63,7 +63,7 @@ class RunPodPod(Base):
     last_used_at = Column(DateTime)
     terminated_at = Column(DateTime)
     
-    user_id = Column(UUID(as_uuid=True), ForeignKey("runpod_users.id"), nullable=False, index=True)
+    user_id = Column(GUID(), ForeignKey("runpod_users.id"), nullable=False, index=True)
     
     user = relationship("RunPodUser", back_populates="pods")
     executions = relationship("RunPodExecution", back_populates="pod")
@@ -76,7 +76,7 @@ class RunPodExecution(Base):
     """Database model for RunPod workflow executions"""
     __tablename__ = "runpod_executions"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     execution_id = Column(String(255), unique=True, nullable=False, index=True)
     
     workflow_name = Column(String(100), nullable=False, index=True)
@@ -86,7 +86,7 @@ class RunPodExecution(Base):
     outputs = Column(JSON)
     error = Column(Text)
     
-    pod_id = Column(UUID(as_uuid=True), ForeignKey("runpod_pods.id"), nullable=False, index=True)
+    pod_id = Column(GUID(), ForeignKey("runpod_pods.id"), nullable=False, index=True)
     
     prompt_id = Column(String(255), index=True)
     
@@ -94,8 +94,8 @@ class RunPodExecution(Base):
     started_at = Column(DateTime)
     completed_at = Column(DateTime)
     
-    user_id = Column(UUID(as_uuid=True), index=True)
-    project_id = Column(UUID(as_uuid=True), index=True)
+    user_id = Column(GUID(), index=True)
+    project_id = Column(GUID(), index=True)
     
     credits_spent = Column(Integer, default=0)
     execution_time_seconds = Column(Integer)
@@ -109,7 +109,7 @@ class RunPodNetworkVolume(Base):
     """Database model for RunPod network volumes"""
     __tablename__ = "runpod_network_volumes"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     runpod_volume_id = Column(String(255), unique=True, nullable=False, index=True)
     name = Column(String(255), nullable=False)
     size = Column(Float, nullable=False)
@@ -128,7 +128,7 @@ class RunPodGpuType(Base):
     """Database model for RunPod GPU types"""
     __tablename__ = "runpod_gpu_types"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     runpod_gpu_id = Column(String(255), unique=True, nullable=False, index=True)
     display_name = Column(String(255), nullable=False)
     memory_in_gb = Column(Float, nullable=False)
@@ -147,7 +147,7 @@ class RunPodTemplate(Base):
     """Database model for RunPod templates"""
     __tablename__ = "runpod_templates"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     runpod_template_id = Column(String(255), unique=True, nullable=False, index=True)
     name = Column(String(255), nullable=False)
     description = Column(Text)
@@ -172,8 +172,8 @@ class RunPodHealthCheck(Base):
     """Database model for RunPod health checks"""
     __tablename__ = "runpod_health_checks"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    pod_id = Column(UUID(as_uuid=True), ForeignKey("runpod_pods.id"), nullable=False, index=True)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    pod_id = Column(GUID(), ForeignKey("runpod_pods.id"), nullable=False, index=True)
     
     is_healthy = Column(Boolean, nullable=False)
     status = Column(String(50), nullable=False)
@@ -194,9 +194,9 @@ class RunPodUsageLog(Base):
     """Database model for RunPod usage logging"""
     __tablename__ = "runpod_usage_logs"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    pod_id = Column(UUID(as_uuid=True), ForeignKey("runpod_pods.id"), nullable=False, index=True)
-    execution_id = Column(UUID(as_uuid=True), ForeignKey("runpod_executions.id"), index=True)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    pod_id = Column(GUID(), ForeignKey("runpod_pods.id"), nullable=False, index=True)
+    execution_id = Column(GUID(), ForeignKey("runpod_executions.id"), index=True)
     
     cpu_usage_percent = Column(Float)
     memory_usage_gb = Column(Float)
@@ -217,7 +217,7 @@ class RunPodConfiguration(Base):
     """Database model for RunPod configuration settings"""
     __tablename__ = "runpod_configurations"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     config_key = Column(String(255), unique=True, nullable=False, index=True)
     config_value = Column(JSON, nullable=False)
     description = Column(Text)

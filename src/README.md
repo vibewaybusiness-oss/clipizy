@@ -29,7 +29,7 @@ src/
 │   │   ├── step-upload.tsx    # Music upload/generation
 │   │   ├── step-settings.tsx  # Video type and style selection
 │   │   ├── step-prompt.tsx    # AI prompt generation
-│   │   ├── step-overview.tsx  # Final configuration
+│   │   ├── step-settings.tsx  # Final configuration
 │   │   ├── step-generating.tsx # Generation progress
 │   │   └── step-preview.tsx   # Video preview and download
 │   ├── ui/                # Reusable UI components
@@ -107,7 +107,7 @@ src/
 
 **Styling**: Clean form layout with AI gradient buttons and loading states.
 
-#### Step Overview (`step-overview.tsx`)
+#### Step settings (`step-settings.tsx`)
 **Purpose**: Final configuration before video generation.
 
 **Features**:

@@ -237,6 +237,17 @@ export function useAudioPlayback() {
           return;
         }
         
+        // Validate that track.file is actually a File or Blob object
+        if (!(track.file instanceof File) && !(track.file instanceof Blob)) {
+          console.error('Track file is not a File or Blob object:', typeof track.file, track.id);
+          toast({
+            variant: "destructive",
+            title: "Playback Error",
+            description: "Invalid audio file format. Please re-upload the track.",
+          });
+          return;
+        }
+        
         audioUrl = URL.createObjectURL(track.file);
         trackBlobUrl(audioUrl, `use-audio-playback:playTrack:${track.id}`);
         console.log('Created new blob URL for track:', track.id, 'URL:', audioUrl);
@@ -295,6 +306,17 @@ export function useAudioPlayback() {
           console.error('Blob URL is no longer accessible for track:', track.id, testError);
           // If the blob URL is no longer accessible, try to recreate it from the file
           if (track.file && track.file.size > 0) {
+            // Validate that track.file is actually a File or Blob object
+            if (!(track.file instanceof File) && !(track.file instanceof Blob)) {
+              console.error('Track file is not a File or Blob object for recreation:', typeof track.file, track.id);
+              toast({
+                variant: "destructive",
+                title: "Playback Error",
+                description: "Invalid audio file format. Please re-upload the track.",
+              });
+              return;
+            }
+            
             console.log('Recreating blob URL from file for track:', track.id);
             audioUrl = URL.createObjectURL(track.file);
             trackBlobUrl(audioUrl, `use-audio-playback:playTrack:recreate:${track.id}`);
@@ -402,6 +424,17 @@ export function useAudioPlayback() {
       if (audioUrl.startsWith('blob:') && track.file && track.file.size > 0) {
         console.log('Attempting to recover from blob URL error by recreating URL for track:', track.id);
         try {
+          // Validate that track.file is actually a File or Blob object
+          if (!(track.file instanceof File) && !(track.file instanceof Blob)) {
+            console.error('Track file is not a File or Blob object for recovery:', typeof track.file, track.id);
+            toast({
+              variant: "destructive",
+              title: "Playback Error",
+              description: "Invalid audio file format. Please re-upload the track.",
+            });
+            return;
+          }
+          
           // Revoke the old blob URL
           URL.revokeObjectURL(audioUrl);
           
