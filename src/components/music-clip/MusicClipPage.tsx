@@ -34,7 +34,7 @@ import { TimelineHeader } from "@/components/timeline-header";
 import { TrackCard } from "@/components/create/create-music/track-card";
 import { AIAnalysisOverlay } from "@/components/ui/ai-analysis-overlay";
 import { MusicAnalysisVisualizer } from "@/components/create/create-music/music-analysis-visualizer";
-import { OverviewLayout } from "@/components/create/create-music/overview-layout";
+import { OverviewLayout } from "@/components/create/create-music/step-overview";
 
 function MusicClipPage() {
   // Custom hooks for state management
@@ -1826,3 +1826,4 @@ function MusicClipPage() {
 }
 
 export default MusicClipPage;
+

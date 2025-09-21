@@ -12,11 +12,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import WaveformVisualizer, { type WaveformVisualizerRef } from "@/components/waveform-visualizer";
 import { StepSettings } from "@/components/create/create-music/step-video";
-import { StepPrompt } from "@/components/create/create-music/step-overview";
-import { StepOverview } from "@/components/create/create-music/step-video";
+import { StepOverview as StepPrompt } from "@/components/create/create-music/step-settings";
+import { StepSettings as StepOverview } from "@/components/create/create-music/step-video";
 import { StepGenerating } from "@/components/create/create-music/step-generating";
 import { StepPreview } from "@/components/create/create-music/step-preview";
-import { MusicAnalysisVisualizer } from "@/components/create/create-music/music-analysis-visualizer";
+import { OverviewLayout as MusicAnalysisVisualizer } from "@/components/create/create-music/overview-layout";
 import {
   Scene,
   SceneSchema,
@@ -1393,4 +1393,5 @@ export default function MusicClipPage() {
     </div>
   );
 }
+
 
