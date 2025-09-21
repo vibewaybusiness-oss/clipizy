@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getComfyUIManager } from '../../../../backendOLD/comfyUI/comfyui-manager';
-import { getQueueManager } from '../../../../backendOLD/runpod-api/queue-manager';
+
+const BACKEND_URL = process.env.BACKEND_URL || 'http://127.0.0.1:8000';
 
 export async function GET(request: NextRequest) {
   try {
@@ -72,18 +72,20 @@ export async function POST(request: NextRequest) {
 // API Functions
 async function getComfyUIStatus(): Promise<NextResponse> {
   try {
-    const manager = getComfyUIManager();
-    const queueStatus = await manager.getQueueStatus();
-    
-    return NextResponse.json({
-      success: true,
-      connected: queueStatus.activePods.length > 0,
-      activePods: queueStatus.activePods.length,
-      pendingRequests: queueStatus.comfyuiRequests.pending,
-      processingRequests: queueStatus.comfyuiRequests.active,
-      completedRequests: queueStatus.comfyuiRequests.completed,
-      message: 'ComfyUI Manager is running'
+    const backendUrl = `${BACKEND_URL}/api/comfyui/status`;
+    const response = await fetch(backendUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
+
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json({
       success: false,
@@ -94,16 +96,20 @@ async function getComfyUIStatus(): Promise<NextResponse> {
 
 async function getWorkflows(): Promise<NextResponse> {
   try {
-    const fs = require('fs');
-    const path = require('path');
-    const configPath = path.join(process.cwd(), 'api', 'config', 'comfyui_config.json');
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    
-    return NextResponse.json({
-      success: true,
-      workflows: Object.values(config.workflows),
-      categories: config.categories
+    const backendUrl = `${BACKEND_URL}/api/comfyui/workflows`;
+    const response = await fetch(backendUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
+
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json({
       success: false,
@@ -114,23 +120,26 @@ async function getWorkflows(): Promise<NextResponse> {
 
 async function getWorkflowConfig(workflowName: string): Promise<NextResponse> {
   try {
-    const fs = require('fs');
-    const path = require('path');
-    const configPath = path.join(process.cwd(), 'api', 'config', 'comfyui_config.json');
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    
-    const workflowConfig = config.workflows[workflowName];
-    if (!workflowConfig) {
-      return NextResponse.json({
-        success: false,
-        error: `Workflow '${workflowName}' not found`
-      }, { status: 404 });
-    }
-    
-    return NextResponse.json({
-      success: true,
-      workflow: workflowConfig
+    const backendUrl = `${BACKEND_URL}/api/comfyui/workflows/${workflowName}`;
+    const response = await fetch(backendUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return NextResponse.json({
+          success: false,
+          error: `Workflow '${workflowName}' not found`
+        }, { status: 404 });
+      }
+      throw new Error(`Backend error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json({
       success: false,
@@ -141,21 +150,24 @@ async function getWorkflowConfig(workflowName: string): Promise<NextResponse> {
 
 async function executeWorkflow(workflowName: string, inputs: any): Promise<NextResponse> {
   try {
-    const manager = getComfyUIManager();
-    const request = await manager.executeWorkflow(workflowName, inputs);
-    
-    return NextResponse.json({
-      success: true,
-      requestId: request.id,
-      status: request.status,
-      podId: request.podId,
-      podIp: request.podIp,
-      message: request.status === 'pending' ? 'Request queued, waiting for pod allocation' : 
-               request.status === 'processing' ? 'Workflow is being executed' :
-               request.status === 'completed' ? 'Workflow completed successfully' :
-               request.status === 'failed' ? 'Workflow failed' : 'Unknown status',
-      error: request.error
+    const backendUrl = `${BACKEND_URL}/api/comfyui/execute`;
+    const response = await fetch(backendUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        workflow_type: workflowName,
+        inputs: inputs
+      }),
     });
+
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json({
       success: false,
@@ -166,31 +178,26 @@ async function executeWorkflow(workflowName: string, inputs: any): Promise<NextR
 
 async function getRequestStatus(requestId: string): Promise<NextResponse> {
   try {
-    const manager = getComfyUIManager();
-    const request = manager.getRequest(requestId);
-    
-    if (!request) {
-      return NextResponse.json({
-        success: false,
-        error: `Request ${requestId} not found`
-      }, { status: 404 });
-    }
-    
-    return NextResponse.json({
-      success: true,
-      request: {
-        id: request.id,
-        workflowName: request.workflowName,
-        status: request.status,
-        podId: request.podId,
-        podIp: request.podIp,
-        promptId: request.promptId,
-        result: request.result,
-        error: request.error,
-        createdAt: request.createdAt,
-        completedAt: request.completedAt
-      }
+    const backendUrl = `${BACKEND_URL}/api/comfyui/request/${requestId}`;
+    const response = await fetch(backendUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return NextResponse.json({
+          success: false,
+          error: `Request ${requestId} not found`
+        }, { status: 404 });
+      }
+      throw new Error(`Backend error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json({
       success: false,
@@ -201,12 +208,22 @@ async function getRequestStatus(requestId: string): Promise<NextResponse> {
 
 async function getQueueStatus(): Promise<NextResponse> {
   try {
-    const manager = getComfyUIManager();
-    const queueStatus = await manager.getQueueStatus();
-    
+    const backendUrl = `${BACKEND_URL}/api/runpod/queue/status`;
+    const response = await fetch(backendUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
+    }
+
+    const data = await response.json();
     return NextResponse.json({
       success: true,
-      ...queueStatus
+      ...data
     });
   } catch (error) {
     return NextResponse.json({
@@ -218,24 +235,20 @@ async function getQueueStatus(): Promise<NextResponse> {
 
 async function getAllRequests(): Promise<NextResponse> {
   try {
-    const manager = getComfyUIManager();
-    const requests = manager.getAllRequests();
-    
-    return NextResponse.json({
-      success: true,
-      requests: requests.map(req => ({
-        id: req.id,
-        workflowName: req.workflowName,
-        status: req.status,
-        podId: req.podId,
-        podIp: req.podIp,
-        promptId: req.promptId,
-        result: req.result,
-        error: req.error,
-        createdAt: req.createdAt,
-        completedAt: req.completedAt
-      }))
+    const backendUrl = `${BACKEND_URL}/api/comfyui/requests`;
+    const response = await fetch(backendUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
+
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json({
       success: false,
@@ -246,36 +259,30 @@ async function getAllRequests(): Promise<NextResponse> {
 
 async function recruitComfyUIPod(): Promise<NextResponse> {
   try {
-    const queueManager = getQueueManager();
-    
-    // Start the queue manager if not already running
-    if (!queueManager.getQueueStatus().isRunning) {
-      await queueManager.start();
-    }
-    
-    // Check if there's already a pod for comfyui_image_qwen workflow (used for image generation)
-    const existingPod = queueManager.getPodForWorkflow('comfyui_image_qwen');
-    
-    if (existingPod) {
-      return NextResponse.json({
-        success: true,
-        message: 'Image generation pod already exists and is active',
-        podId: existingPod.id,
-        status: existingPod.status,
-        workflowName: existingPod.workflowName
-      });
-    }
-    
-    // Add a request to trigger pod creation for image generation
-    const requestId = await queueManager.addWorkflowRequest('comfyui_image_qwen', {
-      prompt: 'Initialize image generation pod',
-      workflow: 'comfyui_image_qwen'
+    const backendUrl = `${BACKEND_URL}/api/runpod/queue/add`;
+    const response = await fetch(backendUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        workflow_name: 'comfyui_image_qwen',
+        input_data: {
+          prompt: 'Initialize image generation pod',
+          workflow: 'comfyui_image_qwen'
+        }
+      }),
     });
-    
+
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
+    }
+
+    const data = await response.json();
     return NextResponse.json({
       success: true,
       message: 'Image generation pod recruitment initiated. Pod will be created automatically.',
-      requestId,
+      requestId: data.request_id,
       status: 'recruiting',
       instructions: {
         step1: 'Pod is being created automatically via queue manager',
@@ -296,11 +303,23 @@ async function recruitComfyUIPod(): Promise<NextResponse> {
 
 async function releaseComfyUIPod(): Promise<NextResponse> {
   try {
-    const queueManager = getQueueManager();
-    const queueStatus = queueManager.getQueueStatus();
-    
-    // Find ComfyUI pods
-    const comfyUIPods = queueStatus.activePods.filter(pod => pod.workflowName === 'comfyui');
+    // Get queue status first to find ComfyUI pods
+    const statusUrl = `${BACKEND_URL}/api/runpod/queue/status`;
+    const statusResponse = await fetch(statusUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!statusResponse.ok) {
+      throw new Error(`Failed to get queue status: ${statusResponse.status}`);
+    }
+
+    const queueStatus = await statusResponse.json();
+    const comfyUIPods = queueStatus.activePods?.filter((pod: any) => 
+      pod.workflowName === 'comfyui' || pod.workflowName === 'comfyui_image_qwen'
+    ) || [];
     
     if (comfyUIPods.length === 0) {
       return NextResponse.json({
@@ -309,17 +328,24 @@ async function releaseComfyUIPod(): Promise<NextResponse> {
       });
     }
     
-    const { terminatePod } = await import('../../../../backendOLD/runpod-api');
     const results = [];
     
     // Terminate all ComfyUI pods
     for (const pod of comfyUIPods) {
       try {
-        const result = await terminatePod(pod.id);
+        const terminateUrl = `${BACKEND_URL}/api/runpod/pods/${pod.id}`;
+        const terminateResponse = await fetch(terminateUrl, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        const result = await terminateResponse.json();
         results.push({
           podId: pod.id,
-          success: result.success,
-          error: result.error
+          success: terminateResponse.ok,
+          error: result.error || (terminateResponse.ok ? null : 'Termination failed')
         });
       } catch (error) {
         results.push({

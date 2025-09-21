@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { StableAudio2Client } from '../../../../../backendOLD/stable-audio-2/client';
+
+const BACKEND_URL = process.env.BACKEND_URL || 'http://127.0.0.1:8000';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,13 +21,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const client = new StableAudio2Client({ apiKey });
-    const result = await client.textToAudio({
-      prompt,
-      duration,
-      output_format: "mp3",
-      model: model as "stable-audio-2.5" | "stable-audio-2"
+    // Call backend API for stable audio generation
+    const backendUrl = `${BACKEND_URL}/api/stable-audio/generate`;
+    const response = await fetch(backendUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt,
+        duration,
+        output_format: "mp3",
+        model: model as "stable-audio-2.5" | "stable-audio-2"
+      }),
     });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return NextResponse.json(
+        { success: false, error: errorData.error || `Backend error: ${response.status}` },
+        { status: response.status }
+      );
+    }
+
+    const result = await response.json();
 
     if (!result.success) {
       return NextResponse.json(
@@ -35,20 +53,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!result.audio) {
+    if (!result.audioDataUri) {
       return NextResponse.json(
         { success: false, error: "No audio data received" },
         { status: 500 }
       );
     }
 
-    const audioDataUri = `data:audio/mp3;base64,${result.audio.toString('base64')}`;
-
     return NextResponse.json({
       success: true,
-      audioDataUri,
-      duration,
-      size: result.audio.length
+      audioDataUri: result.audioDataUri,
+      duration: result.duration || duration,
+      size: result.size || 0
     });
 
   } catch (error) {

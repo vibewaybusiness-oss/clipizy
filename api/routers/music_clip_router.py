@@ -903,3 +903,201 @@ def get_project_analysis(
     except Exception as e:
         logger.error(f"Failed to get analysis for project {project_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to get analysis: {str(e)}")
+
+@router.post("/projects/{project_id}/analyze-tracks")
+def analyze_project_tracks_parallel(
+    project_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = "00000000-0000-0000-0000-000000000001"
+):
+    """Analyze all tracks in a project in parallel."""
+    try:
+        # Ensure user exists and create if needed
+        user = user_safety_service.ensure_user_exists(db, user_id)
+        
+        # Ensure project folders exist
+        user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
+        
+        # Verify project exists and belongs to user
+        project = db.query(Project).filter(
+            Project.id == project_id,
+            Project.user_id == user_id,
+            Project.type == "music-clip"
+        ).first()
+        
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        # Get all tracks for the project
+        tracks = project_service.get_project_tracks(db=db, project_id=project_id)
+        
+        if not tracks:
+            raise HTTPException(status_code=404, detail="No tracks found for this project")
+        
+        logger.info(f"Starting parallel analysis for {len(tracks)} tracks in project {project_id}")
+        
+        # Import analysis service
+        from api.services import analysis_service
+        from api.services import storage_service
+        import tempfile
+        import os
+        import time
+        
+        def analyze_single_track(track):
+            """Analyze a single track and return results."""
+            try:
+                # Create temporary file for analysis
+                with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(track.file_path)[1]) as tmp_file:
+                    # Download track from storage
+                    storage_service.download_file(track.file_path, tmp_file.name)
+                    
+                    # Perform analysis
+                    analysis_result = analysis_service.analyze_music(tmp_file.name)
+                    description = analysis_service.generate_music_description(analysis_result)
+                    
+                    # Clean up temporary file
+                    if os.path.exists(tmp_file.name):
+                        os.unlink(tmp_file.name)
+                    
+                    return {
+                        "track_id": track.id,
+                        "filename": track.filename,
+                        "success": True,
+                        "analysis": analysis_result,
+                        "description": description,
+                        "analyzed_at": time.time()
+                    }
+                    
+            except Exception as e:
+                logger.error(f"Failed to analyze track {track.id}: {str(e)}")
+                return {
+                    "track_id": track.id,
+                    "filename": track.filename,
+                    "success": False,
+                    "error": str(e),
+                    "analyzed_at": time.time()
+                }
+        
+        # Process tracks in parallel using ThreadPoolExecutor
+        start_time = time.time()
+        with ThreadPoolExecutor(max_workers=min(len(tracks), 4)) as executor:
+            # Submit all track analysis tasks
+            future_to_track = {
+                executor.submit(analyze_single_track, track): track for track in tracks
+            }
+            
+            # Collect results as they complete
+            results = []
+            for future in future_to_track:
+                try:
+                    result = future.result(timeout=300)  # 5 minute timeout per track
+                    results.append(result)
+                except Exception as e:
+                    track = future_to_track[future]
+                    logger.error(f"Failed to analyze track {track.id}: {str(e)}")
+                    results.append({
+                        "track_id": track.id,
+                        "filename": track.filename,
+                        "success": False,
+                        "error": str(e),
+                        "analyzed_at": time.time()
+                    })
+        
+        # Calculate timing
+        end_time = time.time()
+        total_time = end_time - start_time
+        
+        # Analyze results
+        successful_analyses = [r for r in results if r.get("success", False)]
+        failed_analyses = [r for r in results if not r.get("success", False)]
+        
+        # Update tracks in database with analysis results
+        for result in successful_analyses:
+            track = next((t for t in tracks if t.id == result["track_id"]), None)
+            if track:
+                track.analysis = {
+                    "raw": result["analysis"],
+                    "description": result["description"],
+                    "analyzed_at": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(result["analyzed_at"]))
+                }
+        
+        # Commit all changes
+        db.commit()
+        
+        logger.info(f"Parallel analysis completed in {total_time:.2f}s - {len(successful_analyses)} successful, {len(failed_analyses)} failed")
+        
+        return {
+            "project_id": project_id,
+            "total_tracks": len(tracks),
+            "successful_analyses": len(successful_analyses),
+            "failed_analyses": len(failed_analyses),
+            "total_time_seconds": round(total_time, 2),
+            "results": results
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to analyze tracks for project {project_id}: {str(e)}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to analyze tracks: {str(e)}")
+
+@router.get("/projects/{project_id}/analysis-progress")
+def get_analysis_progress(
+    project_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = "00000000-0000-0000-0000-000000000001"
+):
+    """Get real-time progress of track analysis."""
+    try:
+        # Ensure user exists and create if needed
+        user = user_safety_service.ensure_user_exists(db, user_id)
+        
+        # Verify project exists and belongs to user
+        project = db.query(Project).filter(
+            Project.id == project_id,
+            Project.user_id == user_id,
+            Project.type == "music-clip"
+        ).first()
+        
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        # Get all tracks for the project
+        tracks = project_service.get_project_tracks(db=db, project_id=project_id)
+        
+        if not tracks:
+            return {
+                "project_id": project_id,
+                "total_tracks": 0,
+                "analyzed_tracks": 0,
+                "progress_percentage": 100,
+                "status": "no_tracks"
+            }
+        
+        # Count analyzed tracks
+        analyzed_tracks = sum(1 for track in tracks if track.analysis and track.analysis.get("raw"))
+        progress_percentage = (analyzed_tracks / len(tracks)) * 100 if tracks else 100
+        
+        return {
+            "project_id": project_id,
+            "total_tracks": len(tracks),
+            "analyzed_tracks": analyzed_tracks,
+            "progress_percentage": round(progress_percentage, 2),
+            "status": "completed" if progress_percentage >= 100 else "in_progress",
+            "tracks": [
+                {
+                    "track_id": track.id,
+                    "filename": track.filename,
+                    "analyzed": bool(track.analysis and track.analysis.get("raw")),
+                    "analyzed_at": track.analysis.get("analyzed_at") if track.analysis else None
+                }
+                for track in tracks
+            ]
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get analysis progress for project {project_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get analysis progress: {str(e)}")

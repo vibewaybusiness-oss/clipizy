@@ -115,18 +115,6 @@ export function OverviewLayout({
       <div className="w-full px-8 py-12">
         <div className="space-y-12">
           
-          {/* TITLE SECTION */}
-          <div className="text-center space-y-6">
-            <h1 className="text-5xl font-bold text-foreground">Create Your Music Video</h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              {settings?.useSameVideoForAll ? (
-                "Describe the visual style you want for all your music tracks"
-              ) : (
-                "Describe the visual style you want for this specific track"
-              )}
-            </p>
-          </div>
-
           {/* TWO COLUMN LAYOUT */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 w-full">
             

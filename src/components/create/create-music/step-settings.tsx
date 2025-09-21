@@ -251,40 +251,7 @@ export function StepOverview({
                 </div>
               )}
             </div>
-
-            {/* Divider */}
-            <div className="border-t border-border/50"></div>
-
-            {/* Video Description Section */}
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <h3 className="font-bold text-xl text-foreground">Video Description</h3>
-                <p className="text-sm text-muted-foreground">Describe the visual style for your music video</p>
-              </div>
-              <div className="space-y-3">
-                <FormField
-                  control={form.control}
-                  name="videoDescription"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <textarea
-                          placeholder='e.g., "A seamless loop of a record player spinning on a vintage wooden table, with dust particles dancing in a sunbeam."'
-                          className="min-h-[120px] resize-none text-base w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          maxLength={500}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                      <div className="text-xs text-muted-foreground text-right">
-                        {field.value?.length || 0} / 500
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
+            
             {/* Divider */}
             <div className="border-t border-border/50"></div>
 

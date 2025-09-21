@@ -238,28 +238,92 @@ class MediaService:
 
         return track
 
-    def analyze_track(self, project_id: str, storage, json_store: JSONStore):
+    def analyze_track(self, project_id: str, storage, json_store: JSONStore, db: Session = None):
         """
         Run BPM/key/scene analysis and update script.json.
         """
-        # Placeholder — real implementation could call Essentia/Librosa
-        analysis = {
-            "bpm": 120,
-            "key": "C Minor",
-            "mood": "uplifting",
-            "sections": [
-                {"start": 0, "end": 30, "type": "intro"},
-                {"start": 30, "end": 60, "type": "chorus"}
-            ]
-        }
+        try:
+            # Import analysis service
+            from . import analysis_service
+            import tempfile
+            import os
+            import time
+            
+            # Get all tracks for the project
+            tracks = project_service.get_project_tracks(db=db, project_id=project_id)
+            
+            if not tracks:
+                logger.warning(f"No tracks found for project {project_id}")
+                return {"error": "No tracks found for analysis"}
+            
+            # Analyze each track
+            analysis_results = {}
+            for track in tracks:
+                try:
+                    # Create temporary file for analysis
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(track.file_path)[1]) as tmp_file:
+                        # Download track from storage
+                        storage_service.download_file(track.file_path, tmp_file.name)
+                        
+                        # Perform analysis
+                        analysis_result = analysis_service.analyze_music(tmp_file.name)
+                        description = analysis_service.generate_music_description(analysis_result)
+                        
+                        # Clean up temporary file
+                        if os.path.exists(tmp_file.name):
+                            os.unlink(tmp_file.name)
+                        
+                        # Store analysis results
+                        analysis_results[track.id] = {
+                            "raw": analysis_result,
+                            "description": description,
+                            "analyzed_at": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+                        }
+                        
+                        # Update track in database
+                        track.analysis = analysis_results[track.id]
+                        
+                except Exception as e:
+                    logger.error(f"Failed to analyze track {track.id}: {str(e)}")
+                    analysis_results[track.id] = {
+                        "error": str(e),
+                        "analyzed_at": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+                    }
+            
+            # Commit database changes
+            self.db.commit()
+            
+            # Update project analysis in JSON store
+            json_store.update_field(
+                f"users/{project_id}/script.json",
+                ["steps", "analysis"],
+                analysis_results
+            )
+            
+            logger.info(f"Analysis completed for {len(tracks)} tracks in project {project_id}")
+            return analysis_results
+            
+        except Exception as e:
+            logger.error(f"Failed to analyze tracks for project {project_id}: {str(e)}")
+            # Fallback to placeholder analysis
+            analysis = {
+                "bpm": 120,
+                "key": "C Minor",
+                "mood": "uplifting",
+                "sections": [
+                    {"start": 0, "end": 30, "type": "intro"},
+                    {"start": 30, "end": 60, "type": "chorus"}
+                ],
+                "error": str(e)
+            }
 
-        json_store.update_field(
-            f"users/{project_id}/script.json",
-            ["steps", "analysis"],
-            analysis
-        )
+            json_store.update_field(
+                f"users/{project_id}/script.json",
+                ["steps", "analysis"],
+                analysis
+            )
 
-        return analysis
+            return analysis
 
     def _generate_ai_music(self, prompt: str, duration: int):
         """

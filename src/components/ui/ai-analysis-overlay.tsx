@@ -240,14 +240,6 @@ export function AIAnalysisOverlay({
                       />
                     </motion.div>
                   </div>
-                  <motion.p
-                    className="text-sm text-white/70 mt-3 font-medium"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1.1 }}
-                  >
-                    {Math.round(progress)}% complete
-                  </motion.p>
                 </motion.div>
               )}
 

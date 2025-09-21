@@ -63,7 +63,7 @@ class JobService:
 
             elif job.type == "music_analysis":
                 logger.info(f"Executing music analysis for job {job.id}")
-                result = media_service.analyze_track(job.project_id, storage, self.json_store)
+                result = media_service.analyze_track(job.project_id, storage, self.json_store, db)
 
             elif job.type == "image_generation":
                 logger.info(f"Executing image generation for job {job.id}")

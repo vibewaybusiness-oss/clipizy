@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Music, Sparkles, ArrowLeft, ChevronLeft, ChevronRight, Upload, Loader2, Film, Zap, Mail } from "lucide-react";
 import { MusicLogo } from "@/components/music-logo";
 import Link from "next/link";
-import { useState, useRef, useEffect, useTransition } from "react";
+import { useState, useRef, useEffect, useTransition, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -53,6 +53,7 @@ export default function MusicClipPage() {
   const [prompts, setPrompts] = useState<z.infer<typeof PromptSchema> | null>(null);
   const [channelAnimationFile, setChannelAnimationFile] = useState<File | null>(null);
   const [musicAnalysisData, setMusicAnalysisData] = useState<any>(null);
+  const [isLoadingAnalysisData, setIsLoadingAnalysisData] = useState(false);
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
   
   const [isGeneratingVideo, startGeneratingVideo] = useTransition();
@@ -432,9 +433,10 @@ export default function MusicClipPage() {
   }, [audioFile, audioDuration]);
 
   // Function to load analysis data from backend
-  const loadAnalysisData = async (projectId: string) => {
+  const loadAnalysisData = useCallback(async (projectId: string) => {
     try {
       console.log('Loading analysis data for project:', projectId);
+      setIsLoadingAnalysisData(true);
       const response = await fetch(`/api/music-clip/projects/${projectId}/analysis`);
       console.log('Backend response status:', response.status);
       
@@ -512,8 +514,10 @@ export default function MusicClipPage() {
       }
     } catch (error) {
       console.error('Failed to load analysis data:', error);
+    } finally {
+      setIsLoadingAnalysisData(false);
     }
-  };
+  }, []);
 
   // Function to set real analysis data from backend
   const setRealAnalysisData = (data: any) => {
@@ -581,7 +585,7 @@ export default function MusicClipPage() {
       console.log('Auto-loading analysis data for project:', currentProjectId);
       loadAnalysisData(currentProjectId);
     }
-  }, [currentProjectId, currentStep]);
+  }, [currentProjectId, currentStep, loadAnalysisData]);
 
   // Save analysis data to local storage
   useEffect(() => {
@@ -919,8 +923,18 @@ export default function MusicClipPage() {
                 <CardContent className="flex-1 flex flex-col">
                   <div className="flex-1">
                     {currentStep === 4 ? (
-                      musicAnalysisData ? (
+                      isLoadingAnalysisData ? (
+                        <div className="flex flex-col items-center justify-center h-full space-y-4">
+                          <div className="text-center">
+                            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                            <p className="text-muted-foreground mb-2">
+                              Loading music analysis...
+                            </p>
+                          </div>
+                        </div>
+                      ) : musicAnalysisData ? (
                         <MusicAnalysisVisualizer
+                          key={`visualizer-${musicAnalysisData.analysis_timestamp || Date.now()}`}
                           analysisData={musicAnalysisData}
                           audioFile={audioFile}
                           className="h-full"
@@ -929,7 +943,7 @@ export default function MusicClipPage() {
                         <div className="flex flex-col items-center justify-center h-full space-y-4">
                           <div className="text-center">
                             <p className="text-muted-foreground mb-2">
-                              Loading music analysis...
+                              No analysis data available
                             </p>
                             <div className="space-y-2">
                               <p className="text-sm text-muted-foreground">

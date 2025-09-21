@@ -70,7 +70,7 @@ function MusicClipPage() {
   const [isLoadingAnalysisData, setIsLoadingAnalysisData] = useState(false);
 
   // Function to load analysis data from backend
-  const loadAnalysisData = async (projectId: string) => {
+  const loadAnalysisData = useCallback(async (projectId: string) => {
     try {
       console.log('Loading analysis data for project:', projectId);
       setIsLoadingAnalysisData(true);
@@ -170,7 +170,7 @@ function MusicClipPage() {
     } finally {
       setIsLoadingAnalysisData(false);
     }
-  };
+  }, []);
 
   // Auto-load analysis data when on step 4
   useEffect(() => {
@@ -178,7 +178,7 @@ function MusicClipPage() {
       console.log('Auto-loading analysis data for step 4, project:', projectId);
       loadAnalysisData(projectId);
     }
-  }, [musicClipState.state.currentStep, projectId, musicAnalysisData]);
+  }, [musicClipState.state.currentStep, projectId, musicAnalysisData, loadAnalysisData]);
   
   // Check if all tracks are valid for step 3
   const areAllTracksValid = useMemo(() => {
@@ -701,11 +701,22 @@ function MusicClipPage() {
       console.log('Loading project from backend:', projectId);
       const projectData = await projectManagement.actions.loadExistingProject(projectId);
       
-      // Update settings if available
-      if (projectData?.script.steps.music.settings) {
+      // Debug project data structure
+      console.log('Project data structure:', projectData);
+      console.log('Script structure:', projectData?.script);
+      console.log('Steps structure:', projectData?.script?.steps);
+      console.log('Music structure:', projectData?.script?.steps?.music);
+      
+      // Update settings if available - with proper null checks
+      if (projectData?.script?.steps?.music?.settings) {
         const settings = projectData.script.steps.music.settings;
+        console.log('Loading settings:', settings);
         musicClipState.actions.setSettings(settings);
         musicClipState.forms.settingsForm.reset(settings);
+      } else {
+        console.log('No settings found in project data - using default settings');
+        // For old projects that don't have settings, we'll use the default settings
+        // The musicClipState should already have default settings initialized
       }
       
       // Update tracks if available
@@ -947,22 +958,81 @@ function MusicClipPage() {
         throw new Error('Failed to create project');
       }
       
-      const newTracks: MusicTrack[] = [];
-      
-      for (const file of audioFiles) {
+      // Use parallel batch upload for multiple files
+      if (audioFiles.length > 1) {
+        const batchResult = await musicClipAPI.uploadTracksBatch(projectId, audioFiles, {
+          ai_generated: false,
+          instrumental: false,
+        });
+        
+        const newTracks: MusicTrack[] = [];
+        
+        // Process successful uploads
+        for (const result of batchResult.successful_tracks) {
+          const file = audioFiles.find(f => f.name === result.filename);
+          if (file && result.track_id) {
+            const url = URL.createObjectURL(file);
+            
+            const newTrack: MusicTrack = {
+              id: result.track_id,
+              file: file,
+              url: url,
+              duration: result.metadata?.duration || 0,
+              name: file.name,
+              generatedAt: new Date(),
+              prompt: result.prompt,
+              genre: result.genre,
+              videoDescription: result.video_description,
+              isGenerated: result.ai_generated || false,
+            };
+            
+            newTracks.push(newTrack);
+            
+            const audio = new Audio(url);
+            audio.addEventListener('loadedmetadata', () => {
+              musicTracks.updateTrackDuration(newTrack.id, audio.duration);
+            });
+          }
+        }
+        
+        // Handle failed uploads
+        if (batchResult.failed_uploads > 0) {
+          const failedFiles = batchResult.failed_tracks.map(t => t.filename).join(', ');
+          toast({
+            variant: "destructive",
+            title: "Some Uploads Failed",
+            description: `Failed to upload ${batchResult.failed_uploads} file(s): ${failedFiles}`,
+          });
+        }
+        
+        if (newTracks.length > 0) {
+          musicTracks.addTracks(newTracks);
+          
+          const firstTrack = newTracks[0];
+          musicClipState.actions.setAudioFile(firstTrack.file || null);
+          musicClipState.actions.setAudioUrl(firstTrack.url);
+          musicClipState.actions.setAudioDuration(firstTrack.duration);
+          
+          toast({
+            title: "Tracks Uploaded",
+            description: `Successfully uploaded ${newTracks.length} track(s) in ${batchResult.processing_time_seconds.toFixed(1)}s.`,
+          });
+        }
+      } else {
+        // Single file upload (keep existing logic for single files)
+        const file = audioFiles[0];
         try {
           const uploadResult = await musicClipAPI.uploadTrack(projectId, file, {
             ai_generated: false,
             instrumental: false,
           });
           
-          // Create blob URL for local playback
           const url = URL.createObjectURL(file);
           
           const newTrack: MusicTrack = {
             id: uploadResult.track_id,
             file: file,
-            url: url, // This will be used for local playback
+            url: url,
             duration: uploadResult.metadata.duration || 0,
             name: file.name,
             generatedAt: new Date(),
@@ -972,11 +1042,20 @@ function MusicClipPage() {
             isGenerated: uploadResult.ai_generated,
           };
           
-          newTracks.push(newTrack);
+          musicTracks.addTracks([newTrack]);
           
           const audio = new Audio(url);
           audio.addEventListener('loadedmetadata', () => {
             musicTracks.updateTrackDuration(newTrack.id, audio.duration);
+          });
+          
+          musicClipState.actions.setAudioFile(newTrack.file || null);
+          musicClipState.actions.setAudioUrl(newTrack.url);
+          musicClipState.actions.setAudioDuration(newTrack.duration);
+          
+          toast({
+            title: "Track Uploaded",
+            description: `Successfully uploaded ${file.name} to your project.`,
           });
           
         } catch (error) {
@@ -988,20 +1067,6 @@ function MusicClipPage() {
             description: `Failed to upload ${file.name}: ${errorMessage}`,
           });
         }
-      }
-      
-      if (newTracks.length > 0) {
-        musicTracks.addTracks(newTracks);
-        
-        const firstTrack = newTracks[0];
-        musicClipState.actions.setAudioFile(firstTrack.file || null);
-        musicClipState.actions.setAudioUrl(firstTrack.url);
-        musicClipState.actions.setAudioDuration(firstTrack.duration);
-        
-        toast({
-          title: "Tracks Uploaded",
-          description: `Successfully uploaded ${newTracks.length} track(s) to your project.`,
-        });
       }
     } finally {
       musicClipState.actions.setIsUploadingTracks(false);
