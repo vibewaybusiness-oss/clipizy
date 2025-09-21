@@ -78,9 +78,9 @@ export const ENV_CONFIG = {
 
 // Helper function to get the correct backend URL
 export function getBackendUrl(): string {
-  // Check if we're in WSL - use localhost since both frontend and backend are in WSL
+  // Check if we're in WSL - use WSL IP for better connectivity
   if (ENV_CONFIG.isWSL) {
-    return BACKEND_CONFIG.fallbackUrls.localhost;
+    return BACKEND_CONFIG.fallbackUrls.wsl;
   }
 
   // For Windows, try localhost first, then fallback to WSL IP
