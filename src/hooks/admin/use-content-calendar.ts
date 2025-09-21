@@ -1,15 +1,5 @@
 import { useState, useEffect } from 'react';
-
-interface CalendarPost {
-  id: string;
-  title: string;
-  content: string;
-  excerpt: string;
-  status: 'draft' | 'published' | 'scheduled';
-  publishDate: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { ContentCalendar, BlogPost, ContentCluster } from '@/types/calendar';
 
 interface CalendarStats {
   total: number;
@@ -18,19 +8,46 @@ interface CalendarStats {
   scheduled: number;
 }
 
-interface CalendarData {
-  posts: CalendarPost[];
-  stats: CalendarStats;
-}
-
 export function useContentCalendar() {
-  const [calendar, setCalendar] = useState<CalendarData>({
+  const [calendar, setCalendar] = useState<ContentCalendar>({
+    id: 'default',
+    name: 'Content Calendar',
+    description: 'Main content calendar for blog posts',
+    startDate: new Date().toISOString(),
+    endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(), // 90 days from now
+    totalWeeks: 12,
+    postsPerWeek: 3,
+    clusters: [
+      {
+        id: 'tech',
+        name: 'Technology',
+        description: 'Tech-related content',
+        color: '#3B82F6',
+        keywords: ['technology', 'programming', 'software'],
+        targetAudience: 'developers',
+        priority: 'high'
+      },
+      {
+        id: 'music',
+        name: 'Music Production',
+        description: 'Music and audio content',
+        color: '#10B981',
+        keywords: ['music', 'audio', 'production'],
+        targetAudience: 'musicians',
+        priority: 'high'
+      }
+    ],
     posts: [],
-    stats: {
-      total: 0,
-      published: 0,
-      draft: 0,
-      scheduled: 0
+    settings: {
+      publishingDays: ['monday', 'wednesday', 'friday'],
+      timezone: 'UTC',
+      autoGenerate: false,
+      promptPrefix: 'Write a blog post about',
+      promptSuffix: 'Make it engaging and informative.',
+      defaultAuthor: {
+        name: 'Content Team',
+        email: 'content@example.com'
+      }
     }
   });
 
@@ -43,38 +60,69 @@ export function useContentCalendar() {
       setError(null);
 
       // Mock data for now - replace with actual API call
-      const mockData: CalendarData = {
-        posts: [
-          {
-            id: '1',
-            title: 'Getting Started with Music Production',
-            content: 'This is a comprehensive guide to music production...',
-            excerpt: 'Learn the basics of music production with our step-by-step guide.',
-            status: 'published',
-            publishDate: '2024-01-15',
-            createdAt: '2024-01-10',
-            updatedAt: '2024-01-15'
+      const mockPosts: BlogPost[] = [
+        {
+          id: '1',
+          title: 'Getting Started with Music Production',
+          slug: 'getting-started-music-production',
+          content: 'This is a comprehensive guide to music production...',
+          excerpt: 'Learn the basics of music production with our step-by-step guide.',
+          status: 'published',
+          publishedAt: '2024-01-15T10:00:00Z',
+          scheduledFor: '2024-01-15T10:00:00Z',
+          createdAt: '2024-01-10T10:00:00Z',
+          updatedAt: '2024-01-15T10:00:00Z',
+          author: {
+            name: 'Content Team',
+            email: 'content@example.com'
           },
-          {
-            id: '2',
-            title: 'Advanced Audio Mixing Techniques',
-            content: 'Take your mixing skills to the next level...',
-            excerpt: 'Professional mixing techniques for better sound quality.',
-            status: 'draft',
-            publishDate: '2024-01-20',
-            createdAt: '2024-01-12',
-            updatedAt: '2024-01-12'
-          }
-        ],
-        stats: {
-          total: 2,
-          published: 1,
-          draft: 1,
-          scheduled: 0
+          tags: ['music', 'production', 'tutorial'],
+          category: 'music',
+          readTime: 8,
+          views: 150,
+          likes: 12,
+          priority: 'high',
+          keywords: ['music production', 'tutorial', 'beginner'],
+          cluster: 'music',
+          week: 2,
+          month: 1,
+          seoTitle: 'Music Production Guide for Beginners',
+          metaDescription: 'Complete guide to music production for beginners'
+        },
+        {
+          id: '2',
+          title: 'Advanced Audio Mixing Techniques',
+          slug: 'advanced-audio-mixing-techniques',
+          content: 'Take your mixing skills to the next level...',
+          excerpt: 'Professional mixing techniques for better sound quality.',
+          status: 'draft',
+          publishedAt: '',
+          scheduledFor: '2024-01-20T14:00:00Z',
+          createdAt: '2024-01-12T10:00:00Z',
+          updatedAt: '2024-01-12T10:00:00Z',
+          author: {
+            name: 'Content Team',
+            email: 'content@example.com'
+          },
+          tags: ['mixing', 'audio', 'advanced'],
+          category: 'music',
+          readTime: 12,
+          views: 0,
+          likes: 0,
+          priority: 'medium',
+          keywords: ['audio mixing', 'professional', 'techniques'],
+          cluster: 'music',
+          week: 3,
+          month: 1,
+          seoTitle: 'Advanced Audio Mixing Techniques',
+          metaDescription: 'Professional audio mixing techniques for better sound quality'
         }
-      };
+      ];
 
-      setCalendar(mockData);
+      setCalendar(prev => ({
+        ...prev,
+        posts: mockPosts
+      }));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch calendar data');
     } finally {
@@ -82,26 +130,17 @@ export function useContentCalendar() {
     }
   };
 
-  const updatePost = (postId: string, updatedPost: Partial<CalendarPost>) => {
+  const updatePost = (postId: string, updatedPost: Partial<BlogPost>) => {
     setCalendar(prev => ({
       ...prev,
       posts: prev.posts.map(post =>
         post.id === postId ? { ...post, ...updatedPost } : post
-      ),
-      stats: {
-        ...prev.stats,
-        // Update stats based on status changes
-        ...(updatedPost.status && {
-          [updatedPost.status]: prev.stats[updatedPost.status] + 1,
-          [prev.posts.find(p => p.id === postId)?.status || 'draft']:
-            prev.stats[prev.posts.find(p => p.id === postId)?.status || 'draft'] - 1
-        })
-      }
+      )
     }));
   };
 
-  const addPost = (newPost: Omit<CalendarPost, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const post: CalendarPost = {
+  const addPost = (newPost: Omit<BlogPost, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const post: BlogPost = {
       ...newPost,
       id: Date.now().toString(),
       createdAt: new Date().toISOString(),
@@ -110,39 +149,32 @@ export function useContentCalendar() {
 
     setCalendar(prev => ({
       ...prev,
-      posts: [...prev.posts, post],
-      stats: {
-        ...prev.stats,
-        total: prev.stats.total + 1,
-        [post.status]: prev.stats[post.status] + 1
-      }
+      posts: [...prev.posts, post]
     }));
   };
 
   const deletePost = (postId: string) => {
-    setCalendar(prev => {
-      const postToDelete = prev.posts.find(p => p.id === postId);
-      if (!postToDelete) return prev;
-
-      return {
-        ...prev,
-        posts: prev.posts.filter(p => p.id !== postId),
-        stats: {
-          ...prev.stats,
-          total: prev.stats.total - 1,
-          [postToDelete.status]: prev.stats[postToDelete.status] - 1
-        }
-      };
-    });
+    setCalendar(prev => ({
+      ...prev,
+      posts: prev.posts.filter(p => p.id !== postId)
+    }));
   };
 
   useEffect(() => {
     fetchCalendar();
   }, []);
 
+  // Calculate stats from posts
+  const stats = {
+    total: calendar.posts.length,
+    published: calendar.posts.filter(p => p.status === 'published').length,
+    draft: calendar.posts.filter(p => p.status === 'draft').length,
+    scheduled: calendar.posts.filter(p => p.status === 'scheduled').length
+  };
+
   return {
-    calendar: calendar.posts,
-    stats: calendar.stats,
+    calendar,
+    stats,
     loading,
     error,
     updatePost,
