@@ -10,13 +10,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Download, 
-  Settings, 
-  Monitor, 
-  Smartphone, 
-  Tablet, 
-  Film, 
+import {
+  Download,
+  Settings,
+  Monitor,
+  Smartphone,
+  Tablet,
+  Film,
   Image as ImageIcon,
   FileVideo,
   CheckCircle,
@@ -101,11 +101,11 @@ const CODEC_OPTIONS = [
   { value: 'av1', label: 'AV1', description: 'Next-gen compression' }
 ];
 
-export function ExportDialog({ 
-  project, 
-  onExport, 
-  onClose, 
-  className = "" 
+export function ExportDialog({
+  project,
+  onExport,
+  onClose,
+  className = ""
 }: ExportDialogProps) {
   const [selectedPreset, setSelectedPreset] = useState('youtube-1080p');
   const [customFormat, setCustomFormat] = useState<ExportFormat>(PRESET_FORMATS['youtube-1080p']);
@@ -146,7 +146,7 @@ export function ExportDialog({
 
       // In a real implementation, this would call the actual export function
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       onExport(customFormat);
     } catch (error) {
       setExportStatus('error');
@@ -158,7 +158,7 @@ export function ExportDialog({
     const { resolution, frameRate, quality } = customFormat;
     const pixels = resolution.width * resolution.height;
     const duration = project.duration;
-    
+
     // Rough estimation based on quality
     const qualityMultiplier = {
       low: 0.5,
@@ -174,7 +174,7 @@ export function ExportDialog({
   const getEstimatedTime = () => {
     const { resolution, frameRate, quality } = customFormat;
     const pixels = resolution.width * resolution.height;
-    
+
     // Rough estimation based on resolution and quality
     const complexityMultiplier = {
       low: 0.5,
@@ -382,8 +382,8 @@ export function ExportDialog({
             <Button variant="outline" onClick={onClose} disabled={isExporting}>
               Cancel
             </Button>
-            <Button 
-              onClick={handleExport} 
+            <Button
+              onClick={handleExport}
               disabled={isExporting}
               className="min-w-[100px]"
             >

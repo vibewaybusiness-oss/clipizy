@@ -17,7 +17,7 @@ class JobService:
         """Create a job record before running expensive tasks."""
         job_id = str(uuid.uuid4())
         logger.info(f"Creating job: {job_id} for project: {project_id}, type: {job_type}, user: {user_id}")
-        
+
         try:
             job = Job(
                 id=job_id,
@@ -47,12 +47,12 @@ class JobService:
             from . import media_service
             from . import pricing_service as price_service
             from . import videomaking_service
-            
+
             self._update_status(db, job, "processing")
             logger.info(f"Job {job.id} status updated to processing")
 
             result = None
-            
+
             if job.type == "price_calculation":
                 logger.info(f"Executing price calculation for job {job.id}")
                 result = price_service.calculate_price(db, job.project_id, job.params, storage, self.json_store)

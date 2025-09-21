@@ -91,32 +91,32 @@ export interface VideoResolution {
   name: string;
 }
 
-export type EffectType = 
-  | 'blur' 
-  | 'brightness' 
-  | 'contrast' 
-  | 'saturation' 
-  | 'hue' 
-  | 'opacity' 
-  | 'scale' 
-  | 'rotation' 
-  | 'position' 
-  | 'crop' 
-  | 'colorize' 
-  | 'vignette' 
-  | 'noise' 
-  | 'sharpen' 
-  | 'glow' 
+export type EffectType =
+  | 'blur'
+  | 'brightness'
+  | 'contrast'
+  | 'saturation'
+  | 'hue'
+  | 'opacity'
+  | 'scale'
+  | 'rotation'
+  | 'position'
+  | 'crop'
+  | 'colorize'
+  | 'vignette'
+  | 'noise'
+  | 'sharpen'
+  | 'glow'
   | 'shadow';
 
-export type TransitionType = 
-  | 'fade' 
-  | 'slide' 
-  | 'wipe' 
-  | 'zoom' 
-  | 'rotate' 
-  | 'dissolve' 
-  | 'push' 
+export type TransitionType =
+  | 'fade'
+  | 'slide'
+  | 'wipe'
+  | 'zoom'
+  | 'rotate'
+  | 'dissolve'
+  | 'push'
   | 'reveal';
 
 export interface VideoMakerProps {

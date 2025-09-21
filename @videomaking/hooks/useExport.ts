@@ -62,8 +62,8 @@ export function useExport(): UseExportReturn {
 }
 
 async function exportVideo(
-  project: VideoProject, 
-  format: ExportFormat, 
+  project: VideoProject,
+  format: ExportFormat,
   onProgress: (progress: number) => void
 ): Promise<void> {
   // This is a mock implementation
@@ -80,13 +80,13 @@ async function exportVideo(
   return new Promise((resolve, reject) => {
     const interval = setInterval(() => {
       currentStep += Math.random() * 5;
-      
+
       if (currentStep >= totalSteps) {
         currentStep = totalSteps;
         clearInterval(interval);
         resolve();
       }
-      
+
       onProgress((currentStep / totalSteps) * 100);
     }, 100);
 
@@ -104,13 +104,13 @@ export const exportUtils = {
   async generateFrames(project: VideoProject, frameRate: number): Promise<ImageData[]> {
     const frames: ImageData[] = [];
     const frameCount = Math.floor(project.duration * frameRate);
-    
+
     for (let i = 0; i < frameCount; i++) {
       const time = i / frameRate;
       const frame = await exportUtils.renderFrame(project, time);
       frames.push(frame);
     }
-    
+
     return frames;
   },
 
@@ -119,30 +119,30 @@ export const exportUtils = {
     const canvas = document.createElement('canvas');
     canvas.width = project.settings.resolution.width;
     canvas.height = project.settings.resolution.height;
-    
+
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Failed to get canvas context');
-    
+
     // Clear with background color
     ctx.fillStyle = project.settings.backgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
+
     // Render active clips
-    const activeClips = project.clips.filter(clip => 
+    const activeClips = project.clips.filter(clip =>
       time >= clip.startTime && time <= clip.endTime
     );
-    
+
     for (const clip of activeClips) {
       await renderClipAtTime(ctx, clip, time);
     }
-    
+
     // Apply global effects
     for (const effect of project.effects) {
       if (effect.enabled) {
         applyEffect(ctx, effect, time);
       }
     }
-    
+
     return ctx.getImageData(0, 0, canvas.width, canvas.height);
   },
 
@@ -157,19 +157,19 @@ export const exportUtils = {
 async function renderClipAtTime(ctx: CanvasRenderingContext2D, clip: any, time: number): Promise<void> {
   // Mock implementation - would render actual media content
   ctx.save();
-  
+
   // Apply transforms
   ctx.translate(clip.transform.x, clip.transform.y);
   ctx.rotate(clip.transform.rotation);
   ctx.scale(clip.transform.scaleX, clip.transform.scaleY);
-  
+
   // Apply opacity
   ctx.globalAlpha = clip.opacity;
-  
+
   // Render placeholder
   ctx.fillStyle = `hsl(${(clip.id.charCodeAt(0) * 137.5) % 360}, 70%, 50%)`;
   ctx.fillRect(0, 0, 200, 150);
-  
+
   ctx.restore();
 }
 

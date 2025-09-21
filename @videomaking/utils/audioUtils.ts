@@ -11,7 +11,7 @@ export const audioUtils = {
   }> {
     return new Promise((resolve, reject) => {
       const audio = new Audio();
-      
+
       audio.onloadedmetadata = () => {
         resolve({
           duration: audio.duration,
@@ -21,11 +21,11 @@ export const audioUtils = {
           format: file.type
         });
       };
-      
+
       audio.onerror = () => {
         reject(new Error('Failed to load audio file'));
       };
-      
+
       audio.src = URL.createObjectURL(file);
     });
   },
@@ -35,38 +35,38 @@ export const audioUtils = {
     return new Promise((resolve, reject) => {
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       const fileReader = new FileReader();
-      
+
       fileReader.onload = async (e) => {
         try {
           const arrayBuffer = e.target?.result as ArrayBuffer;
           const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-          
+
           const channelData = audioBuffer.getChannelData(0);
           const blockSize = Math.floor(channelData.length / samples);
           const waveform: number[] = [];
-          
+
           for (let i = 0; i < samples; i++) {
             const start = i * blockSize;
             const end = Math.min(start + blockSize, channelData.length);
             let sum = 0;
-            
+
             for (let j = start; j < end; j++) {
               sum += Math.abs(channelData[j]);
             }
-            
+
             waveform.push(sum / (end - start));
           }
-          
+
           resolve(waveform);
         } catch (error) {
           reject(error);
         }
       };
-      
+
       fileReader.onerror = () => {
         reject(new Error('Failed to read audio file'));
       };
-      
+
       fileReader.readAsArrayBuffer(file);
     });
   },
@@ -105,19 +105,19 @@ export const audioUtils = {
     const duration = Math.max(...tracks.map(t => t.startTime + t.duration));
     const sampleRate = audioContext.sampleRate;
     const length = duration * sampleRate;
-    
+
     const mixedBuffer = audioContext.createBuffer(2, length, sampleRate);
     const leftChannel = mixedBuffer.getChannelData(0);
     const rightChannel = mixedBuffer.getChannelData(1);
-    
+
     for (const track of tracks) {
       if (track.muted) continue;
-      
+
       try {
         const audioBuffer = await loadAudioBuffer(track.source, audioContext);
         const startSample = Math.floor(track.startTime * sampleRate);
         const trackLength = Math.min(audioBuffer.length, length - startSample);
-        
+
         for (let i = 0; i < trackLength; i++) {
           const sampleIndex = startSample + i;
           if (sampleIndex >= 0 && sampleIndex < length) {
@@ -130,7 +130,7 @@ export const audioUtils = {
         console.warn(`Failed to load audio track ${track.id}:`, error);
       }
     }
-    
+
     return mixedBuffer;
   },
 
@@ -140,10 +140,10 @@ export const audioUtils = {
     const sampleRate = audioBuffer.sampleRate;
     const silence: { start: number; end: number }[] = [];
     let silenceStart = -1;
-    
+
     for (let i = 0; i < channelData.length; i++) {
       const amplitude = Math.abs(channelData[i]);
-      
+
       if (amplitude < threshold) {
         if (silenceStart === -1) {
           silenceStart = i;
@@ -158,14 +158,14 @@ export const audioUtils = {
         }
       }
     }
-    
+
     if (silenceStart !== -1) {
       silence.push({
         start: silenceStart / sampleRate,
         end: channelData.length / sampleRate
       });
     }
-    
+
     return silence;
   },
 
@@ -177,11 +177,11 @@ export const audioUtils = {
       audioBuffer.length,
       audioBuffer.sampleRate
     );
-    
+
     for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
       const inputData = audioBuffer.getChannelData(channel);
       const outputData = newBuffer.getChannelData(channel);
-      
+
       switch (effect) {
         case 'gain':
           const gain = parameters.amount || 1;
@@ -189,7 +189,7 @@ export const audioUtils = {
             outputData[i] = inputData[i] * gain;
           }
           break;
-          
+
         case 'lowpass':
           const cutoff = parameters.frequency || 1000;
           const resonance = parameters.resonance || 1;
@@ -201,7 +201,7 @@ export const audioUtils = {
           const a3 = a1;
           const b1 = 2 * (1 - c * c) * a1;
           const b2 = (1 - resonance * c + c * c) * a1;
-          
+
           for (let i = 0; i < inputData.length; i++) {
             const x = inputData[i];
             const y = a1 * x + a2 * y1 + a3 * y2 - b1 * y1 - b2 * y2;
@@ -210,7 +210,7 @@ export const audioUtils = {
             y1 = y;
           }
           break;
-          
+
         default:
           // Copy input to output
           for (let i = 0; i < inputData.length; i++) {
@@ -218,7 +218,7 @@ export const audioUtils = {
           }
       }
     }
-    
+
     return newBuffer;
   },
 
@@ -229,14 +229,14 @@ export const audioUtils = {
     const numberOfChannels = audioBuffer.numberOfChannels;
     const arrayBuffer = new ArrayBuffer(44 + length * numberOfChannels * 2);
     const view = new DataView(arrayBuffer);
-    
+
     // WAV header
     const writeString = (offset: number, string: string) => {
       for (let i = 0; i < string.length; i++) {
         view.setUint8(offset + i, string.charCodeAt(i));
       }
     };
-    
+
     writeString(0, 'RIFF');
     view.setUint32(4, 36 + length * numberOfChannels * 2, true);
     writeString(8, 'WAVE');
@@ -250,7 +250,7 @@ export const audioUtils = {
     view.setUint16(34, 16, true);
     writeString(36, 'data');
     view.setUint32(40, length * numberOfChannels * 2, true);
-    
+
     // Convert audio data
     let offset = 44;
     for (let i = 0; i < length; i++) {
@@ -260,7 +260,7 @@ export const audioUtils = {
         offset += 2;
       }
     }
-    
+
     return new Blob([arrayBuffer], { type: 'audio/wav' });
   }
 };

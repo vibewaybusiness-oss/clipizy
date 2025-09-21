@@ -8,13 +8,13 @@ import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Palette, 
-  Zap, 
-  Eye, 
-  Volume2, 
-  Move, 
-  RotateCw, 
+import {
+  Palette,
+  Zap,
+  Eye,
+  Volume2,
+  Move,
+  RotateCw,
   Crop,
   Plus,
   Trash2,
@@ -77,10 +77,10 @@ const EFFECT_CATEGORIES = {
   }
 };
 
-export function EffectsPanel({ 
-  project, 
-  onProjectChange, 
-  className = "" 
+export function EffectsPanel({
+  project,
+  onProjectChange,
+  className = ""
 }: EffectsPanelProps) {
   const [selectedEffect, setSelectedEffect] = useState<Effect | null>(null);
   const [activeCategory, setActiveCategory] = useState<keyof typeof EFFECT_CATEGORIES>('visual');
@@ -111,7 +111,7 @@ export function EffectsPanel({
       )
     };
     onProjectChange(updatedProject);
-    
+
     if (selectedEffect?.id === effectId) {
       setSelectedEffect({ ...selectedEffect, ...updates });
     }
@@ -123,7 +123,7 @@ export function EffectsPanel({
       effects: project.effects.filter(effect => effect.id !== effectId)
     };
     onProjectChange(updatedProject);
-    
+
     if (selectedEffect?.id === effectId) {
       setSelectedEffect(null);
     }
@@ -131,7 +131,7 @@ export function EffectsPanel({
 
   const handleParameterChange = useCallback((parameter: string, value: any) => {
     if (!selectedEffect) return;
-    
+
     handleUpdateEffect(selectedEffect.id, {
       parameters: {
         ...selectedEffect.parameters,

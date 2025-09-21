@@ -7,15 +7,15 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Upload, 
-  Search, 
-  Filter, 
-  Grid, 
-  List, 
-  Video, 
-  Image, 
-  Music, 
+import {
+  Upload,
+  Search,
+  Filter,
+  Grid,
+  List,
+  Video,
+  Image,
+  Music,
   Type,
   Plus,
   FolderOpen,
@@ -30,10 +30,10 @@ interface AssetLibraryProps {
   className?: string;
 }
 
-export function AssetLibrary({ 
-  onAssetSelect, 
-  onAssetUpload, 
-  className = "" 
+export function AssetLibrary({
+  onAssetSelect,
+  onAssetUpload,
+  className = ""
 }: AssetLibraryProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -431,7 +431,7 @@ export function AssetLibrary({
 
   const handleFileUpload = useCallback((files: FileList | null) => {
     if (!files || files.length === 0) return;
-    
+
     const fileArray = Array.from(files);
     onAssetUpload?.(fileArray);
   }, [onAssetUpload]);
@@ -442,8 +442,8 @@ export function AssetLibrary({
 
   const handleAssetSelect = useCallback((assetId: string, multiSelect: boolean = false) => {
     if (multiSelect) {
-      setSelectedAssets(prev => 
-        prev.includes(assetId) 
+      setSelectedAssets(prev =>
+        prev.includes(assetId)
           ? prev.filter(id => id !== assetId)
           : [...prev, assetId]
       );
@@ -520,7 +520,7 @@ export function AssetLibrary({
               className="pl-7 h-7 text-xs"
             />
           </div>
-          
+
           <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
             <TabsList className="grid w-full grid-cols-5 h-6">
               <TabsTrigger value="all" className="text-xs h-5">All</TabsTrigger>
@@ -552,8 +552,8 @@ export function AssetLibrary({
                 <CardContent className="p-2">
                   <div className="aspect-video bg-muted rounded flex items-center justify-center mb-1">
                     {asset.thumbnail ? (
-                      <img 
-                        src={asset.thumbnail} 
+                      <img
+                        src={asset.thumbnail}
                         alt={asset.name}
                         className="w-full h-full object-cover rounded"
                       />

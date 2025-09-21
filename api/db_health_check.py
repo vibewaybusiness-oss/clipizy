@@ -12,7 +12,7 @@ def check_database_connection(max_attempts=30, delay=2):
     Check if database is ready and accepting connections
     """
     print("🔍 Checking database connection...")
-    
+
     # Parse database URL to get connection details
     db_url = settings.database_url
     if db_url.startswith("postgresql://"):
@@ -28,7 +28,7 @@ def check_database_connection(max_attempts=30, delay=2):
         # Fallback for SQLite or other databases
         print("⚠️  Using SQLite database, skipping PostgreSQL health check")
         return True
-    
+
     for attempt in range(max_attempts):
         try:
             # Try direct psycopg2 connection
@@ -48,7 +48,7 @@ def check_database_connection(max_attempts=30, delay=2):
         except Exception as e:
             print(f"❌ Unexpected error: {e}")
             time.sleep(delay)
-    
+
     print("❌ Database connection failed after all attempts")
     return False
 

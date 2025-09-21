@@ -99,12 +99,12 @@ else
         echo -e "${YELLOW}📦 Creating Python virtual environment...${NC}"
         python3 -m venv .venv
     fi
-    
+
     echo -e "${YELLOW}📦 Activating Python virtual environment...${NC}"
     source .venv/bin/activate
-    
+
     echo -e "${YELLOW}📦 Installing Python dependencies...${NC}"
-    
+
     echo -e "${YELLOW}🚀 Starting FastAPI server...${NC}"
     cd api
     DATABASE_URL="postgresql://postgres:postgres@localhost:$POSTGRES_PORT/clipizi" python start.py &
@@ -139,7 +139,7 @@ else
         echo -e "${YELLOW}📦 Installing Node.js dependencies...${NC}"
         npm install
     fi
-    
+
     echo -e "${YELLOW}🚀 Starting Next.js development server...${NC}"
     npm run dev &
     echo -e "${GREEN}✅ Next.js started at http://localhost:3000${NC}"

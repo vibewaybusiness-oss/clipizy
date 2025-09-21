@@ -55,7 +55,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    
+
     const response = await fetch(`${BACKEND_URL}/projects/${id}`, {
       method: 'PUT',
       headers: {

@@ -204,9 +204,9 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  
+
   const post = blogPosts.find(p => p.slug === slug);
-  
+
   if (!post) {
     return NextResponse.json(
       { error: 'Blog post not found' },
@@ -227,9 +227,9 @@ export async function PUT(
   try {
     const { slug } = await params;
     const body = await request.json();
-    
+
     const postIndex = blogPosts.findIndex(p => p.slug === slug);
-    
+
     if (postIndex === -1) {
       return NextResponse.json(
         { error: 'Blog post not found' },
@@ -259,9 +259,9 @@ export async function DELETE(
 ) {
   try {
     const { slug } = await params;
-    
+
     const postIndex = blogPosts.findIndex(p => p.slug === slug);
-    
+
     if (postIndex === -1) {
       return NextResponse.json(
         { error: 'Blog post not found' },

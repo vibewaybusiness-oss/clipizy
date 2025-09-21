@@ -7,8 +7,8 @@ import uuid
 from datetime import datetime
 
 from ..workflows.generator.particles.unified_particle_system import (
-    UnifiedParticleSystem, 
-    ParticleType, 
+    UnifiedParticleSystem,
+    ParticleType,
     ParticleConfig,
     create_particle_system,
     get_particle_type_list
@@ -50,7 +50,7 @@ async def create_particle_system_endpoint(request: ParticleSystemRequest):
         system = create_particle_system(request.particle_type, request.config)
         system_id = str(uuid.uuid4())
         active_systems[system_id] = system
-        
+
         return ParticleSystemResponse(
             system_id=system_id,
             particle_type=request.particle_type,
@@ -88,7 +88,7 @@ async def get_particle_system(system_id: str):
     """Get specific particle system status"""
     if system_id not in active_systems:
         raise HTTPException(status_code=404, detail="Particle system not found")
-    
+
     system = active_systems[system_id]
     return ParticleSystemResponse(
         system_id=system_id,
@@ -103,7 +103,7 @@ async def update_particle_system_config(system_id: str, request: ParticleSystemU
     """Update particle system configuration"""
     if system_id not in active_systems:
         raise HTTPException(status_code=404, detail="Particle system not found")
-    
+
     try:
         system = active_systems[system_id]
         system.update_config(request.config)
@@ -117,7 +117,7 @@ async def change_particle_type(system_id: str, particle_type: str):
     """Change particle system type"""
     if system_id not in active_systems:
         raise HTTPException(status_code=404, detail="Particle system not found")
-    
+
     try:
         pt = ParticleType(particle_type)
         system = active_systems[system_id]
@@ -134,10 +134,10 @@ async def load_audio(system_id: str, audio_path: str):
     """Load audio file for particle system"""
     if system_id not in active_systems:
         raise HTTPException(status_code=404, detail="Particle system not found")
-    
+
     if not os.path.exists(audio_path):
         raise HTTPException(status_code=404, detail="Audio file not found")
-    
+
     try:
         system = active_systems[system_id]
         system.load_audio(audio_path)
@@ -151,20 +151,20 @@ async def render_particles(system_id: str, background_tasks: BackgroundTasks, re
     """Start particle rendering job"""
     if system_id not in active_systems:
         raise HTTPException(status_code=404, detail="Particle system not found")
-    
+
     system = active_systems[system_id]
-    
+
     # Generate output path if not provided
     if not request.output_path:
         output_dir = "api/storage/renders"
         os.makedirs(output_dir, exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         request.output_path = f"{output_dir}/particles_{system_id}_{timestamp}.mp4"
-    
+
     # Validate audio path if provided
     if request.audio_path and not os.path.exists(request.audio_path):
         raise HTTPException(status_code=404, detail="Audio file not found")
-    
+
     # Create job entry
     job_id = str(uuid.uuid4())
     render_jobs[job_id] = {
@@ -175,7 +175,7 @@ async def render_particles(system_id: str, background_tasks: BackgroundTasks, re
         "created_at": datetime.now(),
         "progress": 0
     }
-    
+
     # Start background rendering
     background_tasks.add_task(
         render_particles_background,
@@ -184,7 +184,7 @@ async def render_particles(system_id: str, background_tasks: BackgroundTasks, re
         request.output_path,
         request.audio_path
     )
-    
+
     return {
         "job_id": job_id,
         "message": "Rendering started",
@@ -197,14 +197,14 @@ async def render_particles_background(job_id: str, system_id: str, output_path: 
     try:
         render_jobs[job_id]["status"] = "rendering"
         render_jobs[job_id]["progress"] = 10
-        
+
         system = active_systems[system_id]
         system.render_particles(output_path, audio_path)
-        
+
         render_jobs[job_id]["status"] = "completed"
         render_jobs[job_id]["progress"] = 100
         render_jobs[job_id]["completed_at"] = datetime.now()
-        
+
     except Exception as e:
         render_jobs[job_id]["status"] = "failed"
         render_jobs[job_id]["error"] = str(e)
@@ -216,7 +216,7 @@ async def get_render_job_status(job_id: str):
     """Get render job status"""
     if job_id not in render_jobs:
         raise HTTPException(status_code=404, detail="Render job not found")
-    
+
     job = render_jobs[job_id]
     response = {
         "job_id": job_id,
@@ -224,14 +224,14 @@ async def get_render_job_status(job_id: str):
         "progress": job["progress"],
         "created_at": job["created_at"]
     }
-    
+
     if job["status"] == "completed":
         response["output_path"] = job["output_path"]
         response["completed_at"] = job.get("completed_at")
     elif job["status"] == "failed":
         response["error"] = job.get("error")
         response["failed_at"] = job.get("failed_at")
-    
+
     return response
 
 
@@ -256,15 +256,15 @@ async def download_render(job_id: str):
     """Download rendered video file"""
     if job_id not in render_jobs:
         raise HTTPException(status_code=404, detail="Render job not found")
-    
+
     job = render_jobs[job_id]
     if job["status"] != "completed":
         raise HTTPException(status_code=400, detail="Render job not completed")
-    
+
     output_path = job["output_path"]
     if not os.path.exists(output_path):
         raise HTTPException(status_code=404, detail="Output file not found")
-    
+
     return FileResponse(
         path=output_path,
         filename=os.path.basename(output_path),
@@ -277,7 +277,7 @@ async def delete_particle_system(system_id: str):
     """Delete particle system"""
     if system_id not in active_systems:
         raise HTTPException(status_code=404, detail="Particle system not found")
-    
+
     del active_systems[system_id]
     return {"message": "Particle system deleted successfully"}
 
@@ -287,16 +287,16 @@ async def delete_render_job(job_id: str):
     """Delete render job and its output file"""
     if job_id not in render_jobs:
         raise HTTPException(status_code=404, detail="Render job not found")
-    
+
     job = render_jobs[job_id]
-    
+
     # Delete output file if it exists
     if job.get("output_path") and os.path.exists(job["output_path"]):
         try:
             os.remove(job["output_path"])
         except Exception:
             pass  # Ignore file deletion errors
-    
+
     del render_jobs[job_id]
     return {"message": "Render job deleted successfully"}
 
@@ -306,9 +306,9 @@ async def get_system_preview(system_id: str, duration: float = 2.0):
     """Generate a quick preview of the particle system"""
     if system_id not in active_systems:
         raise HTTPException(status_code=404, detail="Particle system not found")
-    
+
     system = active_systems[system_id]
-    
+
     # Create a temporary system for preview
     preview_config = ParticleConfig(
         width=640,
@@ -317,16 +317,16 @@ async def get_system_preview(system_id: str, duration: float = 2.0):
         duration=duration,
         particle_count=min(50, system.particle_count)
     )
-    
+
     preview_system = UnifiedParticleSystem(
         particle_type=system.particle_type,
         config=preview_config
     )
-    
+
     # Generate preview
     preview_path = f"api/storage/previews/preview_{system_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.mp4"
     os.makedirs(os.path.dirname(preview_path), exist_ok=True)
-    
+
     try:
         preview_system.render_particles(preview_path)
         return FileResponse(

@@ -12,11 +12,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import WaveformVisualizer, { type WaveformVisualizerRef } from "@/components/waveform-visualizer";
 import { StepSettings } from "@/components/create/create-music/step-video";
-import { StepOverview as StepPrompt } from "@/components/create/create-music/step-settings";
-import { StepSettings as StepOverview } from "@/components/create/create-music/step-video";
+import { StepOverview } from "@/components/create/create-music/step-settings";
+import { OverviewLayout as StepAnalysis, OverviewLayout as MusicAnalysisVisualizer } from "@/components/create/create-music/step-overview";
 import { StepGenerating } from "@/components/create/create-music/step-generating";
 import { StepPreview } from "@/components/create/create-music/step-preview";
-import { OverviewLayout as MusicAnalysisVisualizer } from "@/components/create/create-music/overview-layout";
 import {
   Scene,
   SceneSchema,
@@ -848,7 +847,7 @@ export default function MusicClipPage() {
                     <CardDescription className="text-muted-foreground text-base">Analyze your audio and add scene markers.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6 flex-1 flex flex-col">
-                    <StepPrompt
+                    <StepAnalysis
                       form={promptForm}
                       settings={settings}
                       audioFile={audioFile}
@@ -860,6 +859,9 @@ export default function MusicClipPage() {
                       onBack={() => setCurrentStep(2)}
                       fileToDataUri={fileToDataUri}
                       toast={toast}
+                      canContinue={true}
+                      onContinue={() => setCurrentStep(4)}
+                      continueText="Continue"
                     />
           </CardContent>
         </Card>

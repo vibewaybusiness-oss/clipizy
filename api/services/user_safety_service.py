@@ -13,25 +13,25 @@ logger = get_project_logger()
 class UserSafetyService:
     def __init__(self):
         logger.info("UserSafetyService initialized")
-    
+
     def ensure_user_exists(self, db: Session, user_id: str) -> User:
         """Ensure a user exists, create if not found"""
         try:
             # Try to find existing user
             user = db.query(User).filter(User.id == user_id).first()
-            
+
             if user:
                 logger.debug(f"User {user_id} already exists")
                 return user
-            
+
             # Create new user if not found
             logger.info(f"User {user_id} not found, creating new user")
-            
+
             # Generate a unique email and username
             user_uuid = str(uuid.uuid4())[:8]
             email = f"user_{user_uuid}@clipizi.com"
             username = f"User_{user_uuid}"
-            
+
             new_user = User(
                 id=uuid.UUID(user_id),
                 email=email,
@@ -41,14 +41,14 @@ class UserSafetyService:
                 is_verified=True,
                 plan="free"
             )
-            
+
             db.add(new_user)
             db.commit()
             db.refresh(new_user)
-            
+
             logger.info(f"Created new user: {email} (ID: {user_id})")
             return new_user
-            
+
         except Exception as e:
             logger.error(f"Error ensuring user exists: {str(e)}")
             # If database error, return a mock user instead of failing
@@ -69,14 +69,14 @@ class UserSafetyService:
             else:
                 db.rollback()
                 raise
-    
+
     def ensure_project_folders_exist(self, user_id: str, project_type: str = "music-clip"):
         """Ensure project folders exist in S3 storage"""
         try:
             # Import S3Storage here to avoid circular imports
             from api.storage.s3 import S3Storage
             from api.config import settings
-            
+
             # Initialize S3 storage
             s3_storage = S3Storage(
                 bucket=settings.s3_bucket,
@@ -84,10 +84,10 @@ class UserSafetyService:
                 access_key=settings.s3_access_key,
                 secret_key=settings.s3_secret_key
             )
-            
+
             # Define the S3 folder structure
             base_path = f"users/{user_id}/{project_type}"
-            
+
             # Create folders in S3 if they don't exist
             folders_to_create = [
                 f"{base_path}/",
@@ -95,7 +95,7 @@ class UserSafetyService:
                 f"{base_path}/temp/",
                 f"{base_path}/exports/"
             ]
-            
+
             for folder in folders_to_create:
                 # Create empty object to represent folder in S3
                 try:
@@ -108,9 +108,9 @@ class UserSafetyService:
                 except Exception as folder_error:
                     # Folder might already exist, which is fine
                     logger.debug(f"S3 folder {folder} already exists or creation failed: {folder_error}")
-            
+
             logger.info(f"Ensured S3 project folders exist for user {user_id}")
-            
+
         except Exception as e:
             logger.error(f"Error creating S3 project folders: {str(e)}")
             # Don't raise the exception as this is not critical for functionality

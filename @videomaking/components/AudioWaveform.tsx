@@ -3,13 +3,13 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { 
-  Play, 
-  Pause, 
-  Square, 
-  SkipBack, 
-  SkipForward, 
-  Volume2, 
+import {
+  Play,
+  Pause,
+  Square,
+  SkipBack,
+  SkipForward,
+  Volume2,
   VolumeX,
   ZoomIn,
   ZoomOut
@@ -51,7 +51,7 @@ export function AudioWaveform({
   // Generate mock waveform data
   useEffect(() => {
     if (!duration) return;
-    
+
     const samples = Math.floor(duration * 10); // 10 samples per second
     const mockData = Array.from({ length: samples }, () => Math.random() * 0.8 + 0.1);
     setWaveformData(mockData);
@@ -183,9 +183,9 @@ export function AudioWaveform({
     for (let i = 0; i <= visibleDuration; i += markerInterval) {
       const x = (i / visibleDuration) * width;
       const time = startTime + i;
-      
+
       ctx.fillText(formatTime(time), x, height - 5);
-      
+
       // Draw vertical line
       ctx.strokeStyle = '#374151';
       ctx.lineWidth = 1;
@@ -206,7 +206,7 @@ export function AudioWaveform({
     const visibleDuration = duration / zoom;
     const startTime = scrollPosition;
     const time = startTime + (x / rect.width) * visibleDuration;
-    
+
     onTimeChange(Math.max(0, Math.min(time, duration)));
   }, [duration, zoom, scrollPosition, onTimeChange]);
 
@@ -235,7 +235,7 @@ export function AudioWaveform({
   }, [isMuted, volume]);
 
   const handleSeek = useCallback((direction: 'back' | 'forward', amount: number = 5) => {
-    const newTime = direction === 'back' 
+    const newTime = direction === 'back'
       ? Math.max(0, currentTime - amount)
       : Math.min(duration, currentTime + amount);
     onTimeChange(newTime);
@@ -351,7 +351,7 @@ export function AudioWaveform({
             className="w-full h-32 cursor-pointer border rounded"
             onClick={handleCanvasClick}
           />
-          
+
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/50">
               <div className="text-sm text-muted-foreground">Loading audio...</div>

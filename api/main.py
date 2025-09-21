@@ -54,7 +54,7 @@ class LargeBodyMiddleware(BaseHTTPMiddleware):
                 status_code=413,
                 content={"error": "Payload Too Large", "max_size": self.max_body_size}
             )
-        
+
         # Read the body to prevent uvicorn's default 1MB limit
         try:
             body = await request.body()
@@ -70,7 +70,7 @@ class LargeBodyMiddleware(BaseHTTPMiddleware):
                 status_code=413,
                 content={"error": "Failed to read request body", "detail": str(e)}
             )
-        
+
         response = await call_next(request)
         return response
 
@@ -79,7 +79,7 @@ async def lifespan(app: FastAPI):
     """Application lifespan manager"""
     # Startup
     print("🚀 Starting clipizi API...")
-    
+
     # Create database tables
     try:
         from api.db import create_tables
@@ -93,7 +93,7 @@ async def lifespan(app: FastAPI):
             print("✅ Fallback database setup successful")
         except Exception as fallback_error:
             print(f"⚠️ Fallback database setup failed: {fallback_error}")
-    
+
     # Initialize ComfyUI manager
     try:
         comfyui_manager = get_comfyui_manager()
@@ -101,7 +101,7 @@ async def lifespan(app: FastAPI):
         print("✅ ComfyUI Manager initialized")
     except Exception as e:
         print(f"⚠️ ComfyUI Manager initialization failed: {e}")
-    
+
     # Initialize queue manager
     try:
         queue_manager = get_queue_manager()
@@ -109,12 +109,12 @@ async def lifespan(app: FastAPI):
         print("✅ Queue Manager started")
     except Exception as e:
         print(f"⚠️ Queue Manager initialization failed: {e}")
-    
+
     yield
-    
+
     # Shutdown
     print("🛑 Shutting down clipizi API...")
-    
+
     # Cleanup ComfyUI manager
     try:
         comfyui_manager = get_comfyui_manager()
@@ -122,7 +122,7 @@ async def lifespan(app: FastAPI):
         print("✅ ComfyUI Manager cleaned up")
     except Exception as e:
         print(f"⚠️ ComfyUI Manager cleanup failed: {e}")
-    
+
     # Cleanup queue manager
     try:
         queue_manager = get_queue_manager()

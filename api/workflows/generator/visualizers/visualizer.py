@@ -11,16 +11,16 @@ from moviepy import VideoFileClip, AudioFileClip
 class logger:
     def __init__(self, name="Visualizer"):
         self.name = name
-    
+
     def log(self, message):
         print(f"[{self.name}] {message}")
-    
+
     def error(self, message):
         print(f"[{self.name}] ERROR: {message}")
-    
+
     def warning(self, message):
         print(f"[{self.name}] WARNING: {message}")
-    
+
     def info(self, message):
         print(f"[{self.name}] INFO: {message}")
 
@@ -92,11 +92,11 @@ class AudioVisualizerBase:
         # Calculate visualizer dimensions as percentages of screen
         vis_width = int(width * width_percent / 100)
         vis_height = int(height * height_percent / 100)
-        
+
         # Calculate position based on x_position and y_position parameters
         vis_x = int(width * x_position / 100) - vis_width // 2  # Center on x_position
         vis_y = int(height * y_position / 100) - vis_height // 2  # Center on y_position
-        
+
         # Ensure visualizer stays within screen bounds
         vis_x = max(0, min(vis_x, width - vis_width))
         vis_y = max(0, min(vis_y, height - vis_height))
@@ -106,11 +106,11 @@ class AudioVisualizerBase:
             bar_count = n_segments
         if bar_thickness is None:
             bar_thickness = max(1, int(vis_width / bar_count / 2))
-        
+
         # Set dot parameters with defaults
         if dot_size is None:
             dot_size = max(1, bar_thickness)
-        
+
         # Calculate smoothness factor (0-1)
         smoothness_factor = smoothness / 100.0
 
@@ -147,7 +147,7 @@ class AudioVisualizerBase:
                     padded_values = np.zeros(bar_count)
                     padded_values[:len(values)] = values
                     values = padded_values
-                
+
                 # Apply frame-level smoothing based on smoothness level
                 if smoothness_factor > 0:
                     values = self._apply_frame_smoothing(values, smoothness_factor, smoothing_buffer, previous_values, velocity_buffer, moving_average_buffer, i)
@@ -163,7 +163,7 @@ class AudioVisualizerBase:
                         if len(moving_average_buffer) >= 3:  # Keep last 3 frames for moving average (0.1s at 30fps)
                             moving_average_buffer.pop(0)
                         moving_average_buffer.append(values.copy())
-                
+
                 frame = draw_frame_fn(frame, values, i, fps, vis_width, vis_height, vis_x, vis_y, bar_thickness, mirror_right, bar_height_min, bar_height_max, height, width, x_position, y_position, color, dot_size, dot_filled, transparency, top_active, bottom_active, fill_alpha, border_alpha, smooth_arcs, enhanced_mode)
 
             writer.write(frame)
@@ -204,19 +204,19 @@ class AudioVisualizerBase:
 
         # FFT processing with configurable smoothness
         y_tensor = torch.tensor(y, device="cpu")
-        
+
         # Apply window function based on smoothness level
         if smoothness_factor > 0.3:  # Only apply window for higher smoothness values
             window = torch.hann_window(samples_per_frame)
         else:
             window = torch.ones(samples_per_frame)  # No window for maximum responsiveness
-        
+
         # Process each frame individually
         fft_magnitude_list = []
         for i in range(total_frames):
             start_idx = i * samples_per_frame
             end_idx = start_idx + samples_per_frame
-            
+
             if start_idx >= len(y_tensor):
                 # Pad with zeros if beyond audio length
                 frame_data = torch.zeros(samples_per_frame)
@@ -226,23 +226,23 @@ class AudioVisualizerBase:
                     # Pad with zeros if frame is too short
                     pad_length = samples_per_frame - len(frame_data)
                     frame_data = torch.cat([frame_data, torch.zeros(pad_length)])
-            
+
             # Apply window function
             frame_data = frame_data * window
-            
+
             # Direct FFT on this frame
             fft_frame = torch.fft.rfft(frame_data)
             fft_mag = torch.abs(fft_frame[:n_segments // 2])
-            
+
             fft_magnitude_list.append(fft_mag)
-        
+
         fft_magnitude = torch.stack(fft_magnitude_list)
-        
+
         # Apply FFT-level smoothing based on smoothness factor
         if smoothness_factor > 0.5:  # Only apply FFT smoothing for higher smoothness values
             smoothing_alpha = 0.1 + (0.3 * smoothness_factor)  # 0.1 to 0.4 range
             fft_magnitude = self._apply_smoothing_filter(fft_magnitude, alpha=smoothing_alpha)
-        
+
         # Normalize each frequency band independently to its own maximum
         # This allows each bar to reach full height based on its own peak
         for freq_idx in range(fft_magnitude.shape[1]):
@@ -277,36 +277,36 @@ class AudioVisualizerBase:
         """Apply exponential smoothing to reduce jitter between frames"""
         smoothed = torch.zeros_like(fft_magnitude)
         smoothed[0] = fft_magnitude[0]
-        
+
         for i in range(1, len(fft_magnitude)):
             smoothed[i] = alpha * fft_magnitude[i] + (1 - alpha) * smoothed[i-1]
-        
+
         return smoothed
 
     def _apply_frame_smoothing(self, values, smoothness_factor, smoothing_buffer, previous_values, velocity_buffer, moving_average_buffer, frame_idx):
         """Apply frame-level smoothing based on smoothness level (0-100%)"""
         if smoothing_buffer is None or previous_values is None:
             return values
-        
+
         # Calculate velocity (change from previous frame)
         velocity = values - previous_values
-        
+
         # Anti-flickering: limit maximum velocity change based on smoothness
         if smoothness_factor < 0.3:
             max_velocity = 0.3  # More controlled for low smoothness
         else:
             max_velocity = 0.1 + (0.2 * smoothness_factor)  # 0.1 to 0.3 range
         velocity = np.clip(velocity, -max_velocity, max_velocity)
-        
+
         # Update velocity buffer with smoothing
         if velocity_buffer is not None:
             velocity_buffer = 0.5 * velocity_buffer + 0.5 * velocity  # More responsive
         else:
             velocity_buffer = velocity
-        
+
         # Apply velocity-limited smoothing
         smoothed_values = previous_values + velocity_buffer
-        
+
         # For high smoothness (60-100), use moving average
         if smoothness_factor >= 0.6 and moving_average_buffer is not None and len(moving_average_buffer) > 1:
             # Calculate moving average of last few frames
@@ -314,14 +314,14 @@ class AudioVisualizerBase:
             # Blend between smoothed values and moving average
             blend_factor = (smoothness_factor - 0.6) / 0.4  # 0 to 1 for smoothness 60-100
             smoothed_values = (1 - blend_factor) * smoothed_values + blend_factor * moving_avg
-        
+
         # Final smoothing with exponential moving average
         if smoothness_factor < 0.3:
             smoothing_alpha = 0.5  # More controlled for low smoothness
         else:
             smoothing_alpha = 0.2 + (0.3 * smoothness_factor)  # 0.2 to 0.5 range
         final_values = (1 - smoothing_alpha) * smoothing_buffer + smoothing_alpha * smoothed_values
-        
+
         return final_values
 
     # ----------------------------
@@ -409,59 +409,59 @@ class AudioVisualizerBase:
 class LinearBarsVisualizer(AudioVisualizerBase):
     def __init__(self):
         super().__init__("LinearBars")
-    
+
     def _apply_enhanced_mode(self, values, enhanced_mode, bar_height_min, bar_height_max, total_height):
         """Apply enhanced mode processing to values based on height increase threshold"""
         if not enhanced_mode or not enhanced_mode.get("active", False):
             return values
-        
+
         # Get enhanced mode parameters with defaults
         threshold = enhanced_mode.get("threshold", 0.3)
         factor = enhanced_mode.get("factor", 2.0)
-        
+
         # Calculate height range
         min_height = int(total_height * bar_height_min / 100)
         max_height = int(total_height * bar_height_max / 100)
         height_range = max_height - min_height
-        
+
         # Calculate threshold in terms of height increase
         height_threshold = height_range * threshold
-        
+
         # Apply threshold and enhancement based on height increase
         enhanced_values = values.copy()
         for i in range(len(enhanced_values)):
             # Calculate current height increase
             current_height_increase = enhanced_values[i] * height_range
-            
+
             if current_height_increase >= height_threshold:
                 # Apply enhancement factor with gradual transition to reduce flickering
                 enhanced_value = min(1.0, enhanced_values[i] * factor)
-                
+
                 # Gradual transition instead of sudden jump
                 transition_factor = 0.8  # 80% new value, 20% old value for smoother transition
                 enhanced_values[i] = transition_factor * enhanced_value + (1 - transition_factor) * enhanced_values[i]
             else:
                 # Keep values below threshold as they are (stand in place)
                 enhanced_values[i] = enhanced_values[i]
-        
+
         return enhanced_values
- 
+
     def draw_frame(self, frame, values, frame_idx, fps, vis_width, vis_height, vis_x, vis_y, bar_thickness, mirror_right=False, bar_height_min=10, bar_height_max=35, total_height=1080, total_width=1920, x_position=50, y_position=50, color=(255, 50, 100), dot_size=None, dot_filled=True, transparency=True, top_active=True, bottom_active=True, fill_alpha=0.5, border_alpha=1.0, smooth_arcs=False, enhanced_mode=None):
         # Apply enhanced mode processing to values
         values = self._apply_enhanced_mode(values, enhanced_mode, bar_height_min, bar_height_max, total_height)
-        
+
         n_segments = len(values)
         # Use full video width for bar positioning, not just visualizer width
         margin = max(10, total_width // 20)  # Dynamic margin based on total video width
         usable_w = total_width - 2 * margin
-        
+
         # Calculate center position based on y_position parameter
         center_y = int(total_height * y_position / 100)
-        
+
         # Calculate bar height limits as percentages of total video height
         min_bar_h = int(total_height * bar_height_min / 100)
         max_bar_h = int(total_height * bar_height_max / 100)
-        
+
         # Ensure bars can extend beyond visualizer boundaries
         # The visualizer band is just a reference area, bars can go outside it
 
@@ -490,14 +490,14 @@ class LinearBarsVisualizer(AudioVisualizerBase):
                 bar_h = int(min_bar_h + amp * (max_bar_h - min_bar_h))
                 top = int(center_y - bar_h/2)
                 bottom = int(center_y + bar_h/2)
-                
+
                 # Draw bar with gradient effect for smoother appearance
                 if transparency:
                     color_intensity = int(255 * amp)
                 else:
                     color_intensity = 255  # Full opacity
-                bar_color = (min(255, int(color[0] * (color_intensity + 50) / 255)), 
-                           min(255, int(color[1] * (color_intensity + 50) / 255)), 
+                bar_color = (min(255, int(color[0] * (color_intensity + 50) / 255)),
+                           min(255, int(color[1] * (color_intensity + 50) / 255)),
                            min(255, int(color[2] * (color_intensity + 50) / 255)))
                 cv2.line(frame, (x, top), (x, bottom), bar_color, bar_thickness)
 
@@ -517,17 +517,17 @@ class LinearBarsVisualizer(AudioVisualizerBase):
                 bar_h = int(min_bar_h + amp * (max_bar_h - min_bar_h))
                 top = int(center_y - bar_h/2)
                 bottom = int(center_y + bar_h/2)
-                
+
                 # Draw bar with gradient effect for smoother appearance
                 if transparency:
                     color_intensity = int(255 * amp)
                 else:
                     color_intensity = 255  # Full opacity
-                bar_color = (min(255, int(color[0] * (color_intensity + 50) / 255)), 
-                           min(255, int(color[1] * (color_intensity + 50) / 255)), 
+                bar_color = (min(255, int(color[0] * (color_intensity + 50) / 255)),
+                           min(255, int(color[1] * (color_intensity + 50) / 255)),
                            min(255, int(color[2] * (color_intensity + 50) / 255)))
                 cv2.line(frame, (x, top), (x, bottom), bar_color, bar_thickness)
-        
+
         return frame
 
 
@@ -537,43 +537,43 @@ class LinearBarsVisualizer(AudioVisualizerBase):
 class LinearDotsVisualizer(AudioVisualizerBase):
     def __init__(self):
         super().__init__("LinearDots")
-    
+
     def _apply_enhanced_mode(self, values, enhanced_mode, bar_height_min, bar_height_max, total_height):
         """Apply enhanced mode processing to values based on height increase threshold"""
         if not enhanced_mode or not enhanced_mode.get("active", False):
             return values
-        
+
         # Get enhanced mode parameters with defaults
         threshold = enhanced_mode.get("threshold", 0.3)
         factor = enhanced_mode.get("factor", 2.0)
-        
+
         # Calculate height range
         min_height = int(total_height * bar_height_min / 100)
         max_height = int(total_height * bar_height_max / 100)
         height_range = max_height - min_height
-        
+
         # Calculate threshold in terms of height increase
         height_threshold = height_range * threshold
-        
+
         # Apply threshold and enhancement based on height increase
         enhanced_values = values.copy()
         for i in range(len(enhanced_values)):
             # Calculate current height increase
             current_height_increase = enhanced_values[i] * height_range
-            
+
             if current_height_increase >= height_threshold:
                 # Apply enhancement factor with gradual transition to reduce flickering
                 enhanced_value = min(1.0, enhanced_values[i] * factor)
-                
+
                 # Gradual transition instead of sudden jump
                 transition_factor = 0.8  # 80% new value, 20% old value for smoother transition
                 enhanced_values[i] = transition_factor * enhanced_value + (1 - transition_factor) * enhanced_values[i]
             else:
                 # Keep values below threshold as they are (stand in place)
                 enhanced_values[i] = enhanced_values[i]
-        
+
         return enhanced_values
-    
+
     def _draw_high_quality_dot(self, frame, x, y, radius, color, filled):
         """Draw a high-quality dot with anti-aliasing"""
         if filled:
@@ -593,23 +593,23 @@ class LinearDotsVisualizer(AudioVisualizerBase):
     def draw_frame(self, frame, values, frame_idx, fps, vis_width, vis_height, vis_x, vis_y, bar_thickness, mirror_right=False, bar_height_min=10, bar_height_max=35, total_height=1080, total_width=1920, x_position=50, y_position=50, color=(255, 50, 100), dot_size=None, dot_filled=True, transparency=True, top_active=True, bottom_active=True, fill_alpha=0.5, border_alpha=1.0, smooth_arcs=False, enhanced_mode=None):
         # Apply enhanced mode processing to values
         values = self._apply_enhanced_mode(values, enhanced_mode, bar_height_min, bar_height_max, total_height)
-        
+
         n_segments = len(values)
         # Use full video width for dot positioning, not just visualizer width
         margin = max(10, total_width // 20)  # Dynamic margin based on total video width
         usable_w = total_width - 2 * margin
-        
+
         # Calculate center position based on y_position parameter
         center_y = int(total_height * y_position / 100)
-        
+
         # Calculate dot height limits as percentages of total video height
         min_dot_h = int(total_height * bar_height_min / 100)
         max_dot_h = int(total_height * bar_height_max / 100)
-        
+
         # Set dot size with default
         if dot_size is None:
             dot_size = max(1, bar_thickness)
-        
+
         # Calculate the number of dots to draw on each side
         if mirror_right:
             dots_per_side = n_segments // 2
@@ -641,16 +641,16 @@ class LinearDotsVisualizer(AudioVisualizerBase):
                 dot_h = int(min_dot_h + amp * (max_dot_h - min_dot_h))
                 top_y = int(center_y - dot_h/2)
                 bottom_y = int(center_y + dot_h/2)
-                
+
                 # Draw dots with gradient effect for smoother appearance
                 if transparency:
                     color_intensity = int(255 * amp)
                 else:
                     color_intensity = 255  # Full opacity
-                dot_color = (min(255, int(color[0] * (color_intensity + 50) / 255)), 
-                           min(255, int(color[1] * (color_intensity + 50) / 255)), 
+                dot_color = (min(255, int(color[0] * (color_intensity + 50) / 255)),
+                           min(255, int(color[1] * (color_intensity + 50) / 255)),
                            min(255, int(color[2] * (color_intensity + 50) / 255)))
-                
+
                 # Draw top dot with high quality (if active)
                 if top_active:
                     self._draw_high_quality_dot(frame, x, top_y, dot_size, dot_color, dot_filled)
@@ -675,23 +675,23 @@ class LinearDotsVisualizer(AudioVisualizerBase):
                 dot_h = int(min_dot_h + amp * (max_dot_h - min_dot_h))
                 top_y = int(center_y - dot_h/2)
                 bottom_y = int(center_y + dot_h/2)
-                
+
                 # Draw dots with gradient effect for smoother appearance
                 if transparency:
                     color_intensity = int(255 * amp)
                 else:
                     color_intensity = 255  # Full opacity
-                dot_color = (min(255, int(color[0] * (color_intensity + 50) / 255)), 
-                           min(255, int(color[1] * (color_intensity + 50) / 255)), 
+                dot_color = (min(255, int(color[0] * (color_intensity + 50) / 255)),
+                           min(255, int(color[1] * (color_intensity + 50) / 255)),
                            min(255, int(color[2] * (color_intensity + 50) / 255)))
-                
+
                 # Draw top dot with high quality (if active)
                 if top_active:
                     self._draw_high_quality_dot(frame, x, top_y, dot_size, dot_color, dot_filled)
                 # Draw bottom dot with high quality (if active)
                 if bottom_active:
                     self._draw_high_quality_dot(frame, x, bottom_y, dot_size, dot_color, dot_filled)
-        
+
         return frame
 
 
@@ -701,18 +701,18 @@ class LinearDotsVisualizer(AudioVisualizerBase):
 class WaveformVisualizer(AudioVisualizerBase):
     def __init__(self):
         super().__init__("Waveform")
-    
+
     def _create_smooth_curve(self, points, interpolation_factor=8):
         """Create smooth curves using cubic spline interpolation with better smoothing"""
         if len(points) < 2:
             return points
-        
+
         if len(points) == 2:
             # For just 2 points, create a simple smooth interpolation
             x1, y1 = points[0]
             x2, y2 = points[1]
             smooth_points = []
-            
+
             for i in range(interpolation_factor + 1):
                 t = i / interpolation_factor
                 # Use smoothstep function for very smooth curves
@@ -720,25 +720,25 @@ class WaveformVisualizer(AudioVisualizerBase):
                 x = int(x1 + (x2 - x1) * smooth_t)
                 y = int(y1 + (y2 - y1) * smooth_t)
                 smooth_points.append((x, y))
-            
+
             return smooth_points
-        
+
         # For 3+ points, use cubic spline interpolation
         x_coords = [p[0] for p in points]
         y_coords = [p[1] for p in points]
-        
+
         # Create much more interpolated points for ultra-smooth curves
         x_smooth = []
         y_smooth = []
-        
+
         # Add first point
         x_smooth.append(points[0][0])
         y_smooth.append(points[0][1])
-        
+
         for i in range(len(points) - 1):
             x1, y1 = points[i]
             x2, y2 = points[i + 1]
-            
+
             # Calculate control points for cubic bezier-like smoothing
             if i > 0:
                 # Use previous point for better continuity
@@ -749,7 +749,7 @@ class WaveformVisualizer(AudioVisualizerBase):
             else:
                 cp1_x = x1
                 cp1_y = y1
-            
+
             if i < len(points) - 2:
                 # Use next point for better continuity
                 x3, y3 = points[i + 2]
@@ -759,72 +759,72 @@ class WaveformVisualizer(AudioVisualizerBase):
             else:
                 cp2_x = x2
                 cp2_y = y2
-            
+
             # Create smooth cubic bezier interpolation
             for j in range(1, interpolation_factor + 1):
                 t = j / interpolation_factor
-                
+
                 # Cubic bezier formula
                 x_interp = int((1-t)**3 * x1 + 3*(1-t)**2*t * cp1_x + 3*(1-t)*t**2 * cp2_x + t**3 * x2)
                 y_interp = int((1-t)**3 * y1 + 3*(1-t)**2*t * cp1_y + 3*(1-t)*t**2 * cp2_y + t**3 * y2)
-                
+
                 x_smooth.append(x_interp)
                 y_smooth.append(y_interp)
-        
+
         return list(zip(x_smooth, y_smooth))
-    
+
     def _apply_enhanced_mode(self, values, enhanced_mode, bar_height_min, bar_height_max, total_height):
         """Apply enhanced mode processing to values based on height increase threshold"""
         if not enhanced_mode or not enhanced_mode.get("active", False):
             return values
-        
+
         # Get enhanced mode parameters with defaults
         threshold = enhanced_mode.get("threshold", 0.3)
         factor = enhanced_mode.get("factor", 2.0)
-        
+
         # Calculate height range
         min_height = int(total_height * bar_height_min / 100)
         max_height = int(total_height * bar_height_max / 100)
         height_range = max_height - min_height
-        
+
         # Calculate threshold in terms of height increase
         height_threshold = height_range * threshold
-        
+
         # Apply threshold and enhancement based on height increase
         enhanced_values = values.copy()
         for i in range(len(enhanced_values)):
             # Calculate current height increase
             current_height_increase = enhanced_values[i] * height_range
-            
+
             if current_height_increase >= height_threshold:
                 # Apply enhancement factor with gradual transition to reduce flickering
                 enhanced_value = min(1.0, enhanced_values[i] * factor)
-                
+
                 # Gradual transition instead of sudden jump
                 transition_factor = 0.8  # 80% new value, 20% old value for smoother transition
                 enhanced_values[i] = transition_factor * enhanced_value + (1 - transition_factor) * enhanced_values[i]
             else:
                 # Keep values below threshold as they are (stand in place)
                 enhanced_values[i] = enhanced_values[i]
-        
+
         return enhanced_values
-    
+
     def draw_frame(self, frame, values, frame_idx, fps, vis_width, vis_height, vis_x, vis_y, bar_thickness, mirror_right=False, bar_height_min=10, bar_height_max=35, total_height=1080, total_width=1920, x_position=50, y_position=50, color=(255, 50, 100), dot_size=None, dot_filled=True, transparency=True, top_active=True, bottom_active=True, fill_alpha=0.5, border_alpha=1.0, smooth_arcs=False, enhanced_mode=None):
         # Apply enhanced mode processing to values
         values = self._apply_enhanced_mode(values, enhanced_mode, bar_height_min, bar_height_max, total_height)
-        
+
         n_segments = len(values)
         # Use full video width for waveform positioning
         margin = max(10, total_width // 20)
         usable_w = total_width - 2 * margin
-        
+
         # Calculate center position based on y_position parameter
         center_y = int(total_height * y_position / 100)
-        
+
         # Calculate waveform height limits as percentages of total video height
         min_wave_h = int(total_height * bar_height_min / 100)
         max_wave_h = int(total_height * bar_height_max / 100)
-        
+
         # Calculate the number of points to draw
         if mirror_right:
             points_per_side = n_segments // 2
@@ -834,7 +834,7 @@ class WaveformVisualizer(AudioVisualizerBase):
             points_per_side = n_segments
             left_values = values
             right_values = []
-        
+
         # Draw left side waveform
         if len(left_values) > 0 and top_active:
             left_width = usable_w // 2 if mirror_right else usable_w
@@ -843,7 +843,7 @@ class WaveformVisualizer(AudioVisualizerBase):
                 start_x = center_x - left_width
             else:
                 start_x = int(total_width * x_position / 100) - left_width // 2
-            
+
             # Create points for the top waveform
             top_points = []
             for j in range(len(left_values)):
@@ -852,7 +852,7 @@ class WaveformVisualizer(AudioVisualizerBase):
                 wave_h = int(min_wave_h + amp * (max_wave_h - min_wave_h))
                 y = center_y - wave_h // 2
                 top_points.append((x, y))
-            
+
             # Draw filled area under the top curve
             if len(top_points) > 1:
                 # Create polygon points for filled area
@@ -861,25 +861,25 @@ class WaveformVisualizer(AudioVisualizerBase):
                 fill_points.append((top_points[-1][0], center_y))
                 fill_points.append((top_points[0][0], center_y))
                 fill_points.append(top_points[0])
-                
+
                 # Convert to numpy array for fillPoly
                 fill_points_array = np.array(fill_points, np.int32)
-                
+
                 # Calculate fill color with alpha
                 if transparency:
                     fill_color_intensity = int(255 * np.mean(left_values))
                 else:
                     fill_color_intensity = 255
-                
-                fill_color = (min(255, int(color[0] * (fill_color_intensity + 50) / 255)), 
-                             min(255, int(color[1] * (fill_color_intensity + 50) / 255)), 
+
+                fill_color = (min(255, int(color[0] * (fill_color_intensity + 50) / 255)),
+                             min(255, int(color[1] * (fill_color_intensity + 50) / 255)),
                              min(255, int(color[2] * (fill_color_intensity + 50) / 255)))
-                
+
                 # Create overlay for alpha blending
                 overlay = frame.copy()
                 cv2.fillPoly(overlay, [fill_points_array], fill_color)
                 cv2.addWeighted(frame, 1 - fill_alpha, overlay, fill_alpha, 0, frame)
-            
+
             # Draw border (highest points) with full alpha
             if smooth_arcs and len(top_points) > 2:
                 # Create smooth curves using interpolation
@@ -887,11 +887,11 @@ class WaveformVisualizer(AudioVisualizerBase):
                     border_color_intensity = int(255 * np.mean(left_values))
                 else:
                     border_color_intensity = 255
-                
-                border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)), 
-                               min(255, int(color[1] * (border_color_intensity + 50) / 255)), 
+
+                border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)),
+                               min(255, int(color[1] * (border_color_intensity + 50) / 255)),
                                min(255, int(color[2] * (border_color_intensity + 50) / 255)))
-                
+
                 # Interpolate points for smooth curves
                 smooth_points = self._create_smooth_curve(top_points)
                 if len(smooth_points) > 1:
@@ -902,20 +902,20 @@ class WaveformVisualizer(AudioVisualizerBase):
                 for i in range(len(top_points) - 1):
                     x1, y1 = top_points[i]
                     x2, y2 = top_points[i + 1]
-                    
+
                     # Calculate border color
                     if transparency:
                         border_color_intensity = int(255 * max(left_values[i], left_values[i + 1]))
                     else:
                         border_color_intensity = 255
-                    
-                    border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)), 
-                                   min(255, int(color[1] * (border_color_intensity + 50) / 255)), 
+
+                    border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)),
+                                   min(255, int(color[1] * (border_color_intensity + 50) / 255)),
                                    min(255, int(color[2] * (border_color_intensity + 50) / 255)))
-                    
+
                     # Draw line with border alpha
                     cv2.line(frame, (x1, y1), (x2, y2), border_color, max(1, bar_thickness))
-        
+
         # Draw bottom side waveform
         if len(left_values) > 0 and bottom_active:
             left_width = usable_w // 2 if mirror_right else usable_w
@@ -924,7 +924,7 @@ class WaveformVisualizer(AudioVisualizerBase):
                 start_x = center_x - left_width
             else:
                 start_x = int(total_width * x_position / 100) - left_width // 2
-            
+
             # Create points for the bottom waveform
             bottom_points = []
             for j in range(len(left_values)):
@@ -933,7 +933,7 @@ class WaveformVisualizer(AudioVisualizerBase):
                 wave_h = int(min_wave_h + amp * (max_wave_h - min_wave_h))
                 y = center_y + wave_h // 2
                 bottom_points.append((x, y))
-            
+
             # Draw filled area above the bottom curve
             if len(bottom_points) > 1:
                 # Create polygon points for filled area
@@ -942,25 +942,25 @@ class WaveformVisualizer(AudioVisualizerBase):
                 fill_points.append((bottom_points[-1][0], center_y))
                 fill_points.append((bottom_points[0][0], center_y))
                 fill_points.append(bottom_points[0])
-                
+
                 # Convert to numpy array for fillPoly
                 fill_points_array = np.array(fill_points, np.int32)
-                
+
                 # Calculate fill color with alpha
                 if transparency:
                     fill_color_intensity = int(255 * np.mean(left_values))
                 else:
                     fill_color_intensity = 255
-                
-                fill_color = (min(255, int(color[0] * (fill_color_intensity + 50) / 255)), 
-                             min(255, int(color[1] * (fill_color_intensity + 50) / 255)), 
+
+                fill_color = (min(255, int(color[0] * (fill_color_intensity + 50) / 255)),
+                             min(255, int(color[1] * (fill_color_intensity + 50) / 255)),
                              min(255, int(color[2] * (fill_color_intensity + 50) / 255)))
-                
+
                 # Create overlay for alpha blending
                 overlay = frame.copy()
                 cv2.fillPoly(overlay, [fill_points_array], fill_color)
                 cv2.addWeighted(frame, 1 - fill_alpha, overlay, fill_alpha, 0, frame)
-            
+
             # Draw border (highest points) with full alpha
             if smooth_arcs and len(bottom_points) > 2:
                 # Create smooth curves using interpolation
@@ -968,11 +968,11 @@ class WaveformVisualizer(AudioVisualizerBase):
                     border_color_intensity = int(255 * np.mean(left_values))
                 else:
                     border_color_intensity = 255
-                
-                border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)), 
-                               min(255, int(color[1] * (border_color_intensity + 50) / 255)), 
+
+                border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)),
+                               min(255, int(color[1] * (border_color_intensity + 50) / 255)),
                                min(255, int(color[2] * (border_color_intensity + 50) / 255)))
-                
+
                 # Interpolate points for smooth curves
                 smooth_points = self._create_smooth_curve(bottom_points)
                 if len(smooth_points) > 1:
@@ -983,26 +983,26 @@ class WaveformVisualizer(AudioVisualizerBase):
                 for i in range(len(bottom_points) - 1):
                     x1, y1 = bottom_points[i]
                     x2, y2 = bottom_points[i + 1]
-                    
+
                     # Calculate border color
                     if transparency:
                         border_color_intensity = int(255 * max(left_values[i], left_values[i + 1]))
                     else:
                         border_color_intensity = 255
-                    
-                    border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)), 
-                                   min(255, int(color[1] * (border_color_intensity + 50) / 255)), 
+
+                    border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)),
+                                   min(255, int(color[1] * (border_color_intensity + 50) / 255)),
                                    min(255, int(color[2] * (border_color_intensity + 50) / 255)))
-                    
+
                     # Draw line with border alpha
                     cv2.line(frame, (x1, y1), (x2, y2), border_color, max(1, bar_thickness))
-        
+
         # Draw right side waveform (mirrored) - top
         if mirror_right and len(right_values) > 0 and top_active:
             right_width = usable_w // 2
             center_x = int(total_width * x_position / 100)
             right_start_x = center_x
-            
+
             # Create points for the mirrored top waveform
             top_points = []
             for j in range(len(right_values)):
@@ -1012,7 +1012,7 @@ class WaveformVisualizer(AudioVisualizerBase):
                 wave_h = int(min_wave_h + amp * (max_wave_h - min_wave_h))
                 y = center_y - wave_h // 2
                 top_points.append((x, y))
-            
+
             # Draw filled area under the top curve
             if len(top_points) > 1:
                 # Create polygon points for filled area
@@ -1021,25 +1021,25 @@ class WaveformVisualizer(AudioVisualizerBase):
                 fill_points.append((top_points[-1][0], center_y))
                 fill_points.append((top_points[0][0], center_y))
                 fill_points.append(top_points[0])
-                
+
                 # Convert to numpy array for fillPoly
                 fill_points_array = np.array(fill_points, np.int32)
-                
+
                 # Calculate fill color with alpha
                 if transparency:
                     fill_color_intensity = int(255 * np.mean(right_values))
                 else:
                     fill_color_intensity = 255
-                
-                fill_color = (min(255, int(color[0] * (fill_color_intensity + 50) / 255)), 
-                             min(255, int(color[1] * (fill_color_intensity + 50) / 255)), 
+
+                fill_color = (min(255, int(color[0] * (fill_color_intensity + 50) / 255)),
+                             min(255, int(color[1] * (fill_color_intensity + 50) / 255)),
                              min(255, int(color[2] * (fill_color_intensity + 50) / 255)))
-                
+
                 # Create overlay for alpha blending
                 overlay = frame.copy()
                 cv2.fillPoly(overlay, [fill_points_array], fill_color)
                 cv2.addWeighted(frame, 1 - fill_alpha, overlay, fill_alpha, 0, frame)
-            
+
             # Draw border (highest points) with full alpha
             if smooth_arcs and len(top_points) > 2:
                 # Create smooth curves using interpolation
@@ -1047,11 +1047,11 @@ class WaveformVisualizer(AudioVisualizerBase):
                     border_color_intensity = int(255 * np.mean(right_values))
                 else:
                     border_color_intensity = 255
-                
-                border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)), 
-                               min(255, int(color[1] * (border_color_intensity + 50) / 255)), 
+
+                border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)),
+                               min(255, int(color[1] * (border_color_intensity + 50) / 255)),
                                min(255, int(color[2] * (border_color_intensity + 50) / 255)))
-                
+
                 # Interpolate points for smooth curves
                 smooth_points = self._create_smooth_curve(top_points)
                 if len(smooth_points) > 1:
@@ -1062,26 +1062,26 @@ class WaveformVisualizer(AudioVisualizerBase):
                 for i in range(len(top_points) - 1):
                     x1, y1 = top_points[i]
                     x2, y2 = top_points[i + 1]
-                    
+
                     # Calculate border color
                     if transparency:
                         border_color_intensity = int(255 * max(right_values[i], right_values[i + 1]))
                     else:
                         border_color_intensity = 255
-                    
-                    border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)), 
-                                   min(255, int(color[1] * (border_color_intensity + 50) / 255)), 
+
+                    border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)),
+                                   min(255, int(color[1] * (border_color_intensity + 50) / 255)),
                                    min(255, int(color[2] * (border_color_intensity + 50) / 255)))
-                    
+
                     # Draw line with border alpha
                     cv2.line(frame, (x1, y1), (x2, y2), border_color, max(1, bar_thickness))
-        
+
         # Draw right side waveform (mirrored) - bottom
         if mirror_right and len(right_values) > 0 and bottom_active:
             right_width = usable_w // 2
             center_x = int(total_width * x_position / 100)
             right_start_x = center_x
-            
+
             # Create points for the mirrored bottom waveform
             bottom_points = []
             for j in range(len(right_values)):
@@ -1091,7 +1091,7 @@ class WaveformVisualizer(AudioVisualizerBase):
                 wave_h = int(min_wave_h + amp * (max_wave_h - min_wave_h))
                 y = center_y + wave_h // 2
                 bottom_points.append((x, y))
-            
+
             # Draw filled area above the bottom curve
             if len(bottom_points) > 1:
                 # Create polygon points for filled area
@@ -1100,25 +1100,25 @@ class WaveformVisualizer(AudioVisualizerBase):
                 fill_points.append((bottom_points[-1][0], center_y))
                 fill_points.append((bottom_points[0][0], center_y))
                 fill_points.append(bottom_points[0])
-                
+
                 # Convert to numpy array for fillPoly
                 fill_points_array = np.array(fill_points, np.int32)
-                
+
                 # Calculate fill color with alpha
                 if transparency:
                     fill_color_intensity = int(255 * np.mean(right_values))
                 else:
                     fill_color_intensity = 255
-                
-                fill_color = (min(255, int(color[0] * (fill_color_intensity + 50) / 255)), 
-                             min(255, int(color[1] * (fill_color_intensity + 50) / 255)), 
+
+                fill_color = (min(255, int(color[0] * (fill_color_intensity + 50) / 255)),
+                             min(255, int(color[1] * (fill_color_intensity + 50) / 255)),
                              min(255, int(color[2] * (fill_color_intensity + 50) / 255)))
-                
+
                 # Create overlay for alpha blending
                 overlay = frame.copy()
                 cv2.fillPoly(overlay, [fill_points_array], fill_color)
                 cv2.addWeighted(frame, 1 - fill_alpha, overlay, fill_alpha, 0, frame)
-            
+
             # Draw border (highest points) with full alpha
             if smooth_arcs and len(bottom_points) > 2:
                 # Create smooth curves using interpolation
@@ -1126,11 +1126,11 @@ class WaveformVisualizer(AudioVisualizerBase):
                     border_color_intensity = int(255 * np.mean(right_values))
                 else:
                     border_color_intensity = 255
-                
-                border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)), 
-                               min(255, int(color[1] * (border_color_intensity + 50) / 255)), 
+
+                border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)),
+                               min(255, int(color[1] * (border_color_intensity + 50) / 255)),
                                min(255, int(color[2] * (border_color_intensity + 50) / 255)))
-                
+
                 # Interpolate points for smooth curves
                 smooth_points = self._create_smooth_curve(bottom_points)
                 if len(smooth_points) > 1:
@@ -1141,20 +1141,20 @@ class WaveformVisualizer(AudioVisualizerBase):
                 for i in range(len(bottom_points) - 1):
                     x1, y1 = bottom_points[i]
                     x2, y2 = bottom_points[i + 1]
-                    
+
                     # Calculate border color
                     if transparency:
                         border_color_intensity = int(255 * max(right_values[i], right_values[i + 1]))
                     else:
                         border_color_intensity = 255
-                    
-                    border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)), 
-                                   min(255, int(color[1] * (border_color_intensity + 50) / 255)), 
+
+                    border_color = (min(255, int(color[0] * (border_color_intensity + 50) / 255)),
+                                   min(255, int(color[1] * (border_color_intensity + 50) / 255)),
                                    min(255, int(color[2] * (border_color_intensity + 50) / 255)))
-                    
+
                     # Draw line with border alpha
                     cv2.line(frame, (x1, y1), (x2, y2), border_color, max(1, bar_thickness))
-        
+
         return frame
 
 
@@ -1164,7 +1164,7 @@ class WaveformVisualizer(AudioVisualizerBase):
 # Linear Bars Visualizer
 vis_bars = LinearBarsVisualizer()
 output_dir = os.path.dirname(__file__)
-vis_bars.render(os.path.join(output_dir, "song.wav"), os.path.join(output_dir, "out_bars.mp4"), 
+vis_bars.render(os.path.join(output_dir, "song.wav"), os.path.join(output_dir, "out_bars.mp4"),
           width=1280, height=720, draw_frame_fn=vis_bars.draw_frame,
           height_percent=10, width_percent=90,
           bar_thickness=3, bar_count=60, mirror_right=True,
@@ -1174,7 +1174,7 @@ vis_bars.render(os.path.join(output_dir, "song.wav"), os.path.join(output_dir, "
 
 # Linear Dots Visualizer
 vis_dots = LinearDotsVisualizer()
-vis_dots.render(os.path.join(output_dir, "song.wav"), os.path.join(output_dir, "out_dots.mp4"), 
+vis_dots.render(os.path.join(output_dir, "song.wav"), os.path.join(output_dir, "out_dots.mp4"),
           width=1280, height=720, draw_frame_fn=vis_dots.draw_frame,
           height_percent=10, width_percent=90,
           bar_thickness=3, bar_count=60, mirror_right=True,
@@ -1185,7 +1185,7 @@ vis_dots.render(os.path.join(output_dir, "song.wav"), os.path.join(output_dir, "
 
 # Waveform Visualizer
 vis_waveform = WaveformVisualizer()
-vis_waveform.render(os.path.join(output_dir, "song.wav"), os.path.join(output_dir, "out_waveform.mp4"), 
+vis_waveform.render(os.path.join(output_dir, "song.wav"), os.path.join(output_dir, "out_waveform.mp4"),
           width=1280, height=720, draw_frame_fn=vis_waveform.draw_frame,
           height_percent=15, width_percent=90,
           bar_thickness=2, bar_count=120, mirror_right=True,

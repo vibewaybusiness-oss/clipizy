@@ -23,7 +23,7 @@
             "cinematic ambient piece with orchestral elements, dramatic swells, and emotional synthesizer textures at 75 BPM. The music should feel like a film score.",
             "experimental ambient track with unconventional sounds, processed field recordings, and abstract synthesizer textures at 60 BPM. The track should push boundaries of ambient music."
         ],
-    
+
         "Synthwave / Electronic": [
             "energetic synthwave track at 110 BPM with retro-futuristic synthesizers, pulsing electronic drums, and a driving bassline. The mood should be nostalgic yet modern, inspired by 80s soundtracks with a cinematic edge.",
             "hypnotic techno track with driving synth sequences, a heavy four-on-the-floor kick drum, and crisp hi-hats at 128 BPM. The track should gradually build layers of rhythm and texture to create a hypnotic groove.",
@@ -57,7 +57,7 @@
             "acid house track at 125 BPM with squelchy synthesizer leads, four-on-the-floor beats, and psychedelic elements. The track should feel retro, trippy, and underground.",
             "melodic dubstep track at 140 BPM with emotional synthesizer leads, heavy bass, and cinematic elements. The track should feel powerful, emotional, and epic."
         ],
-    
+
         "Reggae / Dub / Ska": [
             "relaxed reggae track at 90 BPM with syncopated guitar skank chords, a deep bass groove, steady drum rhythms, and warm organ fills. The track should capture a laid-back island atmosphere.",
             "cheerful ska track at 95 BPM featuring upbeat horn sections, bright guitar offbeats, walking basslines, and steady drum grooves. The mood should be energetic and festive.",
@@ -85,7 +85,7 @@
             "ska-metal hybrid at 150 BPM with heavy guitars, ska rhythms, and aggressive vocals. The track should feel intense and unique.",
             "dub jazz track at 90 BPM with jazz harmonies, dub effects, and improvisational elements. The track should feel sophisticated and experimental."
         ],
-    
+
         "Hip Hop / Rap": [
             "confident hip hop beat at 85 BPM with classic drum machine grooves, booming 808 bass, urban vocal samples, and a swaggering rhythm. The track should sound bold and assertive.",
             "old-school boom bap hip hop beat at 92 BPM with sampled vinyl drum loops, upright bass grooves, and jazz piano samples. The track should have a raw, gritty, and authentic 90s feel.",
@@ -273,7 +273,7 @@
             "lo-fi growing beat at 76 BPM with development samples, lo-fi textures, and progress melodies. The track should feel positive, peaceful, and growth-inspired.",
             "lo-fi learning beat at 75 BPM with educational samples, lo-fi textures, and knowledge melodies. The track should feel focused, peaceful, and learning-inspired."
         ],
-    
+
         "Classical / Orchestral": [
             "elegant classical piece at 60 BPM featuring expressive violin melodies, warm cello harmonies, and a graceful piano accompaniment. The piece should feel sophisticated and timeless.",
             "majestic choral piece at 50 BPM with a full choir, powerful organ accompaniment, and lush orchestral string arrangements. The mood should be solemn and uplifting.",
@@ -301,7 +301,7 @@
             "march for orchestra at 110 BPM with steady rhythms, brass fanfares, and military precision. The piece should feel energetic, disciplined, and ceremonial.",
             "waltz for orchestra at 90 BPM with flowing triple meter, elegant melodies, and danceable grace. The piece should feel sophisticated, romantic, and refined."
         ],
-    
+
         "Rock / Metal / Punk": [
             "energetic rock track at 130 BPM with distorted electric guitar riffs, groovy basslines, and driving drum beats. The track should be upbeat, powerful, and anthemic.",
             "aggressive metal track at 160 BPM with heavily distorted guitars, double-kick drum patterns, and thunderous bass. The sound should be intense, raw, and heavy.",
@@ -335,7 +335,7 @@
             "crust punk track at 200 BPM with raw production, political lyrics, and extreme energy. The track should feel anarchic, aggressive, and underground.",
             "djent track at 150 BPM with palm-muted riffs, complex rhythms, and modern production. The track should feel technical, heavy, and contemporary."
         ],
-    
+
         "Jazz / Blues": [
             "smooth jazz piece at 75 BPM with soulful saxophone melodies, upright bass walking lines, brushed drum patterns, and delicate piano chords. The track should feel intimate and sophisticated.",
             "funky groove at 110 BPM with slap bass riffs, wah-wah electric guitar, syncopated horn lines, and tight drum rhythms. The feel should be groovy, playful, and energetic.",
@@ -368,7 +368,7 @@
             "electric blues track at 100 BPM with electric guitar, driving rhythm, and modern production. The track should feel powerful, contemporary, and energetic.",
             "jazz waltz at 120 BPM with triple meter, sophisticated harmonies, and elegant arrangements. The track should feel graceful, sophisticated, and refined."
         ],
-    
+
         "World / Folk / Traditional": [
             "mysterious world music track inspired by Middle Eastern traditions at 95 BPM, featuring oud, hand drums like darbuka, and expressive flute melodies. The mood should be mystical and evocative.",
             "Celtic folk tune at 95 BPM with lively fiddle melodies, tin whistle flourishes, and acoustic guitar accompaniment. The track should feel rustic, traditional, and joyful.",
@@ -402,7 +402,7 @@
             "traditional Scandinavian folk piece at 95 BPM with fiddle, accordion, and traditional melodies. The track should feel rustic, joyful, and traditional.",
             "traditional Middle Eastern belly dance piece at 110 BPM with oud, percussion, and sensual rhythms. The track should feel exotic, rhythmic, and danceable."
         ],
-        
+
         "Latin / Tango / Flamenco": [
             "passionate tango at 120 BPM featuring expressive bandoneon melodies, dramatic violin lines, and elegant piano accompaniment. The music should feel intense, romantic, and rhythmically precise.",
             "dramatic flamenco piece at 120 BPM with virtuosic acoustic guitar strumming, rhythmic handclaps (palmas), and impassioned vocal lines. The track should be fiery, emotional, and authentic.",
@@ -425,7 +425,7 @@
             "festive flamenco sevillanas at 110 BPM with bright guitar, joyful vocals, and traditional dance rhythms. The track should feel celebratory, communal, and culturally vibrant.",
             "dramatic tango milongón at 100 BPM with slow, sensual rhythms, expressive bandoneon, and romantic atmosphere. The track should feel intimate, passionate, and emotionally charged."
         ],
-    
+
         "Pop / Indie / Folk": [
             "upbeat pop track at 115 BPM with catchy vocal melodies, bright synthesizers, rhythmic guitar strumming, and driving drum grooves. The sound should be modern, polished, and radio-friendly.",
             "quirky indie pop track at 112 BPM with jangly electric guitars, playful synth hooks, handclaps, and lighthearted vocal lines. The track should feel fun, youthful, and energetic.",
@@ -448,7 +448,7 @@
             "warm folk-pop track at 105 BPM with acoustic instruments, rich harmonies, and uplifting melodies. The track should feel cozy, communal, and heartwarming.",
             "nostalgic indie pop track at 100 BPM with vintage synthesizer sounds, retro production, and melancholic melodies. The track should feel wistful, dreamy, and emotionally resonant."
         ],
-    
+
         "Techno / EDM / Club": [
             "energetic festival EDM anthem at 128 BPM with soaring synth leads, dramatic build-ups, huge drops, and sidechained basslines. The track should feel euphoric and high-energy for large crowds.",
             "groovy afrobeat-inspired dance track at 105 BPM with layered polyrhythmic percussion, funky guitars, and bright brass riffs. The track should feel rhythmic, vibrant, and uplifting.",
@@ -471,7 +471,7 @@
             "moody melodic dubstep track at 140 BPM with emotional synthesizer leads, heavy bass, and cinematic elements. The track should feel powerful, emotional, and epic.",
             "energetic festival trap track at 140 BPM with heavy 808 bass, aggressive synthesizer leads, and powerful drops. The track should feel intense, bass-heavy, and festival-oriented."
         ],
-    
+
         "World / Regional": [
             "festive Bollywood-inspired track at 110 BPM with sitar melodies, tabla grooves, and sweeping string arrangements. The music should feel lively, colorful, and cinematic.",
             "festive mariachi piece at 95 BPM with bright trumpet melodies, violin harmonies, and rhythmic vihuela strumming. The mood should be celebratory and traditional.",
@@ -494,7 +494,7 @@
             "traditional Turkish arabesque at 90 BPM with saz, emotional vocals, and melancholic melodies. The track should feel soulful, romantic, and culturally authentic.",
             "festive Jamaican mento at 110 BPM with acoustic guitar, banjo, and traditional vocals. The track should feel rustic, joyful, and culturally rich."
         ],
-    
+
         "Cinematic / Trailer / Score": [
             "epic trailer track at 90 BPM featuring a dramatic choir, massive percussion, and powerful brass stabs. The arrangement should build tension and climax with intensity.",
             "cinematic horror score at 60 BPM with dissonant string clusters, eerie atmospheres, and sudden percussive stabs. The track should feel tense, unsettling, and suspenseful.",
@@ -517,7 +517,7 @@
             "tense heist thriller score at 115 BPM with stealthy percussion, suspenseful string arrangements, and dramatic brass stabs. The track should feel tense, exciting, and adrenaline-pumping.",
             "epic fantasy battle score at 105 BPM with thunderous percussion, heroic brass, and sweeping orchestral arrangements. The track should feel epic, powerful, and cinematically grand."
         ],
-    
+
         "Children / Playful": [
             "cheerful children's song at 95 BPM with playful ukulele strumming, bright glockenspiel melodies, and lighthearted vocals. The track should be fun, simple, and joyful.",
             "playful circus tune at 120 BPM with whimsical calliope melodies, bouncing tuba bass, and snare drum rhythms. The track should feel quirky, lighthearted, and entertaining.",
@@ -540,7 +540,7 @@
             "playful superhero song at 115 BPM with heroic melodies, exciting rhythms, and empowering vocals. The track should feel inspiring, exciting, and confidence-building.",
             "gentle rain song at 75 BPM with rain sound effects, soft melodies, and peaceful vocals. The track should feel calming, soothing, and weather-connected."
         ],
-    
+
         "Marches / Traditional Ensembles": [
             "traditional marching band piece at 120 BPM with bold brass fanfares, snare drum cadences, and cymbal crashes. The track should feel triumphant and ceremonial.",
             "marching military drumline track at 120 BPM with layered snare patterns, bass drum accents, and cymbal crashes. The music should feel tight, rhythmic, and commanding.",
@@ -564,7 +564,7 @@
             "festive holiday march at 125 BPM with celebratory brass melodies, joyful percussion, and holiday spirit. The track should feel festive, joyful, and celebratory."
         ]
     },
-    
+
     "image_prompts": {
         "Ambient": [
             "A misty mountain landscape at dawn, with soft glowing sunlight piercing through fog and pastel-colored skies, evoking calm and serenity.",

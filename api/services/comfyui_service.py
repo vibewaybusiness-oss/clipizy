@@ -69,7 +69,7 @@ class ComfyUIService:
         try:
             if not self.session:
                 self.session = aiohttp.ClientSession()
-            
+
             # Test the system_stats endpoint which is the most reliable indicator
             print(f"🔍 Testing ComfyUI connection to {self.base_url}/system_stats")
             async with self.session.get(f"{self.base_url}/system_stats", timeout=10) as response:
@@ -170,7 +170,7 @@ class ComfyUIService:
             comfyui_version=None,
             system_info=None
         )
-        
+
         try:
             if not self.session:
                 self.session = aiohttp.ClientSession()
@@ -191,10 +191,10 @@ class ComfyUIService:
                         health_status.error = f"system_stats returned status {response.status}"
             except Exception as e:
                 health_status.error = f"Failed to connect to system_stats: {e}"
-                    
+
         except Exception as e:
             health_status.error = str(e)
-            
+
         return health_status
 
     async def download_image(self, image_url: str, output_path: str) -> bool:
@@ -234,13 +234,13 @@ class ComfyUIManager:
         }
         self.config = self.load_config()
         self._initialized = False
-    
+
     async def ensure_initialized(self):
         """Ensure the manager is initialized"""
         if not self._initialized:
             await self.initialize_queue_manager()
             self._initialized = True
-    
+
     def load_config(self) -> Dict[str, Any]:
         """Load ComfyUI configuration from config directory"""
         config_path = os.path.join(os.path.dirname(__file__), "..", "config", "comfyui_config.json")
@@ -260,10 +260,10 @@ class ComfyUIManager:
         print(f"\n🎬 ===== COMFYUI WORKFLOW EXECUTION STARTED =====")
         print(f"📋 Workflow Type: {workflow_request.workflow_type.value}")
         print(f"📝 Inputs: {workflow_request.inputs}")
-        
+
         # Ensure manager is initialized
         await self.ensure_initialized()
-        
+
         request_id = f"comfyui_{int(time.time() * 1000)}_{''.join(random.choices(string.ascii_lowercase + string.digits, k=9))}"
         workflow_request.id = request_id
         workflow_request.status = "pending"
@@ -277,29 +277,29 @@ class ComfyUIManager:
             workflow_config = self.config.get("workflows", {}).get(workflow_request.workflow_type.value, {})
             max_queue_size = workflow_config.get("maxQueueSize", self.config.get("defaults", {}).get("maxQueueSize", 3))
             print(f"📊 Max queue size: {max_queue_size}")
-            
+
             # Check if we need a new pod
             print(f"🔍 Looking for available pod...")
             pod = self.queue_manager.get_pod_for_workflow(workflow_request.workflow_type.value)
-            
+
             if pod:
                 print(f"✅ Found existing pod: {pod.id} (status: {pod.status}, queue size: {len(pod.requestQueue)})")
             else:
                 print(f"❌ No existing pod found")
-            
+
             if not pod or len(pod.requestQueue) >= max_queue_size:
                 # Add request to queue for pod allocation
                 print(f"📝 No pod available or queue full, queuing request...")
                 print(f"   Pod available: {pod is not None}")
                 print(f"   Queue size: {len(pod.requestQueue) if pod else 0}")
                 print(f"   Max queue size: {max_queue_size}")
-                
+
                 queue_request_id = await self.queue_manager.add_workflow_request(
-                    workflow_request.workflow_type.value, 
+                    workflow_request.workflow_type.value,
                     workflow_request.inputs,
                     workflow_request.workflow_type
                 )
-                
+
                 print(f"📋 Queue request ID: {queue_request_id}")
                 print(f"⏳ Waiting for pod allocation and execution...")
                 return await self._wait_for_workflow_execution(workflow_request, queue_request_id)
@@ -325,7 +325,7 @@ class ComfyUIManager:
             print("🔌 Connecting to ComfyUI...")
             is_connected = False
             health_status = None
-            
+
             for attempt in range(20):
                 health_status = await service.health_check()
                 is_connected = health_status.is_running
@@ -355,7 +355,7 @@ class ComfyUIManager:
 
             # Execute workflow
             result = await service.execute_workflow_data(workflow_data, pattern, download_directory)
-            
+
             if result.get("success", False):
                 workflow_request.prompt_id = result.get("prompt_id")
                 workflow_request.status = "processing"
@@ -482,25 +482,25 @@ class ComfyUIManager:
         max_wait_attempts = 60  # 5 minutes max
         for attempt in range(max_wait_attempts):
             await asyncio.sleep(5)
-            
+
             # Check if we have a pod assigned
             pod = self.queue_manager.get_pod_for_workflow(workflow_request.workflow_type.value)
             if pod and pod.id:
                 print("✅ Pod is available, executing workflow...")
-                
+
                 # Get pod connection info
                 pod_manager = get_pod_manager()
                 pod_info = await pod_manager.get_pod_public_ip(pod.id)
                 if not pod_info.get("success") or not pod_info.get("podInfo", {}).get("ip"):
                     continue
-                
+
                 workflow_request.pod_id = pod.id
                 workflow_request.pod_ip = pod_info["podInfo"]["ip"]
                 workflow_request.status = "processing"
-                
+
                 # Execute the workflow
                 return await self._execute_workflow_on_pod(workflow_request, pod.id)
-        
+
         # Timeout
         workflow_request.status = "failed"
         workflow_request.error = "Pod allocation timed out"
@@ -519,7 +519,7 @@ class ComfyUIManager:
             print("🔌 Connecting to ComfyUI...")
             is_connected = False
             health_status = None
-            
+
             for attempt in range(20):
                 health_status = await service.health_check()
                 is_connected = health_status.is_running
@@ -549,7 +549,7 @@ class ComfyUIManager:
 
             # Execute workflow
             result = await service.execute_workflow_data(workflow_data, pattern, download_directory)
-            
+
             if result.get("success", False):
                 workflow_request.prompt_id = result.get("prompt_id")
                 workflow_request.status = "processing"
@@ -675,13 +675,13 @@ def get_comfyui_manager() -> ComfyUIManager:
 # Export all the necessary classes and functions for use in routers
 __all__ = [
     'ComfyUIManager',
-    'ComfyUIService', 
+    'ComfyUIService',
     'get_comfyui_manager',
     'WorkflowType',
     'WorkflowRequest',
     'WorkflowResult',
     'QwenImageInput',
-    'FluxImageInput', 
+    'FluxImageInput',
     'WanVideoInput',
     'MMAudioInput',
     'VoicemakerInput',

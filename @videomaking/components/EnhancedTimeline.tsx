@@ -4,14 +4,14 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { VideoProject, TimelineProps, VideoClip } from '../types';
 import { Button } from '../../src/components/ui/button';
 import { Slider } from '../../src/components/ui/slider';
-import { 
-  Play, 
-  Pause, 
-  Square, 
-  SkipBack, 
-  SkipForward, 
-  Scissors, 
-  Copy, 
+import {
+  Play,
+  Pause,
+  Square,
+  SkipBack,
+  SkipForward,
+  Scissors,
+  Copy,
   Trash2,
   Lock,
   Unlock,
@@ -48,11 +48,11 @@ interface MusicAnalysis {
   };
 }
 
-export function EnhancedTimeline({ 
-  project, 
-  onProjectChange, 
-  currentTime, 
-  onTimeChange, 
+export function EnhancedTimeline({
+  project,
+  onProjectChange,
+  currentTime,
+  onTimeChange,
   className = "",
   musicFile = "music_4"
 }: TimelineProps) {
@@ -109,26 +109,26 @@ export function EnhancedTimeline({
   // Timeline interaction
   const handleTimelineClick = useCallback((e: React.MouseEvent) => {
     if (!timelineRef.current) return;
-    
+
     const rect = timelineRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left + scrollPosition;
     const time = x / pixelsPerSecond;
-    
+
     const newTime = Math.max(0, Math.min(time, project.duration));
     seek(newTime);
   }, [pixelsPerSecond, scrollPosition, project.duration, seek]);
 
   const handleWaveformClick = useCallback((e: React.MouseEvent) => {
     if (!waveformCanvasRef.current) return;
-    
+
     const rect = waveformCanvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    
+
     // Calculate time based on visible range and zoom
     const visibleDuration = project.duration / zoom;
     const startTime = scrollPosition / pixelsPerSecond;
     const time = startTime + (x / rect.width) * visibleDuration;
-    
+
     const newTime = Math.max(0, Math.min(time, project.duration));
     seek(newTime);
   }, [project.duration, zoom, scrollPosition, pixelsPerSecond, seek]);
@@ -148,11 +148,11 @@ export function EnhancedTimeline({
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (isDragging) {
       e.preventDefault();
-      
+
       // Try waveform first, then timeline
       const waveformRect = waveformCanvasRef.current?.getBoundingClientRect();
       const timelineRect = timelineRef.current?.getBoundingClientRect();
-      
+
       if (waveformRect && e.clientX >= waveformRect.left && e.clientX <= waveformRect.right) {
         // Mouse is over waveform
         const x = e.clientX - waveformRect.left;
@@ -202,7 +202,7 @@ export function EnhancedTimeline({
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
-      
+
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
@@ -257,7 +257,7 @@ export function EnhancedTimeline({
         const analysis: MusicAnalysis = await response.json();
         setMusicAnalysis(analysis);
         console.log(`Loaded analysis for ${musicFile}:`, analysis);
-        
+
         // Generate waveform data based on peaks
         const samples = Math.floor(project.duration * 10);
         const data = Array.from({ length: samples }, (_, i) => {
@@ -266,13 +266,13 @@ export function EnhancedTimeline({
           return peak ? Math.min(Math.abs(peak.score) / 15, 1) : Math.random() * 0.3 + 0.1;
         });
         setWaveformData(data);
-        
+
          // Calculate zoom bounds
          const containerWidth = 800; // Approximate container width
          const padding = 100; // Extra space after timeline
          const minZoomValue = Math.max(0.1, project.duration / (containerWidth - padding));
          const maxZoomValue = Math.max(1, project.duration / (containerWidth / 1000));
-         
+
          setMinZoom(minZoomValue);
          setMaxZoom(maxZoomValue);
          setZoom(minZoomValue); // Start at minimum zoom to show full timeline
@@ -383,7 +383,7 @@ export function EnhancedTimeline({
         const x = ((peak.time_seconds - startTime) / visibleDuration) * width;
         if (x >= 0 && x <= width) {
           const amplitude = Math.min(Math.abs(peak.score) / 15, 1) * (height * 0.4);
-          
+
           ctx.fillStyle = peak.score > 0 ? '#10b981' : '#ef4444';
           ctx.beginPath();
           ctx.arc(x, centerY, 3, 0, 2 * Math.PI);
@@ -427,29 +427,29 @@ export function EnhancedTimeline({
       {/* TIMELINE HEADER */}
       <div className="h-12 border-b bg-muted/50 flex items-center justify-between px-4">
         <div className="flex items-center space-x-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={isPlaying ? pause : play}
           >
             {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={stop}
           >
             <Square className="w-4 h-4" />
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={() => seek(Math.max(0, currentTime - 5))}
           >
             <SkipBack className="w-4 h-4" />
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={() => seek(Math.min(project.duration, currentTime + 5))}
           >
@@ -518,9 +518,9 @@ export function EnhancedTimeline({
             <div className="h-4 bg-muted/20 border-t">
               <div className="h-full relative">
                 <div className="absolute inset-0 bg-muted/30 rounded-sm mx-1 my-1">
-                  <div 
+                  <div
                     className="h-full bg-primary/50 rounded-sm cursor-pointer"
-                    style={{ 
+                    style={{
                       width: `${(1000 / timelineWidth) * 100}%`,
                       left: `${(scrollPosition / (timelineWidth - 1000)) * 100}%`
                     }}
@@ -528,18 +528,18 @@ export function EnhancedTimeline({
                       e.preventDefault();
                       const rect = e.currentTarget.parentElement?.getBoundingClientRect();
                       if (!rect) return;
-                      
+
                       const handleScroll = (e: MouseEvent) => {
                         const x = e.clientX - rect.left;
                         const newScroll = (x / rect.width) * (timelineWidth - 1000);
                         setScrollPosition(Math.max(0, Math.min(newScroll, timelineWidth - 1000)));
                       };
-                      
+
                       const handleMouseUp = () => {
                         document.removeEventListener('mousemove', handleScroll);
                         document.removeEventListener('mouseup', handleMouseUp);
                       };
-                      
+
                       document.addEventListener('mousemove', handleScroll);
                       document.addEventListener('mouseup', handleMouseUp);
                     }}
@@ -547,7 +547,7 @@ export function EnhancedTimeline({
                 </div>
               </div>
             </div>
-            
+
             <div className="flex-1 relative overflow-hidden">
               <div
                 ref={timelineRef}
@@ -562,14 +562,14 @@ export function EnhancedTimeline({
                      const visibleDuration = project.duration / zoom;
                      const startTime = scrollPosition / pixelsPerSecond;
                      const endTime = startTime + visibleDuration;
-                     
+
                      // Calculate appropriate tick interval (max 5 seconds)
                      let tickInterval = 1;
                      if (visibleDuration > 50) tickInterval = 10;
                      else if (visibleDuration > 20) tickInterval = 5;
                      else if (visibleDuration > 10) tickInterval = 2;
                      else tickInterval = 1;
-                     
+
                      const ticks = [];
                      for (let time = Math.floor(startTime / tickInterval) * tickInterval; time <= endTime; time += tickInterval) {
                        if (time >= 0 && time <= project.duration) {

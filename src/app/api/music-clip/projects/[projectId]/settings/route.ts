@@ -9,16 +9,16 @@ export async function POST(
   try {
     const { projectId } = await params;
     console.log('Music-clip project settings API route called for project:', projectId);
-    
+
     const body = await request.json();
     console.log('Request body:', body);
-    
+
     const backendUrl = `${BACKEND_URL}/music-clip/projects/${projectId}/settings`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-    
+
     const response = await fetch(backendUrl, {
       method: 'POST',
       headers: {
@@ -27,7 +27,7 @@ export async function POST(
       body: JSON.stringify(body),
       signal: controller.signal,
     });
-    
+
     clearTimeout(timeoutId);
 
     console.log('Backend response status:', response.status);
@@ -43,7 +43,7 @@ export async function POST(
 
     const data = await response.json();
     console.log('Backend response data:', data);
-    
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('Music-clip project settings API error:', error);

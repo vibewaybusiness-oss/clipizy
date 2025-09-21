@@ -175,39 +175,39 @@ async def create_from_template(
         # Get template
         templates_response = await get_workflow_templates()
         template = next(
-            (t for t in templates_response["templates"] if t["id"] == template_id), 
+            (t for t in templates_response["templates"] if t["id"] == template_id),
             None
         )
-        
+
         if not template:
             raise HTTPException(status_code=404, detail="Template not found")
-        
+
         # Merge template config with customizations
         config = template["config"].copy()
         config.update(customizations.get("config", {}))
-        
+
         schedule = template["schedule"].copy()
         schedule.update(customizations.get("schedule", {}))
-        
+
         # Create workflow
         workflow_result = await automation_pipeline.create_automated_workflow(
             db, user_id, config
         )
-        
+
         # Create schedule if specified
         schedule_result = None
         if customizations.get("enable_scheduling", False):
             schedule_result = await automation_pipeline.schedule_recurring_workflow(
                 db, user_id, config, schedule
             )
-        
+
         return {
             "success": True,
             "workflow": workflow_result,
             "schedule": schedule_result,
             "template_used": template_id
         }
-        
+
     except Exception as e:
         logger.error(f"Failed to create from template: {e}")
         raise HTTPException(status_code=500, detail=str(e))

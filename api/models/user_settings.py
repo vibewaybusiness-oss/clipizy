@@ -9,6 +9,6 @@ class UserSettings(Base):
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     type = Column(String, nullable=False)  # music-clip | video-clip | short-clip | global
-    settings = Column(JSON, nullable=True)  
+    settings = Column(JSON, nullable=True)
     # Example:
     # { "default_duration": 30, "resolution": "1080p", "thumbnail_style": "neon" }

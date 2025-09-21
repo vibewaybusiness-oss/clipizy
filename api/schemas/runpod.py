@@ -84,7 +84,7 @@ class RestPodConfig(BaseModel):
     interruptible: Optional[bool] = Field(default=False)
     locked: Optional[bool] = Field(default=False)
     global_networking: Optional[bool] = Field(alias="globalNetworking", default=True)
-    
+
     class Config:
         populate_by_name = True
 

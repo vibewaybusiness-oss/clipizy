@@ -37,38 +37,38 @@ async def analyze_music_comprehensive(
         # Validate file type
         if not file.content_type or not file.content_type.startswith('audio/'):
             raise HTTPException(status_code=400, detail="File must be an audio file")
-        
+
         # Create temporary file with correct extension
         import tempfile
         import os
-        
+
         # Get the original file extension
         original_filename = file.filename or "audio_file"
         file_ext = os.path.splitext(original_filename)[1].lower()
         if not file_ext:
             file_ext = '.wav'  # Default to wav if no extension
-        
+
         with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as tmp_file:
             content = await file.read()
             tmp_file.write(content)
             tmp_file_path = tmp_file.name
-        
+
         try:
             # Perform comprehensive analysis
             result = await music_analyzer_service.analyze_music_comprehensive(tmp_file_path)
             result['original_filename'] = file.filename
             result['file_size'] = len(content)
-            
+
             # Remove peak analysis if not requested
             if not include_peaks:
                 result.pop('peak_analysis', None)
-            
+
             return result
         finally:
             # Clean up temporary file
             if os.path.exists(tmp_file_path):
                 os.unlink(tmp_file_path)
-                
+
     except Exception as e:
         import traceback
         error_details = traceback.format_exc()
@@ -90,34 +90,34 @@ async def analyze_music_simple(
         # Validate file type
         if not file.content_type or not file.content_type.startswith('audio/'):
             raise HTTPException(status_code=400, detail="File must be an audio file")
-        
+
         # Create temporary file with correct extension
         import tempfile
         import os
-        
+
         # Get the original file extension
         original_filename = file.filename or "audio_file"
         file_ext = os.path.splitext(original_filename)[1].lower()
         if not file_ext:
             file_ext = '.wav'  # Default to wav if no extension
-        
+
         with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as tmp_file:
             content = await file.read()
             tmp_file.write(content)
             tmp_file_path = tmp_file.name
-        
+
         try:
             # Perform simple analysis
             result = await music_analyzer_service.analyze_music_simple(tmp_file_path)
             result['original_filename'] = file.filename
             result['file_size'] = len(content)
-            
+
             return result
         finally:
             # Clean up temporary file
             if os.path.exists(tmp_file_path):
                 os.unlink(tmp_file_path)
-                
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
@@ -137,22 +137,22 @@ async def detect_music_peaks(
         # Validate file type
         if not file.content_type or not file.content_type.startswith('audio/'):
             raise HTTPException(status_code=400, detail="File must be an audio file")
-        
+
         # Create temporary file with correct extension
         import tempfile
         import os
-        
+
         # Get the original file extension
         original_filename = file.filename or "audio_file"
         file_ext = os.path.splitext(original_filename)[1].lower()
         if not file_ext:
             file_ext = '.wav'  # Default to wav if no extension
-        
+
         with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as tmp_file:
             content = await file.read()
             tmp_file.write(content)
             tmp_file_path = tmp_file.name
-        
+
         try:
             # Perform peak detection
             result = await music_analyzer_service.detect_peaks_only(
@@ -164,20 +164,20 @@ async def detect_music_peaks(
                 'min_peaks': min_peaks,
                 'min_gap_seconds': min_gap_seconds
             }
-            
+
             return result
         finally:
             # Clean up temporary file
             if os.path.exists(tmp_file_path):
                 os.unlink(tmp_file_path)
-                
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Peak detection failed: {str(e)}")
 
 @router.post("/analyze/file-path")
 async def analyze_file_by_path(
     file_path: str = Query(..., description="Path to audio file on server"),
-    analysis_type: str = Query("comprehensive", regex="^(comprehensive|simple|peaks)$", 
+    analysis_type: str = Query("comprehensive", regex="^(comprehensive|simple|peaks)$",
                               description="Type of analysis to perform")
 ):
     """
@@ -190,11 +190,11 @@ async def analyze_file_by_path(
         # Validate file exists
         if not os.path.exists(file_path):
             raise HTTPException(status_code=404, detail="File not found")
-        
+
         # Validate file type
         if not file_path.lower().endswith(('.wav', '.mp3', '.flac', '.m4a', '.ogg')):
             raise HTTPException(status_code=400, detail="File must be an audio file")
-        
+
         # Perform analysis based on type
         if analysis_type == "comprehensive":
             result = await music_analyzer_service.analyze_music_comprehensive(file_path)
@@ -204,10 +204,10 @@ async def analyze_file_by_path(
             result = await music_analyzer_service.detect_peaks_only(file_path)
         else:
             raise HTTPException(status_code=400, detail="Invalid analysis type")
-        
+
         result['file_path'] = file_path
         return result
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 

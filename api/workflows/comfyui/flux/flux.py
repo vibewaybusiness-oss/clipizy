@@ -23,12 +23,12 @@ class Flux:
         Returns:
             Tuple[Dict, str, str]: (flux_workflow, pattern, download_directory)
         """
-        
+
         # Load the workflow template
         workflow_path = os.path.join(self.package_dir, "flux_lora_workflow.json")
         with open(workflow_path, 'r', encoding='utf-8-sig') as file:
             flux_lora_workflow = json.load(file)
-        
+
         # Configure workflow parameters
         flux_lora_workflow["6"]["inputs"]["text"] = prompt
         flux_lora_workflow["9"]["inputs"]["filename_prefix"] = f"flux_{seed}"
@@ -43,7 +43,7 @@ class Flux:
         # Set pattern and download directory
         pattern = f"flux_{seed}"
         download_directory = "/workspace/ComfyUI/output/"
-        
+
         return flux_lora_workflow, pattern, download_directory
 
     def generate_image_without_lora(self, prompt: str="", steps: int=20, width: int=1920, height: int=1080, seed: str="", model: str="flux1-schnell.safetensors", negative_prompt: str="") -> Tuple[Dict[str, Any], str, str]:
@@ -60,12 +60,12 @@ class Flux:
         Returns:
             Tuple[Dict, str, str]: (flux_workflow, pattern, download_directory)
         """
-        
+
         # Load the workflow template
         workflow_path = os.path.join(self.package_dir, "flux_workflow.json")
         with open(workflow_path, 'r', encoding='utf-8-sig') as file:
             flux_workflow = json.load(file)
-        
+
         # Configure workflow parameters
         flux_workflow["6"]["inputs"]["text"] = prompt
         flux_workflow["9"]["inputs"]["filename_prefix"] = f"flux_{seed}"
@@ -79,7 +79,7 @@ class Flux:
         # Set pattern and download directory
         pattern = f"flux_{seed}"
         download_directory = "/workspace/ComfyUI/output/"
-        
+
         return flux_workflow, pattern, download_directory
 
     def generate_image_workflow(self, prompt: str="", lora: str=None, steps: int=30, width: int=1920, height: int=1080, seed: str=None, model: str="flux1-schnell.safetensors", negative_prompt: str="") -> Tuple[Dict[str, Any], str, str]:
@@ -97,9 +97,9 @@ class Flux:
         Returns:
             Tuple[Dict, str, str]: (flux_workflow, pattern, download_directory)
         """
-        
+
         seed = seed or str(random.randint(1, 2**63 - 1))
-        
+
         # Generate the appropriate workflow
         if lora is None or lora == "":
             return self.generate_image_without_lora(prompt, steps, width, height, seed, model, negative_prompt)

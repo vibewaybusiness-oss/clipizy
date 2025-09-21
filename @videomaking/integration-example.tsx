@@ -31,7 +31,7 @@ export function clipiziVideoEditor() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(project)
       });
-      
+
       if (response.ok) {
         console.log('Project saved successfully');
       }
@@ -65,7 +65,7 @@ export function clipiziVideoEditor() {
       // Use Ollama for local AI analysis
       const analysis = await ollama.analyzeAudio(audioUrl);
       console.log('Audio analysis:', analysis);
-      
+
       // Generate video prompts based on analysis
       const prompts = await ollama.generateVideoPrompts(project);
       console.log('Generated prompts:', prompts);

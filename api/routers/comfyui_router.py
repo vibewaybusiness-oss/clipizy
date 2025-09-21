@@ -53,15 +53,15 @@ async def generate_video_from_text(
             "frame_rate": frame_rate,
             "seed": seed
         }
-        
+
         workflow_request = WorkflowRequest(
             workflow_type=WorkflowType.VIDEO_WAN,
             inputs=inputs
         )
-        
+
         result = await comfyui_manager.execute_workflow(workflow_request)
         return result
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Video generation failed: {str(e)}")
 
@@ -92,15 +92,15 @@ async def generate_video_from_image(
             "camera_motions": camera_motions or ["Static"],
             "speed": speed
         }
-        
+
         workflow_request = WorkflowRequest(
             workflow_type=WorkflowType.VIDEO_WAN,
             inputs=inputs
         )
-        
+
         result = await comfyui_manager.execute_workflow(workflow_request)
         return result
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Video generation failed: {str(e)}")
 
@@ -127,15 +127,15 @@ async def generate_image_qwen(
             "seed": seed,
             "negative_prompt": negative_prompt or ""
         }
-        
+
         workflow_request = WorkflowRequest(
             workflow_type=WorkflowType.IMAGE_QWEN,
             inputs=inputs
         )
-        
+
         result = await comfyui_manager.execute_workflow(workflow_request)
         return result
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Image generation failed: {str(e)}")
 
@@ -162,15 +162,15 @@ async def generate_image_flux(
             "model": model,
             "negative_prompt": negative_prompt or ""
         }
-        
+
         workflow_request = WorkflowRequest(
             workflow_type=WorkflowType.IMAGE_FLUX,
             inputs=inputs
         )
-        
+
         result = await comfyui_manager.execute_workflow(workflow_request)
         return result
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Image generation failed: {str(e)}")
 
@@ -209,15 +209,15 @@ async def generate_audio_for_video(
             "save_metadata": save_metadata,
             "trim_to_audio": trim_to_audio
         }
-        
+
         workflow_request = WorkflowRequest(
             workflow_type=WorkflowType.AUDIO_MMAUDIO,
             inputs=inputs
         )
-        
+
         result = await comfyui_manager.execute_workflow(workflow_request)
         return result
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Audio generation failed: {str(e)}")
 
@@ -254,15 +254,15 @@ async def generate_voiceover(
             "attention_type": attention_type,
             "free_memory_after_generate": free_memory_after_generate
         }
-        
+
         workflow_request = WorkflowRequest(
             workflow_type=WorkflowType.VOICE_VOICEMAKER,
             inputs=inputs
         )
-        
+
         result = await comfyui_manager.execute_workflow(workflow_request)
         return result
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Voice generation failed: {str(e)}")
 
@@ -283,15 +283,15 @@ async def upscale_video(
             "frame_rate": frame_rate,
             "seed": seed
         }
-        
+
         workflow_request = WorkflowRequest(
             workflow_type=WorkflowType.UPSCALING,
             inputs=inputs
         )
-        
+
         result = await comfyui_manager.execute_workflow(workflow_request)
         return result
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Video upscaling failed: {str(e)}")
 
@@ -318,15 +318,15 @@ async def interpolate_video(
             "clear_cache_after_n_frames": clear_cache_after_n_frames,
             "seed": seed
         }
-        
+
         workflow_request = WorkflowRequest(
             workflow_type=WorkflowType.INTERPOLATION,
             inputs=inputs
         )
-        
+
         result = await comfyui_manager.execute_workflow(workflow_request)
         return result
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Video interpolation failed: {str(e)}")
 
@@ -403,14 +403,14 @@ async def check_pod_health(pod_id: str):
         from api.services.queues_service import get_queue_manager
         queue_manager = get_queue_manager()
         pod_info = await queue_manager._get_pod_public_ip(pod_id)
-        
+
         if not pod_info.get("success"):
             return {"error": "Pod not found or not ready", "pod_id": pod_id}
-        
+
         pod_ip = pod_info["pod"]["ip"]
         if not pod_ip:
             return {"error": "Pod has no IP address", "pod_id": pod_id}
-        
+
         # Test ComfyUI connection
         async with ComfyUIService(pod_ip, pod_id=pod_id) as service:
             health_status = await service.health_check()

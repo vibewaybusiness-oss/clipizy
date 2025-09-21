@@ -193,12 +193,12 @@ class ActivePod(BaseModel):
     paused_at: Optional[int] = Field(None, description="Pause timestamp")
     pod_ip: Optional[str] = Field(None, description="Pod IP address")
     comfyui_port: Optional[int] = Field(None, description="ComfyUI port")
-    
+
     # Legacy field names for backward compatibility
     @property
     def workflowName(self) -> str:
         return self.workflow_name
-    
+
     @property
     def requestQueue(self) -> List[WorkflowRequest]:
         return self.request_queue

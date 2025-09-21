@@ -51,7 +51,7 @@ class BassCircleLogoVisualizer:
         self.fps = int(fps)
         self.cmin = int(circle_min_radius)
         self.cmax = int(circle_max_radius)
-        
+
         # Handle color argument - if provided, use it for both primary and secondary
         if color is not None:
             self.cpri = color
@@ -59,13 +59,13 @@ class BassCircleLogoVisualizer:
         else:
             self.cpri = circle_color_primary
             self.csec = circle_color_secondary
-        
+
         # Handle position arguments - convert fractions to pixel coordinates
         self.x_pos = float(x_position)
         self.y_pos = float(y_position)
         self.cx = int(self.W * self.x_pos)
         self.cy = int(self.H * self.y_pos)
-        
+
         self.logo_scale = float(logo_scale_factor)
         self.logo_fixed_size = int(logo_fixed_size)
         self.logo_scale_to_circle = bool(logo_scale_to_circle)
@@ -79,20 +79,20 @@ class BassCircleLogoVisualizer:
         self.initial_gap = int(initial_gap)
         self.max_gap = int(max_gap)
         self.outer_ring_spacing = int(outer_ring_spacing)
-        
+
         # Pre-compute constants for performance
         self.radius_range = self.cmax - self.cmin
         self.golden = 1.618
         self.ease_power = 1.3
         self.core_cap = int(self.cmin * 1.3)
-        
+
         # Pre-compute color interpolation constants
         self.color_diffs = np.array([
             self.csec[0] - self.cpri[0],
-            self.csec[1] - self.cpri[1], 
+            self.csec[1] - self.cpri[1],
             self.csec[2] - self.cpri[2]
         ], dtype=np.float32)
-        
+
         # Pre-compute outer ring spacing calculations
         self.gap_range = self.max_gap - self.initial_gap
         self.ring_spacings = np.array([
@@ -100,10 +100,10 @@ class BassCircleLogoVisualizer:
             self.outer_ring_spacing * 2,
             self.outer_ring_spacing * 3
         ], dtype=np.float32)
-        
+
         # Pre-allocate black frame for background
         self.black_frame = np.zeros((self.H, self.W, 3), dtype=np.uint8)
-        
+
         # Logo processing cache for performance
         self._logo_cache = None
         self._logo_alpha_cache = None
@@ -118,7 +118,7 @@ class BassCircleLogoVisualizer:
         """
         start_time = time.time()
         print("🚀 Starting visualizer render...")
-        
+
         # --- background video (optional) ---
         bg_start = time.time()
         bg = self._open_background(background_video_path)
@@ -153,33 +153,33 @@ class BassCircleLogoVisualizer:
 
         # --- main loop ---
         render_start = time.time()
-        
+
         # Pre-compute opacity values for all frames (vectorized)
         precompute_start = time.time()
         opacity_values = self._compute_opacity_vectorized(total_frames)
-        
+
         # Pre-compute frame times
         frame_times = np.arange(total_frames, dtype=np.float32) / self.fps
         precompute_time = time.time() - precompute_start
         print(f"⚡ Pre-computations: {precompute_time:.3f}s")
-        
+
         # Initialize smoothing variables
         prev_outer_bass = 0.0
-        
+
         # Performance tracking
         bg_time_total = 0
         circles_time_total = 0
         logo_time_total = 0
         write_time_total = 0
-        
+
         for i in range(total_frames):
             t = frame_times[i]
-            
+
             # Background frame timing
             bg_start = time.time()
             frame = self._get_background_frame(bg, t)
             bg_time_total += time.time() - bg_start
-            
+
             # Fast opacity check
             opacity = opacity_values[i]
             if opacity <= 0:
@@ -190,7 +190,7 @@ class BassCircleLogoVisualizer:
 
             # Apply additional smoothing for outer rings if smoothing is enabled
             bass = min(1.0, max(0.0, bass_series[i])) * opacity
-            
+
             if self.smoothing > 0:
                 # Apply additional smoothing for outer rings (50% of main smoothing)
                 outer_smooth_factor = (self.smoothing / 100.0) * 0.5
@@ -245,11 +245,11 @@ class BassCircleLogoVisualizer:
         self._mux_audio(output_path, audio_path)
         audio_mux_time = time.time() - audio_mux_start
         print(f"🔊 Audio muxing: {audio_mux_time:.3f}s")
-        
+
         # Final performance summary
         total_time = time.time() - start_time
         realtime_ratio = duration / total_time if total_time > 0 else 0
-        
+
         print("\n" + "="*60)
         print("📊 PERFORMANCE SUMMARY")
         print("="*60)
@@ -297,23 +297,23 @@ class BassCircleLogoVisualizer:
         """
         if bg is None:
             return self.black_frame.copy()
-        
+
         try:
             # Fast time clamping
             t_clamped = min(max(0.0, t), max(0.0, bg.duration - 1e-3))
             img = bg.get_frame(t_clamped)
-            
+
             # Fast type conversion and color space conversion
             if img.dtype != np.uint8:
                 img = (np.clip(img, 0.0, 1.0) * 255).astype(np.uint8)
-            
+
             # RGB -> BGR (vectorized)
             img = img[:, :, ::-1]
-            
+
             # Resize only if necessary
             if img.shape[:2] != (self.H, self.W):
                 img = cv2.resize(img, (self.W, self.H), interpolation=cv2.INTER_AREA)
-            
+
             return img
         except Exception:
             return self.black_frame.copy()
@@ -343,38 +343,38 @@ class BassCircleLogoVisualizer:
         window_start = time.time()
         window = np.hanning(samples_per_frame).astype(np.float32)
         window_time = time.time() - window_start
-        
+
         # Pre-allocate arrays
         bass_vals = np.zeros(total_frames, dtype=np.float32)
-        
+
         # Use larger chunks for better vectorization
         chunk_size = min(2000, total_frames)  # Increased chunk size
-        
+
         fft_start = time.time()
-        
+
         # Pre-compute all segment indices for vectorized processing
         segment_indices = np.arange(total_frames) * samples_per_frame
         segment_ends = np.minimum(segment_indices + samples_per_frame, len(y))
-        
+
         for chunk_start in range(0, total_frames, chunk_size):
             chunk_end = min(chunk_start + chunk_size, total_frames)
             chunk_size_actual = chunk_end - chunk_start
-            
+
             # Vectorized segment extraction
             seg_starts = segment_indices[chunk_start:chunk_end]
             seg_ends = segment_ends[chunk_start:chunk_end]
-            
+
             # Process all segments in the chunk at once
             chunk_vals = np.zeros(chunk_size_actual, dtype=np.float32)
-            
+
             for i, (s, e) in enumerate(zip(seg_starts, seg_ends)):
                 if s >= len(y):
                     chunk_vals[i] = 0.0
                     continue
-                    
+
                 # Extract segment
                 seg = y[s:e].astype(np.float32)
-                
+
                 # Pad if necessary (vectorized)
                 if len(seg) < samples_per_frame:
                     seg = np.pad(seg, (0, samples_per_frame - len(seg)), mode="constant")
@@ -399,30 +399,30 @@ class BassCircleLogoVisualizer:
                     bass = float(np.mean(norm[1:bins]))
 
                 chunk_vals[i] = bass
-            
+
             # Store chunk results
             bass_vals[chunk_start:chunk_end] = chunk_vals
 
         fft_time = time.time() - fft_start
-        
+
         # Final normalization (vectorized)
         norm_start = time.time()
         bass_vals = np.clip(bass_vals, 0.0, 1.0)
         norm_time = time.time() - norm_start
-        
+
         # Apply smoothing and anti-flickering
         smooth_start = time.time()
         if self.smoothing > 0:
             bass_vals = self._apply_smoothing_system(bass_vals)
         smooth_time = time.time() - smooth_start
-        
+
         # Print detailed audio processing timing
         print(f"  📂 Audio loading: {load_time:.3f}s")
         print(f"  🪟 Window setup: {window_time:.3f}s")
         print(f"  🔢 FFT processing: {fft_time:.3f}s")
         print(f"  📊 Normalization: {norm_time:.3f}s")
         print(f"  🌊 Smoothing: {smooth_time:.3f}s (level={self.smoothing}%)")
-        
+
         return bass_vals, total_frames, duration
 
     def _apply_smoothing_system(self, bass_series):
@@ -435,13 +435,13 @@ class BassCircleLogoVisualizer:
         """
         if self.smoothing == 0:
             return bass_series
-        
+
         if len(bass_series) < 3:
             return bass_series
-        
+
         # Convert smoothing percentage to processing parameters
         smooth_factor = self.smoothing / 100.0
-        
+
         # 1. Exponential smoothing (applies to all levels > 0)
         if smooth_factor <= 0.5:
             # Light to moderate smoothing (1-50%)
@@ -449,30 +449,30 @@ class BassCircleLogoVisualizer:
         else:
             # Strong smoothing (51-100%)
             alpha = 0.1 - ((smooth_factor - 0.5) * 0.18)  # 0.1 to 0.01
-        
+
         alpha = max(0.01, min(0.9, alpha))
-        
+
         # Apply exponential smoothing
         smoothed = np.zeros_like(bass_series)
         smoothed[0] = bass_series[0]
-        
+
         for i in range(1, len(bass_series)):
             smoothed[i] = alpha * bass_series[i] + (1 - alpha) * smoothed[i-1]
-        
+
         # 2. Anti-flickering (applies to levels > 30%)
         if smooth_factor > 0.3:
             smoothed = self._apply_anti_flicker(smoothed, smooth_factor)
-        
+
         # 3. Moving average for very high smoothing (81-100%)
         if smooth_factor > 0.8:
             window_size = max(3, int(len(bass_series) * 0.05))  # 5% of total frames
             if window_size % 2 == 0:
                 window_size += 1
-            
+
             # Apply moving average
             padded = np.pad(smoothed, window_size//2, mode='edge')
             smoothed = np.convolve(padded, np.ones(window_size)/window_size, mode='valid')
-        
+
         return np.clip(smoothed, 0.0, 1.0)
 
     def _apply_anti_flicker(self, bass_series, smooth_factor):
@@ -480,35 +480,35 @@ class BassCircleLogoVisualizer:
         Anti-flickering techniques based on smoothing level.
         """
         result = bass_series.copy()
-        
+
         # 1. Minimum value thresholding (prevents complete disappearance)
         min_threshold = 0.005 + (smooth_factor * 0.025)  # 0.005 to 0.03
         result = np.maximum(result, min_threshold)
-        
+
         # 2. Change rate limiting (prevents sudden jumps)
         max_change_rate = 0.4 - (smooth_factor * 0.35)  # 0.4 to 0.05
         for i in range(1, len(result)):
             change = result[i] - result[i-1]
             if abs(change) > max_change_rate:
                 result[i] = result[i-1] + np.sign(change) * max_change_rate
-        
+
         # 3. Temporal consistency (smooths rapid oscillations)
         if smooth_factor > 0.5:
             # Apply temporal smoothing kernel
             kernel_strength = (smooth_factor - 0.5) * 0.6  # 0.0 to 0.3
             kernel = np.array([0.2 * kernel_strength, 1.0 - 0.4 * kernel_strength, 0.2 * kernel_strength])
             kernel = kernel / np.sum(kernel)
-            
+
             padded = np.pad(result, 1, mode='edge')
             result = np.convolve(padded, kernel, mode='valid')
-        
+
         # 4. Peak preservation (maintains important bass hits)
         if smooth_factor < 0.7:  # Only for moderate smoothing
             # Detect significant peaks in original
             original_peaks = bass_series > (np.mean(bass_series) + 2 * np.std(bass_series))
             # Preserve original values at peaks
             result[original_peaks] = np.maximum(result[original_peaks], bass_series[original_peaks] * 0.8)
-        
+
         return result
 
     # ---------------------------
@@ -523,31 +523,31 @@ class BassCircleLogoVisualizer:
         do = int(self.delay_outro * self.fps)
         start = int(self.time_in * self.fps)
         end = max(0, total_frames - fo - do)
-        
+
         # Create frame indices
         i = np.arange(total_frames, dtype=np.float32)
-        
+
         # Initialize opacity array
         opacity = np.zeros(total_frames, dtype=np.float32)
-        
+
         # Before start: 0.0
         before_start = i < start
         opacity[before_start] = 0.0
-        
+
         # Fade in
         if fi > 0:
             fadein_mask = (i >= start) & (i < start + fi)
             opacity[fadein_mask] = (i[fadein_mask] - start) / fi
-        
+
         # Full opacity
         full_mask = (i >= start + fi) & (i < end)
         opacity[full_mask] = 1.0
-        
+
         # Fade out
         if fo > 0:
             fadeout_mask = i >= end
             opacity[fadeout_mask] = np.maximum(0.0, 1.0 - (i[fadeout_mask] - end) / max(1, fo))
-        
+
         return opacity
 
     def _opacity(self, i, total_frames):
@@ -596,11 +596,11 @@ class BassCircleLogoVisualizer:
 
         # Calculate dynamic gap between core and outer rings based on bass
         current_gap = self.initial_gap + self.gap_range * eased_outer
-        
+
         # Draw outer rings with configurable spacing
         outer_radii = (r_core + current_gap + self.ring_spacings).astype(np.int32)
         outer_radii = np.maximum(1, outer_radii)
-        
+
         # Draw all outer rings in one loop (optimized)
         for r in outer_radii:
             cv2.circle(frame, (self.cx, self.cy), r, col, thickness=1, lineType=cv2.LINE_AA)
@@ -613,7 +613,7 @@ class BassCircleLogoVisualizer:
         """
         if logo_rgba is None:
             return
-            
+
         # Calculate logo size based on circle radius or fixed size
         if self.logo_scale_to_circle:
             # Scale logo to fit within the minimum circle radius
@@ -622,7 +622,7 @@ class BassCircleLogoVisualizer:
         else:
             # Use fixed size
             target = self.logo_fixed_size
-            
+
         if target <= 0:
             return
 
@@ -635,13 +635,13 @@ class BassCircleLogoVisualizer:
         else:
             h = target
             w = int(h * aspect)
-        
+
         if w <= 0 or h <= 0:
             return
 
         # Use efficient interpolation for preprocessing
         logo = cv2.resize(logo_rgba, (w, h), interpolation=cv2.INTER_AREA)
-        
+
         # Extract and preprocess alpha channel
         if logo.shape[2] == 4:
             alpha = logo[:, :, 3].astype(np.float32) / 255.0
@@ -652,7 +652,7 @@ class BassCircleLogoVisualizer:
 
         # Light anti-aliasing blur
         alpha = cv2.GaussianBlur(alpha, (3, 3), 0.5)
-        
+
         # Cache the processed logo and alpha
         self._logo_cache = logo
         self._logo_alpha_cache = alpha
@@ -692,7 +692,7 @@ class BassCircleLogoVisualizer:
             t = frame_idx / self.fps
             bg_img = self._get_background_frame(bg_clip, t)
             bg_roi = bg_img[y0_clamp:y0_clamp + h_clamp, x0_clamp:x0_clamp + w_clamp]
-            
+
             # Fast alpha blending using vectorized operations
             alpha_3d = np.stack([alpha_roi] * 3, axis=2)
             roi = (1.0 - alpha_3d) * roi.astype(np.float32) + alpha_3d * bg_roi.astype(np.float32)

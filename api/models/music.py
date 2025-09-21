@@ -28,6 +28,6 @@ class Track(Base):
     track_metadata = Column(JSON, nullable=True)     # Flexible metadata storage
 
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+
     # Relationships
     project = relationship("Project", back_populates="tracks")

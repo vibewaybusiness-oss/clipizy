@@ -31,7 +31,7 @@ from api.schemas.comfyui import ActivePod, WorkflowRequest
 # GPU Priority List (A40 -> 4090 -> 5090 as requested)
 GPU_PRIORITY_LIST: List[str] = [
     "NVIDIA A40",
-    "NVIDIA GeForce RTX 4090", 
+    "NVIDIA GeForce RTX 4090",
     "NVIDIA GeForce RTX 5090",
     "NVIDIA GeForce RTX 3090",
 ]
@@ -65,11 +65,11 @@ with COMFYUI_CONFIG_PATH.open("r", encoding="utf-8") as f:
 
 class PodManager:
     """Enhanced RunPod Pod Manager with integrated API client"""
-    
+
     def __init__(self, api_key: Optional[str] = None):
         if httpx is None:
             raise ImportError("httpx is required but not installed. Install with: pip install httpx")
-        
+
         self.api_key = api_key or self._get_api_key()
         self.graphql_url = "https://api.runpod.io/graphql"
         self.rest_url = "https://rest.runpod.io/v1"
@@ -83,13 +83,13 @@ class PodManager:
         self.active_pods: Dict[str, ActivePod] = {}
         self._load_config()
         print(f"🔍 DEBUG: PodManager initialized with client: {self.client}")
-    
+
     def _get_api_key(self) -> str:
         """Get API key from environment or file"""
         api_key = os.getenv("RUNPOD_API_KEY")
         if api_key:
             return api_key
-        
+
         # Try different possible key file locations and names
         possible_files = [
             os.path.join(os.path.dirname(__file__), "..", "runpod", "runpod_api_privatekey"),
@@ -98,7 +98,7 @@ class PodManager:
             "runpod_api_key",
             "runpod_api_privatekey"
         ]
-        
+
         for key_file in possible_files:
             if os.path.exists(key_file):
                 with open(key_file, "r") as f:
@@ -110,7 +110,7 @@ class PodManager:
                     # Check if it looks like a RunPod API key (alphanumeric, reasonable length)
                     if len(content) > 20 and content.replace("-", "").replace("_", "").isalnum():
                         return content
-        
+
         raise ValueError(
             "RunPod API key not found. Please:\n"
             "1. Set RUNPOD_API_KEY environment variable, or\n"
@@ -123,7 +123,7 @@ class PodManager:
             "\n"
             "Get your API key from: https://runpod.io/console/user/settings"
         )
-    
+
     def _load_config(self):
         """Load configuration from both config files"""
         # Pod settings from RunPod config
@@ -135,20 +135,20 @@ class PodManager:
         self.default_disk_gb = ps.get("defaultDiskInGb", 20)
         self.support_public_ip = bool(ps.get("supportPublicIp", True))
         self.default_ports = ps.get("defaultPorts", [])
-        
+
         # Workflow settings from ComfyUI config
         self.workflow_configs = COMFYUI_CONFIG.get("workflows", {})
         self.default_config = COMFYUI_CONFIG.get("defaults", {})
-    
+
     def get_workflow_config(self, workflow_name: str) -> Dict[str, Any]:
         """Get configuration for a specific workflow"""
         return self.workflow_configs.get(workflow_name, self.default_config)
-    
+
     def get_max_queue_size(self, workflow_name: str) -> int:
         """Get maximum queue size for a workflow"""
         config = self.get_workflow_config(workflow_name)
         return config.get("maxQueueSize", self.default_config.get("maxQueueSize", 3))
-    
+
     def get_workflow_timeouts(self, workflow_name: str) -> Tuple[int, int]:
         """Get pause and terminate timeouts for a workflow"""
         # Check ComfyUI config first
@@ -156,42 +156,42 @@ class PodManager:
         if "timeouts" in comfyui_config:
             to = comfyui_config.get("timeouts", {})
             return int(to.get("pause", 60)), int(to.get("terminate", 300))
-        
+
         # Fallback to RunPod config
         wf = RUNPOD_CONFIG.get("workflow", {})
         wfc = wf.get(workflow_name, wf.get("default", {}))
         to = wfc.get("timeouts", {})
         return int(to.get("pause", 60)), int(to.get("terminate", 300))
-    
+
     def get_workflow_network_volume(self, workflow_name: str) -> Optional[str]:
         """Get network volume for a workflow"""
         # Check ComfyUI config first
         comfyui_config = self.get_workflow_config(workflow_name)
         if "network-volume" in comfyui_config:
             return comfyui_config.get("network-volume")
-        
+
         # Fallback to RunPod config
         wf = RUNPOD_CONFIG.get("workflow", {})
         wfc = wf.get(workflow_name, wf.get("default", {}))
         return wfc.get("network-volume")
-    
+
     def get_workflow_template(self, workflow_name: str) -> Optional[str]:
         """Get the template ID for a specific workflow"""
         # Check ComfyUI config first
         comfyui_config = self.get_workflow_config(workflow_name)
         if "template" in comfyui_config:
             return comfyui_config.get("template")
-        
+
         # Fallback to RunPod config
         wf = RUNPOD_CONFIG.get("workflow", {})
         wfc = wf.get(workflow_name, wf.get("default", {}))
         return wfc.get("template")
-    
+
     def _get_ports_config(self) -> List[str]:
         """Get ports configuration - only include essential ComfyUI port 8188"""
         # Only include ComfyUI port 8188 for faster pod readiness
         return ["8188/http"]
-    
+
     async def check_network_volume_availability(self) -> bool:
         """Check if network volume is available"""
         try:
@@ -199,35 +199,35 @@ class PodManager:
             return bool(result.success and result.data)
         except Exception:
             return False
-    
+
     # ============================================================================
     # API CLIENT METHODS (MERGED FROM runpod_client.py)
     # ============================================================================
-    
+
     async def _gql(self, query: str, variables: Optional[Dict[str, Any]] = None) -> RunPodApiResponse:
         """Make a GraphQL request"""
         try:
             request_payload = {"query": query, "variables": variables or {}}
-            
+
             response = await self.client.post(
                 self.graphql_url,
                 json=request_payload
             )
-            
+
             response.raise_for_status()
             result = response.json()
-            
+
             if result.get("errors") and len(result["errors"]) > 0:
                 return RunPodApiResponse(
                     success=False,
                     error=", ".join([e.get("message", "Unknown error") for e in result["errors"]])
                 )
-            
+
             return RunPodApiResponse(
                 success=True,
                 data=result.get("data")
             )
-            
+
         except httpx.HTTPError as e:
             return RunPodApiResponse(
                 success=False,
@@ -238,7 +238,7 @@ class PodManager:
                 success=False,
                 error=f"Request failed: {str(e)}"
             )
-    
+
     async def make_request(self, endpoint: str, method: str = "GET", data: Optional[Dict[str, Any]] = None) -> RunPodApiResponse:
         """Make a REST API request"""
         try:
@@ -250,12 +250,12 @@ class PodManager:
                 json=data,
             )
             print(f"🔍 DEBUG: Response status: {response.status_code}")
-            
+
             if response.status_code >= 400:
                 error_msg = f"HTTP error! status: {response.status_code} - {response.text}"
                 print(f"🔍 DEBUG: HTTP error: {error_msg}")
                 return RunPodApiResponse(
-                    success=False, 
+                    success=False,
                     error=error_msg
                 )
 
@@ -263,7 +263,7 @@ class PodManager:
             if not text:
                 print(f"🔍 DEBUG: Empty response text")
                 return RunPodApiResponse(success=True, data={})
-            
+
             try:
                 json_data = response.json()
                 print(f"🔍 DEBUG: JSON response: {json_data}")
@@ -276,7 +276,7 @@ class PodManager:
             error_msg = str(e)
             print(f"🔍 DEBUG: Exception in make_request: {error_msg}")
             return RunPodApiResponse(success=False, error=error_msg)
-    
+
     async def get_account_info(self) -> RunPodApiResponse[RunPodUser]:
         """Get account information using GraphQL"""
         query = """
@@ -300,18 +300,18 @@ class PodManager:
                 )
             )
         return result
-    
+
     async def get_pods(self) -> RunPodApiResponse[List[RunPodPod]]:
         """Get all pods"""
         result = await self.make_request("/pods")
         return result
-    
+
     async def get_pod_by_id(self, pod_id: str) -> RunPodApiResponse[RunPodPod]:
         """Get pod by ID"""
         print(f"🔍 DEBUG: Getting pod {pod_id} from RunPod API...")
         result = await self.make_request(f"/pods/{pod_id}")
         print(f"🔍 DEBUG: API response: {result}")
-        
+
         if result and result.success and result.data:
             raw = result.data
             pod = RunPodPod(
@@ -340,53 +340,53 @@ class PodManager:
             return RunPodApiResponse(success=True, data=pod)
         print(f"🔍 DEBUG: Returning original result: {result}")
         return result
-    
+
     async def create_pod(self, pod_config: RestPodConfig) -> RunPodApiResponse[RunPodPod]:
         """Create a new pod using REST API"""
         # Convert to camelCase for RunPod API
         config_dict = pod_config.model_dump(by_alias=True, exclude_none=True)
         print(f"🔧 DEBUG: Sending config_dict to API: {config_dict}")
         return await self.make_request("/pods", "POST", config_dict)
-    
+
     async def stop_pod(self, pod_id: str) -> RunPodApiResponse[Dict[str, bool]]:
         """Stop a pod"""
         result = await self.make_request(f"/pods/{pod_id}/stop", "POST")
         return result
-    
+
     async def start_pod(self, pod_id: str) -> RunPodApiResponse[Dict[str, bool]]:
         """Start a pod"""
         result = await self.make_request(f"/pods/{pod_id}/start", "POST")
         return result
-    
+
     async def restart_pod(self, pod_id: str) -> RunPodApiResponse[Dict[str, bool]]:
         """Restart a pod"""
         result = await self.make_request(f"/pods/{pod_id}/restart", "POST")
         return result
-    
+
     async def update_pod(self, pod_id: str, update_data: Dict[str, Any]) -> RunPodApiResponse[RunPodPod]:
         """Update a pod"""
         result = await self.make_request(f"/pods/{pod_id}", "PATCH", update_data)
         return result
-    
+
     async def pause_pod(self, pod_id: str) -> RunPodApiResponse[Dict[str, bool]]:
         """Pause a pod (same as stop)"""
         return await self.stop_pod(pod_id)
-    
+
     async def terminate_pod(self, pod_id: str) -> RunPodApiResponse[Dict[str, bool]]:
         """Terminate a pod"""
         result = await self.make_request(f"/pods/{pod_id}", "DELETE")
         return result
-    
+
     async def get_network_volumes(self) -> RunPodApiResponse[List[NetworkVolume]]:
         """Get network volumes"""
         result = await self.make_request("/networkvolumes")
         return result
-    
+
     async def get_network_volume_by_id(self, volume_id: str) -> RunPodApiResponse[NetworkVolume]:
         """Get network volume by ID"""
         result = await self.make_request(f"/networkvolumes/{volume_id}")
         return result
-    
+
     async def get_templates(self, include_public: bool = False, include_runpod: bool = False, include_endpoint_bound: bool = False) -> RunPodApiResponse[List[Dict[str, Any]]]:
         """Get templates"""
         params = []
@@ -396,13 +396,13 @@ class PodManager:
             params.append("includeRunpodTemplates=true")
         if include_endpoint_bound:
             params.append("includeEndpointBoundTemplates=true")
-        
+
         query_string = "&".join(params)
         endpoint = f"/templates?{query_string}" if query_string else "/templates"
-        
+
         result = await self.make_request(endpoint)
         return result
-    
+
     async def get_gpu_types(self) -> RunPodApiResponse[List[Dict[str, Any]]]:
         """Get available GPU types"""
         # Mock implementation - RunPod REST API doesn't have this endpoint
@@ -414,11 +414,11 @@ class PodManager:
                 {"id": "NVIDIA A40", "memoryInGb": 48},
             ],
         )
-    
+
     async def expose_http_ports(self, pod_id: str, ports: List[int]) -> RunPodApiResponse[Dict[str, Any]]:
         """Expose HTTP ports on a pod"""
         return await self.make_request(f"/pods/{pod_id}", "PATCH", {"exposeHttpPorts": ports})
-    
+
     async def recruit_pod(self, config: RestPodConfig) -> Dict[str, Any]:
         """Recruit a pod with the given configuration"""
         try:
@@ -438,41 +438,41 @@ class PodManager:
                 "success": False,
                 "error": str(e)
             }
-    
+
     async def create_pod_for_workflow(self, workflow_name: str) -> Optional[ActivePod]:
         """Create a new pod for a workflow using GPU priority list"""
         print(f"\n🚀 ===== POD RECRUITMENT STARTED =====")
         print(f"📋 Workflow: {workflow_name}")
-        
+
         # Get workflow-specific template
         template_id = self.get_workflow_template(workflow_name)
         if template_id:
             print(f"🎯 Template ID: {template_id}")
         else:
             print(f"⚠️ No template configured for workflow {workflow_name}, using default settings")
-        
+
         # Get network volume information
         network_volume_id = self.get_workflow_network_volume(workflow_name)
         if network_volume_id:
             print(f"💾 Network Volume ID: {network_volume_id}")
         else:
             print(f"⚠️ No network volume configured for workflow {workflow_name}")
-        
+
         # Check network volume availability
         print(f"🔍 Checking network volume availability...")
         volume_available = await self.check_network_volume_availability()
         print(f"📊 Network volume available: {volume_available}")
-        
+
         # Get timeout settings
         pause_s, term_s = self.get_workflow_timeouts(workflow_name)
         print(f"⏰ Timeouts - Pause: {pause_s}s, Terminate: {term_s}s")
-        
+
         print(f"📋 GPU Priority List: {' > '.join(GPU_PRIORITY_LIST)}")
-        
+
         # Try each GPU type in priority order
         for gpu_type in GPU_PRIORITY_LIST:
             print(f"\n🔄 ===== TRYING GPU: {gpu_type} =====")
-            
+
             # Create pod recruitment config with current GPU type - using old working approach
             pod_config = RestPodConfig(
                 gpu_type_ids=[gpu_type],
@@ -511,20 +511,20 @@ class PodManager:
             config_dict = pod_config.model_dump(by_alias=True)
             for key, value in config_dict.items():
                 print(f"   {key}: {value}")
-            
+
             # Use recruit_pod method to create the pod
             print(f"🚀 Sending pod creation request to RunPod...")
             result = await self.recruit_pod(pod_config)
-            
+
             print(f"📊 RunPod Response:")
             print(f"   Success: {result['success']}")
             print(f"   Data: {result.get('pod')}")
             print(f"   Error: {result.get('error')}")
-            
+
             if result['success'] and result.get('pod'):
                 now = int(time.time() * 1000)
                 pod_data = result['pod']
-                
+
                 # Ensure ComfyUI port 8188 is exposed before waiting for readiness
                 print(f"🔧 Ensuring ComfyUI port 8188 is exposed...")
                 try:
@@ -532,11 +532,11 @@ class PodManager:
                     print(f"✅ ComfyUI port 8188 exposed successfully")
                 except Exception as e:
                     print(f"⚠️ Failed to expose ComfyUI port 8188: {e}")
-                
+
                 # Wait for pod to be ready with ComfyUI port 8188
                 print(f"⏳ Waiting for pod {pod_data['id']} to be ready with ComfyUI port 8188...")
                 wait_result = await self.wait_for_pod_ready(pod_data['id'])
-                
+
                 if wait_result.get("success"):
                     print(f"✅ Pod {pod_data['id']} is ready with ComfyUI port 8188")
                     active = ActivePod(
@@ -559,7 +559,7 @@ class PodManager:
                     print(f"   Created At: {active.created_at}")
                     print(f"   Pause Timeout: {active.pause_timeout_at}")
                     print(f"   Terminate Timeout: {active.terminate_timeout_at}")
-                    
+
                     return active
                 else:
                     print(f"❌ Pod {pod_data['id']} created but not ready: {wait_result.get('error')}")
@@ -575,12 +575,12 @@ class PodManager:
                     print(f"   Error details: {result['error']}")
                 # Continue to next GPU type
                 continue
-        
+
         print(f"❌ ===== POD RECRUITMENT FAILED =====")
         print(f"   Failed to create pod with any GPU type from priority list")
         print(f"   Tried GPUs: {', '.join(GPU_PRIORITY_LIST)}")
         return None
-    
+
     async def get_pod_connection_info(self, pod_id: str) -> Dict[str, Any]:
         """Get pod connection information"""
         try:
@@ -590,7 +590,7 @@ class PodManager:
                 # Check both status and desired_status for readiness
                 actual_status = pod_data.desired_status or pod_data.status
                 is_ready = actual_status == "RUNNING"
-                
+
                 return {
                     "success": True,
                     "podInfo": {
@@ -603,7 +603,7 @@ class PodManager:
             return {"success": False, "error": "Pod not found"}
         except Exception as e:
             return {"success": False, "error": str(e)}
-    
+
     async def wait_for_pod_ready(self, pod_id: str, max_attempts: int = 20) -> Dict[str, Any]:
         """Wait for pod to be ready with IP and ComfyUI port 8188"""
         print(f"⏳ Waiting for pod {pod_id} to be ready with ComfyUI port 8188...")
@@ -613,24 +613,24 @@ class PodManager:
                 if pod_status and pod_status.success and pod_status.data:
                     pod = pod_status.data
                     status = pod.desired_status or pod.status
-                    
+
                     # readiness checks - only check for ComfyUI port 8188
                     # Check if port 8188 is configured in the ports array (RunPod proxy system)
                     has_comfyui_port = bool(pod.ports and "8188/http" in pod.ports)
                     # For RunPod proxy system, we don't need a traditional public IP
                     # The proxy URL works as long as the port is configured
                     has_public_ip = has_comfyui_port  # If port is configured, proxy is available
-                    
+
                     print(f"📊 Pod status (attempt {attempt}/{max_attempts}): {status} (IP: {'Yes' if has_public_ip else 'No'}, ComfyUI Port 8188: {'Yes' if has_comfyui_port else 'No'})")
-                    
+
                     if status == "RUNNING":
                         # Only check for ComfyUI port 8188 - no uptime requirement
                         if has_public_ip and has_comfyui_port:
                             print(f"✅ Pod {pod_id} is ready with ComfyUI port 8188")
-                            
+
                             return {
-                                "success": True, 
-                                "finalStatus": status, 
+                                "success": True,
+                                "finalStatus": status,
                                 "podInfo": {
                                     "id": pod_id,
                                     "ip": pod.public_ip or pod.ip or "",
@@ -657,7 +657,7 @@ class PodManager:
             except Exception as e:
                 print(f"❌ Error checking pod status (attempt {attempt}): {e}")
                 await asyncio.sleep(5)
-        
+
         return {"success": False, "error": f"Pod did not become ready with ComfyUI port 8188 within {max_attempts * 5} seconds", "finalStatus": "TIMEOUT"}
 
     async def _check_comfyui_ready(self, pod_id: str) -> bool:
@@ -666,9 +666,9 @@ class PodManager:
             if aiohttp is None:
                 print(f"⚠️ aiohttp not available, skipping ComfyUI check for pod {pod_id}")
                 return False
-                
+
             comfyui_url = f"https://{pod_id}-8188.proxy.runpod.net"
-            
+
             async with aiohttp.ClientSession() as session:
                 async with session.get(f"{comfyui_url}/system_stats", timeout=aiohttp.ClientTimeout(total=5)) as response:
                     if response.status == 200:
@@ -680,7 +680,7 @@ class PodManager:
         except Exception as e:
             print(f"⏳ ComfyUI check failed for pod {pod_id}: {e}")
             return False
-    
+
     async def pause_pod(self, pod_id: str) -> Dict[str, Any]:
         """Pause a pod"""
         try:
@@ -692,7 +692,7 @@ class PodManager:
             return result
         except Exception as e:
             return {"success": False, "error": str(e)}
-    
+
     async def resume_pod(self, pod_id: str) -> Dict[str, Any]:
         """Resume a pod"""
         try:
@@ -704,7 +704,7 @@ class PodManager:
             return result
         except Exception as e:
             return {"success": False, "error": str(e)}
-    
+
     async def release_pod(self, pod_id: str) -> Dict[str, Any]:
         """Release/terminate a pod"""
         try:
@@ -715,11 +715,11 @@ class PodManager:
             return result
         except Exception as e:
             return {"success": False, "error": str(e)}
-    
+
     async def get_pod_public_ip(self, pod_id: str) -> Dict[str, Any]:
         """Get pod public IP"""
         return await self.get_pod_connection_info(pod_id)
-    
+
     async def expose_comfyui_port(self, pod_id: str) -> None:
         """Expose ComfyUI port (8188) on a pod - only ensure port 8188 is available"""
         try:
@@ -729,7 +729,7 @@ class PodManager:
 
             current_ports = result.data.port_mappings or {}
             ports_array: List[str] = []
-            
+
             # Keep existing ports
             for port in current_ports.keys():
                 if port == "22":
@@ -754,15 +754,15 @@ class PodManager:
         except Exception as e:
             print(f"❌ Failed to expose ComfyUI port on pod {pod_id}: {e}")
             raise
-    
+
     def get_active_pods(self) -> Dict[str, ActivePod]:
         """Get all active pods"""
         return self.active_pods
-    
+
     def get_active_pod_by_id(self, pod_id: str) -> Optional[ActivePod]:
         """Get a specific active pod by ID"""
         return self.active_pods.get(pod_id)
-    
+
     def find_available_pod(self, workflow_name: str) -> Optional[ActivePod]:
         """Find an available pod for a workflow"""
         for pod in self.active_pods.values():
@@ -773,23 +773,23 @@ class PodManager:
             ):
                 return pod
         return None
-    
+
     def get_workflow_pod_count(self, workflow_name: str) -> int:
         """Get the number of active pods for a specific workflow"""
         return sum(1 for pod in self.active_pods.values() if pod.workflow_name == workflow_name)
-    
+
     def get_max_pods_per_workflow(self, workflow_name: str) -> int:
         """Get the maximum number of pods allowed per workflow"""
         # Check ComfyUI config first, then RunPod config
         comfyui_config = self.get_workflow_config(workflow_name)
         if "maxPods" in comfyui_config:
             return int(comfyui_config.get("maxPods", 1))
-        
+
         # Fallback to RunPod config
         wf = RUNPOD_CONFIG.get("workflow", {})
         wfc = wf.get(workflow_name, wf.get("default", {}))
         return int(wfc.get("maxPods", 1))
-    
+
     async def check_pod_timeouts(self) -> None:
         """Check and handle pod timeouts"""
         now = int(time.time() * 1000)
@@ -810,7 +810,7 @@ class PodManager:
                 except Exception:
                     pass
                 self.active_pods.pop(pod_id, None)
-    
+
     async def close(self):
         """Close the pod manager and clean up resources"""
         # Terminate all active pods

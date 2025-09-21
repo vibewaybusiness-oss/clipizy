@@ -17,19 +17,19 @@ class StorageService:
         self.bucket = bucket
         self.endpoint_url = endpoint_url
         self.storage = S3Storage(bucket, endpoint_url)
-    
+
     def generate_project_path(self, project_id: str, filename: str) -> str:
         """Generate a project-specific path for file storage"""
         path = f"projects/{project_id}/{filename}"
         logger.debug(f"Generated project path: {path}")
         return path
-    
+
     def generate_music_clip_path(self, user_id: str, project_id: str, file_type: str, filename: str) -> str:
         """Generate a music-clip specific path for S3 storage"""
         path = f"users/{user_id}/music-clip/projects/{project_id}/{file_type}/{filename}"
         logger.debug(f"Generated music-clip path: {path}")
         return path
-    
+
     def upload_music_track(self, file: UploadFile, user_id: str, project_id: str, filename: str) -> str:
         """Upload a music track to the music-clip project structure"""
         key = self.generate_music_clip_path(user_id, project_id, "music", filename)
@@ -42,7 +42,7 @@ class StorageService:
         except Exception as e:
             logger.error(f"Music track upload failed for {key}: {str(e)}")
             raise
-    
+
     def upload_project_file(self, file: UploadFile, user_id: str, project_id: str, file_type: str, filename: str) -> str:
         """Upload a project file (video, image, thumbnail) to the music-clip project structure"""
         key = self.generate_music_clip_path(user_id, project_id, file_type, filename)
@@ -55,7 +55,7 @@ class StorageService:
         except Exception as e:
             logger.error(f"{file_type} file upload failed for {key}: {str(e)}")
             raise
-    
+
     def upload_file_object(self, file: UploadFile, key: str, content_type: Optional[str] = None) -> str:
         """Upload a file object to S3 and return the URL"""
         logger.info(f"Uploading file object: {file.filename} to key: {key}")
@@ -67,7 +67,7 @@ class StorageService:
         except Exception as e:
             logger.error(f"File upload failed for {key}: {str(e)}")
             raise
-    
+
     def upload_file(self, file: UploadFile, key: str) -> str:
         """Upload a file to S3 and return the URL"""
         logger.info(f"Uploading file: {file.filename} to key: {key}")
@@ -79,7 +79,7 @@ class StorageService:
         except Exception as e:
             logger.error(f"File upload failed for {key}: {str(e)}")
             raise
-    
+
     def download_file(self, key: str, local_path: str):
         """Download a file from S3 to local path"""
         logger.info(f"Downloading file: {key} to {local_path}")
@@ -89,7 +89,7 @@ class StorageService:
         except Exception as e:
             logger.error(f"File download failed for {key}: {str(e)}")
             raise
-    
+
     def delete_file(self, key: str):
         """Delete a file from S3"""
         logger.info(f"Deleting file: {key}")
@@ -99,7 +99,7 @@ class StorageService:
         except Exception as e:
             logger.error(f"File deletion failed for {key}: {str(e)}")
             raise
-    
+
     def file_exists(self, key: str) -> bool:
         """Check if a file exists in S3"""
         logger.debug(f"Checking if file exists: {key}")
@@ -110,7 +110,7 @@ class StorageService:
         except Exception as e:
             logger.error(f"File existence check failed for {key}: {str(e)}")
             return False
-    
+
     def get_presigned_url(self, key: str, expiration: int = 3600) -> str:
         """Get a presigned URL for a file"""
         logger.debug(f"Generating presigned URL for: {key} (expires in {expiration}s)")

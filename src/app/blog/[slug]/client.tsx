@@ -24,7 +24,7 @@ export function BlogPostPageClient({ params }: BlogPostPageClientProps) {
       try {
         setLoading(true);
         const response = await fetch(`/api/blog/${params.slug}`);
-        
+
         if (!response.ok) {
           if (response.status === 404) {
             throw new Error('Blog post not found');

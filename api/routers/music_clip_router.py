@@ -49,7 +49,7 @@ def list_music_clip_projects(
     try:
         # Ensure database is initialized
         ensure_database_initialized()
-        
+
         # Ensure user exists and create if needed
         try:
             user = user_safety_service.ensure_user_exists(db, user_id)
@@ -57,14 +57,14 @@ def list_music_clip_projects(
             logger.error(f"User creation failed: {str(e)}")
             # If user creation fails, return empty projects list
             return {"projects": []}
-        
+
         # Ensure project folders exist
         try:
             user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
         except Exception as e:
             logger.warning(f"Project folder creation failed: {str(e)}")
             # Continue without folder creation
-        
+
         # Get all music-clip projects for the user
         try:
             projects = db.query(Project).filter(
@@ -75,12 +75,12 @@ def list_music_clip_projects(
             logger.error(f"Database query failed: {str(e)}", exc_info=True)
             # Try without the analysis field if it doesn't exist
             projects = []
-        
+
         # Get tracks for each project
         projects_with_tracks = []
         for project in projects:
             tracks = db.query(Track).filter(Track.project_id == str(project.id)).all()
-            
+
             projects_with_tracks.append({
                 "project_id": str(project.id),
                 "name": project.name,
@@ -97,13 +97,13 @@ def list_music_clip_projects(
                     for track in tracks
                 ]
             })
-        
+
         logger.info(f"Retrieved {len(projects_with_tracks)} music-clip projects for user {user_id}")
-        
+
         return {
             "projects": projects_with_tracks
         }
-        
+
     except Exception as e:
         logger.error(f"Failed to list music-clip projects: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to list projects: {str(e)}")
@@ -119,26 +119,26 @@ def create_music_clip_project(
     try:
         # Ensure database is initialized
         ensure_database_initialized()
-        
+
         # Ensure user exists and create if needed
         user = ensure_user_exists_safe(db, user_id)
-        
+
         # Ensure project folders exist
         try:
             user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
         except Exception as e:
             logger.warning(f"Project folder creation failed: {str(e)}")
             # Continue without folder creation
-        
+
         project = project_service.create_music_clip_project(
             db=db,
             user_id=user_id,
             name=name,
             description=description
         )
-        
+
         logger.info(f"Created music-clip project {project.id} for user {user_id}")
-        
+
         return {
             "project_id": str(project.id),
             "name": project.name,
@@ -165,41 +165,41 @@ def upload_music_track(
     """Upload a music track to a music-clip project."""
     try:
         logger.info(f"Starting upload for project {project_id}, file: {file.filename}, size: {file.size if hasattr(file, 'size') else 'unknown'}")
-        
+
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
-        
+
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
-        
+
         # Verify project exists and belongs to user
         project = db.query(Project).filter(
-            Project.id == project_id, 
+            Project.id == project_id,
             Project.user_id == user_id,
             Project.type == "music-clip"
         ).first()
-        
+
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         # Validate file type
         ext = os.path.splitext(file.filename)[1].lower()
         if ext not in [".mp3", ".wav", ".flac", ".aac", ".m4a"]:
             raise HTTPException(status_code=400, detail="Invalid file type. Only audio files are allowed.")
-        
+
         # Use local storage for development
         filename = f"{uuid.uuid4()}{ext}"
         local_storage_dir = f"storage/projects/{project_id}/music"
         os.makedirs(local_storage_dir, exist_ok=True)
         local_file_path = os.path.join(local_storage_dir, filename)
-        
+
         file.file.seek(0)
         content = file.file.read()
         with open(local_file_path, "wb") as f:
             f.write(content)
         file_url = f"file://{os.path.abspath(local_file_path)}"
         logger.info(f"Uploaded track to local storage: {file_url}")
-        
+
         # Skip metadata extraction to avoid timeout issues with ffprobe
         file_metadata = {
             "duration": 0,
@@ -207,7 +207,7 @@ def upload_music_track(
             "size_mb": round(file.size / (1024 * 1024), 2) if hasattr(file, 'size') else 0
         }
         logger.info(f"Skipped metadata extraction, estimated size: {file_metadata['size_mb']}MB")
-        
+
         # Add track to project
         track = project_service.add_music_track(
             db=db,
@@ -222,9 +222,9 @@ def upload_music_track(
             video_description=video_description,
             title=file.filename
         )
-        
+
         logger.info(f"Uploaded track {track.id} to project {project_id}")
-        
+
         return {
             "track_id": str(track.id),
             "file_path": file_url,
@@ -235,16 +235,16 @@ def upload_music_track(
             "instrumental": instrumental,
             "video_description": video_description
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to upload track: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
-def process_single_file(file: UploadFile, project_id: str, user_id: str, 
-                       ai_generated: bool = False, prompt: Optional[str] = None, 
-                       genre: Optional[str] = None, instrumental: bool = False, 
+def process_single_file(file: UploadFile, project_id: str, user_id: str,
+                       ai_generated: bool = False, prompt: Optional[str] = None,
+                       genre: Optional[str] = None, instrumental: bool = False,
                        video_description: Optional[str] = None) -> Dict[str, Any]:
     """Process a single file upload - designed to be run in parallel."""
     # Create a new database session for this thread
@@ -259,10 +259,10 @@ def process_single_file(file: UploadFile, project_id: str, user_id: str,
                 "filename": file.filename,
                 "error": "Invalid file type. Only audio files are allowed."
             }
-        
+
         # Upload to S3 using the music-clip structure
         filename = f"{uuid.uuid4()}{ext}"
-        
+
         # Reset file pointer and upload to S3
         file.file.seek(0)
         try:
@@ -279,13 +279,13 @@ def process_single_file(file: UploadFile, project_id: str, user_id: str,
             local_storage_dir = f"storage/projects/{project_id}/music"
             os.makedirs(local_storage_dir, exist_ok=True)
             local_file_path = os.path.join(local_storage_dir, filename)
-            
+
             file.file.seek(0)
             content = file.file.read()
             with open(local_file_path, "wb") as f:
                 f.write(content)
             file_url = f"file://{os.path.abspath(local_file_path)}"
-        
+
         # Extract metadata
         try:
             # For S3 files, we need to download temporarily for metadata extraction
@@ -306,7 +306,7 @@ def process_single_file(file: UploadFile, project_id: str, user_id: str,
                 "format": ext.lstrip("."),
                 "size_mb": 0
             }
-        
+
         # Add track to project
         track = project_service.add_music_track(
             db=db,
@@ -321,9 +321,9 @@ def process_single_file(file: UploadFile, project_id: str, user_id: str,
             video_description=video_description,
             title=file.filename
         )
-        
+
         logger.info(f"Uploaded track {track.id} to project {project_id}")
-        
+
         return {
             "success": True,
             "filename": file.filename,
@@ -336,7 +336,7 @@ def process_single_file(file: UploadFile, project_id: str, user_id: str,
             "instrumental": instrumental,
             "video_description": video_description
         }
-        
+
     except Exception as e:
         logger.error(f"Failed to process file {file.filename}: {str(e)}")
         return {
@@ -364,36 +364,36 @@ def upload_music_tracks_batch(
     try:
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
-        
+
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
-        
+
         # Verify project exists and belongs to user
         project = db.query(Project).filter(
-            Project.id == project_id, 
+            Project.id == project_id,
             Project.user_id == user_id,
             Project.type == "music-clip"
         ).first()
-        
+
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         if not files:
             raise HTTPException(status_code=400, detail="No files provided")
-        
+
         logger.info(f"Starting parallel upload of {len(files)} files to project {project_id}")
         import time
         start_time = time.time()
-        
+
         # Process files in parallel using ThreadPoolExecutor
         with ThreadPoolExecutor(max_workers=min(len(files), 5)) as executor:
             # Submit all file processing tasks
             future_to_file = {
                 executor.submit(
-                    process_single_file, 
-                    file, 
-                    project_id, 
-                    user_id, 
+                    process_single_file,
+                    file,
+                    project_id,
+                    user_id,
                     ai_generated,
                     prompt,
                     genre,
@@ -401,7 +401,7 @@ def upload_music_tracks_batch(
                     video_description
                 ): file for file in files
             }
-            
+
             # Collect results as they complete
             results = []
             for future in future_to_file:
@@ -416,17 +416,17 @@ def upload_music_tracks_batch(
                         "filename": file.filename,
                         "error": str(e)
                     })
-        
+
         # Calculate timing
         end_time = time.time()
         total_time = end_time - start_time
-        
+
         # Analyze results
         successful_uploads = [r for r in results if r.get("success", False)]
         failed_uploads = [r for r in results if not r.get("success", False)]
-        
+
         logger.info(f"Parallel upload completed in {total_time:.2f}s - {len(successful_uploads)} successful, {len(failed_uploads)} failed")
-        
+
         return {
             "total_files": len(files),
             "successful_uploads": len(successful_uploads),
@@ -436,7 +436,7 @@ def upload_music_tracks_batch(
             "successful_tracks": successful_uploads,
             "failed_tracks": failed_uploads
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -457,26 +457,26 @@ def update_project_settings(
             uuid.UUID(project_id)
         except ValueError:
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
             )
-        
+
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
-        
+
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
-        
+
         # Verify project exists and belongs to user
         project = db.query(Project).filter(
-            Project.id == project_id, 
+            Project.id == project_id,
             Project.user_id == user_id,
             Project.type == "music-clip"
         ).first()
-        
+
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         # Update settings in script.json
         updated_settings = project_service.update_project_settings(
             db=db,
@@ -484,14 +484,14 @@ def update_project_settings(
             user_id=user_id,
             settings=settings
         )
-        
+
         logger.info(f"Updated settings for project {project_id}")
-        
+
         return {
             "project_id": project_id,
             "settings": updated_settings
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -511,34 +511,34 @@ def get_project_script(
             uuid.UUID(project_id)
         except ValueError:
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
             )
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
-        
+
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
-        
+
         # Verify project exists and belongs to user
         project = db.query(Project).filter(
-            Project.id == project_id, 
+            Project.id == project_id,
             Project.user_id == user_id,
             Project.type == "music-clip"
         ).first()
-        
+
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         # Get script data
         script_data = project_service.get_project_script(
             db=db,
             project_id=project_id,
             user_id=user_id
         )
-        
+
         return script_data
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -558,28 +558,28 @@ def get_project_tracks(
             uuid.UUID(project_id)
         except ValueError:
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
             )
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
-        
+
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
-        
+
         # Verify project exists and belongs to user
         project = db.query(Project).filter(
-            Project.id == project_id, 
+            Project.id == project_id,
             Project.user_id == user_id,
             Project.type == "music-clip"
         ).first()
-        
+
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         # Get tracks from database
         tracks = project_service.get_project_tracks(db=db, project_id=project_id)
-        
+
         return {
             "project_id": project_id,
             "tracks": [
@@ -601,7 +601,7 @@ def get_project_tracks(
                 for track in tracks
             ]
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -623,34 +623,34 @@ def update_track(
             uuid.UUID(project_id)
         except ValueError:
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
             )
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
-        
+
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
-        
+
         # Verify project exists and belongs to user
         project = db.query(Project).filter(
-            Project.id == project_id, 
+            Project.id == project_id,
             Project.user_id == user_id,
             Project.type == "music-clip"
         ).first()
-        
+
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         # Get the track
         track = db.query(Track).filter(
             Track.id == track_id,
             Track.project_id == project_id
         ).first()
-        
+
         if not track:
             raise HTTPException(status_code=404, detail="Track not found")
-        
+
         # Update track fields
         if "video_description" in updates:
             track.video_description = updates["video_description"]
@@ -660,12 +660,12 @@ def update_track(
             track.prompt = updates["prompt"]
         if "instrumental" in updates:
             track.instrumental = updates["instrumental"]
-        
+
         db.commit()
         db.refresh(track)
-        
+
         logger.info(f"Updated track {track_id} in project {project_id}")
-        
+
         return {
             "track_id": str(track.id),
             "video_description": track.video_description,
@@ -673,7 +673,7 @@ def update_track(
             "prompt": track.prompt,
             "instrumental": track.instrumental
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -694,34 +694,34 @@ def get_track_url(
             uuid.UUID(project_id)
         except ValueError:
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
             )
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
-        
+
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
-        
+
         # Verify project exists and belongs to user
         project = db.query(Project).filter(
-            Project.id == project_id, 
+            Project.id == project_id,
             Project.user_id == user_id,
             Project.type == "music-clip"
         ).first()
-        
+
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         # Get the track
         track = db.query(Track).filter(
             Track.id == track_id,
             Track.project_id == project_id
         ).first()
-        
+
         if not track:
             raise HTTPException(status_code=404, detail="Track not found")
-        
+
         # Generate presigned URL for the track file
         try:
             # Extract the S3 key from the file path
@@ -735,17 +735,17 @@ def get_track_url(
                 # For S3 files, generate a presigned URL
                 # The file_path should contain the S3 key
                 url = storage_service.get_presigned_url(track.file_path, expiration=3600)
-            
+
             logger.info(f"Generated URL for track {track_id}: {url}")
-            
+
             return {
                 "url": url
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to generate URL for track {track_id}: {str(e)}")
             raise HTTPException(status_code=500, detail="Failed to generate track URL")
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -762,31 +762,31 @@ def delete_project(
     try:
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
-        
+
         # Verify project exists and belongs to user
         project = db.query(Project).filter(
-            Project.id == project_id, 
+            Project.id == project_id,
             Project.user_id == user_id,
             Project.type == "music-clip"
         ).first()
-        
+
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         # Delete associated tracks
         tracks_deleted = db.query(Track).filter(Track.project_id == project_id).delete()
-        
+
         # Delete the project
         db.delete(project)
         db.commit()
-        
+
         logger.info(f"Deleted project {project_id} and {tracks_deleted} associated tracks for user {user_id}")
-        
+
         return {
             "message": f"Successfully deleted project '{project.name}'",
             "project_id": project_id
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -803,13 +803,13 @@ def reset_user_projects(
     try:
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
-        
+
         # Delete all music-clip projects for the user
         projects_to_delete = db.query(Project).filter(
             Project.user_id == user_id,
             Project.type == "music-clip"
         ).all()
-        
+
         deleted_count = 0
         for project in projects_to_delete:
             # Delete associated tracks
@@ -817,17 +817,17 @@ def reset_user_projects(
             # Delete the project
             db.delete(project)
             deleted_count += 1
-        
+
         db.commit()
-        
+
         logger.info(f"Reset completed: deleted {deleted_count} projects for user {user_id}")
-        
+
         return {
             "message": f"Successfully reset {deleted_count} projects",
             "deleted_count": deleted_count,
             "user_id": user_id
         }
-        
+
     except Exception as e:
         logger.error(f"Failed to reset projects: {str(e)}")
         db.rollback()
@@ -844,33 +844,33 @@ def update_project_analysis(
     try:
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
-        
+
         # Get the project
         project = db.query(Project).filter(
             Project.id == project_id,
             Project.user_id == user_id,
             Project.type == "music-clip"
         ).first()
-        
+
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         # Update project analysis data
         # Handle case where analysis field might not exist in older database schemas
         if not hasattr(project, 'analysis') or project.analysis is None:
             project.analysis = {}
-        
+
         project.analysis.update(analysis_data)
         db.commit()
         db.refresh(project)
-        
+
         logger.info(f"Updated analysis data for project {project_id}")
-        
+
         return {
             "message": "Analysis data updated successfully",
             "project_id": project_id
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -888,21 +888,21 @@ def get_project_analysis(
     try:
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
-        
+
         # Get the project
         project = db.query(Project).filter(
             Project.id == project_id,
             Project.user_id == user_id,
             Project.type == "music-clip"
         ).first()
-        
+
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         return {
             "analysis": getattr(project, 'analysis', None) or {}
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -919,35 +919,35 @@ def analyze_project_tracks_parallel(
     try:
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
-        
+
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
-        
+
         # Verify project exists and belongs to user
         project = db.query(Project).filter(
             Project.id == project_id,
             Project.user_id == user_id,
             Project.type == "music-clip"
         ).first()
-        
+
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         # Get all tracks for the project
         tracks = project_service.get_project_tracks(db=db, project_id=project_id)
-        
+
         if not tracks:
             raise HTTPException(status_code=404, detail="No tracks found for this project")
-        
+
         logger.info(f"Starting parallel analysis for {len(tracks)} tracks in project {project_id}")
-        
+
         # Import analysis service
         from api.services import analysis_service
         from api.services import storage_service
         import tempfile
         import os
         import time
-        
+
         def analyze_single_track(track):
             """Analyze a single track and return results."""
             try:
@@ -955,15 +955,15 @@ def analyze_project_tracks_parallel(
                 with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(track.file_path)[1]) as tmp_file:
                     # Download track from storage
                     storage_service.download_file(track.file_path, tmp_file.name)
-                    
+
                     # Perform analysis
                     analysis_result = analysis_service.analyze_music(tmp_file.name)
                     description = analysis_service.generate_music_description(analysis_result)
-                    
+
                     # Clean up temporary file
                     if os.path.exists(tmp_file.name):
                         os.unlink(tmp_file.name)
-                    
+
                     return {
                         "track_id": track.id,
                         "filename": track.filename,
@@ -972,7 +972,7 @@ def analyze_project_tracks_parallel(
                         "description": description,
                         "analyzed_at": time.time()
                     }
-                    
+
             except Exception as e:
                 logger.error(f"Failed to analyze track {track.id}: {str(e)}")
                 return {
@@ -982,7 +982,7 @@ def analyze_project_tracks_parallel(
                     "error": str(e),
                     "analyzed_at": time.time()
                 }
-        
+
         # Process tracks in parallel using ThreadPoolExecutor
         start_time = time.time()
         with ThreadPoolExecutor(max_workers=min(len(tracks), 4)) as executor:
@@ -990,7 +990,7 @@ def analyze_project_tracks_parallel(
             future_to_track = {
                 executor.submit(analyze_single_track, track): track for track in tracks
             }
-            
+
             # Collect results as they complete
             results = []
             for future in future_to_track:
@@ -1007,15 +1007,15 @@ def analyze_project_tracks_parallel(
                         "error": str(e),
                         "analyzed_at": time.time()
                     })
-        
+
         # Calculate timing
         end_time = time.time()
         total_time = end_time - start_time
-        
+
         # Analyze results
         successful_analyses = [r for r in results if r.get("success", False)]
         failed_analyses = [r for r in results if not r.get("success", False)]
-        
+
         # Update tracks in database with analysis results
         for result in successful_analyses:
             track = next((t for t in tracks if t.id == result["track_id"]), None)
@@ -1025,12 +1025,12 @@ def analyze_project_tracks_parallel(
                     "description": result["description"],
                     "analyzed_at": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(result["analyzed_at"]))
                 }
-        
+
         # Commit all changes
         db.commit()
-        
+
         logger.info(f"Parallel analysis completed in {total_time:.2f}s - {len(successful_analyses)} successful, {len(failed_analyses)} failed")
-        
+
         return {
             "project_id": project_id,
             "total_tracks": len(tracks),
@@ -1039,7 +1039,7 @@ def analyze_project_tracks_parallel(
             "total_time_seconds": round(total_time, 2),
             "results": results
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -1057,20 +1057,20 @@ def get_analysis_progress(
     try:
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
-        
+
         # Verify project exists and belongs to user
         project = db.query(Project).filter(
             Project.id == project_id,
             Project.user_id == user_id,
             Project.type == "music-clip"
         ).first()
-        
+
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         # Get all tracks for the project
         tracks = project_service.get_project_tracks(db=db, project_id=project_id)
-        
+
         if not tracks:
             return {
                 "project_id": project_id,
@@ -1079,11 +1079,11 @@ def get_analysis_progress(
                 "progress_percentage": 100,
                 "status": "no_tracks"
             }
-        
+
         # Count analyzed tracks
         analyzed_tracks = sum(1 for track in tracks if track.analysis and track.analysis.get("raw"))
         progress_percentage = (analyzed_tracks / len(tracks)) * 100 if tracks else 100
-        
+
         return {
             "project_id": project_id,
             "total_tracks": len(tracks),
@@ -1100,7 +1100,7 @@ def get_analysis_progress(
                 for track in tracks
             ]
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:

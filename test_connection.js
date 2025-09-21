@@ -3,7 +3,7 @@ const fetch = require('node-fetch');
 
 async function testConnection() {
   console.log('Testing WSL network connectivity...');
-  
+
   // Test backend health
   try {
     console.log('Testing backend health at http://172.31.247.43:8000/health...');
@@ -13,7 +13,7 @@ async function testConnection() {
   } catch (error) {
     console.error('❌ Backend health check failed:', error.message);
   }
-  
+
   // Test frontend API
   try {
     console.log('Testing frontend API at http://172.31.247.43:3000/api/music-clip/projects...');

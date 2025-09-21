@@ -20,6 +20,6 @@ class Image(Base):
     size_mb = Column(Integer, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+
     # Relationships
     project = relationship("Project", back_populates="images")

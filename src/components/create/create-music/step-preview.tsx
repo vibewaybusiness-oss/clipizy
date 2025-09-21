@@ -28,21 +28,48 @@ export function StepPreview({ videoUri, onReset, musicTracks, selectedTrackId, o
           {/* THREE COLUMN LAYOUT */}
           <div className="grid grid-cols-12 gap-6 w-full flex-1 min-h-0">
             
-            {/* LEFT COLUMN - EMPTY (30%) */}
+            {/* LEFT COLUMN - SEGMENTS (30%) */}
             <div className="col-span-3 flex flex-col">
               <Card className="bg-card border border-border shadow-lg flex-1 flex flex-col">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg font-bold">Preview</CardTitle>
+                  <CardTitle className="text-lg font-bold">Segments</CardTitle>
                   <p className="text-xs text-muted-foreground">
-                    Your generated video
+                    {musicTracks.length} track{musicTracks.length !== 1 ? 's' : ''}
                   </p>
                 </CardHeader>
                 <CardContent className="pt-0 flex-1 flex flex-col">
-                  <div className="flex-1 flex items-center justify-center">
-                    <div className="text-center text-muted-foreground">
-                      <Music className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Video preview ready</p>
-                    </div>
+                  <div className="space-y-2 flex-1 overflow-y-auto">
+                    {musicTracks.map((track, index) => (
+                      <div
+                        key={track.id}
+                        className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
+                          selectedTrackId === track.id
+                            ? 'border-primary bg-primary/5 shadow-md'
+                            : 'border-border hover:border-primary/50 hover:shadow-sm'
+                        }`}
+                        onClick={() => onTrackSelect(track)}
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-semibold text-foreground text-sm">
+                              Segment {index + 1}
+                            </h4>
+                            <span className="text-xs text-muted-foreground">
+                              {track.duration ? `${Math.floor(track.duration / 60)}:${Math.floor(track.duration % 60).toString().padStart(2, '0')}` : '--:--'}
+                            </span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Duration: {track.duration ? `${Math.floor(track.duration / 60)}:${Math.floor(track.duration % 60).toString().padStart(2, '0')}` : '--:--'}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Energy: 0%
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-1">
+                            <div className="bg-primary h-1 rounded-full" style={{ width: '0%' }}></div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
@@ -69,7 +96,7 @@ export function StepPreview({ videoUri, onReset, musicTracks, selectedTrackId, o
               </Card>
             </div>
 
-            {/* RIGHT COLUMN - MUSIC TRACKS (10%) */}
+            {/* RIGHT COLUMN - TRACKS (10%) */}
             <div className="col-span-2 flex flex-col">
               <Card className="bg-card border border-border shadow-lg flex-1 flex flex-col">
                 <CardHeader className="pb-2">

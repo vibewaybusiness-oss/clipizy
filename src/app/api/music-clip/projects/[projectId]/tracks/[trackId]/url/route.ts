@@ -9,7 +9,7 @@ export async function GET(
   try {
     const { projectId, trackId } = await params;
     console.log('Music-clip get track URL API route called for project:', projectId, 'track:', trackId);
-    
+
     const backendUrl = `${BACKEND_URL}/music-clip/projects/${projectId}/tracks/${trackId}/url`;
     console.log('Calling backend URL:', backendUrl);
 
@@ -33,7 +33,7 @@ export async function GET(
 
     const data = await response.json();
     console.log('Backend response data:', data);
-    
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('Music-clip get track URL API error:', error);

@@ -36,7 +36,7 @@ class PromptService:
     def _format_prompt(prompt_type: str, base_prompt: str, style: Optional[str] = None, instrumental: bool = False) -> str:
         """
         Format a prompt using the rules from prompt_rules.json
-        
+
         Args:
             prompt_type: Type of prompt (music_prompts, image_prompts, video_prompts)
             base_prompt: The base prompt text
@@ -49,27 +49,27 @@ class PromptService:
         if not rules:
             logger.warning(f"No rules found for prompt type: {prompt_type}")
             return base_prompt
-        
+
         # Start with the prefix
         formatted_prompt = rules.get("prompt_prefix", "")
-        
+
         # Add the base prompt
         formatted_prompt += base_prompt
-        
+
         # Add suffix
         formatted_prompt += rules.get("prompt_suffix", "")
-        
+
         # Add style if provided
         if style and rules.get("style_true"):
             formatted_prompt += " " + rules["style_true"] + style
-        
+
         # Add instrumental instruction for music
         if instrumental and rules.get("instrumental_true"):
             formatted_prompt += " " + rules["instrumental_true"]
             logger.info(f"Added instrumental instruction: {rules['instrumental_true']}")
         else:
             logger.info(f"Instrumental not added - instrumental: {instrumental}, has_rule: {bool(rules.get('instrumental_true'))}")
-        
+
         logger.debug(f"Final formatted prompt: {formatted_prompt[:100]}...")
         return formatted_prompt
 
@@ -120,9 +120,9 @@ class PromptService:
             key = prompt_type  # Use directly for new format
         else:
             key = f"{prompt_type}_prompts"  # e.g. "music_prompts"
-        
+
         logger.debug(f"Looking for prompt type key: {key}")
-        
+
         if key not in PROMPTS:
             logger.error(f"Invalid prompt type: {prompt_type}. Available types: {list(PROMPTS.keys())}")
             raise ValueError(f"Invalid prompt type: {prompt_type}")
@@ -136,7 +136,7 @@ class PromptService:
             # For music_prompts and image_prompts which are objects with categories
             available_categories = list(PROMPTS[key].keys())
             logger.debug(f"Available categories for {key}: {available_categories}")
-            
+
             # If specific categories are requested, try to find a match
             if categories:
                 # Try exact match first
@@ -145,7 +145,7 @@ class PromptService:
                     if requested_category in available_categories:
                         matching_category = requested_category
                         break
-                
+
                 # If no exact match, try partial matching
                 if not matching_category:
                     for requested_category in categories:
@@ -155,7 +155,7 @@ class PromptService:
                                 break
                         if matching_category:
                             break
-                
+
                 if matching_category:
                     category = matching_category
                     logger.debug(f"Matched requested category '{categories}' to '{category}'")
@@ -166,16 +166,16 @@ class PromptService:
             else:
                 category = random.choice(available_categories)
                 logger.debug(f"Selected random category: {category}")
-            
+
             prompt = random.choice(PROMPTS[key][category])
-        
+
         logger.debug(f"Selected prompt: {prompt[:100]}...")
 
         # Format the prompt using the rules
         logger.debug(f"Formatting prompt - key: {key}, instrumental: {instrumental}, style: {style}")
         formatted_prompt = PromptService._format_prompt(key, prompt, style, instrumental)
         logger.debug(f"Formatted prompt: {formatted_prompt[:100]}...")
-        
+
         result = {"prompt": formatted_prompt, "category": category, "source": "json"}
         logger.info(f"Generated JSON prompt - Category: {category}, Length: {len(formatted_prompt)} chars")
         return result

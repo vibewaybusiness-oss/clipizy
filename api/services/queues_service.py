@@ -89,11 +89,11 @@ class UnifiedQueueManager:
         self._task: Optional[asyncio.Task] = None
         self._lock = asyncio.Lock()
         self._pod_manager = None
-        
+
         # ComfyUI specific
         self.comfyui_requests: Dict[str, WorkflowRequest] = {}
         self._initialized = False
-        
+
         # Pod creation tracking to prevent duplicates
         self._pod_creation_in_progress: Dict[str, bool] = {}
 
@@ -159,14 +159,14 @@ class UnifiedQueueManager:
         print(f"📋 Workflow Name: {workflow_name}")
         print(f"📝 Request Data: {request_data}")
         print(f"🏷️ Workflow Type: {workflow_type}")
-        
+
         workflow_name = workflow_name.lower()
         rid = f"req_{int(time.time()*1000)}_" + "".join(
             random.choices(string.ascii_lowercase + string.digits, k=9)
         )
-        
+
         print(f"🆔 Generated Request ID: {rid}")
-        
+
         # Map workflow name to workflow type if not provided
         if not workflow_type:
             workflow_type_map = {
@@ -188,7 +188,7 @@ class UnifiedQueueManager:
             }
             workflow_type = workflow_type_map.get(workflow_name, WorkflowType.IMAGE_QWEN)
             print(f"🔄 Mapped workflow type: {workflow_type}")
-        
+
         req = WorkflowRequest(
             id=rid,
             workflow_type=workflow_type,
@@ -241,14 +241,14 @@ class UnifiedQueueManager:
     async def get_pod_with_ip(self, pod_id: str, max_attempts: int = 12) -> Dict[str, Any]:
         """Get pod with IP address, waiting if necessary"""
         pod_manager = self._get_pod_manager()
-        
+
         # Check if pod is already ready in our active pods
         pod = pod_manager.get_pod_by_id(pod_id)
         if pod and pod.status == "running":
             # Pod is already ready, get connection info directly
             print(f"✅ Pod {pod_id} is already ready, getting connection info directly")
             return await pod_manager.get_pod_public_ip(pod_id)
-        
+
         # Pod is not ready, wait for it
         print(f"⏳ Pod {pod_id} is not ready (status: {pod.status if pod else 'not found'}), waiting for it")
         return await pod_manager.wait_for_pod_ready(pod_id, max_attempts)
@@ -261,7 +261,7 @@ class UnifiedQueueManager:
             self.comfyui_requests[request_id].result = result
             self.comfyui_requests[request_id].completed_at = datetime.fromtimestamp(time.time())
             return True
-        
+
         return False
 
     def mark_request_failed(self, request_id: str, error: Optional[str] = None) -> bool:
@@ -272,7 +272,7 @@ class UnifiedQueueManager:
             self.comfyui_requests[request_id].error = error
             self.comfyui_requests[request_id].completed_at = datetime.fromtimestamp(time.time())
             return True
-        
+
         return False
 
     # --- ComfyUI specific methods --------------------------------------------
@@ -326,7 +326,7 @@ class UnifiedQueueManager:
 
         async with self._processing_lock:
             print(f"\n🔄 ===== PROCESSING QUEUE ONCE =====")
-            
+
             async with self._lock:
                 workflow_items = list(self.pendingRequests.items())
 
@@ -346,37 +346,37 @@ class UnifiedQueueManager:
                 print(f"\n🔍 Processing workflow: {workflow_name} ({len(pending_requests)} pending requests)")
 
                 pod_manager = self._get_pod_manager()
-                
+
                 # Check for available pod first
                 pod = pod_manager.find_available_pod(workflow_name)
-                
+
                 if pod:
                     print(f"✅ Found available pod: {pod.id}")
                 else:
                     print(f"❌ No available pod for {workflow_name}")
-                    
+
                     # Check if we can create more pods for this workflow
                     current_pod_count = pod_manager.get_workflow_pod_count(workflow_name)
                     max_pods = pod_manager.get_max_pods_per_workflow(workflow_name)
-                    
+
                     print(f"📊 Pod count: {current_pod_count}/{max_pods}")
-                    
+
                     if current_pod_count >= max_pods:
                         print(f"⚠️ Max pods reached for {workflow_name}, skipping")
                         continue  # Skip if we've reached the limit
-                    
+
                     # Double-check pod count again after acquiring lock to prevent race conditions
                     async with self._lock:
                         current_pod_count = pod_manager.get_workflow_pod_count(workflow_name)
                         if current_pod_count >= max_pods:
                             print(f"⚠️ Max pods reached for {workflow_name} (race condition prevented), skipping")
                             continue
-                        
+
                         # Check if pod creation is already in progress for this workflow
                         if self._pod_creation_in_progress.get(workflow_name, False):
                             print(f"⏳ Pod creation already in progress for {workflow_name}, skipping")
                             continue
-                        
+
                         # Check again if a pod became available while we were waiting
                         pod = pod_manager.find_available_pod(workflow_name)
                         if pod:
@@ -411,7 +411,7 @@ class UnifiedQueueManager:
 
         # Get max queue size for this workflow
         max_queue_size = self.get_max_queue_size(pod.workflowName)
-        
+
         # move up to max_queue_size - current queued
         capacity = max_queue_size - len(pod.requestQueue)
         if capacity <= 0:
@@ -482,29 +482,29 @@ class UnifiedQueueManager:
         print(f"📋 Workflow Type: {workflow_request.workflow_type.value}")
         print(f"🖥️ Pod ID: {pod.id}")
         print(f"📝 Inputs: {workflow_request.inputs}")
-        
+
         try:
             # Get pod connection info
             pod_manager = self._get_pod_manager()
             connection_info = await pod_manager.get_pod_connection_info(pod.id)
-            
+
             print(f"🔍 Connection info for pod {pod.id}: {connection_info}")
-            
+
             if not connection_info.get("success"):
                 print(f"❌ Failed to get pod connection info: {connection_info.get('error')}")
                 workflow_request.status = "failed"
                 workflow_request.error = f"Pod connection failed: {connection_info.get('error')}"
                 return
-            
+
             pod_info = connection_info.get("podInfo", {})
             print(f"🔍 Pod info: {pod_info}")
-            
+
             if not pod_info.get("ready"):
                 print(f"❌ Pod {pod.id} is not ready (status: {pod_info.get('status')})")
                 workflow_request.status = "failed"
                 workflow_request.error = f"Pod is not ready (status: {pod_info.get('status')})"
                 return
-            
+
             # Check if ComfyUI is actually running on the pod
             print(f"🔍 Checking ComfyUI readiness on pod {pod.id}...")
             comfyui_ready = await self._check_comfyui_ready(pod.id)
@@ -518,23 +518,23 @@ class UnifiedQueueManager:
                         print(f"✅ ComfyUI is now ready on pod {pod.id}")
                         break
                     print(f"⏳ ComfyUI not ready yet (attempt {attempt + 1}/12)")
-                
+
                 if not comfyui_ready:
                     print(f"❌ ComfyUI failed to start on pod {pod.id} after 2 minutes")
                     workflow_request.status = "failed"
                     workflow_request.error = "ComfyUI failed to start on pod"
                     return
-            
+
             # Get ComfyUI manager to generate workflow data
             from api.services.comfyui_service import get_comfyui_manager
             comfyui_manager = get_comfyui_manager()
-            
+
             # Generate workflow data from inputs
             workflow_data, pattern, download_directory = await comfyui_manager.generate_workflow(
-                workflow_request.workflow_type, 
+                workflow_request.workflow_type,
                 workflow_request.inputs
             )
-            
+
             # Create a temporary service instance for this pod
             from api.services.comfyui_service import ComfyUIService
             service = ComfyUIService(
@@ -542,20 +542,20 @@ class UnifiedQueueManager:
                 port=pod_info.get("port", 8188),
                 pod_id=pod.id
             )
-            
+
             # Execute the workflow
             print(f"🚀 Starting workflow execution on pod {pod.id}")
             print(f"🔍 ComfyUI URL: {service.base_url}")
             print(f"🔍 Workflow data keys: {list(workflow_data.keys()) if isinstance(workflow_data, dict) else 'Not a dict'}")
-            
+
             result = await service.execute_workflow_data(
                 workflow_data,
                 pattern,
                 download_directory
             )
-            
+
             print(f"🔍 Workflow execution result: {result}")
-            
+
             if result.get("success", False):
                 print(f"✅ Workflow {workflow_request.id} completed successfully")
                 workflow_request.status = "completed"
@@ -567,7 +567,7 @@ class UnifiedQueueManager:
                 workflow_request.status = "failed"
                 workflow_request.error = result.get("error", "Unknown error")
                 workflow_request.completed_at = datetime.fromtimestamp(time.time())
-                
+
         except Exception as e:
             print(f"❌ Exception during workflow execution: {e}")
             workflow_request.status = "failed"
@@ -578,13 +578,13 @@ class UnifiedQueueManager:
         """Get pod manager instance"""
         from api.services.runpod_manager import get_pod_manager
         return get_pod_manager()
-    
+
     async def _check_comfyui_ready(self, pod_id: str) -> bool:
         """Check if ComfyUI is actually running on the pod"""
         try:
             import aiohttp
             comfyui_url = f"https://{pod_id}-8188.proxy.runpod.net"
-            
+
             async with aiohttp.ClientSession() as session:
                 async with session.get(f"{comfyui_url}/system_stats", timeout=aiohttp.ClientTimeout(total=5)) as response:
                     if response.status == 200:

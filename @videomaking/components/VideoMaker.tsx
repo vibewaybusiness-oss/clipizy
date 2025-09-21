@@ -18,14 +18,14 @@ import { exportVideoToFile } from '../utils/videoExporter';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Play, 
-  Pause, 
-  Square, 
-  SkipBack, 
-  SkipForward, 
-  Volume2, 
-  Settings, 
+import {
+  Play,
+  Pause,
+  Square,
+  SkipBack,
+  SkipForward,
+  Volume2,
+  Settings,
   Download,
   Save,
   Upload,
@@ -51,12 +51,12 @@ const visualStyles = [
   { id: "custom", name: "Custom", description: "Create your own style", icon: "⚙️", isCustom: true },
 ];
 
-export function VideoMaker({ 
-  project: initialProject, 
-  onProjectChange, 
-  onSave, 
-  onExport, 
-  className = "" 
+export function VideoMaker({
+  project: initialProject,
+  onProjectChange,
+  onSave,
+  onExport,
+  className = ""
 }: VideoMakerProps) {
   const {
     project,
@@ -113,7 +113,7 @@ export function VideoMaker({
   const handleExport = useCallback(async (format: any) => {
     setIsExporting(true);
     setExportProgress(0);
-    
+
     try {
       const result = await exportVideoToFile(
         project,
@@ -123,7 +123,7 @@ export function VideoMaker({
           setExportProgress(progress.progress);
         }
       );
-      
+
       if (result.success) {
         console.log('Export completed successfully:', result.url);
       } else {
@@ -260,11 +260,11 @@ export function VideoMaker({
 
         {/* FLOATING VISUAL STYLE SELECTOR */}
         {showVisualStyleSelector && (
-          <div 
+          <div
             className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50"
             onClick={() => setShowVisualStyleSelector(false)}
           >
-            <Card 
+            <Card
               className="bg-card/95 backdrop-blur-sm border border-border/50 shadow-2xl max-w-4xl w-full mx-4"
               onClick={(e) => e.stopPropagation()}
             >
@@ -284,7 +284,7 @@ export function VideoMaker({
                       <X className="w-4 h-4" />
                     </Button>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl">
                     {visualStyles.map((style) => (
                       <div
@@ -313,7 +313,7 @@ export function VideoMaker({
                       </div>
                     ))}
                   </div>
-                  
+
                   {selectedVisualStyle && (
                     <div className="mt-4 p-3 bg-primary/5 border border-primary/20 rounded-lg">
                       <div className="flex items-center justify-center space-x-2">
@@ -482,7 +482,7 @@ export function VideoMaker({
                   <span>{Math.round(exportProgress)}%</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-2">
-                  <div 
+                  <div
                     className="bg-primary h-2 rounded-full transition-all duration-300"
                     style={{ width: `${exportProgress}%` }}
                   />
@@ -508,7 +508,7 @@ export function VideoMaker({
                 <X className="w-4 h-4" />
               </Button>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-foreground">Style Name</label>
@@ -520,7 +520,7 @@ export function VideoMaker({
                   className="w-full mt-1 p-2 border border-border rounded-md bg-background text-foreground"
                 />
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium text-foreground">Description</label>
                 <textarea
@@ -531,7 +531,7 @@ export function VideoMaker({
                 />
               </div>
             </div>
-            
+
             <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-border">
               <Button
                 variant="outline"

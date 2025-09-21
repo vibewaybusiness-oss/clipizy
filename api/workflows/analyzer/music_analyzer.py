@@ -61,7 +61,7 @@ def _downbeats_from_beats(beat_times, prefer=(4,3), duration=None):
             if score > best_score:
                 best_k, best_score, best = k, score, cand
     db = np.asarray(best)
-    if duration is None: 
+    if duration is None:
         return db
     # extend to [0, duration]
     return _extend_downbeats_to_edges(db, duration)
@@ -93,7 +93,7 @@ def _average_close_boundaries(
                 inv = 1.0 - (rms / (np.max(rms) + 1e-9))
                 k = i0 + int(np.argmax(inv[i0:i1]))
                 t0 = float(rms_t[k])
-        
+
         if beat_times is not None and len(beat_times):
             future = beat_times[beat_times >= t0]
             if len(future) and (future[0] - t0) <= beat_snap_sec:
@@ -105,7 +105,7 @@ def _average_close_boundaries(
         if i == len(t) - 1:
             out.append(t[i])
             break
-        
+
         if t[i+1] - t[i] < min_gap_sec:
             j = i + 1
             while j + 1 < len(t) and (t[j+1] - t[j] < min_gap_sec):
@@ -141,7 +141,7 @@ def _bar_novelty_with_grid(y, sr, duration, prefer_meters=(3,4)):
     best_k, best_score, best_grid = 4, -np.inf, None
     for k in prefer_meters:
         cand = bt[::k]
-        if len(cand) < 3: 
+        if len(cand) < 3:
             continue
         score = -np.std(np.diff(cand))  # stable bar duration
         if score > best_score:
@@ -210,28 +210,28 @@ def _calculate_beat_energy_for_times(y, sr, beat_times, hop=512):
     """Calculate beat energy for specific beat times."""
     if len(beat_times) < 3:
         return np.array([])
-    
+
     # frame energies
     S = np.abs(librosa.stft(y, n_fft=2048, hop_length=hop))**2
     pow_t = librosa.frames_to_time(np.arange(S.shape[1]), sr=sr, hop_length=hop)
     pow_sum = S.sum(axis=0)  # broadband power
-    
+
     # integrate per beat interval by summing frames inside (b[i-1], b[i]]
     e = []
     for i in range(1, len(beat_times)):
         m = (pow_t > beat_times[i-1]) & (pow_t <= beat_times[i])
         e.append(pow_sum[m].sum())
     e = np.array(e, dtype=float)
-    
+
     # log scale and normalize
     e = np.log1p(e)
     e = (e - e.min()) / (e.max() - e.min() + 1e-9)
-    
+
     return e
 
 def _moving_average(x, n):
     """Apply moving average filter to signal."""
-    if n <= 1: 
+    if n <= 1:
         return x.copy()
     k = np.ones(n)/n
     y = np.convolve(x, k, mode="same")
@@ -282,7 +282,7 @@ def _merge_close_boundaries(
         if i1 > i0:
             k = i0 + int(np.argmax(inv[i0:i1]))
             t = float(rms_t[k])
-        
+
         future = beat_times[beat_times >= t]
         if len(future) and (future[0] - t) <= beat_snap:
             return float(future[0])
@@ -325,7 +325,7 @@ def segments_from_beat_energy_pro(
     ):
     """Segment audio using beat energy analysis with changepoint detection."""
     duration = len(y) / sr
-    
+
     # Use provided beat times or calculate new ones
     if beat_times is not None:
         bt = np.array(beat_times)
@@ -333,7 +333,7 @@ def segments_from_beat_energy_pro(
         E = _calculate_beat_energy_for_times(y, sr, bt)
     else:
         bt, E = _beat_energy(y, sr)
-    
+
     if len(bt) < long_ma_beats + 4:
         return np.array([0.0, duration]), {"beat_times": bt.tolist(), "E": E.tolist()}
 
@@ -681,7 +681,7 @@ def bar_level_segments(
         beat_times_for_snapping = np.array(beat_times)
     else:
         tempo, beat_times_for_snapping = _beat_times(y, sr)
-    
+
     segments_all = snap_segments_to_beats(segments_all, beat_times_for_snapping, snap_threshold=0.5)
 
     debug = {
@@ -700,31 +700,31 @@ def snap_segments_to_beats(segments, beat_times, snap_threshold=0.5, debug=False
     """Snap segment boundaries to the closest beat within threshold."""
     if len(segments) <= 2 or len(beat_times) == 0:
         return segments
-    
+
     snapped_segments = [segments[0]]  # Keep start time
     snap_info = []
-    
+
     for i in range(1, len(segments) - 1):  # Skip first and last (start/end)
         segment_time = segments[i]
-        
+
         # Find closest beat
         closest_beat_idx = np.argmin(np.abs(beat_times - segment_time))
         closest_beat_time = beat_times[closest_beat_idx]
         distance = abs(closest_beat_time - segment_time)
-        
+
         # Always snap to closest beat, regardless of threshold
         snapped_segments.append(closest_beat_time)
         if debug:
             snap_info.append(f"Segment {i}: {segment_time:.3f}s -> {closest_beat_time:.3f}s (Δ{distance:.3f}s, beat_idx={closest_beat_idx})")
-    
+
     snapped_segments.append(segments[-1])  # Keep end time
-    
+
     # Print snap info for debugging if requested
     if debug and snap_info:
         print("BEAT SNAPPING RESULTS:")
         for info in snap_info:
             print(f"  {info}")
-    
+
     return np.array(snapped_segments)
 
 # =============================================================================
@@ -734,57 +734,57 @@ def snap_segments_to_beats(segments, beat_times, snap_threshold=0.5, debug=False
 def create_visualization(y, sr, rms_t, rms, beat_times, downbeats, segments, bar_novelty, audio_file="audio.wav", beat_energy_debug=None):
     """Create visualization for audio segmentation analysis"""
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(15, 12))
-    
+
     rms_db = 20 * np.log10(rms + 1e-9)
-    
+
     # Plot 1: RMS Energy with segments
     ax1.plot(rms_t, rms_db, 'b-', alpha=0.7, label='RMS Energy (dB)')
-    
+
     if len(beat_times) > 0:
         for i, beat_time in enumerate(beat_times):
             ax1.axvline(x=beat_time, color='purple', alpha=0.3, linewidth=0.5, linestyle='--',
                        label='Beats' if i == 0 else "")
-    
+
     if len(segments) > 0:
         for i, seg_time in enumerate(segments):
-            ax1.axvline(x=seg_time, color='green', alpha=0.8, linewidth=2, 
+            ax1.axvline(x=seg_time, color='green', alpha=0.8, linewidth=2,
                        label='Segments' if i == 0 else "")
-            ax1.text(seg_time, ax1.get_ylim()[1] * 0.9, f'S{i+1}', 
+            ax1.text(seg_time, ax1.get_ylim()[1] * 0.9, f'S{i+1}',
                     ha='center', va='bottom', fontsize=8, color='green', weight='bold')
-    
+
     ax1.set_ylabel('RMS Energy (dB)')
     ax1.set_title(f'Audio Segmentation - {os.path.basename(audio_file)}')
     ax1.legend()
     ax1.grid(True, alpha=0.3)
-    
+
     # Plot 2: Beat tracking
     if len(beat_times) > 0:
         beat_energy = np.interp(beat_times, rms_t, rms_db)
-        ax2.scatter(beat_times, beat_energy, color='orange', s=30, alpha=0.6, 
+        ax2.scatter(beat_times, beat_energy, color='orange', s=30, alpha=0.6,
                    label='Beats', marker='|', linewidth=2)
-        
+
         if len(downbeats) > 0:
             downbeat_energy = np.interp(downbeats, rms_t, rms_db)
-            ax2.scatter(downbeats, downbeat_energy, color='purple', s=80, alpha=0.9, 
+            ax2.scatter(downbeats, downbeat_energy, color='purple', s=80, alpha=0.9,
                        label='Downbeats', marker='o', zorder=5)
-        
+
         if len(segments) > 0:
             for seg_time in segments:
                 ax2.axvline(x=seg_time, color='green', alpha=0.5, linewidth=1, linestyle='--')
     else:
         ax2.plot(rms_t, rms_db, 'b-', alpha=0.7, label='RMS Energy')
-    
+
     ax2.set_ylabel('Energy (dB)')
     ax2.set_title('Beat Tracking')
     ax2.legend()
     ax2.grid(True, alpha=0.3)
-    
+
     # Plot 3: Analysis details
     if beat_energy_debug and "beat_times" in beat_energy_debug:
         beat_times_energy = np.array(beat_energy_debug["beat_times"])
         beat_energy = np.array(beat_energy_debug.get("E", []))
         spread = np.array(beat_energy_debug.get("spread", []))
-        
+
         if len(beat_times_energy) > 0 and len(beat_energy) > 0:
             # Ensure arrays have the same length
             min_len = min(len(beat_times_energy), len(beat_energy))
@@ -792,35 +792,35 @@ def create_visualization(y, sr, rms_t, rms, beat_times, downbeats, segments, bar
             if len(spread) > 0:
                 min_len_spread = min(len(beat_times_energy), len(spread))
                 ax3.plot(beat_times_energy[:min_len_spread], spread[:min_len_spread], 'purple', alpha=0.7, linewidth=1.5, label='Spread')
-            
+
             if len(segments) > 0:
                 for seg_time in segments:
                     ax3.axvline(x=seg_time, color='green', alpha=0.8, linewidth=2)
-            
+
             ax3.set_ylabel('Energy / Spread')
             ax3.set_title('Beat Energy Analysis')
     elif bar_novelty and len(bar_novelty) > 1:
         bar_times, novelty_scores = bar_novelty
         if len(bar_times) > 0 and len(novelty_scores) > 0:
             min_len = min(len(bar_times), len(novelty_scores))
-            ax3.plot(bar_times[:min_len], novelty_scores[:min_len], 'c-', alpha=0.8, linewidth=2, 
+            ax3.plot(bar_times[:min_len], novelty_scores[:min_len], 'c-', alpha=0.8, linewidth=2,
                     label='Bar Novelty')
-            
+
             if len(segments) > 0:
                 for seg_time in segments:
                     ax3.axvline(x=seg_time, color='green', alpha=0.8, linewidth=2)
-            
+
             ax3.set_ylabel('Novelty Score')
             ax3.set_title('Bar-Level Novelty')
     else:
         ax3.plot(rms_t, rms_db, 'b-', alpha=0.7, label='RMS Energy')
         ax3.set_ylabel('Energy (dB)')
         ax3.set_title('RMS Energy')
-    
+
     ax3.set_xlabel('Time (seconds)')
     ax3.legend()
     ax3.grid(True, alpha=0.3)
-    
+
     plt.tight_layout()
     return fig
 
@@ -831,22 +831,22 @@ def create_visualization(y, sr, rms_t, rms, beat_times, downbeats, segments, bar
 def load_audio_bytes(data: bytes, sr=22050):
     """Load and preprocess audio from bytes."""
     y, file_sr = sf.read(io.BytesIO(data), always_2d=False, dtype='float32')
-    
+
     # Convert to mono if stereo
-    if y.ndim > 1: 
+    if y.ndim > 1:
         y = np.mean(y, axis=1)
-    
+
     # Resample if needed
-    if file_sr != sr: 
+    if file_sr != sr:
         y = librosa.resample(y, orig_sr=file_sr, target_sr=sr)
-    
+
     # Ensure audio is floating-point and normalized
     y = y.astype(np.float32)
     y = librosa.util.normalize(y)
-    
+
     return y, sr
 
-def analyze_audio_bytes(data: bytes, sr=22050, hop=512, create_plot=False, audio_file="audio.wav", 
+def analyze_audio_bytes(data: bytes, sr=22050, hop=512, create_plot=False, audio_file="audio.wav",
                        target_segments=6, max_segments=8, hi_q=0.70, lo_q=0.35,
                        w_novelty=0.6, w_energy=0.25, w_flux=0.15, use_beat_energy=True,
                        short_ma_beats=4, long_ma_beats=16, min_gap_seconds=11.0,
@@ -854,7 +854,7 @@ def analyze_audio_bytes(data: bytes, sr=22050, hop=512, create_plot=False, audio
     """Analyze audio and return segmentation results."""
     y, sr = load_audio_bytes(data, sr)
     duration = len(y) / sr
-    
+
     # Get basic audio features
     rms = librosa.feature.rms(y=y, frame_length=2048, hop_length=hop)[0]
     rms_t = librosa.frames_to_time(np.arange(len(rms)), sr=sr, hop_length=hop)
@@ -930,7 +930,7 @@ def analyze_audio_bytes(data: bytes, sr=22050, hop=512, create_plot=False, audio
 def analyze_and_plot(data: bytes, audio_file="audio.wav", output_dir="."):
     """Analyze audio and save visualization plot."""
     result = analyze_audio_bytes(data, create_plot=True, audio_file=audio_file)
-    
+
     if "plot" in result:
         fig = result["plot"]
         output_image = os.path.join(output_dir, f"bar_level_analysis_{os.path.splitext(os.path.basename(audio_file))[0]}.png")
@@ -938,7 +938,7 @@ def analyze_and_plot(data: bytes, audio_file="audio.wav", output_dir="."):
         plt.close(fig)
         result["plot_saved"] = output_image
         del result["plot"]  # Remove the figure object from the result
-    
+
     return result
 
 # =============================================================================
@@ -951,20 +951,20 @@ if __name__ == "__main__":
         current_dir = os.path.dirname(os.path.abspath(__file__))
     except NameError:
         current_dir = os.path.dirname(os.path.abspath("api/processing/music/analysis/test_analysis11.py"))
-    
+
     audio_file = os.path.join(current_dir, "audio.wav")
-    
+
     if os.path.exists(audio_file):
         with open(audio_file, "rb") as f:
             data = f.read()
-        
-        result = analyze_audio_bytes(data, create_plot=True, audio_file="audio.wav", 
+
+        result = analyze_audio_bytes(data, create_plot=True, audio_file="audio.wav",
                                    use_beat_energy=True,
                                    short_ma_beats=4, long_ma_beats=16, min_gap_seconds=11.0)
-        
+
         print(f"Analysis complete: {result['debug']['num_segments']} segments found")
         print(f"Segments: {[f'{s:.2f}s' for s in result['segments_sec']]}")
-        
+
         analyze_and_plot(data, audio_file="audio.wav", output_dir=".")
         print("Visualization saved")
     else:

@@ -14,28 +14,28 @@ def run_migration():
     try:
         # Create engine
         engine = create_engine(settings.database_url, echo=True)
-        
+
         print("Adding analysis column to projects table...")
         with engine.connect() as conn:
             # Check if column already exists
             result = conn.execute(text("""
-                SELECT column_name 
-                FROM information_schema.columns 
-                WHERE table_name = 'projects' 
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'projects'
                 AND column_name = 'analysis'
             """))
             existing_columns = [row[0] for row in result]
-            
+
             if 'analysis' not in existing_columns:
                 conn.execute(text("ALTER TABLE projects ADD COLUMN analysis JSON"))
                 print("Added analysis column to projects table")
             else:
                 print("Analysis column already exists")
-            
+
             conn.commit()
-        
+
         print("Migration completed successfully!")
-        
+
     except Exception as e:
         print(f"Migration failed: {str(e)}")
         raise

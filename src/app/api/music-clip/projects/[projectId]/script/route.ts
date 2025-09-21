@@ -9,13 +9,13 @@ export async function GET(
   try {
     const { projectId } = await params;
     console.log('Music-clip project script API route called for project:', projectId);
-    
+
     const backendUrl = `${BACKEND_URL}/music-clip/projects/${projectId}/script`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-    
+
     const response = await fetch(backendUrl, {
       method: 'GET',
       headers: {
@@ -23,7 +23,7 @@ export async function GET(
       },
       signal: controller.signal,
     });
-    
+
     clearTimeout(timeoutId);
 
     console.log('Backend response status:', response.status);
@@ -39,7 +39,7 @@ export async function GET(
 
     const data = await response.json();
     console.log('Backend response data:', data);
-    
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('Music-clip project script API error:', error);

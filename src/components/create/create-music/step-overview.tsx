@@ -600,10 +600,10 @@ export function OverviewLayout({
         <div className="h-full flex flex-col">
 
           {/* THREE COLUMN LAYOUT */}
-          <div className="grid grid-cols-12 gap-6 w-full flex-1 min-h-0">
+          <div className="grid grid-cols-12 gap-6 w-full h-full">
 
-            {/* LEFT COLUMN - SEGMENT LIST (30%) */}
-            <div className="col-span-3 flex flex-col">
+            {/* LEFT COLUMN - SEGMENT LIST (25%) */}
+            <div className="col-span-3 h-full flex flex-col">
               <SegmentList
                 segments={analysisData?.segments || []}
                 selectedSegment={selectedSegment}
@@ -620,10 +620,10 @@ export function OverviewLayout({
               />
             </div>
 
-            {/* CENTER COLUMN - MUSIC ANALYSIS VISUALIZER (60%) */}
-            <div className="col-span-7 flex flex-col">
-              <Card className="bg-card border border-border shadow-lg flex-1 flex flex-col">
-                <CardContent className="p-0 flex-1 flex flex-col overflow-hidden">
+            {/* CENTER COLUMN - MUSIC ANALYSIS VISUALIZER (50%) */}
+            <div className="col-span-6 h-full flex flex-col">
+              <Card className="bg-card border border-border shadow-lg h-full flex flex-col">
+                <CardContent className="p-0 h-full flex flex-col overflow-hidden">
                     {!analysisData ? (
                       <div className="flex items-center justify-center h-full">
                         <div className="flex flex-col items-center space-y-4">
@@ -636,7 +636,7 @@ export function OverviewLayout({
                     ) : (
                       <div className="w-full h-full flex flex-col">
                         {/* Header with track info */}
-                        <div className="px-4 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-border">
+                        <div className="px-4 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-border flex-shrink-0">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
                               <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
@@ -744,7 +744,7 @@ export function OverviewLayout({
                           </div>
 
                           {/* Zoom info */}
-                          <div className="text-center text-muted-foreground text-xs mt-2">
+                          <div className="text-center text-muted-foreground text-xs mt-2 flex-shrink-0">
                             <span className="font-medium">Zoom: {zoomLevel.toFixed(1)}x</span>
                             <span className="mx-2">•</span>
                             <span>{formatTime(zoomStart)} - {formatTime(Math.min(zoomStart + analysisData.duration / zoomLevel, analysisData.duration))}</span>
@@ -753,7 +753,7 @@ export function OverviewLayout({
 
                         {/* Segment details */}
                         {selectedSegment !== null && analysisData.segments[selectedSegment] && (
-                          <div className="px-4 py-3 border-t border-border">
+                          <div className="px-4 py-3 border-t border-border flex-shrink-0">
                             <Card className="w-full">
                               <CardHeader className="pb-2">
                                 <CardTitle className="text-sm">
@@ -802,7 +802,7 @@ export function OverviewLayout({
                         {/* Overall analysis summary */}
                         <div className="px-4 py-3 bg-gradient-to-r from-muted/5 to-muted/10 border-t border-border flex-shrink-0">
                           <CardTitle className="text-lg font-bold mb-3 text-center">Analysis Summary</CardTitle>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div className="space-y-2">
                               <h4 className="text-sm font-bold text-foreground">Audio Features</h4>
                               <div className="space-y-1 text-sm">
@@ -888,50 +888,50 @@ export function OverviewLayout({
                   </CardContent>
                 </Card>
               </div>
-            </div>
 
-            {/* RIGHT COLUMN - MUSIC TRACKS (10%) */}
-            <div className="col-span-2 flex flex-col">
-              <Card className="bg-card border border-border shadow-lg flex-1 flex flex-col">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg font-bold">Tracks</CardTitle>
-                  <p className="text-xs text-muted-foreground">
-                    {musicTracks.length} track{musicTracks.length !== 1 ? 's' : ''}
-                  </p>
-                </CardHeader>
-                <CardContent className="pt-0 flex-1 flex flex-col">
-                  <div className="space-y-2 flex-1 overflow-y-auto">
-                    {musicTracks.map((track) => (
-                      <div
-                        key={track.id}
-                        className={`p-2 rounded-lg border cursor-pointer transition-all duration-200 ${
-                          selectedTrackId === track.id
-                            ? 'border-primary bg-primary/5 shadow-md'
-                            : 'border-border hover:border-primary/50 hover:shadow-sm'
-                        }`}
-                        onClick={() => onTrackSelect(track)}
-                      >
-                        <div className="flex flex-col items-center space-y-1">
-                          <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                            <span className="text-primary font-bold text-xs">♪</span>
+              {/* RIGHT COLUMN - MUSIC TRACKS (25%) */}
+              <div className="col-span-3 h-full flex flex-col">
+                <Card className="bg-card border border-border shadow-lg h-full flex flex-col">
+                  <CardHeader className="pb-2 flex-shrink-0">
+                    <CardTitle className="text-lg font-bold">Tracks</CardTitle>
+                    <p className="text-xs text-muted-foreground">
+                      {musicTracks.length} track{musicTracks.length !== 1 ? 's' : ''}
+                    </p>
+                  </CardHeader>
+                  <CardContent className="pt-0 flex-1 flex flex-col overflow-hidden">
+                    <div className="space-y-2 flex-1 overflow-y-auto">
+                      {musicTracks.map((track) => (
+                        <div
+                          key={track.id}
+                          className={`p-2 rounded-lg border cursor-pointer transition-all duration-200 ${
+                            selectedTrackId === track.id
+                              ? 'border-primary bg-primary/5 shadow-md'
+                              : 'border-border hover:border-primary/50 hover:shadow-sm'
+                          }`}
+                          onClick={() => onTrackSelect(track)}
+                        >
+                          <div className="flex flex-col items-center space-y-1">
+                            <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                              <span className="text-primary font-bold text-xs">♪</span>
+                            </div>
+                            <div className="text-center">
+                              <h4 className="font-semibold text-foreground truncate text-xs">
+                                {track.name || 'Track'}
+                              </h4>
+                              <p className="text-muted-foreground text-xs">
+                                {track.duration ? `${Math.floor(track.duration / 60)}:${Math.floor(track.duration % 60).toString().padStart(2, '0')}` : '--:--'}
+                              </p>
+                            </div>
+                            {selectedTrackId === track.id && (
+                              <Badge variant="secondary" className="px-1 py-0.5 text-xs">✓</Badge>
+                            )}
                           </div>
-                          <div className="text-center">
-                            <h4 className="font-semibold text-foreground truncate text-xs">
-                              {track.name || 'Track'}
-                            </h4>
-                            <p className="text-muted-foreground text-xs">
-                              {track.duration ? `${Math.floor(track.duration / 60)}:${Math.floor(track.duration % 60).toString().padStart(2, '0')}` : '--:--'}
-                            </p>
-                          </div>
-                          {selectedTrackId === track.id && (
-                            <Badge variant="secondary" className="px-1 py-0.5 text-xs">✓</Badge>
-                          )}
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
 

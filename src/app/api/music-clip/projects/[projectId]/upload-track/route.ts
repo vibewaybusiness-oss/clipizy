@@ -10,10 +10,10 @@ export async function POST(
     console.log('Music-clip upload track API route called for project:', projectId);
     console.log('BACKEND_URL env var:', process.env.BACKEND_URL);
     console.log('NODE_ENV:', process.env.NODE_ENV);
-    
+
     const formData = await request.formData();
     console.log('Form data keys:', Array.from(formData.keys()));
-    
+
     // Check if file exists in form data
     const file = formData.get('file');
     if (!file) {
@@ -28,19 +28,19 @@ export async function POST(
       size: (file as File).size,
       type: (file as File).type
     });
-    
+
     const backendUrl = `${getBackendUrl()}/music-clip/projects/${projectId}/upload-track`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), getTimeout('upload'));
-    
+
     console.log('Starting fetch request to backend...');
     console.log('FormData contents:');
     for (const [key, value] of formData.entries()) {
       console.log(`${key}:`, value);
     }
-    
+
     const response = await fetch(backendUrl, {
       method: 'POST',
       body: formData,
@@ -49,7 +49,7 @@ export async function POST(
     console.log('Fetch request completed');
     console.log('Response status:', response.status);
     console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-    
+
     clearTimeout(timeoutId);
 
     console.log('Backend response status:', response.status);
@@ -65,12 +65,12 @@ export async function POST(
 
     const data = await response.json();
     console.log('Backend response data:', data);
-    
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('Music-clip upload track API error:', error);
     console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    
+
     // Provide more specific error messages
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
@@ -86,7 +86,7 @@ export async function POST(
         );
       }
     }
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

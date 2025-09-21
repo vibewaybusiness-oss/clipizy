@@ -23,6 +23,6 @@ class Stats(Base):
     watch_time = Column(BigInteger, nullable=True)  # in seconds
 
     last_synced = Column(DateTime, default=datetime.utcnow)
-    
+
     # Relationships
     export = relationship("Export", back_populates="stats")

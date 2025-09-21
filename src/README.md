@@ -88,7 +88,7 @@ src/
 - **Custom Style Creation**: Dedicated section for creating unique styles
 - Real-time cost updates
 
-**Styling**: 
+**Styling**:
 - **Full-Screen Modal**: Modern overlay with backdrop blur and rounded corners
 - **Square Style Cards**: Compact square cards with gradient backgrounds and centered content
 - **Interactive Elements**: Selection indicators and smooth transitions

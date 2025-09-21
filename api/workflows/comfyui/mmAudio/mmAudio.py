@@ -7,7 +7,7 @@ class MMAudio:
     def __init__(self):
         self.package_dir = os.path.dirname(__file__)
 
-    def generate_audio_for_video_workflow(self, 
+    def generate_audio_for_video_workflow(self,
                                 input_path: str,
                                 prompt: str = "",
                                 negative_prompt: str = "",
@@ -22,7 +22,7 @@ class MMAudio:
                                 trim_to_audio: bool = False) -> Tuple[Dict[str, Any], str, str]:
         """
         Generate audio for input video using MMAudio model workflow
-        
+
         Args:
             input_path (str): Path to the input video
             prompt (str): Positive prompt for audio generation
@@ -36,13 +36,13 @@ class MMAudio:
             crf (int): Video compression quality (default: 19)
             save_metadata (bool): Save metadata (default: True)
             trim_to_audio (bool): Trim video to audio length (default: False)
-            
+
         Returns:
             Tuple[Dict, str, str]: (mmaudio_workflow, pattern, download_directory)
         """
-        
+
         seed = seed or str(random.randint(1, 2**63 - 1))
-        
+
         # Load workflow
         workflow_path = os.path.join(self.package_dir, "mmAudio_workflow.json")
         with open(workflow_path, 'r', encoding='utf-8-sig') as file:
@@ -65,9 +65,9 @@ class MMAudio:
         mmaudio_workflow["97"]["inputs"]["crf"] = crf
         mmaudio_workflow["97"]["inputs"]["save_metadata"] = save_metadata
         mmaudio_workflow["97"]["inputs"]["trim_to_audio"] = trim_to_audio
-        
+
         # Set pattern and download directory
         pattern = filename_prefix
         download_directory = "/workspace/ComfyUI/output/"
-        
+
         return mmaudio_workflow, pattern, download_directory

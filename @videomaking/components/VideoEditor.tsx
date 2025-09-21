@@ -7,17 +7,17 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Play, Pause, Square, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 
-export function VideoEditor({ 
-  project, 
-  onProjectChange, 
-  className = "" 
+export function VideoEditor({
+  project,
+  onProjectChange,
+  className = ""
 }: VideoEditorProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
-  
+
   const canvasRef = useRef<VideoCanvasRef>(null);
   const animationRef = useRef<number>();
   const lastTimeRef = useRef<number>(0);
@@ -30,27 +30,27 @@ export function VideoEditor({
         if (lastTimeRef.current === 0) {
           lastTimeRef.current = timestamp;
         }
-        
+
         const deltaTime = (timestamp - lastTimeRef.current) / 1000;
         const newTime = Math.min(currentTime + deltaTime * playbackRate, duration);
-        
+
         setCurrentTime(newTime);
         lastTimeRef.current = timestamp;
-        
+
         if (newTime < duration) {
           animationRef.current = requestAnimationFrame(animate);
         } else {
           setIsPlaying(false);
         }
       };
-      
+
       animationRef.current = requestAnimationFrame(animate);
     } else {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     }
-    
+
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
@@ -99,7 +99,7 @@ export function VideoEditor({
           isPlaying={isPlaying}
           className="w-full h-full"
         />
-        
+
         {/* OVERLAY CONTROLS */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
           <div className="bg-black/50 rounded-lg p-4">

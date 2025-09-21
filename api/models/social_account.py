@@ -20,6 +20,6 @@ class SocialAccount(Base):
     expires_at = Column(DateTime, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+
     # Relationships
     user = relationship("User", back_populates="social_accounts")

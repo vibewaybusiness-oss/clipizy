@@ -28,12 +28,12 @@ class Voicemaker:
         """
 
         seed = seed or str(random.randint(1, 2**63 - 1))
-        
+
         # Load workflow
         workflow_path = os.path.join(self.package_dir, "vibe_voice_workflow.json")
         with open(workflow_path, 'r', encoding='utf-8-sig') as file:
             voiceover_workflow = json.load(file)
-        
+
         # Configure workflow parameters
         voiceover_workflow["15"]["inputs"]["audio"] = audio_input
         voiceover_workflow["36"]["inputs"]["text"] = text
@@ -50,5 +50,5 @@ class Voicemaker:
         # Set pattern and download directory
         pattern = f"voiceover_{seed}"
         download_directory = "/workspace/ComfyUI/output/"
-        
+
         return voiceover_workflow, pattern, download_directory

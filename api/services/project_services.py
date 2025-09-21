@@ -92,7 +92,7 @@ class ProjectService:
                 "export": {}
             }
         }
-        
+
         try:
             self.json_store.save_json(
                 f"users/{user_id}/music-clip/projects/{project_id}/script.json",
@@ -104,8 +104,8 @@ class ProjectService:
 
         return project
 
-    def add_music_track(self, db: Session, project_id: str, user_id: str, file_path: str, 
-                       file_metadata: Dict[str, Any], ai_generated: bool = False, 
+    def add_music_track(self, db: Session, project_id: str, user_id: str, file_path: str,
+                       file_metadata: Dict[str, Any], ai_generated: bool = False,
                        prompt: Optional[str] = None, genre: Optional[str] = None,
                        instrumental: bool = False, video_description: Optional[str] = None,
                        title: Optional[str] = None):
@@ -132,7 +132,7 @@ class ProjectService:
         # Update script.json with track information
         try:
             script_data = self.json_store.load_json(f"{user_id}/music-clip/projects/{project_id}/script.json")
-            
+
             track_info = {
                 "id": str(track.id),
                 "file_path": file_path,
@@ -145,9 +145,9 @@ class ProjectService:
                 "status": "uploaded",
                 "created_at": track.created_at.isoformat()
             }
-            
+
             script_data["steps"]["music"]["tracks"].append(track_info)
-            
+
             self.json_store.save_json(
                 f"{user_id}/music-clip/projects/{project_id}/script.json",
                 script_data
@@ -163,7 +163,7 @@ class ProjectService:
         """Update project settings in script.json."""
         try:
             script_data = self.json_store.load_json(f"{user_id}/music-clip/projects/{project_id}/script.json")
-            
+
             # Ensure the settings structure exists
             if "steps" not in script_data:
                 script_data["steps"] = {}
@@ -171,10 +171,10 @@ class ProjectService:
                 script_data["steps"]["music"] = {}
             if "settings" not in script_data["steps"]["music"]:
                 script_data["steps"]["music"]["settings"] = {}
-            
+
             # Update settings
             script_data["steps"]["music"]["settings"].update(settings)
-            
+
             self.json_store.save_json(
                 f"{user_id}/music-clip/projects/{project_id}/script.json",
                 script_data

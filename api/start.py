@@ -66,10 +66,10 @@ if __name__ == "__main__":
     os.environ.setdefault("UVICORN_LIMIT_MAX_REQUESTS", "1000")
     os.environ.setdefault("UVICORN_LIMIT_CONCURRENCY", "1000")
     os.environ.setdefault("UVICORN_TIMEOUT_KEEP_ALIVE", "30")
-    
+
     print("🔍 Checking database health before starting FastAPI...")
     print(f"🗄️  Using database URL: {os.environ.get('DATABASE_URL', 'Not set')}")
-    
+
     # Check if we're using SQLite (default) or PostgreSQL
     db_url = os.environ.get('DATABASE_URL', 'sqlite:///./vibewave_fresh.db')
     if db_url.startswith('sqlite://'):
@@ -86,15 +86,15 @@ if __name__ == "__main__":
             print("✅ Using SQLite fallback database.")
         else:
             print("✅ PostgreSQL database is ready.")
-    
+
     # Create database tables
     print("🔧 Creating/verifying database tables...")
     if not create_database_tables():
         print("❌ Failed to create database tables. Exiting.")
         sys.exit(1)
-    
+
     print("🚀 Starting FastAPI server...")
-    
+
     # Start the FastAPI server
     uvicorn.run(
         "api.main:app",

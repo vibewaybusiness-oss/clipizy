@@ -130,13 +130,13 @@ npm run runpod:setup
 
 ## Working Features
 
-✅ **Account Information** - User ID, email, balance  
-✅ **GPU Types** - 40+ available GPU types  
-✅ **Pod Management** - Create, start, stop, terminate pods  
-✅ **Community Cloud Support** - Optimized for community cloud instances  
-✅ **GPU Priority System** - A40 > 4090 > 5090 (RTX 3090 for community)  
-✅ **Authentication** - API key-based authentication  
-✅ **Error Handling** - Comprehensive error handling  
+✅ **Account Information** - User ID, email, balance
+✅ **GPU Types** - 40+ available GPU types
+✅ **Pod Management** - Create, start, stop, terminate pods
+✅ **Community Cloud Support** - Optimized for community cloud instances
+✅ **GPU Priority System** - A40 > 4090 > 5090 (RTX 3090 for community)
+✅ **Authentication** - API key-based authentication
+✅ **Error Handling** - Comprehensive error handling
 ✅ **TypeScript Support** - Full type definitions
 
 ## Community Cloud Support

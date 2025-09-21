@@ -32,10 +32,10 @@ def setup_fallback_database():
     Set up fallback SQLite database
     """
     print("🔄 Setting up fallback SQLite database...")
-    
+
     # Set environment variable to use SQLite
     os.environ["DATABASE_URL"] = get_fallback_database_url()
-    
+
     print("✅ Fallback SQLite database ready!")
     return True
 

@@ -29,7 +29,7 @@ async def connect_account(
     """Connect a social media account via OAuth"""
     if platform not in ["youtube", "tiktok", "instagram"]:
         raise HTTPException(status_code=400, detail="Unsupported platform")
-    
+
     try:
         social_account = await social_media_service.connect_account(
             db, user_id, platform, auth_data
@@ -56,7 +56,7 @@ async def get_connected_accounts(
     accounts = db.query(SocialAccount).filter(
         SocialAccount.user_id == user_id
     ).all()
-    
+
     return {
         "accounts": [
             {
@@ -81,13 +81,13 @@ async def disconnect_account(
         SocialAccount.id == account_id,
         SocialAccount.user_id == user_id
     ).first()
-    
+
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
-    
+
     db.delete(account)
     db.commit()
-    
+
     return {"success": True, "message": "Account disconnected"}
 
 @router.post("/publish/{export_id}")
@@ -104,19 +104,19 @@ async def publish_video(
         Export.id == export_id,
         Export.user_id == user_id
     ).first()
-    
+
     if not export:
         raise HTTPException(status_code=404, detail="Export not found")
-    
+
     # Validate platforms
     valid_platforms = ["youtube", "tiktok", "instagram"]
     invalid_platforms = [p for p in platforms if p not in valid_platforms]
     if invalid_platforms:
         raise HTTPException(
-            status_code=400, 
+            status_code=400,
             detail=f"Unsupported platforms: {invalid_platforms}"
         )
-    
+
     try:
         if len(platforms) == 1:
             # Single platform publish
@@ -128,7 +128,7 @@ async def publish_video(
             result = await social_media_service.batch_publish(
                 db, export, platforms, user_id, publish_options
             )
-        
+
         return result
     except Exception as e:
         logger.error(f"Failed to publish video: {e}")
@@ -162,13 +162,13 @@ async def batch_publish_multiple_exports(
 ):
     """Publish multiple videos to multiple platforms"""
     results = []
-    
+
     for export_id in export_ids:
         export = db.query(Export).filter(
             Export.id == export_id,
             Export.user_id == user_id
         ).first()
-        
+
         if not export:
             results.append({
                 "export_id": export_id,
@@ -176,7 +176,7 @@ async def batch_publish_multiple_exports(
                 "error": "Export not found"
             })
             continue
-        
+
         try:
             result = await social_media_service.batch_publish(
                 db, export, platforms, user_id, publish_options
@@ -189,7 +189,7 @@ async def batch_publish_multiple_exports(
                 "success": False,
                 "error": str(e)
             })
-    
+
     return {
         "total_exports": len(export_ids),
         "results": results
@@ -230,11 +230,11 @@ async def test_platform_connection(
     """Test connection to a social media platform without saving"""
     if platform not in ["youtube", "tiktok", "instagram"]:
         raise HTTPException(status_code=400, detail="Unsupported platform")
-    
+
     try:
         api = social_media_service.platform_apis[platform]
         account_info = await api.get_account_info(access_token)
-        
+
         return {
             "success": True,
             "platform": platform,
