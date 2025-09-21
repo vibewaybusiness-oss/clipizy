@@ -18,6 +18,20 @@ class StorageService:
         self.endpoint_url = endpoint_url
         self.storage = S3Storage(bucket, endpoint_url)
 
+    def ensure_bucket_exists(self, bucket_name: str = None):
+        """Ensure the specified bucket exists, create if it doesn't"""
+        bucket = bucket_name or self.bucket
+        try:
+            self.storage.s3.head_bucket(Bucket=bucket)
+            logger.info(f"Bucket {bucket} already exists")
+        except:
+            try:
+                self.storage.s3.create_bucket(Bucket=bucket)
+                logger.info(f"✅ Created S3 bucket: {bucket}")
+            except Exception as e:
+                logger.error(f"⚠️ Could not create bucket {bucket}: {e}")
+                raise
+
     def generate_project_path(self, project_id: str, filename: str) -> str:
         """Generate a project-specific path for file storage"""
         path = f"projects/{project_id}/{filename}"

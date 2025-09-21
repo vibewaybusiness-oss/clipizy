@@ -94,6 +94,44 @@ async def lifespan(app: FastAPI):
         except Exception as fallback_error:
             print(f"⚠️ Fallback database setup failed: {fallback_error}")
 
+    # Initialize default user and storage
+    try:
+        from api.db import get_db
+        from api.models import User
+        from api.services.user_safety_service import user_safety_service
+        from api.services.storage_service import storage_service
+        import uuid
+        
+        # Get database session
+        db = next(get_db())
+        
+        # Create default user if it doesn't exist
+        default_user_id = "00000000-0000-0000-0000-000000000001"
+        try:
+            user = user_safety_service.ensure_user_exists(db, default_user_id)
+            print(f"✅ Default user ensured: {user.email}")
+        except Exception as user_error:
+            print(f"⚠️ User creation failed: {user_error}")
+        
+        # Initialize storage buckets
+        try:
+            storage_service.ensure_bucket_exists("clipizi")
+            print("✅ Storage bucket 'clipizi' ensured")
+        except Exception as storage_error:
+            print(f"⚠️ Storage bucket creation failed: {storage_error}")
+            
+        # Ensure project folders exist for default user
+        try:
+            user_safety_service.ensure_project_folders_exist(default_user_id, "music-clip")
+            print("✅ Project folders ensured for default user")
+        except Exception as folder_error:
+            print(f"⚠️ Project folder creation failed: {folder_error}")
+            
+        db.close()
+        
+    except Exception as init_error:
+        print(f"⚠️ Database initialization failed: {init_error}")
+
     # Initialize ComfyUI manager
     try:
         comfyui_manager = get_comfyui_manager()
