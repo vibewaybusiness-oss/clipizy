@@ -1,15 +1,15 @@
 import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, BigInteger, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from api.db import GUID
 from sqlalchemy.orm import relationship
 from api.db import Base
 
 class Stats(Base):
     __tablename__ = "stats"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    export_id = Column(UUID(as_uuid=True), ForeignKey("exports.id", ondelete="CASCADE"), nullable=False)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    export_id = Column(GUID(), ForeignKey("exports.id", ondelete="CASCADE"), nullable=False)
 
     platform = Column(String, nullable=False)       # youtube | instagram | tiktok
     account_name = Column(String, nullable=True)    # e.g. channel or handle

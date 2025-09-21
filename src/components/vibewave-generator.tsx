@@ -8,9 +8,9 @@ import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
 // Removed pricing API - using fixed values
 // Removed API imports - features disabled
-import { StepSettings } from "@/components/create/create-music/step-settings";
-import { StepPrompt } from "@/components/create/create-music/step-prompt";
-import { StepOverview } from "@/components/create/create-music/step-overview";
+import { StepSettings } from "@/components/create/create-music/step-video";
+import { StepPrompt } from "@/components/create/create-music/step-overview";
+import { StepOverview } from "@/components/create/create-music/step-video";
 import { StepGenerating } from "@/components/create/create-music/step-generating";
 import { StepPreview } from "@/components/create/create-music/step-preview";
 

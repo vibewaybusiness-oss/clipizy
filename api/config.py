@@ -8,7 +8,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # Database
-    database_url: str = "sqlite:///./clipizi.db"
+    database_url: str = "sqlite:///C:/temp/vibewave_working.db"
     database_echo: bool = False
     
     # Storage (S3/MinIO)
@@ -33,6 +33,19 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8000
     api_workers: int = 1
+    
+    # Network Configuration
+    frontend_url: str = "http://localhost:3000"
+    wsl_ip: str = "172.31.247.43"
+    windows_host_ip: str = "172.31.240.1"
+    
+    # CORS Configuration
+    cors_origins: list = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://172.31.247.43:3000",
+        "http://172.31.240.1:3000",
+    ]
     
     # Security
     secret_key: str = "your-secret-key-change-in-production"

@@ -5,7 +5,7 @@ from api.config.logging import get_prompt_logger
 
 logger = get_prompt_logger()
 
-router = APIRouter(prefix="/prompts", tags=["Prompts"])
+router = APIRouter(tags=["Prompts"])
 
 @router.get("/random")
 def get_random_prompt(

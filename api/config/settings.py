@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     """Application settings"""
     
     # Database settings
-    database_url: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/clipizi")
+    database_url: str = os.getenv("DATABASE_URL", "sqlite:///C:/temp/vibewave_working.db")
     database_echo: bool = os.getenv("DATABASE_ECHO", "false").lower() == "true"
     
     # JWT settings
@@ -26,6 +26,16 @@ class Settings(BaseSettings):
     # API settings
     backend_url: str = os.getenv("BACKEND_URL", "http://localhost:8000")
     frontend_url: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    
+    # CORS settings
+    cors_origins: list = [
+        "http://localhost:3000",
+        "http://localhost:3001", 
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        "https://clipizi.com",
+        "https://www.clipizi.com"
+    ]
     
     # Logging settings
     log_level: str = os.getenv("LOG_LEVEL", "INFO")
@@ -46,6 +56,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = False
+        extra = "ignore"
 
 # Create global settings instance
 settings = Settings()

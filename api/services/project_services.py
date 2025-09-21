@@ -95,7 +95,7 @@ class ProjectService:
         
         try:
             self.json_store.save_json(
-                f"{user_id}/music-clip/{project_id}/script.json",
+                f"users/{user_id}/music-clip/projects/{project_id}/script.json",
                 script_data
             )
             logger.info(f"Created script.json for project {project_id}")
@@ -131,7 +131,7 @@ class ProjectService:
 
         # Update script.json with track information
         try:
-            script_data = self.json_store.load_json(f"{user_id}/music-clip/{project_id}/script.json")
+            script_data = self.json_store.load_json(f"{user_id}/music-clip/projects/{project_id}/script.json")
             
             track_info = {
                 "id": str(track.id),
@@ -149,7 +149,7 @@ class ProjectService:
             script_data["steps"]["music"]["tracks"].append(track_info)
             
             self.json_store.save_json(
-                f"{user_id}/music-clip/{project_id}/script.json",
+                f"{user_id}/music-clip/projects/{project_id}/script.json",
                 script_data
             )
             logger.info(f"Updated script.json with track {track_id}")
@@ -162,11 +162,21 @@ class ProjectService:
     def update_project_settings(self, db: Session, project_id: str, user_id: str, settings: Dict[str, Any]):
         """Update project settings in script.json."""
         try:
-            script_data = self.json_store.load_json(f"{user_id}/music-clip/{project_id}/script.json")
+            script_data = self.json_store.load_json(f"{user_id}/music-clip/projects/{project_id}/script.json")
+            
+            # Ensure the settings structure exists
+            if "steps" not in script_data:
+                script_data["steps"] = {}
+            if "music" not in script_data["steps"]:
+                script_data["steps"]["music"] = {}
+            if "settings" not in script_data["steps"]["music"]:
+                script_data["steps"]["music"]["settings"] = {}
+            
+            # Update settings
             script_data["steps"]["music"]["settings"].update(settings)
             
             self.json_store.save_json(
-                f"{user_id}/music-clip/{project_id}/script.json",
+                f"{user_id}/music-clip/projects/{project_id}/script.json",
                 script_data
             )
             logger.info(f"Updated settings for project {project_id}")
@@ -178,7 +188,7 @@ class ProjectService:
     def get_project_script(self, db: Session, project_id: str, user_id: str):
         """Get the project's script.json."""
         try:
-            script_data = self.json_store.load_json(f"{user_id}/music-clip/{project_id}/script.json")
+            script_data = self.json_store.load_json(f"{user_id}/music-clip/projects/{project_id}/script.json")
             return script_data
         except Exception as e:
             logger.warning(f"Failed to load script.json: {e}")

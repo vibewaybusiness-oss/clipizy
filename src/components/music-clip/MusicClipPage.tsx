@@ -19,18 +19,22 @@ import { useDragAndDrop } from "@/hooks/use-drag-and-drop";
 import { useMusicAnalysis } from "@/hooks/use-music-analysis";
 import { musicClipAPI } from "@/lib/api/music-clip";
 import { musicAnalysisAPI } from "@/lib/api/music-analysis";
+import { autoSaveService } from "@/lib/auto-save-service";
 import { formatDuration, getTotalDuration, fileToDataUri } from "@/utils/music-clip-utils";
 import type { MusicTrack } from "@/types/music-clip";
 import { SettingsSchema, PromptSchema, OverviewSchema } from "@/components/clipizi-generator";
 import * as z from "zod";
 import WaveformVisualizer, { type WaveformVisualizerRef } from "@/components/waveform-visualizer";
-import { StepUpload } from "@/components/create/create-music/step-upload";
-import { StepSettings } from "@/components/create/create-music/step-settings";
-import { StepPrompt } from "@/components/create/create-music/step-prompt";
-import { StepOverview } from "@/components/create/create-music/step-overview";
+import { StepUpload } from "@/components/create/create-music/step-music";
+import { StepSettings } from "@/components/create/create-music/step-video";
+import { StepPrompt } from "@/components/create/create-music/step-overview";
+import { StepOverview } from "@/components/create/create-music/step-settings";
 import { GenreSelector } from "@/components/create/create-music/genre-selector";
 import { TimelineHeader } from "@/components/timeline-header";
 import { TrackCard } from "@/components/create/create-music/track-card";
+import { AIAnalysisOverlay } from "@/components/ui/ai-analysis-overlay";
+import { MusicAnalysisVisualizer } from "@/components/create/create-music/music-analysis-visualizer";
+import { OverviewLayout } from "@/components/create/create-music/overview-layout";
 
 function MusicClipPage() {
   // Custom hooks for state management
@@ -60,6 +64,121 @@ function MusicClipPage() {
   
   // Store individual descriptions when switching to reuse mode
   const [preservedIndividualDescriptions, setPreservedIndividualDescriptions] = useState<Record<string, string>>({});
+  
+  // Music analysis visualization state
+  const [musicAnalysisData, setMusicAnalysisData] = useState<any>(null);
+  const [isLoadingAnalysisData, setIsLoadingAnalysisData] = useState(false);
+
+  // Function to load analysis data from backend
+  const loadAnalysisData = async (projectId: string) => {
+    try {
+      console.log('Loading analysis data for project:', projectId);
+      setIsLoadingAnalysisData(true);
+      const response = await fetch(`/api/music-clip/projects/${projectId}/analysis`);
+      console.log('Backend response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Loaded analysis data from backend:', data);
+        
+        // Extract the first track's analysis data
+        let trackData = null;
+        
+        if (data.music && Object.keys(data.music).length > 0) {
+          const trackId = Object.keys(data.music)[0];
+          trackData = data.music[trackId];
+        } else if (data.analysis && data.analysis.music && Object.keys(data.analysis.music).length > 0) {
+          // Handle the case where data is in {analysis: {music: {...}}} format
+          const trackId = Object.keys(data.analysis.music)[0];
+          trackData = data.analysis.music[trackId];
+        } else if (data.analysis) {
+          // Fallback for direct analysis data
+          trackData = data.analysis;
+        }
+        
+        if (trackData) {
+          console.log('Track data from backend:', trackData);
+          console.log('Track data keys:', Object.keys(trackData));
+          console.log('Track data tempo:', trackData.tempo);
+          console.log('Track data duration:', trackData.duration);
+          
+          // Convert backend format to our component format
+          const analysisData = {
+            file_path: '/tmp/analysis.wav',
+            metadata: {
+              title: trackData.title || 'Unknown',
+              artist: 'Unknown',
+              album: 'Unknown',
+              genre: 'Unknown',
+              year: 'Unknown',
+              duration: trackData.duration,
+              bitrate: 1411200,
+              sample_rate: 44100,
+              channels: 2,
+              file_size: 0,
+              file_type: '.wav'
+            },
+            features: {
+              duration: trackData.duration || 0,
+              tempo: trackData.tempo || 120,
+              spectral_centroid: trackData.audio_features?.spectral_centroid || 0,
+              rms_energy: trackData.audio_features?.rms_energy || 0,
+              harmonic_ratio: trackData.audio_features?.harmonic_ratio || 0,
+              onset_rate: trackData.audio_features?.onset_rate || 0,
+              key: 'Unknown',
+              time_signature: 'Unknown'
+            },
+            genre_scores: {
+              'Ambient': 0,
+              'Synthwave / Electronic': 0,
+              'Jazz / Blues': 1,
+              'Classical / Orchestral': 1,
+              'Rock / Metal / Punk': 1
+            },
+            predicted_genre: 'Electronic',
+            confidence: 85,
+            peak_analysis: {
+              peak_times: trackData.segments_sec || [],
+              peak_scores: Array.from({ length: (trackData.segments_sec || []).length }, () => 1 + Math.random() * 3),
+              total_peaks: (trackData.segments_sec || []).length,
+              analysis_duration: trackData.duration
+            },
+            analysis_timestamp: data.analyzed_at || new Date().toISOString(),
+            segments_sec: trackData.segments_sec || [],
+            segments: trackData.segments || [],
+            segment_analysis: trackData.segment_analysis || [],
+            beat_times_sec: trackData.beat_times_sec || [],
+            downbeats_sec: trackData.downbeats_sec || [],
+            tempo: trackData.tempo,
+            duration: trackData.duration,
+            debug: trackData.debug || {},
+            original_filename: trackData.title || 'Unknown',
+            file_size: 0
+          };
+          
+          setMusicAnalysisData(analysisData);
+        } else {
+          console.log('No music data found in backend response');
+        }
+      } else {
+        console.error('Backend response not OK:', response.status, response.statusText);
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+      }
+    } catch (error) {
+      console.error('Failed to load analysis data:', error);
+    } finally {
+      setIsLoadingAnalysisData(false);
+    }
+  };
+
+  // Auto-load analysis data when on step 4
+  useEffect(() => {
+    if (musicClipState.state.currentStep === 4 && projectId && !musicAnalysisData) {
+      console.log('Auto-loading analysis data for step 4, project:', projectId);
+      loadAnalysisData(projectId);
+    }
+  }, [musicClipState.state.currentStep, projectId, musicAnalysisData]);
   
   // Check if all tracks are valid for step 3
   const areAllTracksValid = useMemo(() => {
@@ -192,6 +311,12 @@ function MusicClipPage() {
   // Set audio duration when audio file changes
   useEffect(() => {
     if (musicClipState.state.audioFile && musicClipState.state.audioFile.size > 0) {
+      // Validate that audioFile is actually a File or Blob object
+      if (!(musicClipState.state.audioFile instanceof File) && !(musicClipState.state.audioFile instanceof Blob)) {
+        console.warn('[MUSIC CLIP] audioFile is not a File or Blob object:', typeof musicClipState.state.audioFile);
+        return;
+      }
+      
       // Only try to get duration for files with actual content
       const tempUrl = URL.createObjectURL(musicClipState.state.audioFile);
       console.log('[MUSIC CLIP] Created temporary blob URL for duration detection:', tempUrl, 'File size:', musicClipState.state.audioFile.size);
@@ -361,20 +486,7 @@ function MusicClipPage() {
     }
   }, [projectId, urlProjectId, projectManagement.state.isLoadingProject, musicClipState.state.settings, musicTracks.musicTracks.length]);
 
-  // Auto-analyze tracks that need analysis
-  useEffect(() => {
-    if (projectId && musicTracks.musicTracks.length > 0 && !musicAnalysis.isAnalyzing) {
-      const tracksNeedingAnalysis = musicAnalysis.getTracksNeedingAnalysis(musicTracks.musicTracks);
-      
-      if (tracksNeedingAnalysis.length > 0) {
-        console.log(`Auto-analyzing ${tracksNeedingAnalysis.length} tracks that need analysis:`, 
-          tracksNeedingAnalysis.map(t => t.name));
-        
-        // Trigger analysis in the background
-        musicAnalysis.analyzeMissingTracks(musicTracks.musicTracks);
-      }
-    }
-  }, [projectId, musicTracks.musicTracks, musicAnalysis]);
+  // Music analysis is now only triggered manually on step 3 continue button
 
   // Update URL when step changes (with throttling to prevent browser hanging)
   const prevStepRef = useRef(musicClipState.state.currentStep);
@@ -421,20 +533,24 @@ function MusicClipPage() {
       const projectId = searchParams.get('projectId');
       if (projectId) {
         try {
-          // Use sendBeacon for reliable data saving on page unload
+          // Flush all pending auto-saves immediately
+          autoSaveService.flushAllSaves();
+          
           const musicClipData = musicClipState.actions.getCurrentState();
           const tracksData = musicTracks.getCurrentState();
+          const analysisData = musicAnalysis.analysisData;
           
           const data = {
             projectId,
             musicClipData,
             tracksData,
+            analysisData,
             timestamp: Date.now()
           };
           
           // Use sendBeacon for critical data saving
           const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-          const success = navigator.sendBeacon('/music-clip/auto-save', blob);
+          const success = navigator.sendBeacon('/api/music-clip/auto-save', blob);
           
           if (!success) {
             console.warn('Failed to send beacon for auto-save');
@@ -451,6 +567,9 @@ function MusicClipPage() {
       if (document.visibilityState === 'hidden') {
         const projectId = searchParams.get('projectId');
         if (projectId) {
+          // Flush all pending auto-saves when page becomes hidden
+          autoSaveService.flushAllSaves();
+          
           // Use regular fetch for visibility change (less critical)
           pushDataToBackend(projectId, musicClipState.actions.getCurrentState(), musicTracks.getCurrentState())
             .catch(error => console.error('Failed to push data to backend on visibility change:', error));
@@ -467,7 +586,7 @@ function MusicClipPage() {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [searchParams, musicClipState.actions, musicTracks]);
+  }, [searchParams, musicClipState.actions, musicTracks, musicAnalysis.analysisData]);
 
   // Handle browser back/forward navigation
   useEffect(() => {
@@ -1156,6 +1275,36 @@ function MusicClipPage() {
     musicClipState.actions.setSharedDescription(desc);
   }, [musicClipState.actions]);
 
+  // Render overview layout separately for step 4
+  if (musicClipState.state.currentStep === 4) {
+    return (
+      <OverviewLayout
+        form={musicClipState.forms.promptForm}
+        settings={musicClipState.state.settings}
+        audioFile={musicClipState.state.audioFile}
+        audioDuration={musicClipState.state.audioDuration}
+        musicTracks={musicTracks.musicTracks}
+        selectedTrackId={musicTracks.selectedTrackId}
+        onTrackSelect={(trackId: string) => handleTrackSelect(musicTracks.musicTracks.find(t => t.id === trackId)!, undefined)}
+        onSubmit={onPromptSubmitForm}
+        onBack={() => musicClipState.actions.setCurrentStep(3)}
+        fileToDataUri={fileToDataUri}
+        toast={toast}
+        onTrackDescriptionsUpdate={handleTrackDescriptionsUpdate}
+        onSharedDescriptionUpdate={handleSharedDescriptionUpdate}
+        onPromptsUpdate={musicClipState.actions.setPrompts}
+        trackDescriptions={musicClipState.state.individualDescriptions}
+        analysisData={musicAnalysisData}
+        canContinue={areAllTracksValid}
+        onContinue={() => {
+          const formValues = musicClipState.forms.promptForm.getValues();
+          onPromptSubmit(formValues);
+        }}
+        continueText={`Checkout with ${musicClipState.state.settings?.user_price || musicClipState.state.settings?.budget?.[0] || 0} credits`}
+      />
+    );
+  }
+
   return (
     <>
       {/* FULL-SCREEN LOADING OVERLAY */}
@@ -1229,11 +1378,11 @@ function MusicClipPage() {
 
 
         {/* MAIN CONTENT */}
-        <div className="flex-1 max-w-7xl mx-auto px-8 py-4 overflow-y-auto">
+        <div className="flex-1 w-full max-w-7xl mx-auto px-8 py-4 overflow-y-auto">
           <div className="min-h-full flex flex-col space-y-4">
-            <div className="flex-1 grid grid-cols-1 xl:grid-cols-3 gap-6 min-h-0 items-center">
+            <div className="flex-1 grid grid-cols-1 xl:grid-cols-4 gap-6 min-h-0 w-full items-center">
               {/* LEFT SIDE - UPLOAD AREA */}
-              <div className="flex flex-col xl:col-span-2 h-full min-h-[600px] xl:min-h-[calc(100vh-200px)]">
+              <div className="flex flex-col xl:col-span-3 h-full min-h-[600px] xl:min-h-[calc(100vh-200px)]">
                 {musicClipState.state.currentStep === 1 && (
                   <StepUpload
                     musicPrompt={musicClipState.state.musicPrompt}
@@ -1287,31 +1436,6 @@ function MusicClipPage() {
                   </div>
                 )}
 
-                {musicClipState.state.currentStep === 4 && (
-                  <div className="flex flex-col h-full">
-                    <Card className="bg-card border border-border  flex-1 flex flex-col">
-                      <CardContent className="space-y-6 flex-1 flex flex-col p-6">
-                        <StepPrompt
-                          form={musicClipState.forms.promptForm}
-                          settings={musicClipState.state.settings}
-                          audioFile={musicClipState.state.audioFile}
-                          audioDuration={musicClipState.state.audioDuration}
-                          musicTracks={musicTracks.musicTracks}
-                          selectedTrackId={musicTracks.selectedTrackId}
-                          onTrackSelect={handleTrackSelect}
-                          onSubmit={onPromptSubmitForm}
-                          onBack={() => musicClipState.actions.setCurrentStep(3)}
-                          fileToDataUri={fileToDataUri}
-                          toast={toast}
-                          onTrackDescriptionsUpdate={handleTrackDescriptionsUpdate}
-                          onSharedDescriptionUpdate={handleSharedDescriptionUpdate}
-                          onPromptsUpdate={musicClipState.actions.setPrompts}
-                          trackDescriptions={musicClipState.state.individualDescriptions}
-                        />
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
               </div>
 
               {/* RIGHT SIDE - DRAG AND DROP AREA */}
@@ -1569,27 +1693,11 @@ function MusicClipPage() {
                             musicClipState.actions.setCurrentStep(4);
                             console.log('Current step after setCurrentStep(4):', musicClipState.state.currentStep);
                           }} 
-                          className={`flex items-center space-x-2 text-white ${
-                            !musicClipState.state.isAnalyzingMusic ? 'btn-ai-gradient' : 'bg-muted text-foreground/50 cursor-not-allowed'
-                          }`}
-                          disabled={musicClipState.state.isGeneratingVideo || musicClipState.state.isAnalyzingMusic}
+                          className="flex items-center space-x-2 text-white btn-ai-gradient"
+                          disabled={musicClipState.state.isGeneratingVideo}
                         >
-                          {musicClipState.state.isAnalyzingMusic ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                              <span>Analyzing Music...</span>
-                            </>
-                          ) : musicClipState.state.isGeneratingVideo ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                              <span>Generating...</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>Continue</span>
-                              <ChevronRight className="w-4 h-4" />
-                            </>
-                          )}
+                          <span>Continue</span>
+                          <ChevronRight className="w-4 h-4" />
                         </Button>
                       </div>
                     )}
@@ -1611,40 +1719,15 @@ function MusicClipPage() {
                       <Button 
                         onClick={() => musicClipState.forms.settingsForm.handleSubmit(handleSettingsSubmit)()} 
                         className={`flex items-center space-x-2 text-white ${
-                          musicClipState.forms.settingsForm.formState.isValid && !musicClipState.state.isAnalyzingMusic ? 'btn-ai-gradient' : 'bg-muted text-foreground/50 cursor-not-allowed'
+                          musicClipState.forms.settingsForm.formState.isValid ? 'btn-ai-gradient' : 'bg-muted text-foreground/50 cursor-not-allowed'
                         }`}
-                        disabled={!musicClipState.forms.settingsForm.formState.isValid || musicClipState.state.isAnalyzingMusic}
+                        disabled={!musicClipState.forms.settingsForm.formState.isValid}
                       >
-                        {musicClipState.state.isAnalyzingMusic ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            <span>Analyzing Music...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Continue</span>
-                            <ChevronRight className="w-4 h-4" />
-                          </>
-                        )}
-                      </Button>
-                    )}
-                    
-                    {musicClipState.state.currentStep === 4 && (
-                      <Button 
-                        onClick={() => {
-                          // Save current form data first
-                          const formValues = musicClipState.forms.promptForm.getValues();
-                          onPromptSubmit(formValues);
-                        }} 
-                        className={`flex items-center space-x-2 text-white ${
-                          areAllTracksValid ? 'btn-ai-gradient' : 'bg-muted text-foreground/50 cursor-not-allowed'
-                        }`}
-                        disabled={!areAllTracksValid}
-                      >
-                        <span>Checkout with {musicClipState.state.settings?.user_price || musicClipState.state.settings?.budget?.[0] || 0} credits</span>
+                        <span>Continue</span>
                         <ChevronRight className="w-4 h-4" />
                       </Button>
                     )}
+                    
                     
                   </div>
                 </div>
@@ -1652,6 +1735,7 @@ function MusicClipPage() {
             )}
           </div>
         </div>
+
         
         {/* Genre Selector Modal */}
         <GenreSelector
@@ -1659,6 +1743,16 @@ function MusicClipPage() {
           onClose={() => musicClipState.actions.setShowGenreSelector(false)}
           onSelectGenre={handleGenreSelect}
           onGenerateRandom={handleRandomGenerate}
+        />
+
+        {/* AI Analysis Overlay */}
+        <AIAnalysisOverlay
+          isVisible={musicClipState.state.isAnalyzingMusic}
+          title="Analyzing Music"
+          subtitle="AI is processing your audio tracks..."
+          progress={musicAnalysis.analysisProgress ? 
+            Object.values(musicAnalysis.analysisProgress).filter(status => status === 'completed').length / 
+            Object.keys(musicAnalysis.analysisProgress).length * 100 : undefined}
         />
 
       </div>

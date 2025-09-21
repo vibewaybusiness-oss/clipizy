@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { SettingsSchema, OverviewSchema } from '@/components/clipizi-generator';
+import { autoSaveService } from '@/lib/auto-save-service';
 
 const PromptSchema = z.object({
   musicDescription: z.string().min(1, "Music description is required"),
@@ -311,21 +312,49 @@ export function useMusicClipState(projectId?: string | null) {
     if (typeof window !== 'undefined' && projectId) {
       if (settings) {
         localStorage.setItem(`musicClip_${projectId}_settings`, JSON.stringify(settings));
+        
+        // Schedule auto-save to backend
+        autoSaveService.scheduleSave(projectId, {
+          musicClipData: {
+            settings,
+            currentStep,
+            maxReachedStep,
+            audioUrl,
+            audioDuration,
+            prompts,
+            sharedDescription,
+            individualDescriptions
+          }
+        });
       } else {
         localStorage.removeItem(`musicClip_${projectId}_settings`);
       }
     }
-  }, [settings, projectId]);
+  }, [settings, projectId, currentStep, maxReachedStep, audioUrl, audioDuration, prompts, sharedDescription, individualDescriptions]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && projectId) {
       if (prompts) {
         localStorage.setItem(`musicClip_${projectId}_prompts`, JSON.stringify(prompts));
+        
+        // Schedule auto-save to backend
+        autoSaveService.scheduleSave(projectId, {
+          musicClipData: {
+            settings,
+            currentStep,
+            maxReachedStep,
+            audioUrl,
+            audioDuration,
+            prompts,
+            sharedDescription,
+            individualDescriptions
+          }
+        });
       } else {
         localStorage.removeItem(`musicClip_${projectId}_prompts`);
       }
     }
-  }, [prompts, projectId]);
+  }, [prompts, projectId, settings, currentStep, maxReachedStep, audioUrl, audioDuration, sharedDescription, individualDescriptions]);
 
   // PERSISTENCE: Save description states to localStorage (real-time updates)
   useEffect(() => {
@@ -349,6 +378,19 @@ export function useMusicClipState(projectId?: string | null) {
       }
     }
   }, [individualDescriptions, projectId]);
+
+  // PERSISTENCE: Save step state changes to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined' && projectId) {
+      localStorage.setItem(`musicClip_${projectId}_currentStep`, currentStep.toString());
+    }
+  }, [currentStep, projectId]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && projectId) {
+      localStorage.setItem(`musicClip_${projectId}_maxReachedStep`, maxReachedStep.toString());
+    }
+  }, [maxReachedStep, projectId]);
 
   // PERSISTENCE: Save form data changes to localStorage
   useEffect(() => {

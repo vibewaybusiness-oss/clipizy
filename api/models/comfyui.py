@@ -3,7 +3,7 @@
 # ----------------------------------------------------------
 
 from sqlalchemy import Column, String, Text, DateTime, Boolean, Integer, Float, JSON
-from sqlalchemy.dialects.postgresql import UUID
+from api.db import GUID
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 import uuid
@@ -18,7 +18,7 @@ class ComfyUIWorkflowExecution(Base):
     """Database model for ComfyUI workflow executions"""
     __tablename__ = "comfyui_workflow_executions"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     request_id = Column(String(255), unique=True, nullable=False, index=True)
     workflow_type = Column(String(100), nullable=False, index=True)
     status = Column(String(50), nullable=False, default="pending", index=True)
@@ -44,8 +44,8 @@ class ComfyUIWorkflowExecution(Base):
     completed_at = Column(DateTime)
     
     # User and project tracking
-    user_id = Column(UUID(as_uuid=True), index=True)
-    project_id = Column(UUID(as_uuid=True), index=True)
+    user_id = Column(GUID(), index=True)
+    project_id = Column(GUID(), index=True)
     
     # Credits and billing
     credits_spent = Column(Integer, default=0)
@@ -88,7 +88,7 @@ class ComfyUIWorkflowConfig(Base):
     """Database model for ComfyUI workflow configurations"""
     __tablename__ = "comfyui_workflow_configs"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     workflow_name = Column(String(100), unique=True, nullable=False, index=True)
     
     # Configuration
@@ -121,8 +121,8 @@ class ComfyUIExecutionLog(Base):
     """Database model for ComfyUI execution logs"""
     __tablename__ = "comfyui_execution_logs"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    execution_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    execution_id = Column(GUID(), nullable=False, index=True)
     request_id = Column(String(255), nullable=False, index=True)
     
     # Log details
@@ -140,9 +140,9 @@ class ComfyUIResourceUsage(Base):
     """Database model for ComfyUI resource usage tracking"""
     __tablename__ = "comfyui_resource_usage"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     pod_id = Column(String(255), nullable=False, index=True)
-    execution_id = Column(UUID(as_uuid=True), index=True)
+    execution_id = Column(GUID(), index=True)
     
     # Resource metrics
     cpu_usage_percent = Column(Float)

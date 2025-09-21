@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
+import { getBackendUrl, getTimeout } from '@/lib/config';
 
 export async function POST(
   request: NextRequest,
@@ -10,6 +9,7 @@ export async function POST(
     const { projectId } = await params;
     console.log('Music-clip upload track API route called for project:', projectId);
     console.log('BACKEND_URL env var:', process.env.BACKEND_URL);
+    console.log('NODE_ENV:', process.env.NODE_ENV);
     
     const formData = await request.formData();
     console.log('Form data keys:', Array.from(formData.keys()));
@@ -29,19 +29,26 @@ export async function POST(
       type: (file as File).type
     });
     
-    const backendUrl = `${BACKEND_URL}/music-clip/projects/${projectId}/upload-track`;
+    const backendUrl = `${getBackendUrl()}/music-clip/projects/${projectId}/upload-track`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout for file upload
+    const timeoutId = setTimeout(() => controller.abort(), getTimeout('upload'));
     
     console.log('Starting fetch request to backend...');
+    console.log('FormData contents:');
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+    
     const response = await fetch(backendUrl, {
       method: 'POST',
       body: formData,
       signal: controller.signal,
     });
     console.log('Fetch request completed');
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     
     clearTimeout(timeoutId);
 
@@ -63,6 +70,23 @@ export async function POST(
   } catch (error) {
     console.error('Music-clip upload track API error:', error);
     console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        return NextResponse.json(
+          { error: 'Upload timeout - file too large or network too slow. Please try again.' },
+          { status: 408 }
+        );
+      }
+      if (error.message.includes('fetch')) {
+        return NextResponse.json(
+          { error: 'Failed to connect to backend server. Please check if the backend is running.' },
+          { status: 503 }
+        );
+      }
+    }
+    
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

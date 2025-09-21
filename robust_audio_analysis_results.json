@@ -1,0 +1,90 @@
+{
+  "test_info": {
+    "test_name": "Robust Audio Analysis Test",
+    "timestamp": "2025-09-21T01:54:32.016427",
+    "test_file": "test_long.wav",
+    "file_size_bytes": 882044,
+    "file_size_mb": 0.84
+  },
+  "audio_info": {
+    "duration": 10.0,
+    "sample_rate": 22050,
+    "audio_shape": [
+      220500
+    ],
+    "tempo": 129.19921875,
+    "beats_count": 20
+  },
+  "analysis_result": {
+    "title": "Test Audio",
+    "duration": 10.0,
+    "tempo": 129.19921875,
+    "segments_sec": [
+      0.0,
+      10.0
+    ],
+    "beat_times_sec": [
+      0.06965986394557823,
+      0.5108390022675737,
+      0.9752380952380952,
+      1.4396371882086167,
+      1.8808163265306121,
+      2.3219954648526078,
+      2.786394557823129,
+      3.2043537414965986,
+      3.6687528344671203,
+      4.156371882086168,
+      4.597551020408163,
+      5.015510204081632,
+      5.479909297052155,
+      5.921088435374149,
+      6.3854875283446715,
+      6.826666666666667,
+      7.291065759637188,
+      7.732244897959184,
+      8.150204081632653,
+      8.614603174603175
+    ],
+    "audio_features": {
+      "duration": 10.0,
+      "tempo": 129.19921875,
+      "spectral_centroid": 5273.744969875874,
+      "rms_energy": 0.49372556805610657,
+      "harmonic_ratio": 0.5,
+      "onset_rate": 0.0
+    },
+    "music_descriptors": [
+      "Duration: 10.0 seconds",
+      "Tempo: 129.2 BPM",
+      "Basic audio analysis"
+    ],
+    "segments": [
+      {
+        "segment_index": 0,
+        "start_time": 0.0,
+        "end_time": 10.0,
+        "duration": 10.0,
+        "features": {
+          "duration": 10.0,
+          "tempo": 129.19921875,
+          "spectral_centroid": 5273.744969875874,
+          "rms_energy": 0.49372556805610657
+        },
+        "descriptors": [
+          "Basic audio segment"
+        ]
+      }
+    ],
+    "segment_analysis": [],
+    "analysis_note": "Fallback analysis due to segmentation parameters issue"
+  },
+  "test_summary": {
+    "analysis_success": true,
+    "total_segments": 1,
+    "analysis_duration": 10.0,
+    "tempo_detected": 129.19921875,
+    "features_extracted": 6,
+    "descriptors_generated": 3,
+    "fallback_used": true
+  }
+}

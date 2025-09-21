@@ -63,20 +63,31 @@ fi
 
 # Start PostgreSQL
 echo -e "${BLUE}🗄️  Starting PostgreSQL...${NC}"
+# Kill any existing PostgreSQL processes
+sudo pkill -f postgres 2>/dev/null || true
+sudo docker stop clipizi-postgres 2>/dev/null || true
+sudo docker rm clipizi-postgres 2>/dev/null || true
+
 if port_in_use 5432; then
-    echo -e "${YELLOW}⚠️  Port 5432 is already in use. PostgreSQL might already be running.${NC}"
+    echo -e "${YELLOW}⚠️  Port 5432 is still in use. Using port 5433 instead.${NC}"
+    POSTGRES_PORT=5433
 else
-    sudo docker run -d --name clipizi-postgres \
-        -e POSTGRES_PASSWORD=postgres \
-        -e POSTGRES_DB=clipizi \
-        -p 5432:5432 \
-        postgres:15
-    echo -e "${GREEN}✅ PostgreSQL started at localhost:5432${NC}"
+    POSTGRES_PORT=5432
 fi
+
+sudo docker run -d --name clipizi-postgres \
+    -e POSTGRES_PASSWORD=postgres \
+    -e POSTGRES_DB=clipizi \
+    -p $POSTGRES_PORT:5432 \
+    postgres:15
+echo -e "${GREEN}✅ PostgreSQL started at localhost:$POSTGRES_PORT${NC}"
 
 # Wait for services to be ready
 echo -e "${BLUE}⏳ Waiting for services to be ready...${NC}"
 sleep 5
+
+# Set database URL based on PostgreSQL port
+export DATABASE_URL="postgresql://postgres:postgres@localhost:$POSTGRES_PORT/clipizi"
 
 # Start FastAPI Backend
 echo -e "${BLUE}🐍 Starting FastAPI Backend...${NC}"
@@ -96,7 +107,7 @@ else
     
     echo -e "${YELLOW}🚀 Starting FastAPI server...${NC}"
     cd api
-    python start.py &
+    DATABASE_URL="postgresql://postgres:postgres@localhost:$POSTGRES_PORT/clipizi" python start.py &
     echo -e "${GREEN}✅ FastAPI started at http://localhost:8000${NC}"
     cd ..
 fi
@@ -129,9 +140,9 @@ else
         npm install
     fi
     
-    # echo -e "${YELLOW}🚀 Starting Next.js development server...${NC}"
-    # npm run dev &
-    # echo -e "${GREEN}✅ Next.js started at http://localhost:3000${NC}"
+    echo -e "${YELLOW}🚀 Starting Next.js development server...${NC}"
+    npm run dev &
+    echo -e "${GREEN}✅ Next.js started at http://localhost:3000${NC}"
 fi
 
 echo ""
@@ -141,7 +152,7 @@ echo -e "${BLUE}📱 Frontend:${NC} http://localhost:3000"
 echo -e "${BLUE}🔧 API Docs:${NC} http://localhost:8000/docs"
 echo -e "${BLUE}🗄️  MinIO Console:${NC} http://localhost:9001 (admin/admin123)"
 echo -e "${BLUE}🎨 ComfyUI:${NC} http://localhost:8188"
-echo -e "${BLUE}🗄️  PostgreSQL:${NC} localhost:5432 (postgres/postgres)"
+echo -e "${BLUE}🗄️  PostgreSQL:${NC} localhost:$POSTGRES_PORT (postgres/postgres)"
 echo ""
 echo -e "${YELLOW}💡 To stop all services, run: ./stop.sh${NC}"
 echo -e "${YELLOW}💡 To view logs, run: docker logs -f clipizi-minio${NC}"

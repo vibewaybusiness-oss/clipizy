@@ -1,15 +1,15 @@
 import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, DateTime, ForeignKey, Boolean, Integer, JSON
-from sqlalchemy.dialects.postgresql import UUID
+from api.db import GUID
 from sqlalchemy.orm import relationship
 from api.db import Base
 
 class Track(Base):
     __tablename__ = "tracks"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    project_id = Column(GUID(), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
 
     title = Column(String, nullable=True)        # Optional title
     file_path = Column(String, nullable=False)   # e.g. music/track1.wav
