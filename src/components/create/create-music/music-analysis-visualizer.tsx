@@ -333,127 +333,133 @@ export function MusicAnalysisVisualizer({ analysisData, audioFile }: MusicAnalys
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 w-full">
       {/* Header with track info */}
-      <Card className="w-full">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Music className="w-6 h-6 text-primary" />
-              <div>
-                <CardTitle className="text-xl">{analysisData.metadata.title}</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  {analysisData.metadata.artist} • {formatTime(analysisData.duration || 0)}
-                </p>
-              </div>
+      <div className="px-8 py-6 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-border">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center">
+              <Music className="w-8 h-8 text-primary" />
             </div>
-            <div className="flex items-center space-x-2">
-              <Badge variant="secondary">{analysisData.predicted_genre}</Badge>
-              <Badge variant="outline">{(analysisData.features.tempo || 120).toFixed(0)} BPM</Badge>
+            <div>
+              <CardTitle className="text-2xl font-bold">{analysisData.metadata.title}</CardTitle>
+              <p className="text-lg text-muted-foreground">
+                {analysisData.metadata.artist} • {formatTime(analysisData.duration || 0)}
+              </p>
             </div>
           </div>
-        </CardHeader>
-      </Card>
+          <div className="flex items-center space-x-3">
+            <Badge variant="secondary" className="px-4 py-2 text-lg font-semibold">
+              {analysisData.predicted_genre}
+            </Badge>
+            <Badge variant="outline" className="px-4 py-2 text-lg font-semibold">
+              {(analysisData.features.tempo || 120).toFixed(0)} BPM
+            </Badge>
+          </div>
+        </div>
+      </div>
 
       {/* Main visualization */}
-      <Card className="w-full">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Music Analysis Visualization</CardTitle>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={zoomOut}
-                disabled={zoomLevel <= 1}
-              >
-                <ZoomOut className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={zoomIn}
-                disabled={zoomLevel >= 20}
-              >
-                <ZoomIn className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={resetZoom}
-              >
-                <RotateCcw className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* Audio controls */}
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={togglePlayPause}
-                disabled={!audioFile}
-              >
-                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              </Button>
-              <div className="flex-1">
-                <Progress 
-                  value={(currentTime / analysisData.duration) * 100} 
-                  className="h-2"
-                />
-              </div>
-              <span className="text-sm text-muted-foreground">
-                {formatTime(currentTime)} / {formatTime(analysisData.duration)}
-              </span>
-            </div>
-
-            {/* Waveform canvas */}
-            <div 
-              ref={containerRef}
-              className="relative border rounded-lg overflow-hidden bg-muted/20"
+      <div className="px-8 py-6">
+        <div className="flex items-center justify-between mb-6">
+          <CardTitle className="text-2xl font-bold">Music Analysis Visualization</CardTitle>
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={zoomOut}
+              disabled={zoomLevel <= 1}
+              className="px-4 py-2"
             >
-              <canvas
-                ref={canvasRef}
-                className="w-full h-32 cursor-pointer"
-                onClick={handleCanvasClick}
-                onMouseDown={handleCanvasMouseDown}
-                onMouseMove={handleCanvasMouseMove}
-                onMouseUp={handleCanvasMouseUp}
-                onMouseLeave={handleCanvasMouseUp}
+              <ZoomOut className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={zoomIn}
+              disabled={zoomLevel >= 20}
+              className="px-4 py-2"
+            >
+              <ZoomIn className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={resetZoom}
+              className="px-4 py-2"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+        
+        <div className="space-y-6">
+          {/* Audio controls */}
+          <div className="flex items-center space-x-6">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={togglePlayPause}
+              disabled={!audioFile}
+              className="px-6 py-3"
+            >
+              {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+            </Button>
+            <div className="flex-1">
+              <Progress 
+                value={(currentTime / analysisData.duration) * 100} 
+                className="h-3"
               />
-              
-              {/* Legend */}
-              <div className="absolute top-2 left-2 flex items-center space-x-4 text-xs">
-                <div className="flex items-center space-x-1">
-                  <div className="w-3 h-3 bg-blue-500 rounded"></div>
-                  <span>Waveform</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-3 h-3 bg-red-500 rounded"></div>
-                  <span>Peaks</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-3 h-3 bg-green-500 rounded"></div>
-                  <span>Segments</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-3 h-3 bg-amber-500 rounded"></div>
-                  <span>Beats</span>
-                </div>
+            </div>
+            <span className="text-lg font-medium text-foreground min-w-[120px] text-right">
+              {formatTime(currentTime)} / {formatTime(analysisData.duration)}
+            </span>
+          </div>
+
+          {/* Waveform canvas */}
+          <div 
+            ref={containerRef}
+            className="relative border-2 border-border rounded-2xl overflow-hidden bg-gradient-to-b from-muted/10 to-muted/20 shadow-inner"
+          >
+            <canvas
+              ref={canvasRef}
+              className="w-full h-40 cursor-pointer"
+              onClick={handleCanvasClick}
+              onMouseDown={handleCanvasMouseDown}
+              onMouseMove={handleCanvasMouseMove}
+              onMouseUp={handleCanvasMouseUp}
+              onMouseLeave={handleCanvasMouseUp}
+            />
+            
+            {/* Legend */}
+            <div className="absolute top-4 left-4 flex items-center space-x-6 text-sm font-medium">
+              <div className="flex items-center space-x-2 bg-background/80 px-3 py-1 rounded-lg">
+                <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                <span>Waveform</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-background/80 px-3 py-1 rounded-lg">
+                <div className="w-4 h-4 bg-red-500 rounded"></div>
+                <span>Peaks</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-background/80 px-3 py-1 rounded-lg">
+                <div className="w-4 h-4 bg-green-500 rounded"></div>
+                <span>Segments</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-background/80 px-3 py-1 rounded-lg">
+                <div className="w-4 h-4 bg-amber-500 rounded"></div>
+                <span>Beats</span>
               </div>
             </div>
-
-            {/* Zoom info */}
-            <div className="text-sm text-muted-foreground text-center">
-              Zoom: {zoomLevel.toFixed(1)}x • 
-              {formatTime(zoomStart)} - {formatTime(Math.min(zoomStart + analysisData.duration / zoomLevel, analysisData.duration))}
-            </div>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Zoom info */}
+          <div className="text-center text-muted-foreground">
+            <span className="font-medium">Zoom: {zoomLevel.toFixed(1)}x</span>
+            <span className="mx-2">•</span>
+            <span>{formatTime(zoomStart)} - {formatTime(Math.min(zoomStart + analysisData.duration / zoomLevel, analysisData.duration))}</span>
+          </div>
+        </div>
+      </div>
 
       {/* Segment details */}
       {selectedSegment !== null && analysisData.segments[selectedSegment] && (
@@ -514,78 +520,76 @@ export function MusicAnalysisVisualizer({ analysisData, audioFile }: MusicAnalys
       )}
 
       {/* Overall analysis summary */}
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="text-lg">Analysis Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-3">
-              <h4 className="font-semibold">Audio Features</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Duration:</span>
-                  <span>{formatTime(analysisData.features.duration)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Tempo:</span>
-                  <span>{analysisData.features.tempo.toFixed(1)} BPM</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Energy:</span>
-                  <span>{analysisData.features.rms_energy.toFixed(3)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Harmonic Ratio:</span>
-                  <span>{analysisData.features.harmonic_ratio.toFixed(3)}</span>
-                </div>
+      <div className="px-8 py-6 bg-gradient-to-r from-muted/5 to-muted/10 border-t border-border">
+        <CardTitle className="text-2xl font-bold mb-8 text-center">Analysis Summary</CardTitle>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="space-y-4">
+            <h4 className="text-xl font-bold text-foreground">Audio Features</h4>
+            <div className="space-y-3 text-lg">
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-muted-foreground">Duration:</span>
+                <span className="font-semibold">{formatTime(analysisData.features.duration)}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-muted-foreground">Tempo:</span>
+                <span className="font-semibold">{analysisData.features.tempo.toFixed(1)} BPM</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-muted-foreground">Energy:</span>
+                <span className="font-semibold">{analysisData.features.rms_energy.toFixed(3)}</span>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <span className="text-muted-foreground">Harmonic Ratio:</span>
+                <span className="font-semibold">{analysisData.features.harmonic_ratio.toFixed(3)}</span>
               </div>
             </div>
-            
-            <div className="space-y-3">
-              <h4 className="font-semibold">Segmentation</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Total Segments:</span>
-                  <span>{analysisData.segments.length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Total Peaks:</span>
-                  <span>{analysisData.peak_analysis.total_peaks}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Beat Count:</span>
-                  <span>{analysisData.beat_times_sec.length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Downbeats:</span>
-                  <span>{analysisData.downbeats_sec.length}</span>
-                </div>
+          </div>
+          
+          <div className="space-y-4">
+            <h4 className="text-xl font-bold text-foreground">Segmentation</h4>
+            <div className="space-y-3 text-lg">
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-muted-foreground">Total Segments:</span>
+                <span className="font-semibold">{analysisData.segments.length}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-muted-foreground">Total Peaks:</span>
+                <span className="font-semibold">{analysisData.peak_analysis.total_peaks}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-muted-foreground">Beat Count:</span>
+                <span className="font-semibold">{analysisData.beat_times_sec.length}</span>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <span className="text-muted-foreground">Downbeats:</span>
+                <span className="font-semibold">{analysisData.downbeats_sec.length}</span>
               </div>
             </div>
-            
-            <div className="space-y-3">
-              <h4 className="font-semibold">Genre Classification</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Predicted:</span>
-                  <Badge variant="secondary">{analysisData.predicted_genre}</Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span>Confidence:</span>
-                  <span>{analysisData.confidence}%</span>
-                </div>
+          </div>
+          
+          <div className="space-y-4">
+            <h4 className="text-xl font-bold text-foreground">Genre Classification</h4>
+            <div className="space-y-3 text-lg">
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-muted-foreground">Predicted:</span>
+                <Badge variant="secondary" className="px-3 py-1 text-lg font-semibold">{analysisData.predicted_genre}</Badge>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                <span className="text-muted-foreground">Confidence:</span>
+                <span className="font-semibold">{analysisData.confidence}%</span>
+              </div>
+              <div className="space-y-2">
                 {Object.entries(analysisData.genre_scores).map(([genre, score]) => (
-                  <div key={genre} className="flex justify-between">
-                    <span className="text-xs">{genre}:</span>
-                    <span className="text-xs">{score}</span>
+                  <div key={genre} className="flex justify-between items-center py-1">
+                    <span className="text-sm text-muted-foreground">{genre}:</span>
+                    <span className="text-sm font-medium">{score}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Hidden audio element */}
       {audioFile && audioFile instanceof File && (

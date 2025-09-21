@@ -34,6 +34,7 @@ import { TimelineHeader } from "@/components/timeline-header";
 import { TrackCard } from "@/components/create/create-music/track-card";
 import { AIAnalysisOverlay } from "@/components/ui/ai-analysis-overlay";
 import { MusicAnalysisVisualizer } from "@/components/create/create-music/music-analysis-visualizer";
+import { OverviewLayout } from "@/components/create/create-music/overview-layout";
 
 function MusicClipPage() {
   // Custom hooks for state management
@@ -1274,6 +1275,36 @@ function MusicClipPage() {
     musicClipState.actions.setSharedDescription(desc);
   }, [musicClipState.actions]);
 
+  // Render overview layout separately for step 4
+  if (musicClipState.state.currentStep === 4) {
+    return (
+      <OverviewLayout
+        form={musicClipState.forms.promptForm}
+        settings={musicClipState.state.settings}
+        audioFile={musicClipState.state.audioFile}
+        audioDuration={musicClipState.state.audioDuration}
+        musicTracks={musicTracks.musicTracks}
+        selectedTrackId={musicTracks.selectedTrackId}
+        onTrackSelect={(trackId: string) => handleTrackSelect(musicTracks.musicTracks.find(t => t.id === trackId)!, undefined)}
+        onSubmit={onPromptSubmitForm}
+        onBack={() => musicClipState.actions.setCurrentStep(3)}
+        fileToDataUri={fileToDataUri}
+        toast={toast}
+        onTrackDescriptionsUpdate={handleTrackDescriptionsUpdate}
+        onSharedDescriptionUpdate={handleSharedDescriptionUpdate}
+        onPromptsUpdate={musicClipState.actions.setPrompts}
+        trackDescriptions={musicClipState.state.individualDescriptions}
+        analysisData={musicAnalysisData}
+        canContinue={areAllTracksValid}
+        onContinue={() => {
+          const formValues = musicClipState.forms.promptForm.getValues();
+          onPromptSubmit(formValues);
+        }}
+        continueText={`Checkout with ${musicClipState.state.settings?.user_price || musicClipState.state.settings?.budget?.[0] || 0} credits`}
+      />
+    );
+  }
+
   return (
     <>
       {/* FULL-SCREEN LOADING OVERLAY */}
@@ -1405,32 +1436,6 @@ function MusicClipPage() {
                   </div>
                 )}
 
-                {musicClipState.state.currentStep === 4 && (
-                  <div className="flex flex-col h-full space-y-6">
-                    <Card className="bg-card border border-border flex flex-col">
-                      <CardContent className="space-y-6 flex flex-col p-6">
-                        <StepPrompt
-                          form={musicClipState.forms.promptForm}
-                          settings={musicClipState.state.settings}
-                          audioFile={musicClipState.state.audioFile}
-                          audioDuration={musicClipState.state.audioDuration}
-                          musicTracks={musicTracks.musicTracks}
-                          selectedTrackId={musicTracks.selectedTrackId}
-                          onTrackSelect={handleTrackSelect}
-                          onSubmit={onPromptSubmitForm}
-                          onBack={() => musicClipState.actions.setCurrentStep(3)}
-                          fileToDataUri={fileToDataUri}
-                          toast={toast}
-                          onTrackDescriptionsUpdate={handleTrackDescriptionsUpdate}
-                          onSharedDescriptionUpdate={handleSharedDescriptionUpdate}
-                          onPromptsUpdate={musicClipState.actions.setPrompts}
-                          trackDescriptions={musicClipState.state.individualDescriptions}
-                          analysisData={musicAnalysisData}
-                        />
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
               </div>
 
               {/* RIGHT SIDE - DRAG AND DROP AREA */}
@@ -1723,22 +1728,6 @@ function MusicClipPage() {
                       </Button>
                     )}
                     
-                    {musicClipState.state.currentStep === 4 && (
-                      <Button 
-                        onClick={() => {
-                          // Save current form data first
-                          const formValues = musicClipState.forms.promptForm.getValues();
-                          onPromptSubmit(formValues);
-                        }} 
-                        className={`flex items-center space-x-2 text-white ${
-                          areAllTracksValid ? 'btn-ai-gradient' : 'bg-muted text-foreground/50 cursor-not-allowed'
-                        }`}
-                        disabled={!areAllTracksValid}
-                      >
-                        <span>Checkout with {musicClipState.state.settings?.user_price || musicClipState.state.settings?.budget?.[0] || 0} credits</span>
-                        <ChevronRight className="w-4 h-4" />
-                      </Button>
-                    )}
                     
                   </div>
                 </div>
@@ -1747,15 +1736,6 @@ function MusicClipPage() {
           </div>
         </div>
 
-        {/* Music Analysis Visualization - Full Width */}
-        {musicClipState.state.currentStep === 4 && (
-          <div className="w-full max-w-7xl mx-auto px-8 pb-4">
-            <MusicAnalysisVisualizer 
-              analysisData={musicAnalysisData}
-              audioFile={musicClipState.state.audioFile}
-            />
-          </div>
-        )}
         
         {/* Genre Selector Modal */}
         <GenreSelector

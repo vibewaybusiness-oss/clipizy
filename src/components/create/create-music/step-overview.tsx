@@ -630,18 +630,6 @@ export function StepPrompt({
 
   return (
     <div className="space-y-6 w-full max-w-none">
-      {/* Title */}
-      <div className="space-y-1">
-        <h2 className="text-2xl font-bold text-foreground">Create Your Music Video</h2>
-        <p className="text-muted-foreground">
-          {settings?.useSameVideoForAll ? (
-            "Describe the visual style you want for all your music tracks"
-          ) : (
-            "Describe the visual style you want for this specific track"
-          )}
-        </p>
-      </div>
-
       {/* Test component */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit((values) => {
