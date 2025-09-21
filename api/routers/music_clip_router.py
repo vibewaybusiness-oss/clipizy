@@ -40,6 +40,17 @@ def ensure_user_exists_safe(db: Session, user_id: str):
         logger.error(f"User creation failed: {str(e)}")
         raise HTTPException(status_code=500, detail="User creation failed")
 
+def validate_uuid(uuid_string: str, field_name: str = "ID") -> str:
+    """Validate that a string is a valid UUID format"""
+    try:
+        uuid.UUID(uuid_string)
+        return uuid_string
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid {field_name} format: '{uuid_string}'. {field_name} must be a valid UUID."
+        )
+
 @router.get("/projects")
 def list_music_clip_projects(
     db: Session = Depends(get_db),
@@ -117,6 +128,9 @@ def create_music_clip_project(
 ):
     """Create a new music-clip project."""
     try:
+        # Validate user_id is a valid UUID
+        validate_uuid(user_id, "User ID")
+        
         # Ensure database is initialized
         ensure_database_initialized()
 
@@ -164,6 +178,10 @@ def upload_music_track(
 ):
     """Upload a music track to a music-clip project."""
     try:
+        # Validate UUIDs
+        validate_uuid(project_id, "Project ID")
+        validate_uuid(user_id, "User ID")
+        
         logger.info(f"Starting upload for project {project_id}, file: {file.filename}, size: {file.size if hasattr(file, 'size') else 'unknown'}")
 
         # Ensure user exists and create if needed
@@ -251,6 +269,9 @@ def process_single_file(file: UploadFile, project_id: str, user_id: str,
     from api.db import SessionLocal
     db = SessionLocal()
     try:
+        # Validate UUIDs
+        validate_uuid(project_id, "Project ID")
+        validate_uuid(user_id, "User ID")
         # Validate file type
         ext = os.path.splitext(file.filename)[1].lower()
         if ext not in [".mp3", ".wav", ".flac", ".aac", ".m4a"]:
@@ -308,34 +329,47 @@ def process_single_file(file: UploadFile, project_id: str, user_id: str,
             }
 
         # Add track to project
-        track = project_service.add_music_track(
-            db=db,
-            project_id=project_id,
-            user_id=user_id,
-            file_path=file_url,
-            file_metadata=file_metadata,
-            ai_generated=ai_generated,
-            prompt=prompt,
-            genre=genre,
-            instrumental=instrumental,
-            video_description=video_description,
-            title=file.filename
-        )
+        try:
+            track = project_service.add_music_track(
+                db=db,
+                project_id=project_id,
+                user_id=user_id,
+                file_path=file_url,
+                file_metadata=file_metadata,
+                ai_generated=ai_generated,
+                prompt=prompt,
+                genre=genre,
+                instrumental=instrumental,
+                video_description=video_description,
+                title=file.filename
+            )
+            
+            # Commit the transaction
+            db.commit()
+            db.refresh(track)
 
-        logger.info(f"Uploaded track {track.id} to project {project_id}")
+            logger.info(f"Uploaded track {track.id} to project {project_id}")
 
-        return {
-            "success": True,
-            "filename": file.filename,
-            "track_id": str(track.id),
-            "file_path": file_url,
-            "metadata": file_metadata,
-            "ai_generated": ai_generated,
-            "prompt": prompt,
-            "genre": genre,
-            "instrumental": instrumental,
-            "video_description": video_description
-        }
+            return {
+                "success": True,
+                "filename": file.filename,
+                "track_id": str(track.id),
+                "file_path": file_url,
+                "metadata": file_metadata,
+                "ai_generated": ai_generated,
+                "prompt": prompt,
+                "genre": genre,
+                "instrumental": instrumental,
+                "video_description": video_description
+            }
+        except Exception as db_error:
+            logger.error(f"Database error processing file {file.filename}: {str(db_error)}")
+            db.rollback()
+            return {
+                "success": False,
+                "filename": file.filename,
+                "error": f"Database error: {str(db_error)}"
+            }
 
     except Exception as e:
         logger.error(f"Failed to process file {file.filename}: {str(e)}")
@@ -346,7 +380,10 @@ def process_single_file(file: UploadFile, project_id: str, user_id: str,
         }
     finally:
         # Always close the database session
-        db.close()
+        try:
+            db.close()
+        except Exception as close_error:
+            logger.warning(f"Error closing database session: {str(close_error)}")
 
 @router.post("/projects/{project_id}/upload-tracks-batch")
 def upload_music_tracks_batch(
@@ -362,6 +399,10 @@ def upload_music_tracks_batch(
 ):
     """Upload multiple music tracks to a music-clip project in parallel."""
     try:
+        # Validate UUIDs
+        validate_uuid(project_id, "Project ID")
+        validate_uuid(user_id, "User ID")
+        
         # Ensure user exists and create if needed
         user = user_safety_service.ensure_user_exists(db, user_id)
 

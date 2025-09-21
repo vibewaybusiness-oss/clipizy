@@ -8,15 +8,28 @@ import json
 import tempfile
 from typing import Dict, List, Any, Optional
 from fastapi import HTTPException, UploadFile
-import librosa
-import numpy as np
-import music21
-import mutagen
-import wave
-from scipy.signal import find_peaks
-from scipy.ndimage import gaussian_filter1d
 import warnings
 warnings.filterwarnings('ignore')
+
+# Conditional imports for Vercel compatibility
+try:
+    import librosa
+    import numpy as np
+    import music21
+    import mutagen
+    import wave
+    from scipy.signal import find_peaks
+    from scipy.ndimage import gaussian_filter1d
+    ML_AVAILABLE = True
+except ImportError:
+    librosa = None
+    np = None
+    music21 = None
+    mutagen = None
+    wave = None
+    find_peaks = None
+    gaussian_filter1d = None
+    ML_AVAILABLE = False
 
 class MusicTheoryCategorizer:
     """Enhanced music theory analysis with comprehensive genre detection"""
@@ -400,6 +413,20 @@ class MusicAnalyzerService:
     async def analyze_music_comprehensive(self, file_path: str) -> Dict[str, Any]:
         """Perform comprehensive music analysis including theory, genre, peaks, and segmentation"""
         try:
+            # Check if ML libraries are available
+            if not ML_AVAILABLE:
+                # Use fallback service
+                from api.services.vercel_compatibility import get_music_analyzer_service
+                fallback_service = get_music_analyzer_service()
+                if hasattr(fallback_service, 'analyze_music_comprehensive'):
+                    return await fallback_service.analyze_music_comprehensive(file_path)
+                else:
+                    return {
+                        'analysis_type': 'fallback',
+                        'message': 'ML libraries not available, using basic analysis',
+                        'error': 'Heavy ML libraries not available in Vercel environment'
+                    }
+
             # Read audio file as bytes for the complete workflow
             with open(file_path, 'rb') as audio_file:
                 audio_data = audio_file.read()

@@ -4,6 +4,9 @@ alwaysApply: true
 
 # clipizi - AI-Powered Music Video Creation
 ================================================
+
+Everything is already running:
+
 📱 Frontend: http://localhost:3000
 🔧 API Docs: http://localhost:8000/docs
 🗄️  MinIO Console: http://localhost:9001 (admin/admin123)

@@ -6,24 +6,39 @@ import os
 from typing import Dict, Any, Optional, List
 import sys
 import os
-import numpy as np
-import librosa
-from mutagen import File as MutagenFile
+
+# Conditional imports for Vercel compatibility
+try:
+    import numpy as np
+    import librosa
+    from mutagen import File as MutagenFile
+    ML_AVAILABLE = True
+except ImportError:
+    np = None
+    librosa = None
+    MutagenFile = None
+    ML_AVAILABLE = False
 
 # Add the workflows/analyzer directory to the path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 analyzer_dir = os.path.join(current_dir, '..', 'workflows', 'analyzer')
 sys.path.insert(0, analyzer_dir)
 
-try:
-    from music_analyzer import analyze_audio_bytes
-except ImportError:
-    # Fallback: try direct import
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("music_analyzer", os.path.join(analyzer_dir, "music_analyzer.py"))
-    music_analyzer = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(music_analyzer)
-    analyze_audio_bytes = music_analyzer.analyze_audio_bytes
+# Try to import music analyzer with fallback
+analyze_audio_bytes = None
+if ML_AVAILABLE:
+    try:
+        from music_analyzer import analyze_audio_bytes
+    except ImportError:
+        # Fallback: try direct import
+        try:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("music_analyzer", os.path.join(analyzer_dir, "music_analyzer.py"))
+            music_analyzer = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(music_analyzer)
+            analyze_audio_bytes = music_analyzer.analyze_audio_bytes
+        except ImportError:
+            analyze_audio_bytes = None
 
 class AnalysisService:
     """Service for analyzing media files"""
@@ -34,12 +49,13 @@ class AnalysisService:
     def extract_title(self, file_path: str) -> str:
         """Extract title from metadata or filename"""
         try:
-            audio_file = MutagenFile(file_path)
-            if audio_file is not None:
-                if 'TIT2' in audio_file:
-                    return str(audio_file['TIT2'][0])
-                elif 'TITLE' in audio_file:
-                    return str(audio_file['TITLE'][0])
+            if ML_AVAILABLE and MutagenFile is not None:
+                audio_file = MutagenFile(file_path)
+                if audio_file is not None:
+                    if 'TIT2' in audio_file:
+                        return str(audio_file['TIT2'][0])
+                    elif 'TITLE' in audio_file:
+                        return str(audio_file['TITLE'][0])
 
             filename = os.path.basename(file_path)
             name_without_ext = os.path.splitext(filename)[0]
@@ -54,6 +70,17 @@ class AnalysisService:
 
     def analyze_audio_features(self, y: np.ndarray, sr: int) -> Dict[str, Any]:
         """Extract essential audio features from audio data"""
+        if not ML_AVAILABLE or librosa is None or np is None:
+            return {
+                'duration': len(y) / sr if y is not None else 0,
+                'tempo': 120.0,
+                'spectral_centroid': 0.0,
+                'rms_energy': 0.0,
+                'harmonic_ratio': 0.5,
+                'analysis_type': 'fallback',
+                'message': 'ML libraries not available, using fallback values'
+            }
+        
         try:
             features = {}
 
@@ -84,7 +111,15 @@ class AnalysisService:
 
         except Exception as e:
             print(f"Error analyzing audio: {e}")
-            return {}
+            return {
+                'duration': len(y) / sr if y is not None else 0,
+                'tempo': 120.0,
+                'spectral_centroid': 0.0,
+                'rms_energy': 0.0,
+                'harmonic_ratio': 0.5,
+                'analysis_type': 'error_fallback',
+                'error': str(e)
+            }
 
     def generate_music_descriptors(self, features: Dict[str, Any]) -> List[str]:
         """Generate human-readable music descriptors including Long MA characteristics"""
@@ -185,6 +220,30 @@ class AnalysisService:
         try:
             # Extract title
             title = self.extract_title(file_path)
+
+            # Check if ML libraries are available
+            if not ML_AVAILABLE or analyze_audio_bytes is None:
+                # Use fallback analysis
+                from api.services.vercel_compatibility import get_analysis_service
+                fallback_service = get_analysis_service()
+                if hasattr(fallback_service, 'analyze_music_comprehensive'):
+                    result = fallback_service.analyze_music_comprehensive(file_path)
+                    result['title'] = title
+                    return result
+                else:
+                    # Basic fallback
+                    return {
+                        'title': title,
+                        'analysis_type': 'basic_fallback',
+                        'message': 'ML libraries not available, using basic analysis',
+                        'audio_features': {
+                            'duration': 0,
+                            'tempo': 120.0,
+                            'spectral_centroid': 0.0,
+                            'rms_energy': 0.0,
+                            'harmonic_ratio': 0.5
+                        }
+                    }
 
             # Read audio file as bytes
             with open(file_path, 'rb') as audio_file:
