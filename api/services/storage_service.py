@@ -16,7 +16,10 @@ class StorageService:
         logger.info(f"StorageService initialized with bucket: {bucket}, endpoint: {endpoint_url}")
         self.bucket = bucket
         self.endpoint_url = endpoint_url
+        
+        # Initialize S3 storage
         self.storage = S3Storage(bucket, endpoint_url)
+        logger.info("✅ S3 storage initialized successfully")
 
     def ensure_bucket_exists(self, bucket_name: str = None):
         """Ensure the specified bucket exists, create if it doesn't"""
