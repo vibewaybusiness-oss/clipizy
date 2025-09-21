@@ -24,10 +24,10 @@ export default function VideoMakingTestPage() {
   const runTests = async () => {
     // Test imports
     try {
-      await import('../../../../@videomaking/components/VideoMaker');
-      await import('../../../../@videomaking/types');
-      await import('../../../../@videomaking/hooks/useVideoEditor');
-      await import('../../../../@videomaking/utils/videoUtils');
+      await import('@videomaking/components/VideoMaker');
+      await import('@videomaking/types');
+      await import('@videomaking/hooks/useVideoEditor');
+      await import('@videomaking/utils/videoUtils');
       setTestResults(prev => ({ ...prev, imports: 'success' }));
     } catch (error) {
       console.error('Import test failed:', error);
@@ -36,9 +36,9 @@ export default function VideoMakingTestPage() {
 
     // Test components
     try {
-      const { VideoMaker } = await import('../../../../@videomaking/components/VideoMaker');
-      const { VideoEditor } = await import('../../../../@videomaking/components/VideoEditor');
-      const { Timeline } = await import('../../../../@videomaking/components/Timeline');
+      const { VideoMaker } = await import('@videomaking/components/VideoMaker');
+      const { VideoEditor } = await import('@videomaking/components/VideoEditor');
+      const { Timeline } = await import('@videomaking/components/Timeline');
       setTestResults(prev => ({ ...prev, components: 'success' }));
     } catch (error) {
       console.error('Component test failed:', error);
@@ -47,7 +47,7 @@ export default function VideoMakingTestPage() {
 
     // Test types
     try {
-      const { VideoProject, VideoClip, Effect } = await import('../../../../@videomaking/types');
+      const { VideoProject, VideoClip, Effect } = await import('@videomaking/types');
       // Test type instantiation
       const testProject: VideoProject = {
         id: 'test',
@@ -78,8 +78,8 @@ export default function VideoMakingTestPage() {
 
     // Test hooks
     try {
-      const { useVideoEditor } = await import('../../../../@videomaking/hooks/useVideoEditor');
-      const { useTimeline } = await import('../../../../@videomaking/hooks/useTimeline');
+      const { useVideoEditor } = await import('@videomaking/hooks/useVideoEditor');
+      const { useTimeline } = await import('@videomaking/hooks/useTimeline');
       setTestResults(prev => ({ ...prev, hooks: 'success' }));
     } catch (error) {
       console.error('Hook test failed:', error);
@@ -88,8 +88,8 @@ export default function VideoMakingTestPage() {
 
     // Test utils
     try {
-      const { videoUtils } = await import('../../../../@videomaking/utils/videoUtils');
-      const { audioUtils } = await import('../../../../@videomaking/utils/audioUtils');
+      const { videoUtils } = await import('@videomaking/utils/videoUtils');
+      const { audioUtils } = await import('@videomaking/utils/audioUtils');
       setTestResults(prev => ({ ...prev, utils: 'success' }));
     } catch (error) {
       console.error('Utils test failed:', error);
