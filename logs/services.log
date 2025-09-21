@@ -12686,3 +12686,58 @@ WHERE points_transactions.user_id = %(user_id_1)s::UUID ORDER BY points_transact
 2025-09-21 06:56:50 - services.project_service - INFO - ensure_project_folders_exist:112 - Ensured S3 project folders exist for user 00000000-0000-0000-0000-000000000001
 2025-09-21 06:56:50 - services.project_service - WARNING - update_project_settings:185 - Failed to update settings: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
 2025-09-21 06:56:50 - services.project_service - INFO - update_project_settings:483 - Updated settings for project ca09dee6-bde6-4c9b-927a-2b4f736ed1de
+2025-09-21 06:58:31 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/
+2025-09-21 06:58:31 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/projects/
+2025-09-21 06:58:31 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/temp/
+2025-09-21 06:58:31 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/exports/
+2025-09-21 06:58:31 - services.project_service - INFO - ensure_project_folders_exist:112 - Ensured S3 project folders exist for user 00000000-0000-0000-0000-000000000001
+2025-09-21 06:58:31 - services.project_service - WARNING - update_project_settings:185 - Failed to update settings: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+2025-09-21 06:58:31 - services.project_service - INFO - update_project_settings:483 - Updated settings for project ca09dee6-bde6-4c9b-927a-2b4f736ed1de
+2025-09-21 06:58:31 - services.project_service - INFO - update_project_analysis:862 - Updated analysis data for project ca09dee6-bde6-4c9b-927a-2b4f736ed1de
+2025-09-21 06:58:57 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/
+2025-09-21 06:58:57 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/projects/
+2025-09-21 06:58:57 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/temp/
+2025-09-21 06:58:57 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/exports/
+2025-09-21 06:58:57 - services.project_service - INFO - ensure_project_folders_exist:112 - Ensured S3 project folders exist for user 00000000-0000-0000-0000-000000000001
+2025-09-21 06:58:57 - services.project_service - WARNING - update_project_settings:185 - Failed to update settings: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+2025-09-21 06:58:57 - services.project_service - INFO - update_project_settings:483 - Updated settings for project ca09dee6-bde6-4c9b-927a-2b4f736ed1de
+2025-09-21 06:58:57 - services.project_service - INFO - update_project_analysis:862 - Updated analysis data for project ca09dee6-bde6-4c9b-927a-2b4f736ed1de
+2025-09-21 07:03:07 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/
+2025-09-21 07:03:07 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/projects/
+2025-09-21 07:03:07 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/temp/
+2025-09-21 07:03:07 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/exports/
+2025-09-21 07:03:07 - services.project_service - INFO - ensure_project_folders_exist:112 - Ensured S3 project folders exist for user 00000000-0000-0000-0000-000000000001
+2025-09-21 07:03:07 - services.project_service - WARNING - update_project_settings:185 - Failed to update settings: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+2025-09-21 07:03:07 - services.project_service - INFO - update_project_settings:483 - Updated settings for project ca09dee6-bde6-4c9b-927a-2b4f736ed1de
+2025-09-21 07:03:08 - services.project_service - INFO - update_project_analysis:862 - Updated analysis data for project ca09dee6-bde6-4c9b-927a-2b4f736ed1de
+2025-09-21 07:03:13 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/
+2025-09-21 07:03:13 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/projects/
+2025-09-21 07:03:13 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/temp/
+2025-09-21 07:03:13 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/exports/
+2025-09-21 07:03:13 - services.project_service - INFO - ensure_project_folders_exist:112 - Ensured S3 project folders exist for user 00000000-0000-0000-0000-000000000001
+2025-09-21 07:03:13 - services.project_service - WARNING - update_project_settings:185 - Failed to update settings: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+2025-09-21 07:03:13 - services.project_service - INFO - update_project_settings:483 - Updated settings for project ca09dee6-bde6-4c9b-927a-2b4f736ed1de
+2025-09-21 07:03:13 - services.project_service - INFO - update_project_analysis:862 - Updated analysis data for project ca09dee6-bde6-4c9b-927a-2b4f736ed1de
+2025-09-21 07:04:08 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/
+2025-09-21 07:04:08 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/projects/
+2025-09-21 07:04:08 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/temp/
+2025-09-21 07:04:08 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/exports/
+2025-09-21 07:04:08 - services.project_service - INFO - ensure_project_folders_exist:112 - Ensured S3 project folders exist for user 00000000-0000-0000-0000-000000000001
+2025-09-21 07:04:08 - services.project_service - WARNING - update_project_settings:185 - Failed to update settings: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+2025-09-21 07:04:08 - services.project_service - INFO - update_project_settings:483 - Updated settings for project ca09dee6-bde6-4c9b-927a-2b4f736ed1de
+2025-09-21 07:04:08 - services.project_service - INFO - update_project_analysis:862 - Updated analysis data for project ca09dee6-bde6-4c9b-927a-2b4f736ed1de
+2025-09-21 07:07:43 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/
+2025-09-21 07:07:43 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/projects/
+2025-09-21 07:07:43 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/temp/
+2025-09-21 07:07:43 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/exports/
+2025-09-21 07:07:43 - services.project_service - INFO - ensure_project_folders_exist:112 - Ensured S3 project folders exist for user 00000000-0000-0000-0000-000000000001
+2025-09-21 07:07:43 - services.project_service - WARNING - update_project_settings:185 - Failed to update settings: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+2025-09-21 07:07:43 - services.project_service - INFO - update_project_settings:483 - Updated settings for project ca09dee6-bde6-4c9b-927a-2b4f736ed1de
+2025-09-21 07:08:24 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/
+2025-09-21 07:08:24 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/projects/
+2025-09-21 07:08:24 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/temp/
+2025-09-21 07:08:24 - services.project_service - INFO - ensure_project_folders_exist:107 - Created S3 folder: users/00000000-0000-0000-0000-000000000001/music-clip/exports/
+2025-09-21 07:08:24 - services.project_service - INFO - ensure_project_folders_exist:112 - Ensured S3 project folders exist for user 00000000-0000-0000-0000-000000000001
+2025-09-21 07:08:24 - services.project_service - WARNING - update_project_settings:185 - Failed to update settings: An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist.
+2025-09-21 07:08:24 - services.project_service - INFO - update_project_settings:483 - Updated settings for project ca09dee6-bde6-4c9b-927a-2b4f736ed1de
+2025-09-21 07:08:25 - services.project_service - INFO - update_project_analysis:862 - Updated analysis data for project ca09dee6-bde6-4c9b-927a-2b4f736ed1de
