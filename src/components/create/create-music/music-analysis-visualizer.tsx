@@ -69,9 +69,10 @@ interface MusicAnalysisVisualizerProps {
   audioFile: File | null;
   selectedSegment?: number | null;
   onSegmentFocus?: (segmentIndex: number) => void;
+  musicDescription?: string;
 }
 
-export function MusicAnalysisVisualizer({ analysisData, audioFile, selectedSegment: externalSelectedSegment, onSegmentFocus }: MusicAnalysisVisualizerProps) {
+export function MusicAnalysisVisualizer({ analysisData, audioFile, selectedSegment: externalSelectedSegment, onSegmentFocus, musicDescription }: MusicAnalysisVisualizerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [selectedSegment, setSelectedSegment] = useState<number | null>(null);
@@ -481,64 +482,102 @@ export function MusicAnalysisVisualizer({ analysisData, audioFile, selectedSegme
         </Card>
       )}
 
-      {/* Overall analysis summary */}
+      {/* Overall analysis summary and music description */}
       <div className="px-4 py-3 bg-gradient-to-r from-muted/5 to-muted/10 border-t border-border">
-        <CardTitle className="text-lg font-bold mb-4 text-center">Analysis Summary</CardTitle>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <h4 className="text-sm font-bold text-foreground">Audio Features</h4>
-            <div className="space-y-1 text-sm">
-              <div className="flex justify-between items-center py-1 border-b border-border/50">
-                <span className="text-muted-foreground">Duration:</span>
-                <span className="font-semibold">{formatTime(analysisData.features.duration)}</span>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Analysis Summary - Single Column */}
+          <div className="space-y-3">
+            <CardTitle className="text-lg font-bold">Analysis Summary</CardTitle>
+            <div className="space-y-2">
+              <h4 className="text-sm font-bold text-foreground">Audio Features</h4>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between items-center py-1 border-b border-border/50">
+                  <span className="text-muted-foreground">Duration:</span>
+                  <span className="font-semibold">{formatTime(analysisData.features.duration)}</span>
+                </div>
+                <div className="flex justify-between items-center py-1 border-b border-border/50">
+                  <span className="text-muted-foreground">Tempo:</span>
+                  <span className="font-semibold">{analysisData.features.tempo.toFixed(1)} BPM</span>
+                </div>
+                <div className="flex justify-between items-center py-1 border-b border-border/50">
+                  <span className="text-muted-foreground">Energy:</span>
+                  <span className="font-semibold">{analysisData.features.rms_energy.toFixed(3)}</span>
+                </div>
+                <div className="flex justify-between items-center py-1">
+                  <span className="text-muted-foreground">Harmonic Ratio:</span>
+                  <span className="font-semibold">{analysisData.features.harmonic_ratio.toFixed(3)}</span>
+                </div>
               </div>
-              <div className="flex justify-between items-center py-1 border-b border-border/50">
-                <span className="text-muted-foreground">Tempo:</span>
-                <span className="font-semibold">{analysisData.features.tempo.toFixed(1)} BPM</span>
+            </div>
+            
+            <div className="space-y-2">
+              <h4 className="text-sm font-bold text-foreground">Segmentation</h4>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between items-center py-1 border-b border-border/50">
+                  <span className="text-muted-foreground">Total Segments:</span>
+                  <span className="font-semibold">{analysisData.segments.length}</span>
+                </div>
+                <div className="flex justify-between items-center py-1">
+                  <span className="text-muted-foreground">Avg Duration:</span>
+                  <span className="font-semibold">{formatTime(analysisData.duration / analysisData.segments.length)}</span>
+                </div>
               </div>
-              <div className="flex justify-between items-center py-1 border-b border-border/50">
-                <span className="text-muted-foreground">Energy:</span>
-                <span className="font-semibold">{analysisData.features.rms_energy.toFixed(3)}</span>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-muted-foreground">Harmonic Ratio:</span>
-                <span className="font-semibold">{analysisData.features.harmonic_ratio.toFixed(3)}</span>
+            </div>
+            
+            <div className="space-y-2">
+              <h4 className="text-sm font-bold text-foreground">Genre Classification</h4>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between items-center py-1 border-b border-border/50">
+                  <span className="text-muted-foreground">Predicted:</span>
+                  <Badge variant="secondary" className="px-2 py-1 text-xs font-semibold">{analysisData.predicted_genre}</Badge>
+                </div>
+                <div className="flex justify-between items-center py-1 border-b border-border/50">
+                  <span className="text-muted-foreground">Confidence:</span>
+                  <span className="font-semibold">{analysisData.confidence}%</span>
+                </div>
+                <div className="space-y-1">
+                  {Object.entries(analysisData.genre_scores).slice(0, 3).map(([genre, score]) => (
+                    <div key={genre} className="flex justify-between items-center py-0.5">
+                      <span className="text-xs text-muted-foreground">{genre}:</span>
+                      <span className="text-xs font-medium">{score}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-          
-          <div className="space-y-2">
-            <h4 className="text-sm font-bold text-foreground">Segmentation</h4>
-            <div className="space-y-1 text-sm">
-              <div className="flex justify-between items-center py-1 border-b border-border/50">
-                <span className="text-muted-foreground">Total Segments:</span>
-                <span className="font-semibold">{analysisData.segments.length}</span>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-muted-foreground">Avg Duration:</span>
-                <span className="font-semibold">{formatTime(analysisData.duration / analysisData.segments.length)}</span>
+
+          {/* Music Description - Right Column */}
+          <div className="space-y-3">
+            <CardTitle className="text-lg font-bold">Music Description</CardTitle>
+            <div className="space-y-2">
+              <h4 className="text-sm font-bold text-foreground">Video Description</h4>
+              <div className="p-3 bg-muted/30 rounded-lg border border-border/50">
+                <p className="text-sm text-foreground leading-relaxed">
+                  {musicDescription || "No music description provided. This will be used to generate your music video based on the audio analysis and your creative vision."}
+                </p>
               </div>
             </div>
-          </div>
-          
-          <div className="space-y-2">
-            <h4 className="text-sm font-bold text-foreground">Genre Classification</h4>
-            <div className="space-y-1 text-sm">
-              <div className="flex justify-between items-center py-1 border-b border-border/50">
-                <span className="text-muted-foreground">Predicted:</span>
-                <Badge variant="secondary" className="px-2 py-1 text-xs font-semibold">{analysisData.predicted_genre}</Badge>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-border/50">
-                <span className="text-muted-foreground">Confidence:</span>
-                <span className="font-semibold">{analysisData.confidence}%</span>
-              </div>
-              <div className="space-y-1">
-                {Object.entries(analysisData.genre_scores).slice(0, 3).map(([genre, score]) => (
-                  <div key={genre} className="flex justify-between items-center py-0.5">
-                    <span className="text-xs text-muted-foreground">{genre}:</span>
-                    <span className="text-xs font-medium">{score}</span>
-                  </div>
-                ))}
+            
+            <div className="space-y-2">
+              <h4 className="text-sm font-bold text-foreground">Track Information</h4>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between items-center py-1 border-b border-border/50">
+                  <span className="text-muted-foreground">Title:</span>
+                  <span className="font-semibold">{analysisData.metadata.title}</span>
+                </div>
+                <div className="flex justify-between items-center py-1 border-b border-border/50">
+                  <span className="text-muted-foreground">Artist:</span>
+                  <span className="font-semibold">{analysisData.metadata.artist}</span>
+                </div>
+                <div className="flex justify-between items-center py-1 border-b border-border/50">
+                  <span className="text-muted-foreground">Album:</span>
+                  <span className="font-semibold">{analysisData.metadata.album}</span>
+                </div>
+                <div className="flex justify-between items-center py-1">
+                  <span className="text-muted-foreground">Year:</span>
+                  <span className="font-semibold">{analysisData.metadata.year}</span>
+                </div>
               </div>
             </div>
           </div>

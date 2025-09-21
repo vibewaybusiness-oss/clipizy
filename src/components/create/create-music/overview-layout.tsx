@@ -148,6 +148,7 @@ export function OverviewLayout({
                       audioFile={audioFile}
                       selectedSegment={selectedSegment}
                       onSegmentFocus={(segmentIndex: number) => setSelectedSegment(segmentIndex)}
+                      musicDescription={form.watch("videoDescription") || ""}
                     />
                   </div>
                 </CardContent>
@@ -199,37 +200,6 @@ export function OverviewLayout({
             </div>
           </div>
 
-          {/* VIDEO DESCRIPTION FORM - FULL WIDTH */}
-          <div className="space-y-8">
-            <Card className="bg-card border border-border shadow-lg">
-              <CardHeader className="pb-6">
-                <CardTitle className="text-3xl font-bold">Video Description</CardTitle>
-                <p className="text-lg text-muted-foreground">
-                  Provide a detailed description of how you want your music video to look
-                </p>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <StepPrompt
-                  form={form}
-                  settings={settings}
-                  audioFile={audioFile}
-                  audioDuration={audioDuration}
-                  musicTracks={musicTracks}
-                  selectedTrackId={selectedTrackId}
-                  onTrackSelect={onTrackSelect}
-                  onSubmit={onSubmit}
-                  onBack={onBack}
-                  fileToDataUri={fileToDataUri}
-                  toast={toast}
-                  onTrackDescriptionsUpdate={onTrackDescriptionsUpdate}
-                  onSharedDescriptionUpdate={onSharedDescriptionUpdate}
-                  onPromptsUpdate={onPromptsUpdate}
-                  trackDescriptions={trackDescriptions}
-                  analysisData={null} // We'll show this separately
-                />
-              </CardContent>
-            </Card>
-          </div>
 
           {/* BOTTOM NAVIGATION */}
           <div className="flex items-center justify-between pt-12 border-t border-border">
