@@ -242,11 +242,14 @@ def upload_music_track(
         logger.error(f"Failed to upload track: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
-def process_single_file(file: UploadFile, project_id: str, user_id: str, db: Session, 
+def process_single_file(file: UploadFile, project_id: str, user_id: str, 
                        ai_generated: bool = False, prompt: Optional[str] = None, 
                        genre: Optional[str] = None, instrumental: bool = False, 
                        video_description: Optional[str] = None) -> Dict[str, Any]:
     """Process a single file upload - designed to be run in parallel."""
+    # Create a new database session for this thread
+    from api.db import SessionLocal
+    db = SessionLocal()
     try:
         # Validate file type
         ext = os.path.splitext(file.filename)[1].lower()
@@ -341,6 +344,9 @@ def process_single_file(file: UploadFile, project_id: str, user_id: str, db: Ses
             "filename": file.filename,
             "error": str(e)
         }
+    finally:
+        # Always close the database session
+        db.close()
 
 @router.post("/projects/{project_id}/upload-tracks-batch")
 def upload_music_tracks_batch(
@@ -388,7 +394,6 @@ def upload_music_tracks_batch(
                     file, 
                     project_id, 
                     user_id, 
-                    db,
                     ai_generated,
                     prompt,
                     genre,

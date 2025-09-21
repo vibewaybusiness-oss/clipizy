@@ -70,7 +70,9 @@ export function useMusicAnalysis(projectId?: string | null) {
       setAnalysisProgress(progress);
 
       // Start analysis
+      console.log(`Hook: Starting analysis for ${tracksToAnalyze.length} tracks`);
       const analysisResults = await musicAnalysisAPI.analyzeTracksInParallel(tracksToAnalyze);
+      console.log(`Hook: Received ${analysisResults.length} analysis results`);
       
       // Update progress
       analysisResults.forEach(result => {

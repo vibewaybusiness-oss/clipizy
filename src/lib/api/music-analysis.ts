@@ -194,12 +194,15 @@ export class MusicAnalysisAPI {
       const formData = new FormData();
       formData.append('file', file);
 
-      console.log(`Making request to ${this.baseUrl}/analyze/comprehensive`);
+      const startTime = Date.now();
+      console.log(`Making request to ${this.baseUrl}/analyze/comprehensive at ${new Date().toISOString()}`);
 
       const response = await fetch(`${this.baseUrl}/analyze/comprehensive`, {
         method: 'POST',
         body: formData,
         credentials: 'include',
+        // Add keepalive to help with connection reuse
+        keepalive: true,
       });
 
       console.log(`Response status: ${response.status} ${response.statusText}`);
@@ -217,7 +220,9 @@ export class MusicAnalysisAPI {
       }
 
       const analysis = await response.json();
-      console.log(`Analysis completed for track ${track.id}:`, analysis);
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      console.log(`Analysis completed for track ${track.id} in ${duration}ms:`, analysis);
 
       // Transform the response to match our expected format
       return {
@@ -482,12 +487,58 @@ export class MusicAnalysisAPI {
   async analyzeTracksInParallel(tracks: MusicTrack[]): Promise<MusicAnalysisResult[]> {
     console.log(`Starting parallel analysis for ${tracks.length} tracks`);
     
-    const analysisPromises = tracks.map(track => this.analyzeTrack(track));
+    // For better parallel processing, we'll use Promise.allSettled to handle individual failures
+    // and also add a small delay between requests to avoid overwhelming the server
+    const analysisPromises = tracks.map((track, index) => {
+      console.log(`Creating promise for track ${index + 1}/${tracks.length}: ${track.id}`);
+      
+      // Add a small delay to stagger requests slightly (helps with connection limits)
+      const delay = index * 100; // 100ms delay between each request start
+      
+      const promise = new Promise<MusicAnalysisResult>((resolve, reject) => {
+        setTimeout(() => {
+          console.log(`Starting delayed analysis for track ${track.id} after ${delay}ms delay`);
+          this.analyzeTrack(track)
+            .then(result => {
+              console.log(`Promise for track ${track.id} completed`);
+              resolve(result);
+            })
+            .catch(error => {
+              console.log(`Promise for track ${track.id} failed:`, error);
+              reject(error);
+            });
+        }, delay);
+      });
+      
+      return promise;
+    });
+    
+    console.log(`All ${analysisPromises.length} promises created with staggered delays, starting Promise.allSettled...`);
+    console.log(`Promise.allSettled started at: ${new Date().toISOString()}`);
     
     try {
-      const results = await Promise.all(analysisPromises);
-      console.log(`Completed parallel analysis for ${tracks.length} tracks`);
-      return results;
+      const results = await Promise.allSettled(analysisPromises);
+      
+      // Process results and handle any failures
+      const successfulResults: MusicAnalysisResult[] = [];
+      const failedResults: MusicAnalysisResult[] = [];
+      
+      results.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+          successfulResults.push(result.value);
+        } else {
+          console.error(`Track ${tracks[index].id} analysis failed:`, result.reason);
+          failedResults.push({
+            trackId: tracks[index].id,
+            error: result.reason.message || 'Analysis failed'
+          } as MusicAnalysisResult);
+        }
+      });
+      
+      console.log(`Completed parallel analysis: ${successfulResults.length} successful, ${failedResults.length} failed at: ${new Date().toISOString()}`);
+      
+      // Return all results (both successful and failed)
+      return [...successfulResults, ...failedResults];
     } catch (error) {
       console.error('Error during parallel analysis:', error);
       throw error;

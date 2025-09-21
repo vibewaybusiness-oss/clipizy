@@ -67,9 +67,11 @@ interface MusicAnalysisData {
 interface MusicAnalysisVisualizerProps {
   analysisData: MusicAnalysisData | null;
   audioFile: File | null;
+  selectedSegment?: number | null;
+  onSegmentFocus?: (segmentIndex: number) => void;
 }
 
-export function MusicAnalysisVisualizer({ analysisData, audioFile }: MusicAnalysisVisualizerProps) {
+export function MusicAnalysisVisualizer({ analysisData, audioFile, selectedSegment: externalSelectedSegment, onSegmentFocus }: MusicAnalysisVisualizerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [selectedSegment, setSelectedSegment] = useState<number | null>(null);
@@ -99,22 +101,11 @@ export function MusicAnalysisVisualizer({ analysisData, audioFile }: MusicAnalys
     for (let i = 0; i < samples; i++) {
       const time = (i / samples) * duration;
       
-      // Find nearby peaks for this time
-      const nearbyPeaks = (analysisData.peak_analysis?.peak_times || []).filter(
-        peakTime => Math.abs(peakTime - time) < 0.5
-      );
-      
-      if (nearbyPeaks.length > 0) {
-        // Use peak intensity for waveform height
-        const peakIndex = (analysisData.peak_analysis?.peak_times || []).indexOf(nearbyPeaks[0]);
-        const peakScore = (analysisData.peak_analysis?.peak_scores || [])[peakIndex] || 0;
-        data.push(Math.min(peakScore / 4, 1)); // Normalize peak scores
-      } else {
-        // Generate base waveform based on RMS energy and tempo
-        const baseLevel = (analysisData.features?.rms_energy || 0) * 0.3;
-        const tempoVariation = Math.sin(time * (analysisData.features?.tempo || 120) / 60 * Math.PI * 2) * 0.2;
-        data.push(Math.max(0, baseLevel + tempoVariation + Math.random() * 0.1));
-      }
+      // Generate simplified waveform based on RMS energy and tempo
+      const baseLevel = (analysisData.features?.rms_energy || 0) * 0.4;
+      const tempoVariation = Math.sin(time * (analysisData.features?.tempo || 120) / 60 * Math.PI * 2) * 0.3;
+      const randomVariation = Math.random() * 0.15;
+      data.push(Math.max(0, Math.min(1, baseLevel + tempoVariation + randomVariation)));
     }
     
     return data;
@@ -157,28 +148,15 @@ export function MusicAnalysisVisualizer({ analysisData, audioFile }: MusicAnalys
     
     // Colors
     const waveColor = '#3b82f6';
-    const peakColor = '#ef4444';
     const segmentColor = '#10b981';
     const progressColor = '#8b5cf6';
-    const beatColor = '#f59e0b';
     
     // Draw waveform bars
     for (let i = startSample; i < endSample; i++) {
       const x = (i - startSample) * barWidth;
       const barHeight = waveformData[i] * height * 0.8;
       
-      // Check if this is a peak
-      const time = (i / waveformData.length) * totalDuration;
-      const isPeak = (analysisData?.peak_analysis?.peak_times || []).some(
-        peakTime => Math.abs(peakTime - time) < 0.1
-      );
-      
-      // Check if this is a beat
-      const isBeat = (analysisData?.beat_times_sec || []).some(
-        beatTime => Math.abs(beatTime - time) < 0.05
-      );
-      
-      ctx.fillStyle = isPeak ? peakColor : (isBeat ? beatColor : waveColor);
+      ctx.fillStyle = waveColor;
       ctx.fillRect(x, centerY - barHeight / 2, Math.max(1, barWidth - 1), barHeight);
     }
     
@@ -306,6 +284,13 @@ export function MusicAnalysisVisualizer({ analysisData, audioFile }: MusicAnalys
     drawWaveform();
   }, [drawWaveform]);
 
+  // Handle external segment selection
+  useEffect(() => {
+    if (externalSelectedSegment !== null && externalSelectedSegment !== selectedSegment) {
+      setSelectedSegment(externalSelectedSegment);
+    }
+  }, [externalSelectedSegment, selectedSegment]);
+
   if (!analysisData) {
     return (
       <Card className="w-full">
@@ -333,26 +318,26 @@ export function MusicAnalysisVisualizer({ analysisData, audioFile }: MusicAnalys
   }
 
   return (
-    <div className="space-y-8 w-full">
+    <div className="space-y-4 w-full">
       {/* Header with track info */}
-      <div className="px-8 py-6 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-border">
+      <div className="px-4 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-border">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center">
-              <Music className="w-8 h-8 text-primary" />
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+              <Music className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold">{analysisData.metadata.title}</CardTitle>
-              <p className="text-lg text-muted-foreground">
+              <CardTitle className="text-lg font-bold">{analysisData.metadata.title}</CardTitle>
+              <p className="text-sm text-muted-foreground">
                 {analysisData.metadata.artist} • {formatTime(analysisData.duration || 0)}
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-3">
-            <Badge variant="secondary" className="px-4 py-2 text-lg font-semibold">
+          <div className="flex items-center space-x-2">
+            <Badge variant="secondary" className="px-3 py-1 text-sm font-semibold">
               {analysisData.predicted_genre}
             </Badge>
-            <Badge variant="outline" className="px-4 py-2 text-lg font-semibold">
+            <Badge variant="outline" className="px-3 py-1 text-sm font-semibold">
               {(analysisData.features.tempo || 120).toFixed(0)} BPM
             </Badge>
           </div>
@@ -360,157 +345,134 @@ export function MusicAnalysisVisualizer({ analysisData, audioFile }: MusicAnalys
       </div>
 
       {/* Main visualization */}
-      <div className="px-8 py-6">
-        <div className="flex items-center justify-between mb-6">
-          <CardTitle className="text-2xl font-bold">Music Analysis Visualization</CardTitle>
-          <div className="flex items-center space-x-3">
+      <div className="px-4 py-3">
+        <div className="flex items-center justify-end mb-3">
+          <div className="flex items-center space-x-2">
             <Button
               variant="outline"
               size="sm"
               onClick={zoomOut}
               disabled={zoomLevel <= 1}
-              className="px-4 py-2"
+              className="px-3 py-1 h-8"
             >
-              <ZoomOut className="w-4 h-4" />
+              <ZoomOut className="w-3 h-3" />
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={zoomIn}
               disabled={zoomLevel >= 20}
-              className="px-4 py-2"
+              className="px-3 py-1 h-8"
             >
-              <ZoomIn className="w-4 h-4" />
+              <ZoomIn className="w-3 h-3" />
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={resetZoom}
-              className="px-4 py-2"
+              className="px-3 py-1 h-8"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-3 h-3" />
             </Button>
           </div>
         </div>
         
-        <div className="space-y-6">
-          {/* Audio controls */}
-          <div className="flex items-center space-x-6">
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={togglePlayPause}
-              disabled={!audioFile}
-              className="px-6 py-3"
-            >
-              {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-            </Button>
-            <div className="flex-1">
-              <Progress 
-                value={(currentTime / analysisData.duration) * 100} 
-                className="h-3"
-              />
-            </div>
-            <span className="text-lg font-medium text-foreground min-w-[120px] text-right">
-              {formatTime(currentTime)} / {formatTime(analysisData.duration)}
-            </span>
-          </div>
-
-          {/* Waveform canvas */}
-          <div 
-            ref={containerRef}
-            className="relative border-2 border-border rounded-2xl overflow-hidden bg-gradient-to-b from-muted/10 to-muted/20 shadow-inner"
+        {/* Audio controls */}
+        <div className="flex items-center space-x-4 mb-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={togglePlayPause}
+            disabled={!audioFile}
+            className="px-4 py-2 h-8"
           >
-            <canvas
-              ref={canvasRef}
-              className="w-full h-40 cursor-pointer"
-              onClick={handleCanvasClick}
-              onMouseDown={handleCanvasMouseDown}
-              onMouseMove={handleCanvasMouseMove}
-              onMouseUp={handleCanvasMouseUp}
-              onMouseLeave={handleCanvasMouseUp}
+            {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+          </Button>
+          <div className="flex-1">
+            <Progress 
+              value={(currentTime / analysisData.duration) * 100} 
+              className="h-2"
             />
-            
-            {/* Legend */}
-            <div className="absolute top-4 left-4 flex items-center space-x-6 text-sm font-medium">
-              <div className="flex items-center space-x-2 bg-background/80 px-3 py-1 rounded-lg">
-                <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                <span>Waveform</span>
-              </div>
-              <div className="flex items-center space-x-2 bg-background/80 px-3 py-1 rounded-lg">
-                <div className="w-4 h-4 bg-red-500 rounded"></div>
-                <span>Peaks</span>
-              </div>
-              <div className="flex items-center space-x-2 bg-background/80 px-3 py-1 rounded-lg">
-                <div className="w-4 h-4 bg-green-500 rounded"></div>
-                <span>Segments</span>
-              </div>
-              <div className="flex items-center space-x-2 bg-background/80 px-3 py-1 rounded-lg">
-                <div className="w-4 h-4 bg-amber-500 rounded"></div>
-                <span>Beats</span>
-              </div>
+          </div>
+          <span className="text-sm font-medium text-foreground min-w-[100px] text-right">
+            {formatTime(currentTime)} / {formatTime(analysisData.duration)}
+          </span>
+        </div>
+
+        {/* Waveform canvas */}
+        <div 
+          ref={containerRef}
+          className="relative border border-border rounded-lg overflow-hidden bg-gradient-to-b from-muted/10 to-muted/20 shadow-inner"
+        >
+          <canvas
+            ref={canvasRef}
+            className="w-full h-32 cursor-pointer"
+            onClick={handleCanvasClick}
+            onMouseDown={handleCanvasMouseDown}
+            onMouseMove={handleCanvasMouseMove}
+            onMouseUp={handleCanvasMouseUp}
+            onMouseLeave={handleCanvasMouseUp}
+          />
+          
+          {/* Legend */}
+          <div className="absolute top-2 left-2 flex items-center space-x-4 text-xs font-medium">
+            <div className="flex items-center space-x-1 bg-background/80 px-2 py-1 rounded">
+              <div className="w-3 h-3 bg-blue-500 rounded"></div>
+              <span>Waveform</span>
+            </div>
+            <div className="flex items-center space-x-1 bg-background/80 px-2 py-1 rounded">
+              <div className="w-3 h-3 bg-green-500 rounded"></div>
+              <span>Segments</span>
             </div>
           </div>
+        </div>
 
-          {/* Zoom info */}
-          <div className="text-center text-muted-foreground">
-            <span className="font-medium">Zoom: {zoomLevel.toFixed(1)}x</span>
-            <span className="mx-2">•</span>
-            <span>{formatTime(zoomStart)} - {formatTime(Math.min(zoomStart + analysisData.duration / zoomLevel, analysisData.duration))}</span>
-          </div>
+        {/* Zoom info */}
+        <div className="text-center text-muted-foreground text-xs mt-2">
+          <span className="font-medium">Zoom: {zoomLevel.toFixed(1)}x</span>
+          <span className="mx-2">•</span>
+          <span>{formatTime(zoomStart)} - {formatTime(Math.min(zoomStart + analysisData.duration / zoomLevel, analysisData.duration))}</span>
         </div>
       </div>
 
       {/* Segment details */}
       {selectedSegment !== null && analysisData.segments[selectedSegment] && (
         <Card className="w-full">
-          <CardHeader>
-            <CardTitle className="text-lg">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">
               Segment {analysisData.segments[selectedSegment].segment_index + 1} Analysis
             </CardTitle>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {formatTime(analysisData.segments[selectedSegment].start_time)} - {formatTime(analysisData.segments[selectedSegment].end_time)} 
               ({formatTime(analysisData.segments[selectedSegment].duration)})
             </p>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Clock className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Duration</span>
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center space-x-1">
+                  <Clock className="w-3 h-3 text-muted-foreground" />
+                  <span className="text-xs font-medium">Duration</span>
                 </div>
-                <p className="text-2xl font-bold">{formatTime(analysisData.segments[selectedSegment].duration)}</p>
+                <p className="text-lg font-bold">{formatTime(analysisData.segments[selectedSegment].duration)}</p>
               </div>
               
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <BarChart3 className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Peaks</span>
+              <div className="space-y-1">
+                <div className="flex items-center space-x-1">
+                  <Volume2 className="w-3 h-3 text-muted-foreground" />
+                  <span className="text-xs font-medium">Energy</span>
                 </div>
-                <p className="text-2xl font-bold">
-                  {analysisData.peak_analysis.peak_times.filter(
-                    peak => peak >= analysisData.segments[selectedSegment].start_time && peak <= analysisData.segments[selectedSegment].end_time
-                  ).length}
-                </p>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Volume2 className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Energy</span>
-                </div>
-                <p className="text-2xl font-bold">
+                <p className="text-lg font-bold">
                   {analysisData.segments[selectedSegment].features?.rms_energy?.toFixed(3) || 'N/A'}
                 </p>
               </div>
               
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Music className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Tempo</span>
+              <div className="space-y-1">
+                <div className="flex items-center space-x-1">
+                  <Music className="w-3 h-3 text-muted-foreground" />
+                  <span className="text-xs font-medium">Tempo</span>
                 </div>
-                <p className="text-2xl font-bold">
+                <p className="text-lg font-bold">
                   {analysisData.segments[selectedSegment].features?.tempo?.toFixed(0) || analysisData.features.tempo.toFixed(0)} BPM
                 </p>
               </div>
@@ -520,69 +482,61 @@ export function MusicAnalysisVisualizer({ analysisData, audioFile }: MusicAnalys
       )}
 
       {/* Overall analysis summary */}
-      <div className="px-8 py-6 bg-gradient-to-r from-muted/5 to-muted/10 border-t border-border">
-        <CardTitle className="text-2xl font-bold mb-8 text-center">Analysis Summary</CardTitle>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="space-y-4">
-            <h4 className="text-xl font-bold text-foreground">Audio Features</h4>
-            <div className="space-y-3 text-lg">
-              <div className="flex justify-between items-center py-2 border-b border-border/50">
+      <div className="px-4 py-3 bg-gradient-to-r from-muted/5 to-muted/10 border-t border-border">
+        <CardTitle className="text-lg font-bold mb-4 text-center">Analysis Summary</CardTitle>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <h4 className="text-sm font-bold text-foreground">Audio Features</h4>
+            <div className="space-y-1 text-sm">
+              <div className="flex justify-between items-center py-1 border-b border-border/50">
                 <span className="text-muted-foreground">Duration:</span>
                 <span className="font-semibold">{formatTime(analysisData.features.duration)}</span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-border/50">
+              <div className="flex justify-between items-center py-1 border-b border-border/50">
                 <span className="text-muted-foreground">Tempo:</span>
                 <span className="font-semibold">{analysisData.features.tempo.toFixed(1)} BPM</span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-border/50">
+              <div className="flex justify-between items-center py-1 border-b border-border/50">
                 <span className="text-muted-foreground">Energy:</span>
                 <span className="font-semibold">{analysisData.features.rms_energy.toFixed(3)}</span>
               </div>
-              <div className="flex justify-between items-center py-2">
+              <div className="flex justify-between items-center py-1">
                 <span className="text-muted-foreground">Harmonic Ratio:</span>
                 <span className="font-semibold">{analysisData.features.harmonic_ratio.toFixed(3)}</span>
               </div>
             </div>
           </div>
           
-          <div className="space-y-4">
-            <h4 className="text-xl font-bold text-foreground">Segmentation</h4>
-            <div className="space-y-3 text-lg">
-              <div className="flex justify-between items-center py-2 border-b border-border/50">
+          <div className="space-y-2">
+            <h4 className="text-sm font-bold text-foreground">Segmentation</h4>
+            <div className="space-y-1 text-sm">
+              <div className="flex justify-between items-center py-1 border-b border-border/50">
                 <span className="text-muted-foreground">Total Segments:</span>
                 <span className="font-semibold">{analysisData.segments.length}</span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-border/50">
-                <span className="text-muted-foreground">Total Peaks:</span>
-                <span className="font-semibold">{analysisData.peak_analysis.total_peaks}</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-border/50">
-                <span className="text-muted-foreground">Beat Count:</span>
-                <span className="font-semibold">{analysisData.beat_times_sec.length}</span>
-              </div>
-              <div className="flex justify-between items-center py-2">
-                <span className="text-muted-foreground">Downbeats:</span>
-                <span className="font-semibold">{analysisData.downbeats_sec.length}</span>
+              <div className="flex justify-between items-center py-1">
+                <span className="text-muted-foreground">Avg Duration:</span>
+                <span className="font-semibold">{formatTime(analysisData.duration / analysisData.segments.length)}</span>
               </div>
             </div>
           </div>
           
-          <div className="space-y-4">
-            <h4 className="text-xl font-bold text-foreground">Genre Classification</h4>
-            <div className="space-y-3 text-lg">
-              <div className="flex justify-between items-center py-2 border-b border-border/50">
+          <div className="space-y-2">
+            <h4 className="text-sm font-bold text-foreground">Genre Classification</h4>
+            <div className="space-y-1 text-sm">
+              <div className="flex justify-between items-center py-1 border-b border-border/50">
                 <span className="text-muted-foreground">Predicted:</span>
-                <Badge variant="secondary" className="px-3 py-1 text-lg font-semibold">{analysisData.predicted_genre}</Badge>
+                <Badge variant="secondary" className="px-2 py-1 text-xs font-semibold">{analysisData.predicted_genre}</Badge>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-border/50">
+              <div className="flex justify-between items-center py-1 border-b border-border/50">
                 <span className="text-muted-foreground">Confidence:</span>
                 <span className="font-semibold">{analysisData.confidence}%</span>
               </div>
-              <div className="space-y-2">
-                {Object.entries(analysisData.genre_scores).map(([genre, score]) => (
-                  <div key={genre} className="flex justify-between items-center py-1">
-                    <span className="text-sm text-muted-foreground">{genre}:</span>
-                    <span className="text-sm font-medium">{score}</span>
+              <div className="space-y-1">
+                {Object.entries(analysisData.genre_scores).slice(0, 3).map(([genre, score]) => (
+                  <div key={genre} className="flex justify-between items-center py-0.5">
+                    <span className="text-xs text-muted-foreground">{genre}:</span>
+                    <span className="text-xs font-medium">{score}</span>
                   </div>
                 ))}
               </div>

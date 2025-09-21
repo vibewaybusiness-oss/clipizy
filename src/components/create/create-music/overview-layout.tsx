@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import { ArrowLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { MusicAnalysisVisualizer } from './music-analysis-visualizer';
 import { StepPrompt } from './step-overview';
+import { SegmentList } from './segment-list';
 
 interface OverviewLayoutProps {
   // Form props
@@ -17,7 +18,7 @@ interface OverviewLayoutProps {
   audioDuration: number;
   musicTracks: any[];
   selectedTrackId: string | null;
-  onTrackSelect: (trackId: string) => void;
+  onTrackSelect: (track: any) => void;
   onSubmit: (values: any, descriptions: any, trackGenres: any) => void;
   onBack: () => void;
   fileToDataUri: (file: File) => Promise<string>;
@@ -55,6 +56,7 @@ export function OverviewLayout({
   onContinue,
   continueText
 }: OverviewLayoutProps) {
+  const [selectedSegment, setSelectedSegment] = useState<number | null>(null);
   return (
     <div className="min-h-screen bg-background w-full">
       {/* HEADER */}
@@ -113,78 +115,80 @@ export function OverviewLayout({
 
       {/* MAIN CONTENT */}
       <div className="w-full px-8 py-12">
-        <div className="space-y-12">
+        <div className="space-y-8">
           
-          {/* TWO COLUMN LAYOUT */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 w-full">
+          {/* THREE COLUMN LAYOUT */}
+          <div className="grid grid-cols-12 gap-6 w-full h-[800px]">
             
-            {/* LEFT COLUMN - VIDEO DESCRIPTION FORM */}
-            <div className="space-y-8">
-              <Card className="bg-card border border-border shadow-lg">
-                <CardHeader className="pb-6">
-                  <CardTitle className="text-3xl font-bold">Video Description</CardTitle>
-                  <p className="text-lg text-muted-foreground">
-                    Provide a detailed description of how you want your music video to look
-                  </p>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <StepPrompt
-                    form={form}
-                    settings={settings}
-                    audioFile={audioFile}
-                    audioDuration={audioDuration}
-                    musicTracks={musicTracks}
-                    selectedTrackId={selectedTrackId}
-                    onTrackSelect={onTrackSelect}
-                    onSubmit={onSubmit}
-                    onBack={onBack}
-                    fileToDataUri={fileToDataUri}
-                    toast={toast}
-                    onTrackDescriptionsUpdate={onTrackDescriptionsUpdate}
-                    onSharedDescriptionUpdate={onSharedDescriptionUpdate}
-                    onPromptsUpdate={onPromptsUpdate}
-                    trackDescriptions={trackDescriptions}
-                    analysisData={null} // We'll show this separately
-                  />
+            {/* LEFT COLUMN - SEGMENT LIST (30%) */}
+            <div className="col-span-3">
+              <SegmentList
+                segments={analysisData?.segments || []}
+                selectedSegment={selectedSegment}
+                onSegmentSelect={setSelectedSegment}
+                analysisData={analysisData}
+                onSegmentFocus={(segmentIndex: number) => {
+                  // Focus on segment in visualizer
+                  if (analysisData?.segments?.[segmentIndex]) {
+                    const segment = analysisData.segments[segmentIndex];
+                    const segmentCenter = segment.start_time + (segment.duration / 2);
+                    // This will be handled by the visualizer component
+                  }
+                }}
+              />
+            </div>
+
+            {/* CENTER COLUMN - MUSIC ANALYSIS VISUALIZER (60%) */}
+            <div className="col-span-7">
+              <Card className="bg-card border border-border shadow-lg h-full">
+                <CardContent className="p-0 h-full">
+                  <div className="h-full overflow-hidden">
+                    <MusicAnalysisVisualizer 
+                      analysisData={analysisData}
+                      audioFile={audioFile}
+                      selectedSegment={selectedSegment}
+                      onSegmentFocus={(segmentIndex: number) => setSelectedSegment(segmentIndex)}
+                    />
+                  </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* RIGHT COLUMN - MUSIC TRACKS */}
-            <div className="space-y-8">
-              <Card className="bg-card border border-border shadow-lg">
-                <CardHeader className="pb-6">
-                  <CardTitle className="text-3xl font-bold">Music Tracks</CardTitle>
-                  <p className="text-lg text-muted-foreground">
-                    {musicTracks.length} track{musicTracks.length !== 1 ? 's' : ''} loaded
+            {/* RIGHT COLUMN - MUSIC TRACKS (10%) */}
+            <div className="col-span-2">
+              <Card className="bg-card border border-border shadow-lg h-full">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-bold">Tracks</CardTitle>
+                  <p className="text-xs text-muted-foreground">
+                    {musicTracks.length} track{musicTracks.length !== 1 ? 's' : ''}
                   </p>
                 </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="space-y-6">
+                <CardContent className="pt-0 h-full">
+                  <div className="space-y-2 max-h-[600px] overflow-y-auto">
                     {musicTracks.map((track) => (
                       <div
                         key={track.id}
-                        className={`p-6 rounded-xl border cursor-pointer transition-all duration-200 ${
+                        className={`p-2 rounded-lg border cursor-pointer transition-all duration-200 ${
                           selectedTrackId === track.id
                             ? 'border-primary bg-primary/5 shadow-md'
                             : 'border-border hover:border-primary/50 hover:shadow-sm'
                         }`}
-                        onClick={() => onTrackSelect(track.id)}
+                        onClick={() => onTrackSelect(track)}
                       >
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                            <span className="text-primary font-bold text-lg">♪</span>
+                        <div className="flex flex-col items-center space-y-1">
+                          <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <span className="text-primary font-bold text-xs">♪</span>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-foreground truncate text-lg">
-                              {track.name || 'Untitled Track'}
+                          <div className="text-center">
+                            <h4 className="font-semibold text-foreground truncate text-xs">
+                              {track.name || 'Track'}
                             </h4>
-                            <p className="text-muted-foreground">
-                              {track.duration ? `${Math.floor(track.duration / 60)}:${Math.floor(track.duration % 60).toString().padStart(2, '0')}` : 'Unknown duration'}
+                            <p className="text-muted-foreground text-xs">
+                              {track.duration ? `${Math.floor(track.duration / 60)}:${Math.floor(track.duration % 60).toString().padStart(2, '0')}` : '--:--'}
                             </p>
                           </div>
                           {selectedTrackId === track.id && (
-                            <Badge variant="secondary" className="px-3 py-1">Selected</Badge>
+                            <Badge variant="secondary" className="px-1 py-0.5 text-xs">✓</Badge>
                           )}
                         </div>
                       </div>
@@ -195,21 +199,36 @@ export function OverviewLayout({
             </div>
           </div>
 
-          {/* MUSIC ANALYSIS VISUALIZATION - FULL WIDTH */}
+          {/* VIDEO DESCRIPTION FORM - FULL WIDTH */}
           <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-4xl font-bold text-foreground">Music Analysis</h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                AI-powered analysis of your music track to optimize video generation
-              </p>
-            </div>
-            
-            <div className="w-full bg-card border border-border rounded-2xl shadow-lg overflow-hidden">
-              <MusicAnalysisVisualizer 
-                analysisData={analysisData}
-                audioFile={audioFile}
-              />
-            </div>
+            <Card className="bg-card border border-border shadow-lg">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-3xl font-bold">Video Description</CardTitle>
+                <p className="text-lg text-muted-foreground">
+                  Provide a detailed description of how you want your music video to look
+                </p>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <StepPrompt
+                  form={form}
+                  settings={settings}
+                  audioFile={audioFile}
+                  audioDuration={audioDuration}
+                  musicTracks={musicTracks}
+                  selectedTrackId={selectedTrackId}
+                  onTrackSelect={onTrackSelect}
+                  onSubmit={onSubmit}
+                  onBack={onBack}
+                  fileToDataUri={fileToDataUri}
+                  toast={toast}
+                  onTrackDescriptionsUpdate={onTrackDescriptionsUpdate}
+                  onSharedDescriptionUpdate={onSharedDescriptionUpdate}
+                  onPromptsUpdate={onPromptsUpdate}
+                  trackDescriptions={trackDescriptions}
+                  analysisData={null} // We'll show this separately
+                />
+              </CardContent>
+            </Card>
           </div>
 
           {/* BOTTOM NAVIGATION */}
