@@ -61,7 +61,7 @@ export function MusicTracksPanel({
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (isTrackReordering) {
       return;
     }
@@ -70,7 +70,7 @@ export function MusicTracksPanel({
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (isTrackReordering) {
       return;
     }
@@ -79,7 +79,7 @@ export function MusicTracksPanel({
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (isTrackReordering) {
       return;
     }
@@ -88,14 +88,14 @@ export function MusicTracksPanel({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (isTrackReordering) {
       return;
     }
-    
+
     const files = Array.from(e.dataTransfer.files);
     const audioFiles = files.filter(file => file.type.startsWith('audio/'));
-    
+
     if (audioFiles.length === 0) {
       toast({
         variant: "destructive",
@@ -104,7 +104,7 @@ export function MusicTracksPanel({
       });
       return;
     }
-    
+
     onAudioFileChange(audioFiles);
   };
 
@@ -117,7 +117,7 @@ export function MusicTracksPanel({
   };
 
   return (
-    <div 
+    <div
       className={`flex flex-col h-full xl:col-span-1 transition-all duration-300 ${
         isDragOver ? 'scale-[1.02]' : ''
       }`}
@@ -127,8 +127,8 @@ export function MusicTracksPanel({
       onDrop={handleDrop}
     >
       <Card className={`bg-card border shadow-lg flex-1 flex flex-col min-h-0 transition-all duration-300 ${
-        isDragOver 
-          ? 'border-primary/50 bg-primary/5' 
+        isDragOver
+          ? 'border-primary/50 bg-primary/5'
           : 'border-border'
       }`}>
         <CardHeader className="pb-4">
@@ -160,7 +160,7 @@ export function MusicTracksPanel({
               </div>
             )}
           </div>
-          
+
           {musicTracks.length === 0 && (
             <div className="mt-3 p-3 bg-muted/30 rounded-lg border border-dashed border-border">
               <p className="text-sm text-muted-foreground text-center">
@@ -169,7 +169,7 @@ export function MusicTracksPanel({
             </div>
           )}
         </CardHeader>
-        
+
         <CardContent className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 min-h-0">
             {isUploadingTracks ? (
@@ -211,7 +211,7 @@ export function MusicTracksPanel({
                 </div>
               </div>
             ) : (
-              <div 
+              <div
                 className={`p-3 space-y-2 h-full overflow-y-auto transition-all duration-300 relative custom-scrollbar ${
                   isDragOver ? 'opacity-50' : ''
                 }`}
@@ -251,7 +251,7 @@ export function MusicTracksPanel({
               </div>
             )}
           </div>
-          
+
           {selectedTrackIds.length > 1 && (
             <div className="p-3">
               <Button

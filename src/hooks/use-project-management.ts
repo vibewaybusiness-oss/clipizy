@@ -30,7 +30,7 @@ export interface ProjectManagementActions {
 
 export function useProjectManagement() {
   const { toast } = useToast();
-  
+
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
   const [isProjectCreated, setIsProjectCreated] = useState(false);
   const [isLoadingProject, setIsLoadingProject] = useState(false);
@@ -51,7 +51,7 @@ export function useProjectManagement() {
         setIsProjectCreated(false);
       }
     }
-    
+
     try {
       console.log('Creating new project...');
       const project = await musicClipAPI.createProject(
@@ -59,15 +59,15 @@ export function useProjectManagement() {
         "AI-generated music video project"
       );
       console.log('Project created successfully:', project.project_id);
-      
+
       setCurrentProjectId(project.project_id);
       setIsProjectCreated(true);
-      
+
       toast({
         title: "Project Created",
         description: "Your music clip project has been created successfully.",
       });
-      
+
       return project.project_id;
     } catch (error) {
       console.error('Failed to create project:', error);
@@ -101,22 +101,22 @@ export function useProjectManagement() {
       console.log('Project already loading, skipping...');
       return;
     }
-    
+
     try {
       console.log('Loading existing project:', projectId);
       setIsLoadingProject(true);
-      
+
       // Set the project ID
       setCurrentProjectId(projectId);
       setIsProjectCreated(true);
-      
+
       // Load project data from backend
       const projectScript = await musicClipAPI.getProjectScript(projectId);
       const projectTracks = await musicClipAPI.getProjectTracks(projectId);
-      
+
       console.log('Project script loaded:', projectScript);
       console.log('Project tracks loaded:', projectTracks);
-      
+
       return {
         script: projectScript,
         tracks: projectTracks,
@@ -128,7 +128,7 @@ export function useProjectManagement() {
         title: "Project Load Failed",
         description: "Failed to load existing project. Starting with a new project.",
       });
-      
+
       // Reset to new project state on error
       setCurrentProjectId(null);
       setIsProjectCreated(false);
@@ -139,7 +139,7 @@ export function useProjectManagement() {
   }, [isLoadingProject, toast]);
 
   const updateProjectSettings = useCallback(async (
-    projectId: string, 
+    projectId: string,
     settings: z.infer<typeof SettingsSchema>
   ) => {
     try {

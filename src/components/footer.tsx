@@ -51,7 +51,7 @@ export function Footer() {
                 <span className="text-xl font-bold gradient-text">clipizi</span>
               </Link>
               <p className="text-muted-foreground mb-6 max-w-md">
-                Create stunning music videos with AI. Transform your audio into visual masterpieces 
+                Create stunning music videos with AI. Transform your audio into visual masterpieces
                 with our cutting-edge technology and intuitive platform.
               </p>
               <div className="flex space-x-4">

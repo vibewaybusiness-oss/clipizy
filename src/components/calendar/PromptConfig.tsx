@@ -8,11 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Save, 
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Save,
   Bot,
   Settings
 } from 'lucide-react';
@@ -25,12 +25,12 @@ interface PromptConfigProps {
   settings: { prefix: string; suffix: string };
 }
 
-export function PromptConfig({ 
-  prompts, 
-  onSavePrompt, 
-  onDeletePrompt, 
+export function PromptConfig({
+  prompts,
+  onSavePrompt,
+  onDeletePrompt,
   onUpdateSettings,
-  settings 
+  settings
 }: PromptConfigProps) {
   const [editingPrompt, setEditingPrompt] = useState<GeminiPrompt | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);

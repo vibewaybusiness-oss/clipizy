@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     const response = await fetch(`${BACKEND_URL}/projects/projects`, {
       method: 'POST',
       headers: {

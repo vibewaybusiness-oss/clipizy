@@ -32,11 +32,11 @@ export function TimelineHeader({ currentStep, maxReachedStep, totalSteps, onStep
         const isCurrent = step.id === currentStep;
         const isReached = step.id <= maxReachedStep;
         const isUpcoming = step.id > maxReachedStep;
-        
+
         return (
           <React.Fragment key={step.id}>
             {/* Step Bubble */}
-            <div 
+            <div
               className={`flex flex-col items-center space-y-1 group ${
                 isReached ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
               }`}
@@ -66,8 +66,8 @@ export function TimelineHeader({ currentStep, maxReachedStep, totalSteps, onStep
               <div className="text-center">
                 <div
                   className={`text-xs font-medium transition-colors duration-300 ${
-                    isCurrent 
-                      ? "text-foreground" 
+                    isCurrent
+                      ? "text-foreground"
                       : isCompleted
                       ? "text-muted-foreground group-hover:text-foreground"
                       : isReached
@@ -79,7 +79,7 @@ export function TimelineHeader({ currentStep, maxReachedStep, totalSteps, onStep
                 </div>
               </div>
             </div>
-            
+
             {/* Connector Line */}
             {index < totalSteps - 1 && (
               <div

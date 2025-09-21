@@ -5,13 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Youtube, 
-  Instagram, 
-  Music, 
-  Settings, 
-  Plus, 
-  Trash2, 
+import {
+  Youtube,
+  Instagram,
+  Music,
+  Settings,
+  Plus,
+  Trash2,
   ExternalLink,
   BarChart3,
   Calendar,
@@ -55,7 +55,7 @@ export default function SocialMediaManager() {
   const loadData = async () => {
     try {
       setLoading(true);
-      
+
       // Load connected accounts
       const accountsResponse = await fetch('/api/social-media/accounts');
       const accountsData = await accountsResponse.json();
@@ -204,9 +204,9 @@ export default function SocialMediaManager() {
                       <BarChart3 className="h-4 w-4 mr-2" />
                       Analytics
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => disconnectAccount(account.id)}
                       className="text-red-600 hover:text-red-700"
                     >
@@ -245,8 +245,8 @@ export default function SocialMediaManager() {
                           </Badge>
                         ))}
                       </div>
-                      <Button 
-                        className="w-full" 
+                      <Button
+                        className="w-full"
                         onClick={() => connectAccount(platform.id)}
                         disabled={isConnected}
                       >
@@ -281,8 +281,8 @@ export default function SocialMediaManager() {
                       <p><strong>Schedule:</strong> {template.schedule.type}</p>
                       <p><strong>Platforms:</strong> {template.config.publish_platforms?.join(', ') || 'None'}</p>
                     </div>
-                    <Button 
-                      className="w-full" 
+                    <Button
+                      className="w-full"
                       onClick={() => createWorkflow(template.id)}
                     >
                       <Play className="h-4 w-4 mr-2" />

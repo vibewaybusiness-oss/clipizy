@@ -37,7 +37,7 @@ const prompt = ai.definePrompt({
   input: {schema: AnalyzeAudioForScenesInputSchema},
   output: {schema: AnalyzeAudioForScenesOutputSchema},
   prompt: `You are an expert music analyst and creative director.
-  
+
   Analyze the provided audio track and the waveform image which shows the location of important peaks. The peak times are also provided as an array.
 
   Your task is to:
@@ -48,7 +48,7 @@ const prompt = ai.definePrompt({
   Audio: {{media url=audioDataUri}}
   Waveform Image with Peaks: {{media url=waveformImageDataUri}}
   Peak Timestamps (seconds): [{{#each peakTimes}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}]
-  
+
   Provide the output in the specified JSON format.
   `,
 });

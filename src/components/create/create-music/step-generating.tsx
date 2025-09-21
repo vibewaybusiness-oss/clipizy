@@ -14,13 +14,13 @@ interface StepGeneratingProps {
   error?: string;
 }
 
-export function StepGenerating({ 
-  onBack, 
-  onComplete, 
-  isGenerating = true, 
+export function StepGenerating({
+  onBack,
+  onComplete,
+  isGenerating = true,
   progress = 0,
   status = "Generating your video...",
-  error 
+  error
 }: StepGeneratingProps) {
   const [currentProgress, setCurrentProgress] = useState(0);
   const [currentStatus, setCurrentStatus] = useState(status);
@@ -79,13 +79,13 @@ export function StepGenerating({
             Creating your amazing video content
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-8 flex-1 flex flex-col justify-center">
           <div className="text-center space-y-6">
             <div className="flex justify-center">
               {getStatusIcon()}
             </div>
-            
+
             <div className="space-y-2">
               <h3 className={`text-xl font-semibold ${getStatusColor()}`}>
                 {error ? "Generation Failed" : currentStatus}
@@ -98,7 +98,7 @@ export function StepGenerating({
             {!error && (
               <div className="space-y-4">
                 <div className="w-full bg-muted rounded-full h-3">
-                  <div 
+                  <div
                     className="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${Math.min(currentProgress, 100)}%` }}
                   />
@@ -127,7 +127,7 @@ export function StepGenerating({
 
           {error && onBack && (
             <div className="flex justify-center pt-4">
-              <Button 
+              <Button
                 onClick={onBack}
                 variant="outline"
                 className="flex items-center space-x-2"

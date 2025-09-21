@@ -21,11 +21,11 @@ export default function ComfyUITestPage() {
   const checkStatus = async () => {
     setIsLoading(true);
     setError('');
-    
+
     try {
       const response = await fetch('/api/comfyui/status');
       const data = await response.json();
-      
+
       if (data.success) {
         setIsConnected(data.connected);
         setPodInfo({
@@ -49,20 +49,20 @@ export default function ComfyUITestPage() {
   const recruitPod = async () => {
     setIsLoading(true);
     setError('');
-    
+
     try {
       const response = await fetch('/api/comfyui?action=recruit', {
         method: 'POST'
       });
       const data = await response.json();
-      
+
       if (data.success) {
         setError('');
         await checkStatus(); // Refresh status
       } else {
         // Show the detailed error message and instructions
         const errorMsg = data.error || 'Failed to recruit pod';
-        const instructions = data.instructions ? 
+        const instructions = data.instructions ?
           `\n\nInstructions:\n${Object.entries(data.instructions).map(([key, value]) => `${key}: ${value}`).join('\n')}` : '';
         const alternative = data.alternative ? `\n\nAlternative: ${data.alternative}` : '';
         setError(errorMsg + instructions + alternative);
@@ -81,13 +81,13 @@ export default function ComfyUITestPage() {
 
     setIsLoading(true);
     setError('');
-    
+
     try {
       const response = await fetch('/api/comfyui?action=release', {
         method: 'POST'
       });
       const data = await response.json();
-      
+
       if (data.success) {
         setError('');
         await checkStatus(); // Refresh status
@@ -104,11 +104,11 @@ export default function ComfyUITestPage() {
   const exposePort = async () => {
     setIsLoading(true);
     setError('');
-    
+
     try {
       const response = await fetch('/api/comfyui?action=expose-port');
       const data = await response.json();
-      
+
       if (data.success) {
         setError('');
         // Show success message with instructions
@@ -223,7 +223,7 @@ export default function ComfyUITestPage() {
                 Release Pod
               </Button>
             </div>
-            
+
             {/* Expose Port Button */}
             <div className="border-t pt-4">
               <Button

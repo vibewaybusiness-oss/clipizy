@@ -15,21 +15,21 @@ const WINDOWS_HOST_IP = '172.31.240.1'; // Fallback Windows host IP
 export const BACKEND_CONFIG = {
   // Primary backend URL - use WSL IP for WSL environments
   url: process.env.BACKEND_URL || `http://${WSL_IP}:8000`,
-  
+
   // Fallback URLs for different environments
   fallbackUrls: {
     localhost: 'http://localhost:8000',
     wsl: `http://${WSL_IP}:8000`,
     windows: `http://${WINDOWS_HOST_IP}:8000`,
   },
-  
+
   // Timeout configurations
   timeouts: {
     default: 10000, // 10 seconds
     upload: 600000, // 10 minutes for file uploads
     analysis: 300000, // 5 minutes for analysis
   },
-  
+
   // Retry configuration
   retries: {
     maxAttempts: 3,
@@ -49,14 +49,14 @@ export const API_CONFIG = {
   basePath: '/api',
   musicClipPath: '/api/music-clip',
   analysisPath: '/api/analysis',
-  
+
   // File upload configuration
   upload: {
     maxFileSize: 100 * 1024 * 1024, // 100MB
     allowedAudioFormats: ['.mp3', '.wav', '.flac', '.aac', '.m4a'],
     allowedVideoFormats: ['.mp4', '.mov', '.avi', '.mkv'],
   },
-  
+
   // CORS configuration
   cors: {
     allowedOrigins: [
@@ -82,12 +82,12 @@ export function getBackendUrl(): string {
   if (ENV_CONFIG.isWSL) {
     return BACKEND_CONFIG.url;
   }
-  
+
   // For Windows, try localhost first, then fallback to WSL IP
   if (ENV_CONFIG.isWindows) {
     return BACKEND_CONFIG.fallbackUrls.localhost;
   }
-  
+
   // Default to configured URL
   return BACKEND_CONFIG.url;
 }

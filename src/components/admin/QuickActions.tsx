@@ -36,9 +36,9 @@ interface QuickActionsProps {
   actions?: QuickAction[];
 }
 
-export function QuickActions({ 
-  title = 'Quick Actions', 
-  actions = defaultActions 
+export function QuickActions({
+  title = 'Quick Actions',
+  actions = defaultActions
 }: QuickActionsProps) {
   return (
     <Card>
@@ -48,9 +48,9 @@ export function QuickActions({
           {actions.map((action) => {
             const Icon = action.icon;
             return (
-              <Button 
+              <Button
                 key={action.label}
-                asChild 
+                asChild
                 variant={action.variant || 'outline'}
                 className="w-full justify-start"
               >

@@ -5,13 +5,13 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://127.0.0.1:8000';
 export async function GET(request: NextRequest) {
   try {
     console.log('Points balance API route called');
-    
+
     const backendUrl = `${BACKEND_URL}/api/points/balance`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
-    
+
     const response = await fetch(backendUrl, {
       method: 'GET',
       headers: {
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       },
       signal: controller.signal,
     });
-    
+
     clearTimeout(timeoutId);
 
     console.log('Backend response status:', response.status);
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
     console.log('Backend response data:', data);
-    
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('Points balance API error:', error);

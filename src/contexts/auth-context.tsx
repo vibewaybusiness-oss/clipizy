@@ -55,9 +55,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         name: email.split('@')[0],
       };
-      
+
       setUser(mockUser);
-      
+
       // Store in localStorage
       if (typeof window !== 'undefined') {
         localStorage.setItem('user', JSON.stringify(mockUser));
@@ -80,9 +80,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         name: name || email.split('@')[0],
       };
-      
+
       setUser(mockUser);
-      
+
       // Store in localStorage
       if (typeof window !== 'undefined') {
         localStorage.setItem('user', JSON.stringify(mockUser));
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       setUser(null);
-      
+
       // Remove from localStorage
       if (typeof window !== 'undefined') {
         localStorage.removeItem('user');
@@ -114,11 +114,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateProfile = async (updates: Partial<User>) => {
     if (!user) return;
-    
+
     try {
       const updatedUser = { ...user, ...updates };
       setUser(updatedUser);
-      
+
       // Update localStorage
       if (typeof window !== 'undefined') {
         localStorage.setItem('user', JSON.stringify(updatedUser));

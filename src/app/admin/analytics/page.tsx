@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  TrendingUp, 
-  Eye, 
-  Heart, 
-  Users, 
+import {
+  TrendingUp,
+  Eye,
+  Heart,
+  Users,
   Calendar,
   BarChart3,
   FileText,
@@ -51,17 +51,17 @@ export default function AdminAnalyticsPage() {
           throw new Error('Failed to fetch analytics data');
         }
         const result = await response.json();
-        
+
         // Process the data for analytics
         const posts = result.posts;
         const publishedPosts = posts.filter((post: any) => post.status === 'published');
         const draftPosts = posts.filter((post: any) => post.status === 'draft');
         const scheduledPosts = posts.filter((post: any) => post.status === 'scheduled');
-        
+
         const totalViews = posts.reduce((sum: number, post: any) => sum + post.views, 0);
         const totalLikes = posts.reduce((sum: number, post: any) => sum + post.likes, 0);
         const averageReadTime = posts.reduce((sum: number, post: any) => sum + post.readTime, 0) / posts.length;
-        
+
         const topPosts = publishedPosts
           .sort((a: any, b: any) => b.views - a.views)
           .slice(0, 5)
@@ -139,22 +139,22 @@ export default function AdminAnalyticsPage() {
           <p className="text-muted-foreground">Monitor your blog performance and engagement</p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant={timeRange === '7d' ? 'default' : 'outline'} 
+          <Button
+            variant={timeRange === '7d' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setTimeRange('7d')}
           >
             7 Days
           </Button>
-          <Button 
-            variant={timeRange === '30d' ? 'default' : 'outline'} 
+          <Button
+            variant={timeRange === '30d' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setTimeRange('30d')}
           >
             30 Days
           </Button>
-          <Button 
-            variant={timeRange === '90d' ? 'default' : 'outline'} 
+          <Button
+            variant={timeRange === '90d' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setTimeRange('90d')}
           >

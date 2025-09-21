@@ -7,15 +7,15 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminPostsPage() {
-  const { 
-    data, 
-    loading, 
-    error, 
-    filters, 
-    handleFilterChange, 
-    handleDelete, 
+  const {
+    data,
+    loading,
+    error,
+    filters,
+    handleFilterChange,
+    handleDelete,
     handleStatusChange,
-    fetchPosts 
+    fetchPosts
   } = usePosts();
 
   if (loading) {

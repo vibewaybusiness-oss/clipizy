@@ -105,7 +105,7 @@ export default function BlogPage() {
               </div>
               <h3 className="text-lg font-semibold mb-2">Error Loading Blog</h3>
               <p className="text-muted-foreground mb-4">{error}</p>
-              <button 
+              <button
                 onClick={() => fetchPosts()}
                 className="text-primary hover:underline"
               >

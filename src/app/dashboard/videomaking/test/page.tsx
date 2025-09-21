@@ -245,7 +245,7 @@ export default function VideoMakingTestPage() {
               <span className="font-medium">Integration Successful!</span>
             </div>
             <p className="text-sm text-green-600 mt-2">
-              The videomaking interface has been successfully integrated into the dashboard. 
+              The videomaking interface has been successfully integrated into the dashboard.
               You can now access it at <code>/dashboard/videomaking</code>.
             </p>
           </CardContent>

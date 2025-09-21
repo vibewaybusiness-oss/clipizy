@@ -239,8 +239,8 @@ export async function GET(request: NextRequest) {
     if (status === 'published') {
       filteredPosts = filteredPosts.filter(post => post.status === 'published');
     } else if (status === 'scheduled') {
-      filteredPosts = filteredPosts.filter(post => 
-        post.status === 'scheduled' || 
+      filteredPosts = filteredPosts.filter(post =>
+        post.status === 'scheduled' ||
         (post.status === 'draft' && post.scheduledFor && new Date(post.scheduledFor) > new Date())
       );
     } else {
@@ -256,14 +256,14 @@ export async function GET(request: NextRequest) {
   }
 
   if (tag) {
-    filteredPosts = filteredPosts.filter(post => 
+    filteredPosts = filteredPosts.filter(post =>
       post.tags.some(t => t.toLowerCase() === tag.toLowerCase())
     );
   }
 
   if (search) {
     const searchLower = search.toLowerCase();
-    filteredPosts = filteredPosts.filter(post => 
+    filteredPosts = filteredPosts.filter(post =>
       post.title.toLowerCase().includes(searchLower) ||
       post.excerpt.toLowerCase().includes(searchLower) ||
       post.content.toLowerCase().includes(searchLower)
@@ -293,7 +293,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // In production, validate the request body and save to database
     const newPost: BlogPost = {
       id: Date.now().toString(),

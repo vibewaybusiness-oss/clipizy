@@ -7,7 +7,7 @@ import { tmpdir } from 'os';
 export async function POST(request: NextRequest) {
   try {
     const { audioDataUri } = await request.json();
-    
+
     if (!audioDataUri) {
       return NextResponse.json(
         { error: 'Audio data URI is required' },
@@ -54,15 +54,15 @@ export async function POST(request: NextRequest) {
       };
 
       console.log('Fallback analysis completed');
-      
+
       return NextResponse.json({
         success: true,
         analysis: analysisResult
       });
-      
+
     } catch (fallbackError) {
       console.error('Fallback analysis failed:', fallbackError);
-      
+
       // Return a basic analysis result
       return NextResponse.json({
         success: true,
@@ -75,13 +75,13 @@ export async function POST(request: NextRequest) {
         }
       });
     }
-    
+
   } catch (error) {
     console.error('Music analysis error:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
-        error: error instanceof Error ? error.message : 'Music analysis failed' 
+        error: error instanceof Error ? error.message : 'Music analysis failed'
       },
       { status: 500 }
     );

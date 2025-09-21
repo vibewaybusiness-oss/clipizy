@@ -5,10 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Coins, 
+import {
+  Coins,
   Plus,
-  History, 
+  History,
   ArrowRight,
   Search,
   CreditCard,
@@ -80,7 +80,7 @@ export default function PointsPage() {
                 <div className="text-muted-foreground">Points Available</div>
               </div>
             </div>
-            
+
             <div className="text-right space-y-2">
               <div className="flex items-center space-x-4 text-sm">
                 <div>
@@ -184,7 +184,7 @@ export default function PointsPage() {
         <div className="space-y-8">
           <div>
             <h2 className="text-2xl font-semibold mb-6">Purchase Points</h2>
-            
+
             {/* SINGLE PURCHASE BUTTON */}
             <Card className="bg-gradient-to-r from-primary/10 to-purple-500/10 border-primary/20">
               <CardContent className="p-8 text-center">
@@ -194,25 +194,25 @@ export default function PointsPage() {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Need More Points?</h3>
                   <p className="text-muted-foreground mb-6">
-                    Choose from our point packages or purchase a custom amount. 
+                    Choose from our point packages or purchase a custom amount.
                     All purchases include bonus points and priority processing.
                   </p>
                 </div>
-                
+
                 <Button size="lg" className="w-full" asChild>
                   <Link href="/dashboard/points/purchase">
                     <Plus className="w-5 h-5 mr-2" />
                     Purchase Points
                   </Link>
                 </Button>
-                
+
                 <div className="mt-4 text-sm text-muted-foreground">
                   Starting from $10 • 100 points per $1
                 </div>
               </CardContent>
             </Card>
         </div>
-        
+
         <div className="space-y-8">
             {/* HELPFUL LINKS */}
             <Card className="bg-card border border-border">

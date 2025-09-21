@@ -18,7 +18,7 @@ export async function analyzeAudioAction(values: z.infer<typeof AnalyzeAudioSche
       error: "Invalid audio data.",
     };
   }
-  
+
   try {
     const result = await analyzeAudioForDescriptions({ audioDataUri: validatedFields.data.audioDataUri });
     return {
@@ -138,7 +138,7 @@ export async function generateMusicAction(values: z.infer<typeof GenerateMusicSc
         }
 
         const audioDataUri = `data:audio`;
-        
+
         return {
             success: true,
             audioDataUri,

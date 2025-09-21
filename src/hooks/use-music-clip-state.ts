@@ -18,12 +18,12 @@ export interface MusicClipState {
   // Step management
   currentStep: 1 | 2 | 3 | 4;
   maxReachedStep: 1 | 2 | 3 | 4;
-  
+
   // Audio state
   audioFile: File | null;
   audioUrl: string | null;
   audioDuration: number;
-  
+
   // Music generation
   musicPrompt: string;
   musicTracksToGenerate: number;
@@ -32,15 +32,15 @@ export interface MusicClipState {
   isGeneratingVideo: boolean;
   isLoadingExistingProject: boolean;
   isAnalyzingMusic: boolean;
-  
+
   // Settings and prompts
   settings: z.infer<typeof SettingsSchema> | null;
   prompts: any;
-  
+
   // Descriptions - separate storage for individual vs shared
   sharedDescription: string;
   individualDescriptions: Record<string, string>;
-  
+
   // UI state
   showGenreSelector: boolean;
   vibeFile: File | null;
@@ -56,12 +56,12 @@ export interface MusicClipActions {
   handleReset: () => void;
   loadFromBackend: () => void;
   pushToBackend: (projectId?: string) => Promise<any>;
-  
+
   // Audio state
   setAudioFile: (file: File | null) => void;
   setAudioUrl: (url: string | null) => void;
   setAudioDuration: (duration: number) => void;
-  
+
   // Music generation
   setMusicPrompt: (prompt: string) => void;
   setMusicTracksToGenerate: (count: number) => void;
@@ -70,21 +70,21 @@ export interface MusicClipActions {
   setIsGeneratingVideo: (isGenerating: boolean) => void;
   setIsLoadingExistingProject: (isLoading: boolean) => void;
   setIsAnalyzingMusic: (isAnalyzing: boolean) => void;
-  
+
   // Settings and prompts
   setSettings: (settings: z.infer<typeof SettingsSchema>) => void;
   setPrompts: (prompts: any) => void;
-  
+
   // Descriptions
   setSharedDescription: (description: string) => void;
   setIndividualDescriptions: (descriptions: Record<string, string>) => void;
   updateIndividualDescription: (trackId: string, description: string) => void;
-  
+
   // UI state
   setShowGenreSelector: (show: boolean) => void;
   setVibeFile: (file: File | null) => void;
   setChannelAnimationFile: (file: File | null) => void;
-  
+
   // State access
   getCurrentState: () => {
     currentStep: 1 | 2 | 3 | 4;
@@ -119,7 +119,7 @@ export function useMusicClipState(projectId?: string | null) {
     return 1;
   });
   const [isInitialized, setIsInitialized] = useState(false);
-  
+
   // AUDIO STATE
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(() => {
@@ -135,10 +135,10 @@ export function useMusicClipState(projectId?: string | null) {
     }
     return 0;
   });
-  
+
   // Track previous audio URL for cleanup
   const previousAudioUrlRef = useRef<string | null>(null);
-  
+
   // MUSIC GENERATION STATE
   const [musicPrompt, setMusicPrompt] = useState<string>('');
   const [musicTracksToGenerate, setMusicTracksToGenerate] = useState<number>(1);
@@ -147,7 +147,7 @@ export function useMusicClipState(projectId?: string | null) {
   const [isGeneratingVideo, setIsGeneratingVideo] = useState<boolean>(false);
   const [isLoadingExistingProject, setIsLoadingExistingProject] = useState<boolean>(false);
   const [isAnalyzingMusic, setIsAnalyzingMusic] = useState<boolean>(false);
-  
+
   // SETTINGS AND PROMPTS STATE
   const [settings, setSettings] = useState<z.infer<typeof SettingsSchema> | null>(() => {
     if (typeof window !== 'undefined' && projectId) {
@@ -163,7 +163,7 @@ export function useMusicClipState(projectId?: string | null) {
     }
     return null;
   });
-  
+
   // DESCRIPTION STATES - separate storage for individual vs shared
   const [sharedDescription, setSharedDescription] = useState<string>(() => {
     if (typeof window !== 'undefined' && projectId) {
@@ -178,7 +178,7 @@ export function useMusicClipState(projectId?: string | null) {
     }
     return {};
   });
-  
+
   // UI STATE
   const [showGenreSelector, setShowGenreSelector] = useState<boolean>(false);
   const [vibeFile, setVibeFile] = useState<File | null>(null);
@@ -312,7 +312,7 @@ export function useMusicClipState(projectId?: string | null) {
     if (typeof window !== 'undefined' && projectId) {
       if (settings) {
         localStorage.setItem(`musicClip_${projectId}_settings`, JSON.stringify(settings));
-        
+
         // Schedule auto-save to backend
         autoSaveService.scheduleSave(projectId, {
           musicClipData: {
@@ -336,7 +336,7 @@ export function useMusicClipState(projectId?: string | null) {
     if (typeof window !== 'undefined' && projectId) {
       if (prompts) {
         localStorage.setItem(`musicClip_${projectId}_prompts`, JSON.stringify(prompts));
-        
+
         // Schedule auto-save to backend
         autoSaveService.scheduleSave(projectId, {
           musicClipData: {
@@ -419,7 +419,7 @@ export function useMusicClipState(projectId?: string | null) {
       return () => subscription.unsubscribe();
     }
   }, [overviewForm, projectId]);
-  
+
   // Clean up blob URLs when audioUrl changes - but be more careful about timing
   useEffect(() => {
     const previousUrl = previousAudioUrlRef.current;
@@ -432,12 +432,12 @@ export function useMusicClipState(projectId?: string | null) {
           console.warn('Failed to revoke previous audio blob URL:', error);
         }
       }, 100);
-      
+
       return () => clearTimeout(timeoutId);
     }
     previousAudioUrlRef.current = audioUrl;
   }, [audioUrl]);
-  
+
   // Clean up blob URLs on unmount
   useEffect(() => {
     return () => {
@@ -470,7 +470,7 @@ export function useMusicClipState(projectId?: string | null) {
 
   const loadFromBackend = useCallback(() => {
     if (typeof window === 'undefined' || isInitialized) return;
-    
+
     // This function will be called by the parent component when backend data is available
     // It's a placeholder for when we need to override localStorage with backend data
     setIsInitialized(true);
@@ -478,7 +478,7 @@ export function useMusicClipState(projectId?: string | null) {
 
   const pushToBackend = useCallback(async (projectId?: string) => {
     if (typeof window === 'undefined') return;
-    
+
     try {
       // This function will be called by the parent component to push current state to backend
       // The actual implementation will be in the parent component with access to API calls
@@ -490,7 +490,7 @@ export function useMusicClipState(projectId?: string | null) {
         audioUrl,
         audioDuration
       });
-      
+
       return {
         currentStep,
         maxReachedStep,
@@ -519,7 +519,7 @@ export function useMusicClipState(projectId?: string | null) {
         console.warn('Failed to revoke audio blob URL during reset:', error);
       }
     }
-    
+
     setCurrentStep(1);
     setMaxReachedStep(1);
     setAudioFile(null);
@@ -536,7 +536,7 @@ export function useMusicClipState(projectId?: string | null) {
     setShowGenreSelector(false);
     setVibeFile(null);
     setChannelAnimationFile(null);
-    
+
     // Clear localStorage
     if (typeof window !== 'undefined' && projectId) {
       localStorage.removeItem(`musicClip_${projectId}_currentStep`);
@@ -556,7 +556,7 @@ export function useMusicClipState(projectId?: string | null) {
       localStorage.removeItem(`musicClip_${projectId}_trackDescriptions`);
       localStorage.removeItem(`musicClip_${projectId}_trackGenres`);
     }
-    
+
     // Reset forms
     settingsForm.reset();
     promptForm.reset();

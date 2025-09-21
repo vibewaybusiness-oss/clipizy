@@ -5,13 +5,13 @@ import type { ContentCalendar, BlogPost, CalendarWeek, CalendarMonth } from '@/t
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Calendar, 
-  Plus, 
-  Edit, 
-  Play, 
-  Pause, 
-  CheckCircle, 
+import {
+  Calendar,
+  Plus,
+  Edit,
+  Play,
+  Pause,
+  CheckCircle,
   Clock,
   Filter,
   Search,
@@ -28,11 +28,11 @@ interface ContentCalendarProps {
   onEditPost?: (post: BlogPost) => void;
 }
 
-export function ContentCalendar({ 
-  calendar, 
-  onPostClick, 
-  onGeneratePost, 
-  onEditPost 
+export function ContentCalendar({
+  calendar,
+  onPostClick,
+  onGeneratePost,
+  onEditPost
 }: ContentCalendarProps) {
   const [viewMode, setViewMode] = useState<'week' | 'month' | 'list'>('month');
   const [selectedCluster, setSelectedCluster] = useState<string>('all');
@@ -43,7 +43,7 @@ export function ContentCalendar({
     const startDate = new Date(calendar.startDate);
     const endDate = new Date(calendar.endDate);
     const weeks = eachWeekOfInterval({ start: startDate, end: endDate });
-    
+
     return weeks.map((weekStart, index) => {
       const weekEnd = endOfWeek(weekStart);
       const weekPosts = calendar.posts.filter(post => {
@@ -56,7 +56,7 @@ export function ContentCalendar({
         startDate: weekStart.toISOString(),
         endDate: weekEnd.toISOString(),
         posts: weekPosts,
-        status: weekPosts.length === 0 ? 'upcoming' : 
+        status: weekPosts.length === 0 ? 'upcoming' :
                 weekPosts.every(p => p.status === 'published') ? 'completed' : 'in-progress'
       };
     });
@@ -66,12 +66,12 @@ export function ContentCalendar({
 
   // Filter posts based on search and cluster
   const filteredPosts = calendar.posts.filter(post => {
-    const matchesSearch = searchTerm === '' || 
+    const matchesSearch = searchTerm === '' ||
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
+
     const matchesCluster = selectedCluster === 'all' || post.cluster === selectedCluster;
-    
+
     return matchesSearch && matchesCluster;
   });
 
@@ -98,7 +98,7 @@ export function ContentCalendar({
       draft: 'bg-yellow-100 text-yellow-800',
       archived: 'bg-red-100 text-red-800'
     };
-    
+
     return (
       <Badge className={variants[status as keyof typeof variants] || 'bg-gray-100 text-gray-800'}>
         {status}
@@ -129,8 +129,8 @@ export function ContentCalendar({
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {week.posts.map((post) => (
-                <div 
-                  key={post.id} 
+                <div
+                  key={post.id}
                   className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => onPostClick?.(post)}
                 >
@@ -140,7 +140,7 @@ export function ContentCalendar({
                   </div>
                   <div className="flex items-center gap-2 mb-2">
                     {getStatusBadge(post.status)}
-                    <Badge 
+                    <Badge
                       style={{ backgroundColor: getClusterColor(post.cluster) + '20', color: getClusterColor(post.cluster) }}
                     >
                       {calendar.clusters.find(c => c.id === post.cluster)?.name}
@@ -182,7 +182,7 @@ export function ContentCalendar({
         {months.map((month) => {
           const monthPosts = calendar.posts.filter(post => post.month === month);
           const monthName = new Date(2024, month - 1).toLocaleDateString('en-US', { month: 'long' });
-          
+
           return (
             <Card key={month}>
               <CardHeader>
@@ -195,8 +195,8 @@ export function ContentCalendar({
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {monthPosts.map((post) => (
-                    <div 
-                      key={post.id} 
+                    <div
+                      key={post.id}
                       className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
                       onClick={() => onPostClick?.(post)}
                     >
@@ -206,7 +206,7 @@ export function ContentCalendar({
                       </div>
                       <div className="flex items-center gap-2 mb-2">
                         {getStatusBadge(post.status)}
-                        <Badge 
+                        <Badge
                           style={{ backgroundColor: getClusterColor(post.cluster) + '20', color: getClusterColor(post.cluster) }}
                         >
                           {calendar.clusters.find(c => c.id === post.cluster)?.name}
@@ -247,7 +247,7 @@ export function ContentCalendar({
                   <h3 className="font-semibold truncate">{post.title}</h3>
                   {getStatusIcon(post.status)}
                   {getStatusBadge(post.status)}
-                  <Badge 
+                  <Badge
                     style={{ backgroundColor: getClusterColor(post.cluster) + '20', color: getClusterColor(post.cluster) }}
                   >
                     {calendar.clusters.find(c => c.id === post.cluster)?.name}

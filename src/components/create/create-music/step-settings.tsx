@@ -120,8 +120,8 @@ export function StepOverview({
                           <FormLabel>Upload Intro Animation</FormLabel>
                           <FormControl>
                             <label htmlFor="intro-animation-upload" className={`flex flex-col items-center justify-center p-8 rounded-xl cursor-pointer border-2 border-dashed transition-all duration-300 group  ${
-                              introAnimationFile 
-                                ? 'border-primary bg-primary/5 ' 
+                              introAnimationFile
+                                ? 'border-primary bg-primary/5 '
                                 : 'border-border hover:border-primary/50 bg-muted/30 hover:bg-muted/50'
                             }`}>
                               <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 ${
@@ -156,8 +156,8 @@ export function StepOverview({
                           <FormLabel>Upload Outro Animation</FormLabel>
                           <FormControl>
                             <label htmlFor="outro-animation-upload" className={`flex flex-col items-center justify-center p-8 rounded-xl cursor-pointer border-2 border-dashed transition-all duration-300 group  ${
-                              outroAnimationFile 
-                                ? 'border-accent bg-accent/5 ' 
+                              outroAnimationFile
+                                ? 'border-accent bg-accent/5 '
                                 : 'border-border hover:border-accent/50 bg-muted/30 hover:bg-muted/50'
                             }`}>
                               <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 ${
@@ -192,8 +192,8 @@ export function StepOverview({
                           onClick={() => field.onChange(!field.value)}
                         >
                           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                            field.value 
-                              ? 'bg-primary border-primary' 
+                            field.value
+                              ? 'bg-primary border-primary'
                               : 'border-muted-foreground'
                           }`}>
                             {field.value && (
@@ -228,8 +228,8 @@ export function StepOverview({
                           onClick={() => field.onChange(!field.value)}
                         >
                           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                            field.value 
-                              ? 'bg-accent border-accent' 
+                            field.value
+                              ? 'bg-accent border-accent'
                               : 'border-muted-foreground'
                           }`}>
                             {field.value && (
@@ -251,7 +251,7 @@ export function StepOverview({
                 </div>
               )}
             </div>
-            
+
             {/* Divider */}
             <div className="border-t border-border/50"></div>
 
@@ -262,10 +262,10 @@ export function StepOverview({
                 <p className="text-sm text-muted-foreground">Add a dynamic visualizer to your video</p>
               </div>
               <div className="space-y-3">
-                
-                <Button 
+
+                <Button
                   type="button"
-                  variant="outline" 
+                  variant="outline"
                   className="w-full justify-between h-12 text-left font-normal btn-secondary-hover"
                   onClick={() => setShowAudioVisualizerSelector(true)}
                 >
@@ -296,7 +296,7 @@ export function StepOverview({
                 {showAudioVisualizerSelector && (
                   <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" onClick={() => setShowAudioVisualizerSelector(false)}>
                     <div className="flex items-center justify-center min-h-screen p-4">
-                      <div 
+                      <div
                         className="bg-background rounded-2xl  max-w-6xl w-full max-h-[90vh] overflow-y-auto"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -317,7 +317,7 @@ export function StepOverview({
                               <X className="h-6 w-6" />
                             </Button>
                           </div>
-                          
+
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {[
                               {
@@ -337,7 +337,7 @@ export function StepOverview({
                                 preview: "Vertical bars that dance to the beat of your music."
                               },
                               {
-                                id: "wave", 
+                                id: "wave",
                                 name: "Wave",
                                 description: "Smooth wave visualization",
                                 icon: "🌊",
@@ -403,11 +403,11 @@ export function StepOverview({
                                     </div>
                                     <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors rounded-xl"></div>
                                   </div>
-                                  
+
                                   <div className="space-y-3">
                                     <h3 className="font-bold text-xl">{type.name}</h3>
                                     <p className="text-muted-foreground">{type.description}</p>
-                                    
+
                                     <div className="mt-4 p-3 bg-muted/50 rounded-xl">
                                       <p className="text-sm text-muted-foreground mb-1 font-medium">Preview:</p>
                                       <p className="text-sm italic">"{type.preview}"</p>
@@ -449,7 +449,7 @@ export function StepOverview({
                         )}
                       />
                     </div>
-                    
+
                     {/* Vertical Position Section - Center */}
                     <div className="space-y-3">
                       <FormLabel className="text-xs font-semibold">Vertical position</FormLabel>
@@ -505,7 +505,7 @@ export function StepOverview({
                   <h3 className="font-bold text-xl text-foreground">Transition</h3>
                   <p className="text-sm text-muted-foreground">Configure audio and video transitions</p>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Audio Visualizer Button */}
                   <div className="space-y-4">
@@ -513,9 +513,9 @@ export function StepOverview({
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                       <h4 className="font-semibold text-base text-foreground">Visualizer</h4>
                     </div>
-                    <Button 
+                    <Button
                       type="button"
-                      variant="outline" 
+                      variant="outline"
                       className="w-full justify-between h-12 text-left font-normal btn-secondary-hover"
                       onClick={() => setShowAudioVisualizerSelector(true)}
                     >
@@ -549,9 +549,9 @@ export function StepOverview({
                       <div className="w-2 h-2 bg-primary rounded-full"></div>
                       <h4 className="font-semibold text-base text-foreground">Audio</h4>
                     </div>
-                    <Button 
+                    <Button
                       type="button"
-                      variant="outline" 
+                      variant="outline"
                       className="w-full justify-between h-12 text-left font-normal btn-secondary-hover"
                       onClick={() => setShowAudioTransitionSelector(true)}
                     >
@@ -586,9 +586,9 @@ export function StepOverview({
                       <div className="w-2 h-2 bg-accent rounded-full"></div>
                       <h4 className="font-semibold text-base text-foreground">Video</h4>
                     </div>
-                    <Button 
+                    <Button
                       type="button"
-                      variant="outline" 
+                      variant="outline"
                       className="w-full justify-between h-12 text-left font-normal btn-secondary-hover"
                       onClick={() => setShowVideoTransitionSelector(true)}
                     >
@@ -624,7 +624,7 @@ export function StepOverview({
                 {showAudioTransitionSelector && (
                   <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" onClick={() => setShowAudioTransitionSelector(false)}>
                     <div className="flex items-center justify-center min-h-screen p-4">
-                      <div 
+                      <div
                         className="bg-background rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -645,7 +645,7 @@ export function StepOverview({
                               <X className="h-6 w-6" />
                             </Button>
                           </div>
-                          
+
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {[
                               {
@@ -739,7 +739,7 @@ export function StepOverview({
                 {showVideoTransitionSelector && (
                   <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" onClick={() => setShowVideoTransitionSelector(false)}>
                     <div className="flex items-center justify-center min-h-screen p-4">
-                      <div 
+                      <div
                         className="bg-background rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -760,7 +760,7 @@ export function StepOverview({
                               <X className="h-6 w-6" />
                             </Button>
                           </div>
-                          
+
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {[
                               {

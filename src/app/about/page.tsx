@@ -2,12 +2,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Brain, 
-  Target, 
-  Users, 
-  Zap, 
-  Lightbulb, 
+import {
+  Brain,
+  Target,
+  Users,
+  Zap,
+  Lightbulb,
   Heart,
   ArrowRight,
   CheckCircle,
@@ -110,25 +110,25 @@ export default function About() {
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0 animated-bg"></div>
         <div className="absolute inset-0 hero-gradient"></div>
-        
+
         <div className="relative container-custom">
           <div className="text-center max-w-4xl mx-auto">
             <Badge className="mb-6 px-4 py-2 text-sm font-medium gradient-primary text-white">
               <Sparkles className="w-4 h-4 mr-2" />
               About clipizi
             </Badge>
-            
+
             <h1 className="heading-responsive font-bold mb-6 fade-in-up">
               Democratizing Creative
               <span className="gradient-text-ai block">Content Creation</span>
             </h1>
-            
+
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto fade-in-up">
-              We're on a mission to make professional-quality music video creation accessible to everyone. 
-              Through cutting-edge AI technology, we're empowering creators worldwide to bring their 
+              We're on a mission to make professional-quality music video creation accessible to everyone.
+              Through cutting-edge AI technology, we're empowering creators worldwide to bring their
               musical visions to life without the traditional barriers of time, cost, or technical expertise.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 fade-in-up">
               <Button size="lg" className="btn-gradient text-lg px-8 py-4" asChild>
                 <Link href="/dashboard/create">
@@ -143,7 +143,7 @@ export default function About() {
                 </Link>
               </Button>
             </div>
-            
+
             {/* STATS */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-2xl mx-auto fade-in-up">
               {stats.map((stat, index) => (
@@ -166,14 +166,14 @@ export default function About() {
                 Our <span className="gradient-text">Mission</span>
               </h2>
               <p className="text-lg text-muted-foreground mb-6">
-                We believe that creativity shouldn't be limited by technical barriers or budget constraints. 
-                Our mission is to democratize content creation by making professional-quality music video 
+                We believe that creativity shouldn't be limited by technical barriers or budget constraints.
+                Our mission is to democratize content creation by making professional-quality music video
                 production accessible to creators of all levels.
               </p>
               <p className="text-lg text-muted-foreground mb-8">
-                Through advanced AI technology, we're breaking down the traditional barriers that have 
-                prevented many talented creators from bringing their musical visions to life. Whether 
-                you're an independent artist, content creator, or marketing professional, clipizi 
+                Through advanced AI technology, we're breaking down the traditional barriers that have
+                prevented many talented creators from bringing their musical visions to life. Whether
+                you're an independent artist, content creator, or marketing professional, clipizi
                 empowers you to create stunning visuals that match your audio perfectly.
               </p>
               <div className="flex items-center space-x-4">
@@ -188,7 +188,7 @@ export default function About() {
                 </Button>
               </div>
             </div>
-            
+
             <div className="fade-in-up" style={{ animationDelay: "0.2s" }}>
               <div className="relative">
                 <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center">
@@ -217,7 +217,7 @@ export default function About() {
               The principles that guide everything we do
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => {
               const Icon = value.icon;
@@ -252,7 +252,7 @@ export default function About() {
               The passionate people behind clipizi's innovation
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {team.map((member, index) => (
               <Card key={index} className="text-center p-6 fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
@@ -281,7 +281,7 @@ export default function About() {
               Key milestones in our mission to democratize content creation
             </p>
           </div>
-          
+
           <div className="max-w-4xl mx-auto">
             <div className="space-y-8">
               {milestones.map((milestone, index) => (
@@ -316,7 +316,7 @@ export default function About() {
                 Powered by <span className="gradient-text-ai">Advanced AI</span>
               </h2>
               <p className="text-lg text-muted-foreground mb-6">
-                Our platform leverages state-of-the-art machine learning models trained on millions 
+                Our platform leverages state-of-the-art machine learning models trained on millions
                 of music videos to understand the intricate relationship between audio and visual elements.
               </p>
               <div className="space-y-4 mb-8">
@@ -340,7 +340,7 @@ export default function About() {
                 </Link>
               </Button>
             </div>
-            
+
             <div className="fade-in-up" style={{ animationDelay: "0.2s" }}>
               <div className="relative">
                 <div className="aspect-square bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl flex items-center justify-center">

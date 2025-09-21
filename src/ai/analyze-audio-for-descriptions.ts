@@ -35,7 +35,7 @@ const prompt = ai.definePrompt({
   input: {schema: AnalyzeAudioForDescriptionsInputSchema},
   output: {schema: AnalyzeAudioForDescriptionsOutputSchema},
   prompt: `You are an expert music analyst and creative director.
-  
+
   Analyze the provided audio track and generate two things:
   1. A concise description of the music's style, mood, and instrumentation.
   2. A creative and concise concept for a music video that would visually represent the audio. The concept should describe the visuals, style, and pacing.

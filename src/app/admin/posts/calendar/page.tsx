@@ -7,9 +7,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { StatsCard, QuickActions } from '@/components/admin';
 import { useContentCalendar } from '@/hooks/admin';
-import { 
-  Calendar, 
-  Bot, 
+import {
+  Calendar,
+  Bot,
   BarChart3,
   Download,
   Upload,
@@ -45,7 +45,7 @@ export default function ContentCalendarPage() {
         excerpt: content.split('\n\n')[0] || content.substring(0, 200),
         status: 'draft'
       };
-      
+
       updatePost(selectedPost.id, updatedPost);
     }
   };
@@ -60,8 +60,8 @@ export default function ContentCalendarPage() {
     return (
       <div className="p-6 space-y-6">
         <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => setShowGenerator(false)}
           >
             ← Back to Calendar
@@ -71,7 +71,7 @@ export default function ContentCalendarPage() {
             <p className="text-muted-foreground">Use AI to generate blog post content</p>
           </div>
         </div>
-        
+
         <GeminiGenerator
           post={selectedPost}
           onGenerate={handleContentGenerated}

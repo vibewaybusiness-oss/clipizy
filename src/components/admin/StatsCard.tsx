@@ -17,12 +17,12 @@ const colorClasses = {
   red: 'bg-red-100 text-red-600',
 };
 
-export function StatsCard({ 
-  title, 
-  value, 
-  icon: Icon, 
+export function StatsCard({
+  title,
+  value,
+  icon: Icon,
   color = 'blue',
-  description 
+  description
 }: StatsCardProps) {
   return (
     <Card>

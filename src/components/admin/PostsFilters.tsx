@@ -10,10 +10,10 @@ interface PostsFiltersProps {
   placeholder?: string;
 }
 
-export function PostsFilters({ 
-  search, 
-  status, 
-  onSearchChange, 
+export function PostsFilters({
+  search,
+  status,
+  onSearchChange,
   onStatusChange,
   placeholder = 'Search posts...'
 }: PostsFiltersProps) {

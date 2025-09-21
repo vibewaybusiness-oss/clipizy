@@ -41,7 +41,7 @@ export function useContentCalendar() {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Mock data for now - replace with actual API call
       const mockData: CalendarData = {
         posts: [
@@ -85,7 +85,7 @@ export function useContentCalendar() {
   const updatePost = (postId: string, updatedPost: Partial<CalendarPost>) => {
     setCalendar(prev => ({
       ...prev,
-      posts: prev.posts.map(post => 
+      posts: prev.posts.map(post =>
         post.id === postId ? { ...post, ...updatedPost } : post
       ),
       stats: {
@@ -93,7 +93,7 @@ export function useContentCalendar() {
         // Update stats based on status changes
         ...(updatedPost.status && {
           [updatedPost.status]: prev.stats[updatedPost.status] + 1,
-          [prev.posts.find(p => p.id === postId)?.status || 'draft']: 
+          [prev.posts.find(p => p.id === postId)?.status || 'draft']:
             prev.stats[prev.posts.find(p => p.id === postId)?.status || 'draft'] - 1
         })
       }

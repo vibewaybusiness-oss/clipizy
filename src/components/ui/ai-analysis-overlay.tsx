@@ -11,11 +11,11 @@ interface AIAnalysisOverlayProps {
   progress?: number;
 }
 
-export function AIAnalysisOverlay({ 
-  isVisible, 
-  title = "AI Analysis", 
+export function AIAnalysisOverlay({
+  isVisible,
+  title = "AI Analysis",
   subtitle = "Analyzing your music...",
-  progress 
+  progress
 }: AIAnalysisOverlayProps) {
   return (
     <AnimatePresence>
@@ -66,11 +66,11 @@ export function AIAnalysisOverlay({
               <div className="relative">
                 <motion.div
                   className="w-32 h-32 mx-auto mb-8 relative"
-                  animate={{ 
+                  animate={{
                     rotate: [0, 2, -2, 0],
                     scale: [1, 1.05, 1]
                   }}
-                  transition={{ 
+                  transition={{
                     duration: 4,
                     repeat: Infinity,
                     ease: "easeInOut"
@@ -89,7 +89,7 @@ export function AIAnalysisOverlay({
                       ease: "easeInOut",
                     }}
                   />
-                  
+
                   {/* Main brain container */}
                   <motion.div
                     className="relative w-full h-full bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-full flex items-center justify-center shadow-2xl"
@@ -107,10 +107,10 @@ export function AIAnalysisOverlay({
                     }}
                   >
                     <motion.div
-                      animate={{ 
+                      animate={{
                         scale: [1, 1.1, 1]
                       }}
-                      transition={{ 
+                      transition={{
                         duration: 3,
                         repeat: Infinity,
                         ease: "easeInOut"
@@ -119,7 +119,7 @@ export function AIAnalysisOverlay({
                       <Brain className="w-16 h-16 text-white" />
                     </motion.div>
                   </motion.div>
-                  
+
                   {/* Orbiting icons with complex paths */}
                   <motion.div
                     className="absolute inset-0"
@@ -201,7 +201,7 @@ export function AIAnalysisOverlay({
                 >
                   {title}
                 </motion.h2>
-                
+
                 <motion.p
                   className="text-xl text-white/80 max-w-md mx-auto leading-relaxed"
                   initial={{ y: 20, opacity: 0 }}

@@ -5,11 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Check, 
-  Star, 
-  Zap, 
-  Crown, 
+import {
+  Check,
+  Star,
+  Zap,
+  Crown,
   ArrowRight,
   Coins,
   Video,
@@ -205,10 +205,10 @@ export default function PricingPage() {
               Journey
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              From free exploration to professional creation, find the perfect plan 
+              From free exploration to professional creation, find the perfect plan
               for your video generation needs.
             </p>
-            
+
             {/* BILLING TOGGLE */}
             <div className="flex items-center justify-center space-x-4 mb-12">
               <span className={`text-sm font-medium ${billingPeriod === "monthly" ? "text-foreground" : "text-muted-foreground"}`}>
@@ -237,8 +237,8 @@ export default function PricingPage() {
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {subscriptionPlans.map((plan) => (
-            <Card 
-              key={plan.id} 
+            <Card
+              key={plan.id}
               className={`relative ${plan.color} ${plan.popular ? 'ring-2 ring-primary scale-105' : ''} transition-all duration-200 hover:shadow-lg`}
             >
               {plan.popular && (
@@ -249,7 +249,7 @@ export default function PricingPage() {
                   </Badge>
                 </div>
               )}
-              
+
               <CardHeader className="text-center pb-4">
                 <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
                 <CardDescription className="text-sm">{plan.description}</CardDescription>
@@ -262,7 +262,7 @@ export default function PricingPage() {
                   </div>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
                   {plan.features.map((feature, index) => (
@@ -272,7 +272,7 @@ export default function PricingPage() {
                     </li>
                   ))}
                 </ul>
-                
+
                 {plan.limitations.length > 0 && (
                   <div className="pt-4 border-t">
                     <h4 className="text-sm font-medium text-muted-foreground mb-2">Limitations:</h4>
@@ -285,9 +285,9 @@ export default function PricingPage() {
                     </ul>
                   </div>
                 )}
-                
-                <Button 
-                  className="w-full mt-6" 
+
+                <Button
+                  className="w-full mt-6"
                   variant={plan.buttonVariant}
                   onClick={() => handlePlanSelect(plan.id)}
                 >
@@ -308,11 +308,11 @@ export default function PricingPage() {
               Or Buy Points as You Go
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Need more points? Purchase them individually without a subscription. 
+              Need more points? Purchase them individually without a subscription.
               Perfect for occasional users or when you need extra credits.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {pointsPackages.map((pkg) => (
               <Card key={pkg.name} className={`${pkg.popular ? 'ring-2 ring-primary' : ''} transition-all duration-200 hover:shadow-lg`}>
@@ -323,7 +323,7 @@ export default function PricingPage() {
                     </Badge>
                   </div>
                 )}
-                
+
                 <CardHeader className="text-center">
                   <CardTitle className="text-xl">{pkg.name}</CardTitle>
                   <CardDescription>{pkg.description}</CardDescription>
@@ -339,7 +339,7 @@ export default function PricingPage() {
                     </div>
                   </div>
                 </CardHeader>
-                
+
                 <CardContent>
                   <Button className="w-full" asChild>
                     <Link href="/dashboard/points">
@@ -363,7 +363,7 @@ export default function PricingPage() {
             Compare all features across our different plans to find the perfect fit for your needs.
           </p>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
@@ -431,7 +431,7 @@ export default function PricingPage() {
               Frequently Asked Questions
             </h2>
           </div>
-          
+
           <div className="max-w-3xl mx-auto space-y-6">
             <Card>
               <CardHeader>
@@ -439,43 +439,43 @@ export default function PricingPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Points are credits used to generate videos. Each video generation costs a certain number of points 
+                  Points are credits used to generate videos. Each video generation costs a certain number of points
                   based on length and quality. You can earn points through subscriptions or purchase them individually.
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Can I change my plan anytime?</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, 
+                  Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately,
                   and we'll prorate any billing differences.
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">What happens to unused points?</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Points from subscriptions expire at the end of each billing period. 
+                  Points from subscriptions expire at the end of each billing period.
                   Purchased points never expire and can be used anytime.
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Do you offer refunds?</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  We offer a 30-day money-back guarantee for all subscription plans. 
+                  We offer a 30-day money-back guarantee for all subscription plans.
                   For point purchases, refunds are handled on a case-by-case basis.
                 </p>
               </CardContent>
@@ -491,7 +491,7 @@ export default function PricingPage() {
             Ready to Start Creating?
           </h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Join thousands of creators who are already using clipizi to create 
+            Join thousands of creators who are already using clipizi to create
             amazing AI-generated music videos.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

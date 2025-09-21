@@ -292,10 +292,10 @@ export default function CreatePostPage() {
                 <div className="space-y-3">
                   <Button type="submit" className="w-full" disabled={isSubmitting}>
                     <Save className="w-4 h-4 mr-2" />
-                    {isSubmitting ? 'Creating...' : 
+                    {isSubmitting ? 'Creating...' :
                      formData.publishNow ? 'Publish Now' : 'Schedule Post'}
                   </Button>
-                  
+
                   <Button type="button" variant="outline" className="w-full">
                     <Eye className="w-4 h-4 mr-2" />
                     Preview

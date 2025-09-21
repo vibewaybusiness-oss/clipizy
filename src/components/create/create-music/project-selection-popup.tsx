@@ -119,18 +119,18 @@ export function ProjectSelectionPopup({
     setIsDeleting(true);
     try {
       await musicClipAPI.deleteProject(projectToDelete.project_id);
-      
+
       // Remove the project from the local state
       setProjects(prev => prev.filter(p => p.project_id !== projectToDelete.project_id));
-      
+
       // Clear selection if the deleted project was selected
       if (selectedProjectId === projectToDelete.project_id) {
         setSelectedProjectId(null);
       }
-      
+
       setDeleteConfirmOpen(false);
       setProjectToDelete(null);
-      
+
       toast({
         title: "Project Deleted",
         description: `"${projectToDelete.name}" has been successfully deleted.`,
@@ -166,7 +166,7 @@ export function ProjectSelectionPopup({
 
         <div className="space-y-6">
           {/* New Project Option */}
-          <Card 
+          <Card
             className="border-2 border-dashed border-primary/30 hover:border-primary/50 transition-colors cursor-pointer"
             onClick={onNewProject}
           >
@@ -230,7 +230,7 @@ export function ProjectSelectionPopup({
                               {project.status}
                             </Badge>
                           </div>
-                          
+
                           {project.description && (
                             <p className="text-sm text-muted-foreground mb-3">
                               {project.description}
@@ -242,12 +242,12 @@ export function ProjectSelectionPopup({
                               <Calendar className="w-4 h-4" />
                               <span>{formatDate(project.created_at)}</span>
                             </div>
-                            
+
                             <div className="flex items-center space-x-1">
                               <Music className="w-4 h-4" />
                               <span>{project.tracks?.length || 0} track{(project.tracks?.length || 0) !== 1 ? 's' : ''}</span>
                             </div>
-                            
+
                             {project.tracks && project.tracks.length > 0 && (
                               <div className="flex items-center space-x-1">
                                 <Clock className="w-4 h-4" />
@@ -337,7 +337,7 @@ export function ProjectSelectionPopup({
               </div>
             </div>
           </DialogHeader>
-          
+
           <div className="py-4">
             <p className="text-sm text-foreground">
               Are you sure you want to delete <span className="font-semibold">"{projectToDelete?.name}"</span>?

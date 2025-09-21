@@ -51,7 +51,7 @@ export function TrackCard({
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = Math.floor(seconds % 60);
-    
+
     if (hours > 0) {
       return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
     } else {
@@ -91,7 +91,7 @@ export function TrackCard({
           <div className="absolute -right-1 -top-1 w-2 h-2 bg-primary rounded-full"></div>
         </div>
       )}
-      
+
       <div
         className={`p-4 rounded-xl border cursor-pointer transition-all duration-200 group relative ${
           isSelected
@@ -119,17 +119,17 @@ export function TrackCard({
             hasDescription
               ? 'bg-gradient-to-br from-green-500 to-green-600 text-white border-2 border-green-400 '
               : isSelected
-                ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground ' 
+                ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground '
                 : 'bg-gradient-to-br from-muted to-muted/80 text-foreground/70 group-hover:from-primary/20 group-hover:to-primary/30 group-hover:text-primary'
           }`}>
             <Music className="w-5 h-5" />
           </div>
-          
+
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2 min-w-0 flex-1">
                 <div className="relative flex-1 min-w-0">
-                  <h3 
+                  <h3
                     ref={titleRef}
                     className="font-semibold text-foreground text-base truncate flex-1 cursor-default"
                     onMouseEnter={handleTitleMouseEnter}
@@ -159,7 +159,7 @@ export function TrackCard({
                 )}
               </div>
             </div>
-            
+
             {/* Metadata Row with buttons */}
             <div className="flex items-center justify-between mt-2">
               <div className="flex items-center space-x-3">
@@ -167,14 +167,14 @@ export function TrackCard({
                   <Clock className="w-3 h-3" />
                   <span>{formatDuration(track.duration)}</span>
                 </div>
-                
+
                 {track.genre && (
                   <div className="px-3 py-1 bg-gradient-to-r from-primary/10 to-primary/20 text-primary rounded-full text-xs font-semibold border border-primary/20 max-w-[120px]">
                     <span className="truncate block">{track.genre}</span>
                   </div>
                 )}
               </div>
-              
+
               {/* Action buttons inline with timer */}
               <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Button
@@ -209,7 +209,7 @@ export function TrackCard({
             </div>
           </div>
         </div>
-        
+
         {/* Prompt Display */}
         {track.prompt && (
           <div className="bg-muted/30 rounded-lg p-3 border border-border/50">
@@ -226,7 +226,7 @@ export function TrackCard({
         )}
       </div>
       </div>
-      
+
       {/* Drop indicator line below */}
       {dropPosition === 'below' && (
         <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full z-10 ">

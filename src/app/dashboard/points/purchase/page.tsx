@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Coins, 
+import {
+  Coins,
   Plus,
   ArrowLeft,
   Loader2,
@@ -71,7 +71,7 @@ export default function PurchasePage() {
     try {
       setIsProcessing(true);
       setSelectedPackage(packageId);
-      
+
       const result = await purchasePoints({
         amount_dollars: pkg.price
       });
@@ -102,7 +102,7 @@ export default function PurchasePage() {
 
     try {
       setIsProcessing(true);
-      
+
       const result = await purchasePoints({
         amount_dollars: amount
       });
@@ -168,11 +168,11 @@ export default function PurchasePage() {
         <div className="space-y-6">
           <div>
             <h2 className="text-2xl font-semibold mb-6">Point Packages</h2>
-            
+
             <div className="space-y-4">
               {pointsPackages.map((pkg) => (
-                <Card 
-                  key={pkg.id} 
+                <Card
+                  key={pkg.id}
                   className={`relative cursor-pointer transition-all duration-200 hover:shadow-lg ${
                     pkg.popular ? 'ring-2 ring-primary' : ''
                   } ${pkg.color}`}
@@ -185,13 +185,13 @@ export default function PurchasePage() {
                       </Badge>
                     </div>
                   )}
-                  
+
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <h3 className="text-xl font-semibold mb-2">{pkg.name}</h3>
                         <p className="text-muted-foreground mb-4">{pkg.description}</p>
-                        
+
                         <div className="flex items-center space-x-4 mb-4">
                           <div>
                             <div className="text-3xl font-bold">${pkg.price}</div>
@@ -205,7 +205,7 @@ export default function PurchasePage() {
                             </div>
                           </div>
                         </div>
-                        
+
                         <ul className="space-y-2 mb-4">
                           {pkg.features.map((feature, index) => (
                             <li key={index} className="flex items-center text-sm">
@@ -215,10 +215,10 @@ export default function PurchasePage() {
                           ))}
                         </ul>
                       </div>
-                      
-                      <Button 
+
+                      <Button
                         size="lg"
-                        className="ml-4" 
+                        className="ml-4"
                         onClick={() => handlePurchase(pkg.id)}
                         disabled={isProcessing && selectedPackage === pkg.id}
                       >
@@ -265,7 +265,7 @@ export default function PurchasePage() {
                   className="text-lg"
                 />
               </div>
-              
+
               {customAmount && (
                 <div className="p-4 bg-muted/50 rounded-lg">
                   <div className="text-sm text-muted-foreground mb-1">You'll receive:</div>
@@ -274,9 +274,9 @@ export default function PurchasePage() {
                   </div>
                 </div>
               )}
-              
-              <Button 
-                className="w-full" 
+
+              <Button
+                className="w-full"
                 size="lg"
                 onClick={handleCustomPurchase}
                 disabled={isProcessing || !customAmount}
@@ -308,7 +308,7 @@ export default function PurchasePage() {
                     <div className="text-sm text-muted-foreground">50-500 points per video depending on length and quality</div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <div>
@@ -316,7 +316,7 @@ export default function PurchasePage() {
                     <div className="text-sm text-muted-foreground">Faster generation times for Creator and Pro packages</div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <div>
@@ -324,7 +324,7 @@ export default function PurchasePage() {
                     <div className="text-sm text-muted-foreground">Purchased points are yours forever</div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <div>

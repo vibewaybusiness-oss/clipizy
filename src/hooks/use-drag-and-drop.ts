@@ -34,7 +34,7 @@ export function useDragAndDrop() {
     const handleGlobalDragOver = (e: DragEvent) => {
       e.preventDefault();
     };
-    
+
     const handleGlobalDrop = (e: DragEvent) => {
       e.preventDefault();
     };
@@ -58,12 +58,12 @@ export function useDragAndDrop() {
   const handleDragEnter = useCallback((e: React.DragEvent, isTrackReordering: boolean) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Don't handle file upload if we're reordering tracks
     if (isTrackReordering) {
       return;
     }
-    
+
     setDragCounter(prev => prev + 1);
     setIsDragOver(true);
   }, []);
@@ -71,7 +71,7 @@ export function useDragAndDrop() {
   const handleDragOver = useCallback((e: React.DragEvent, isTrackReordering: boolean) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Don't handle file upload if we're reordering tracks
     if (isTrackReordering) {
       return;
@@ -81,12 +81,12 @@ export function useDragAndDrop() {
   const handleDragLeave = useCallback((e: React.DragEvent, isTrackReordering: boolean) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Don't handle file upload if we're reordering tracks
     if (isTrackReordering) {
       return;
     }
-    
+
     setDragCounter(prev => {
       const newCount = prev - 1;
       if (newCount === 0) {
@@ -99,12 +99,12 @@ export function useDragAndDrop() {
   const handleDrop = useCallback((e: React.DragEvent, isTrackReordering: boolean) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Don't handle file upload if we're reordering tracks
     if (isTrackReordering) {
       return;
     }
-    
+
     setIsDragOver(false);
     setDragCounter(0);
   }, []);
@@ -118,15 +118,15 @@ export function useDragAndDrop() {
   const handleTrackDragOver = useCallback((e: React.DragEvent, trackId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (isTrackReordering && draggedTrackId && draggedTrackId !== trackId) {
       setDragOverTrackId(trackId);
-      
+
       // Determine drop position based on mouse position
       const rect = e.currentTarget.getBoundingClientRect();
       const mouseY = e.clientY;
       const trackCenter = rect.top + rect.height / 2;
-      
+
       if (mouseY < trackCenter) {
         setDropPosition('above');
       } else {
@@ -138,12 +138,12 @@ export function useDragAndDrop() {
   const handleTrackDrop = useCallback((e: React.DragEvent, trackId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (isTrackReordering && draggedTrackId && draggedTrackId !== trackId) {
       // This will be handled by the parent component
       return { fromId: draggedTrackId, toId: trackId, position: dropPosition };
     }
-    
+
     return null;
   }, [isTrackReordering, draggedTrackId, dropPosition]);
 

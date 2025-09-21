@@ -165,7 +165,7 @@ export default function TermsOfService() {
               <CardContent className="space-y-4">
                 <p><strong>Service Availability:</strong> clipizi strives for high availability but provides the Service on an "as is" and "as available" basis, without warranties of any kind.</p>
                 <p><strong>AI-Generated Content:</strong> clipizi does not guarantee the accuracy, appropriateness, or commercial suitability of AI-generated content. You are solely responsible for reviewing and approving content before use.</p>
-                
+
                 <h3 className="font-semibold text-lg">Disclaimer on Generated Content</h3>
                 <p>
                   clipizi provides automated tools for generating multimedia content. We do not monitor, edit, or review user input or AI-generated outputs before delivery. You are solely responsible for the legality, accuracy, and appropriateness of any content created, uploaded, or distributed using the Service.
@@ -173,7 +173,7 @@ export default function TermsOfService() {
                 <p>
                   clipizi disclaims all liability for user-generated or AI-generated content, including but not limited to intellectual property infringement, offensive or unlawful material, and any misuse of the Service.
                 </p>
-                
+
                 <p><strong>Limitation of Liability:</strong> To the fullest extent permitted by law, clipizi shall not be liable for any indirect, incidental, or consequential damages arising from use of the Service.</p>
               </CardContent>
             </Card>

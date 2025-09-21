@@ -54,9 +54,9 @@ export function useMusicTracks(projectId?: string | null) {
           lastModified: track.file.lastModified
         } : null
       }));
-      
+
       localStorage.setItem(`musicClip_${projectId}_musicTracks`, JSON.stringify(serializableTracks));
-      
+
       // Schedule auto-save to backend with original tracks (including File objects)
       autoSaveService.scheduleSave(projectId, {
         tracksData: {
@@ -77,7 +77,7 @@ export function useMusicTracks(projectId?: string | null) {
       } else {
         localStorage.removeItem(`musicClip_${projectId}_selectedTrackId`);
       }
-      
+
       // Schedule auto-save for selected track changes
       autoSaveService.scheduleSave(projectId, {
         tracksData: {
@@ -94,7 +94,7 @@ export function useMusicTracks(projectId?: string | null) {
   useEffect(() => {
     if (typeof window !== 'undefined' && projectId) {
       localStorage.setItem(`musicClip_${projectId}_selectedTrackIds`, JSON.stringify(selectedTrackIds));
-      
+
       // Schedule auto-save for selected track IDs changes
       autoSaveService.scheduleSave(projectId, {
         tracksData: {
@@ -111,7 +111,7 @@ export function useMusicTracks(projectId?: string | null) {
   useEffect(() => {
     if (typeof window !== 'undefined' && projectId) {
       localStorage.setItem(`musicClip_${projectId}_trackDescriptions`, JSON.stringify(trackDescriptions));
-      
+
       // Schedule auto-save for track descriptions changes
       autoSaveService.scheduleSave(projectId, {
         tracksData: {
@@ -128,7 +128,7 @@ export function useMusicTracks(projectId?: string | null) {
   useEffect(() => {
     if (typeof window !== 'undefined' && projectId) {
       localStorage.setItem(`musicClip_${projectId}_trackGenres`, JSON.stringify(trackGenres));
-      
+
       // Schedule auto-save for track genres changes
       autoSaveService.scheduleSave(projectId, {
         tracksData: {
@@ -144,13 +144,13 @@ export function useMusicTracks(projectId?: string | null) {
 
   const addTracks = useCallback((newTracks: MusicTrack[]) => {
     setMusicTracks(prev => [...prev, ...newTracks]);
-    
+
     // Set the first track as selected if none is selected
     if (!selectedTrackId && newTracks.length > 0) {
       setSelectedTrackId(newTracks[0].id);
       setSelectedTrackIds([newTracks[0].id]);
     }
-    
+
     toast({
       title: "Tracks Added",
       description: `${newTracks.length} track(s) have been added to the list.`,
@@ -168,9 +168,9 @@ export function useMusicTracks(projectId?: string | null) {
           console.warn('Failed to revoke blob URL for track:', trackId, error);
         }
       }
-      
+
       const newTracks = prev.filter(track => track.id !== trackId);
-      
+
       // Update selection if needed
       if (selectedTrackId === trackId) {
         if (newTracks.length > 0) {
@@ -193,23 +193,23 @@ export function useMusicTracks(projectId?: string | null) {
           return newSelection;
         });
       }
-      
+
       return newTracks;
     });
-    
+
     // Clean up track-specific data
     setTrackDescriptions(prev => {
       const newDescriptions = { ...prev };
       delete newDescriptions[trackId];
       return newDescriptions;
     });
-    
+
     setTrackGenres(prev => {
       const newGenres = { ...prev };
       delete newGenres[trackId];
       return newGenres;
     });
-    
+
     toast({
       title: "Track Removed",
       description: "The track has been removed from your list.",
@@ -229,12 +229,12 @@ export function useMusicTracks(projectId?: string | null) {
           }
         }
       });
-      
+
       const newTracks = prev.filter(track => !trackIds.includes(track.id));
-      
+
       // Update selection if any selected tracks are being removed
       const remainingSelectedIds = selectedTrackIds.filter(id => !trackIds.includes(id));
-      
+
       // Ensure at least one track is selected if there are tracks available
       if (remainingSelectedIds.length === 0 && newTracks.length > 0) {
         setSelectedTrackId(newTracks[0].id);
@@ -251,23 +251,23 @@ export function useMusicTracks(projectId?: string | null) {
       } else {
         setSelectedTrackIds(remainingSelectedIds);
       }
-      
+
       return newTracks;
     });
-    
+
     // Clean up track-specific data
     setTrackDescriptions(prev => {
       const newDescriptions = { ...prev };
       trackIds.forEach(id => delete newDescriptions[id]);
       return newDescriptions;
     });
-    
+
     setTrackGenres(prev => {
       const newGenres = { ...prev };
       trackIds.forEach(id => delete newGenres[id]);
       return newGenres;
     });
-    
+
     const trackCount = trackIds.length;
     const trackText = trackCount === 1 ? 'track' : 'tracks';
     toast({
@@ -279,20 +279,20 @@ export function useMusicTracks(projectId?: string | null) {
   const selectTrack = useCallback((track: MusicTrack, event?: React.MouseEvent) => {
     const isCtrlOrCmd = event?.ctrlKey || event?.metaKey;
     const isShift = event?.shiftKey;
-    
+
     if (isShift && selectedTrackIds.length > 0) {
       // Range selection mode
       const currentTrackIndex = musicTracks.findIndex(t => t.id === track.id);
       const lastSelectedIndex = musicTracks.findIndex(t => t.id === selectedTrackIds[selectedTrackIds.length - 1]);
-      
+
       if (currentTrackIndex !== -1 && lastSelectedIndex !== -1) {
         const startIndex = Math.min(currentTrackIndex, lastSelectedIndex);
         const endIndex = Math.max(currentTrackIndex, lastSelectedIndex);
-        
+
         const rangeTrackIds = musicTracks
           .slice(startIndex, endIndex + 1)
           .map(t => t.id);
-        
+
         // Merge with existing selection, removing duplicates
         setSelectedTrackIds(prev => {
           const newSelection = [...new Set([...prev, ...rangeTrackIds])];
@@ -308,7 +308,7 @@ export function useMusicTracks(projectId?: string | null) {
           if (prev.length === 1) {
             return prev; // Keep the current selection
           }
-          
+
           // Remove from selection
           const newSelection = prev.filter(id => id !== track.id);
           if (selectedTrackId === track.id) {
@@ -372,7 +372,7 @@ export function useMusicTracks(projectId?: string | null) {
 
   const loadFromBackend = useCallback(() => {
     if (typeof window === 'undefined' || isInitialized) return;
-    
+
     // This function will be called by the parent component when backend data is available
     // It's a placeholder for when we need to override localStorage with backend data
     setIsInitialized(true);
@@ -380,7 +380,7 @@ export function useMusicTracks(projectId?: string | null) {
 
   const pushToBackend = useCallback(async (projectId?: string) => {
     if (typeof window === 'undefined') return;
-    
+
     try {
       // This function will be called by the parent component to push current tracks to backend
       console.log('Pushing current tracks to backend...', {
@@ -390,7 +390,7 @@ export function useMusicTracks(projectId?: string | null) {
         trackDescriptions,
         trackGenres
       });
-      
+
       return {
         musicTracks,
         selectedTrackId,
@@ -410,7 +410,7 @@ export function useMusicTracks(projectId?: string | null) {
     setSelectedTrackIds([]);
     setTrackDescriptions({});
     setTrackGenres({});
-    
+
     // Clear localStorage
     if (typeof window !== 'undefined' && projectId) {
       localStorage.removeItem(`musicClip_${projectId}_musicTracks`);

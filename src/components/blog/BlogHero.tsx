@@ -25,7 +25,7 @@ export function BlogHero() {
               </h1>
 
               <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
-                Learn how to create professional music videos using AI. No editing skills needed. 
+                Learn how to create professional music videos using AI. No editing skills needed.
                 Perfect for indie artists, content creators, and musicians.
               </p>
 

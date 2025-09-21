@@ -8,12 +8,12 @@ import { createOllamaIntegration } from '../../../../@videomaking/integrations/o
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Play, 
-  Pause, 
-  Square, 
-  Download, 
-  Save, 
+import {
+  Play,
+  Pause,
+  Square,
+  Download,
+  Save,
   Upload,
   Settings,
   Palette,
@@ -57,7 +57,7 @@ export default function VideoMakingPage() {
 
   const handleProjectChange = useCallback(async (updatedProject: VideoProject) => {
     setProject(updatedProject);
-    
+
     // Auto-save project to backend
     try {
       await fetch('/api/projects', {
@@ -78,7 +78,7 @@ export default function VideoMakingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(project)
       });
-      
+
       if (response.ok) {
         setLastSaved(new Date());
         console.log('Project saved successfully');
@@ -121,15 +121,15 @@ export default function VideoMakingPage() {
       // Use Ollama for AI analysis and generation
       const analysis = await ollama.analyzeAudio('/audio/sample.wav');
       console.log('Audio analysis:', analysis);
-      
+
       // Generate video prompts based on analysis
       const prompts = await ollama.generateVideoPrompts(project);
       console.log('Generated prompts:', prompts);
-      
+
       // Generate effects
       const effects = await ollama.generateEffects(project);
       console.log('Generated effects:', effects);
-      
+
       alert('AI analysis completed! Check the console for details.');
     } catch (error) {
       console.error('AI generation failed:', error);

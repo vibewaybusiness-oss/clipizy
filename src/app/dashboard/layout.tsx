@@ -6,13 +6,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Home, 
-  Plus, 
-  FolderOpen, 
-  BarChart3, 
-  Settings, 
-  LogOut, 
+import {
+  Home,
+  Plus,
+  FolderOpen,
+  BarChart3,
+  Settings,
+  LogOut,
   User,
   Menu,
   X,
@@ -41,7 +41,7 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   // const { user, logout } = useAuth();
-  
+
   // Mock user data for testing
   const user = { id: "1", name: "Test User", email: "test@example.com" };
   const logout = () => console.log("Logout clicked");
@@ -51,7 +51,7 @@ export default function DashboardLayout({
       <div className="min-h-screen bg-background">
         {/* MOBILE SIDEBAR OVERLAY */}
         {sidebarOpen && (
-          <div 
+          <div
             className="fixed inset-0 z-40 bg-black/50 md:hidden"
             onClick={() => setSidebarOpen(false)}
           />
@@ -95,7 +95,7 @@ export default function DashboardLayout({
                 {navigation.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname === item.href;
-                  
+
                   return (
                     <li key={item.name}>
                       <Link

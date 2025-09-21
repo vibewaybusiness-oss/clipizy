@@ -12,11 +12,11 @@ export default function NotFound() {
           <h1 className="text-6xl font-bold gradient-text mb-2">404</h1>
           <h2 className="text-2xl font-semibold mb-4">Page Not Found</h2>
           <p className="text-muted-foreground mb-8">
-            Sorry, we couldn't find the page you're looking for. 
+            Sorry, we couldn't find the page you're looking for.
             It might have been moved, deleted, or doesn't exist.
           </p>
         </div>
-        
+
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild>
@@ -32,7 +32,7 @@ export default function NotFound() {
               </Link>
             </Button>
           </div>
-          
+
           <div className="pt-4">
             <Button variant="ghost" asChild>
               <Link href="/contact">

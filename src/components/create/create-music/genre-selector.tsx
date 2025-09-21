@@ -13,7 +13,7 @@ interface GenreSelectorProps {
 
 const GENRES = [
   "Ambient",
-  "Synthwave / Electronic", 
+  "Synthwave / Electronic",
   "Reggae / Dub / Ska",
   "Hip Hop / Rap",
   "Trap",
@@ -91,11 +91,11 @@ export function GenreSelector({ isOpen, onClose, onSelectGenre, onGenerateRandom
 
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       onClick={onClose}
     >
-      <div 
+      <div
         ref={modalRef}
         className="bg-card border border-border rounded-2xl  max-w-4xl w-full max-h-[80vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -128,7 +128,7 @@ export function GenreSelector({ isOpen, onClose, onSelectGenre, onGenerateRandom
 
           {/* Instrumental Checkbox */}
           <div className="mb-6">
-            <div 
+            <div
               className="flex items-center space-x-4 p-3 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors duration-200 group cursor-pointer"
               onClick={() => {
                 console.log('DEBUG: Checkbox clicked - current isInstrumental:', isInstrumental, 'new value:', !isInstrumental);
@@ -136,8 +136,8 @@ export function GenreSelector({ isOpen, onClose, onSelectGenre, onGenerateRandom
               }}
             >
               <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                isInstrumental 
-                  ? 'bg-muted-foreground border-muted-foreground' 
+                isInstrumental
+                  ? 'bg-muted-foreground border-muted-foreground'
                   : 'border-muted-foreground'
               }`}>
                 {isInstrumental && (

@@ -40,15 +40,15 @@ export function usePoints() {
     try {
       setError(null);
       const result = await pointsAPI.spendPoints(spendRequest);
-      
+
       // Refresh balance after spending
       await fetchBalance();
-      
+
       toast({
         title: "Points Spent",
         description: `Successfully spent ${spendRequest.amount} points`,
       });
-      
+
       return result;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to spend points';
@@ -66,12 +66,12 @@ export function usePoints() {
     try {
       setError(null);
       const result = await pointsAPI.purchasePoints(purchaseRequest);
-      
+
       toast({
         title: "Payment Intent Created",
         description: "Please complete the payment to add points to your account",
       });
-      
+
       return result;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create payment intent';

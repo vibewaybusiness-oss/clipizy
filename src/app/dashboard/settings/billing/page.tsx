@@ -5,8 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { 
-  CreditCard, 
+import {
+  CreditCard,
   Plus,
   Edit,
   Trash2,
@@ -78,7 +78,7 @@ export default function BillingPage() {
   const [invoices, setInvoices] = useState(mockInvoices);
 
   const handleSetDefault = (methodId: string) => {
-    setPaymentMethods(prev => 
+    setPaymentMethods(prev =>
       prev.map(method => ({
         ...method,
         isDefault: method.id === methodId
@@ -147,7 +147,7 @@ export default function BillingPage() {
                     </Badge>
                   )}
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   {!method.isDefault && (
                     <Button
@@ -172,7 +172,7 @@ export default function BillingPage() {
                 </div>
               </div>
             ))}
-            
+
             <Button variant="outline" className="w-full">
               <Plus className="w-4 h-4 mr-2" />
               Add Payment Method
@@ -200,25 +200,25 @@ export default function BillingPage() {
                   <Badge variant="secondary">$19/month</Badge>
                 </div>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Next Billing Date</span>
                 <span className="font-medium">February 15, 2024</span>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Payment Method</span>
                 <span className="font-medium">Visa •••• 4242</span>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Billing Address</span>
                 <span className="font-medium">123 Main St, City, State 12345</span>
               </div>
             </div>
-            
+
             <Separator />
-            
+
             <div className="space-y-2">
               <Button variant="outline" className="w-full">
                 <Edit className="w-4 h-4 mr-2" />
@@ -262,11 +262,11 @@ export default function BillingPage() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-4">
                   <div className="text-right">
                     <div className="font-medium">${invoice.amount.toFixed(2)}</div>
-                    <Badge 
+                    <Badge
                       variant={invoice.status === 'paid' ? 'default' : 'destructive'}
                       className="text-xs"
                     >
@@ -305,7 +305,7 @@ export default function BillingPage() {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
               <AlertCircle className="w-5 h-5 text-yellow-600" />
               <div>

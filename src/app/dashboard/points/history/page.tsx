@@ -5,9 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { 
-  History, 
-  Search, 
+import {
+  History,
+  Search,
   Filter,
   Download,
   ArrowLeft,
@@ -160,7 +160,7 @@ export default function TransactionHistoryPage() {
               <History className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">No transactions found</h3>
               <p className="text-muted-foreground mb-4">
-                {searchTerm || filterType !== "all" 
+                {searchTerm || filterType !== "all"
                   ? "Try adjusting your search or filter criteria"
                   : "You haven't made any transactions yet"
                 }
@@ -191,7 +191,7 @@ export default function TransactionHistoryPage() {
                       }`}>
                         <TypeIcon className="w-5 h-5" />
                       </div>
-                      
+
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
                           <h3 className="font-semibold text-foreground">
@@ -201,7 +201,7 @@ export default function TransactionHistoryPage() {
                             {typeInfo?.label || transaction.transaction_type}
                           </Badge>
                         </div>
-                        
+
                         <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                           <span>
                             {new Date(transaction.created_at).toLocaleDateString('en-US', {

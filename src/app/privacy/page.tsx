@@ -145,7 +145,7 @@ export default function PrivacyPolicy() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p><strong>No Sale of Data:</strong> We do not sell, trade, or rent your personal information.</p>
-                
+
                 <p><strong>Limited Sharing:</strong> We may share information only:</p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
                   <li>With your explicit consent</li>

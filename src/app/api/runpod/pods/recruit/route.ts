@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
             { status: 400 }
           );
         }
-        
+
         const recruitmentResult = await recruitPod(config);
         return NextResponse.json(recruitmentResult);
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
             { status: 400 }
           );
         }
-        
+
         const releaseResult = await releasePod(podId);
         return NextResponse.json(releaseResult);
 
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
             { status: 400 }
           );
         }
-        
+
         const statusResult = await getPodStatus(podId);
         return NextResponse.json(statusResult);
 
@@ -48,9 +48,9 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     );

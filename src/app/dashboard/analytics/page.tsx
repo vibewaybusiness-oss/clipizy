@@ -3,12 +3,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Eye, 
-  Play, 
-  Download, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Eye,
+  Play,
+  Download,
   Share2,
   Calendar,
   BarChart3,
@@ -102,7 +102,7 @@ export default function AnalyticsPage() {
             Track your video performance and engagement metrics
           </p>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           {analyticsData.timeRange.map((range) => (
             <Button
@@ -237,7 +237,7 @@ export default function AnalyticsPage() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <h4 className="font-semibold text-foreground truncate">
                     {video.title}
@@ -248,7 +248,7 @@ export default function AnalyticsPage() {
                     <span>{video.engagement}% engagement</span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   <Badge variant="secondary">
                     #{index + 1}

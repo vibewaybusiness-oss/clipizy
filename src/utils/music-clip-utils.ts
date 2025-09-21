@@ -10,12 +10,12 @@ export const hasValidDescription = (
 ): boolean => {
   // Check if track has its own description
   const trackDescription = trackDescriptions[track.id] || track.videoDescription;
-  
+
   // Check if using shared description
-  const description = useSameVideoForAll && sharedDescription 
-    ? sharedDescription 
+  const description = useSameVideoForAll && sharedDescription
+    ? sharedDescription
     : trackDescription;
-  
+
   return Boolean(description && description.trim().length >= minLength);
 };
 
@@ -24,7 +24,7 @@ export const formatDuration = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const remainingSeconds = Math.floor(seconds % 60);
-  
+
   if (hours > 0) {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   } else {
@@ -69,7 +69,7 @@ export const STORAGE_KEYS = {
 // Helper functions for localStorage persistence
 export function getFromStorage<T>(key: string, defaultValue: T): T {
   if (typeof window === 'undefined') return defaultValue;
-  
+
   try {
     const item = localStorage.getItem(key);
     return item ? JSON.parse(item) : defaultValue;
@@ -81,7 +81,7 @@ export function getFromStorage<T>(key: string, defaultValue: T): T {
 
 export function saveToStorage<T>(key: string, value: T): void {
   if (typeof window === 'undefined') return;
-  
+
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (error) {

@@ -28,7 +28,7 @@ export function useMusicAnalysis(projectId?: string | null) {
   useEffect(() => {
     if (typeof window !== 'undefined' && projectId && analysisData) {
       localStorage.setItem(`musicClip_${projectId}_analysis`, JSON.stringify(analysisData));
-      
+
       // Schedule auto-save to backend
       autoSaveService.scheduleSave(projectId, {
         analysisData
@@ -39,7 +39,7 @@ export function useMusicAnalysis(projectId?: string | null) {
   // Check which tracks need analysis
   const getTracksNeedingAnalysis = useCallback((tracks: MusicTrack[]): MusicTrack[] => {
     if (!analysisData) return tracks;
-    
+
     return tracks.filter(track => {
       // Track needs analysis if:
       // 1. It has a file (can be analyzed)
@@ -51,7 +51,7 @@ export function useMusicAnalysis(projectId?: string | null) {
   // Analyze tracks that need analysis
   const analyzeMissingTracks = useCallback(async (tracks: MusicTrack[]): Promise<void> => {
     const tracksToAnalyze = getTracksNeedingAnalysis(tracks);
-    
+
     if (tracksToAnalyze.length === 0) {
       console.log('No tracks need analysis');
       return;
@@ -61,7 +61,7 @@ export function useMusicAnalysis(projectId?: string | null) {
 
     try {
       setIsAnalyzing(true);
-      
+
       // Initialize progress tracking
       const progress: Record<string, 'pending' | 'analyzing' | 'completed' | 'failed'> = {};
       tracksToAnalyze.forEach(track => {
@@ -73,7 +73,7 @@ export function useMusicAnalysis(projectId?: string | null) {
       console.log(`Hook: Starting analysis for ${tracksToAnalyze.length} tracks`);
       const analysisResults = await musicAnalysisAPI.analyzeTracksInParallel(tracksToAnalyze);
       console.log(`Hook: Received ${analysisResults.length} analysis results`);
-      
+
       // Update progress
       analysisResults.forEach(result => {
         progress[result.trackId] = result.error ? 'failed' : 'completed';

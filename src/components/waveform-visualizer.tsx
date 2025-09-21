@@ -36,7 +36,7 @@ const WaveformVisualizer = forwardRef<WaveformVisualizerRef, WaveformVisualizerP
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedSceneId, setSelectedSceneId] = useState<number | null>(null);
   const [draggingSceneId, setDraggingSceneId] = useState<number | null>(null);
-  
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -80,16 +80,16 @@ const WaveformVisualizer = forwardRef<WaveformVisualizerRef, WaveformVisualizerP
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
     ctx.scale(dpr, dpr);
-    
+
     const width = rect.width;
     const height = rect.height;
-    
+
     ctx.clearRect(0, 0, width, height);
-    
+
     const barWidth = width / waveformData.length;
     const barGap = 1;
     const centerY = height / 2;
-    
+
     const style = getComputedStyle(document.documentElement);
     const waveColor = `hsl(${style.getPropertyValue('--muted-foreground').trim()})`;
     const progressColor = `hsl(${style.getPropertyValue('--primary').trim()})`;
@@ -103,7 +103,7 @@ const WaveformVisualizer = forwardRef<WaveformVisualizerRef, WaveformVisualizerP
     for (let i = 0; i < waveformData.length; i++) {
       const x = i * barWidth;
       const barHeight = waveformData[i] * height;
-      
+
       ctx.fillStyle = x < playheadX ? progressColor : waveColor;
       ctx.fillRect(x, centerY - barHeight / 2, barWidth - barGap, barHeight);
     }
@@ -125,11 +125,11 @@ const WaveformVisualizer = forwardRef<WaveformVisualizerRef, WaveformVisualizerP
         if (!canvas || !waveformData.length) return null;
 
         // Temporarily increase size for better resolution
-        const dpr = 3; 
+        const dpr = 3;
         const originalWidth = canvas.width;
         const originalHeight = canvas.height;
         const rect = canvas.getBoundingClientRect();
-        
+
         canvas.width = rect.width * dpr;
         canvas.height = rect.height * dpr;
 
@@ -156,7 +156,7 @@ const WaveformVisualizer = forwardRef<WaveformVisualizerRef, WaveformVisualizerP
             ctx.closePath();
             ctx.fill();
         });
-        
+
         const dataUrl = canvas.toDataURL('image/png');
 
         // Restore original canvas size
@@ -191,16 +191,16 @@ const WaveformVisualizer = forwardRef<WaveformVisualizerRef, WaveformVisualizerP
         console.warn('WaveformVisualizer: audioFile is not a File or Blob object:', typeof audioFile);
         return;
       }
-      
+
       const audio = new Audio(URL.createObjectURL(audioFile));
       audioRef.current = audio;
-      
+
       const updateTime = () => setCurrentTime(audio.currentTime);
       const handleEnded = () => setIsPlaying(false);
-      
+
       audio.addEventListener('timeupdate', updateTime);
       audio.addEventListener('ended', handleEnded);
-      
+
       return () => {
         audio.removeEventListener('timeupdate', updateTime);
         audio.removeEventListener('ended', handleEnded);
@@ -247,11 +247,11 @@ const WaveformVisualizer = forwardRef<WaveformVisualizerRef, WaveformVisualizerP
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
       if (draggingSceneId === null || !timelineRef.current || duration === 0) return;
-      
+
       const timelineRect = timelineRef.current.getBoundingClientRect();
       const newTime = Math.max(0, Math.min(duration, ((e.clientX - timelineRect.left) / timelineRect.width) * duration));
-      
-      const updatedScenes = scenes.map(s => 
+
+      const updatedScenes = scenes.map(s =>
           s.id === draggingSceneId ? {...s, startTime: newTime} : s
       ).sort((a, b) => a.startTime - b.startTime);
 
@@ -280,14 +280,14 @@ const WaveformVisualizer = forwardRef<WaveformVisualizerRef, WaveformVisualizerP
       if (audioRef.current) audioRef.current.currentTime = newTime;
       setCurrentTime(newTime);
   };
-  
+
   const handlePinClick = (scene: Scene) => {
       if (draggingSceneId) return;
       setSelectedSceneId(scene.id);
       if (audioRef.current) audioRef.current.currentTime = scene.startTime;
       setCurrentTime(scene.startTime);
   };
-  
+
   return (
     <div className="space-y-2 p-4 rounded-md border bg-secondary/50">
       <div className="relative h-[100px] w-full">
@@ -298,8 +298,8 @@ const WaveformVisualizer = forwardRef<WaveformVisualizerRef, WaveformVisualizerP
       <div ref={timelineRef} className="relative h-8 w-full cursor-pointer" onClick={handleTimelineClick}>
           <div className="absolute top-1/2 -translate-y-1/2 w-full h-px bg-muted-foreground/30" />
           {duration > 0 && showSceneControls && scenes.map(scene => (
-              <div 
-                  key={scene.id} 
+              <div
+                  key={scene.id}
                   className="absolute top-0 cursor-pointer group"
                   style={{ left: `${(scene.startTime / duration) * 100}%` }}
                   onMouseDown={(e) => { e.stopPropagation(); setDraggingSceneId(scene.id); setSelectedSceneId(scene.id); }}
@@ -339,7 +339,7 @@ const WaveformVisualizer = forwardRef<WaveformVisualizerRef, WaveformVisualizerP
           </div>
           <span className="text-sm text-muted-foreground tabular-nums w-24 text-right">{formatTime(currentTime)} / {formatTime(duration)}</span>
       </div>
-      
+
       {musicTitle && (
           <div className="mt-3 text-center">
               <p className="text-sm font-medium text-foreground">{musicTitle}</p>

@@ -8,10 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Music, 
-  Video, 
-  Film, 
+import {
+  Music,
+  Video,
+  Film,
   Search
 } from 'lucide-react';
 import { useProjects } from '@/hooks/use-projects';
@@ -171,7 +171,7 @@ export default function ProjectsPage() {
               <Music className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
               <p className="text-gray-600 mb-4">
-                {searchQuery || selectedType !== 'all' 
+                {searchQuery || selectedType !== 'all'
                   ? 'Try adjusting your search or filters'
                   : 'Get started by creating your first project'
                 }

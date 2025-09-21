@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
         if (musicClipData.settings) {
           await musicClipAPI.updateProjectSettings(projectId, musicClipData.settings);
         }
-        
+
         if (musicClipData.script) {
           await musicClipAPI.updateProjectScript(projectId, musicClipData.script);
         }
@@ -63,8 +63,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: 'Data auto-saved successfully',
       timestamp: new Date().toISOString()
     });

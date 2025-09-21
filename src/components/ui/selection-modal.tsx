@@ -60,7 +60,7 @@ export function SelectionModal({
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" onClick={onClose}>
       <div className="flex items-center justify-center min-h-screen p-4">
-        <div 
+        <div
           className="bg-background rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
@@ -79,7 +79,7 @@ export function SelectionModal({
                 <X className="h-6 w-6" />
               </Button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {options.map((option) => (
                  <div
@@ -94,7 +94,7 @@ export function SelectionModal({
                    <div className="space-y-6">
                      <div className={`w-full h-64 bg-gradient-to-br ${option.gradient} rounded-xl flex items-center justify-center relative ${option.available === false ? 'opacity-60' : ''}`}>
                        <span className="text-8xl">{option.icon}</span>
-                       
+
                        {/* Coming Soon Overlay - only on the gradient area */}
                        {option.available === false && (
                          <div className="absolute inset-0 bg-black/30 rounded-xl flex items-center justify-center z-10">
@@ -104,12 +104,12 @@ export function SelectionModal({
                          </div>
                        )}
                      </div>
-                     
+
                      <div className={`space-y-4 ${option.available === false ? 'opacity-60' : ''}`}>
                        <h3 className="font-bold text-2xl">{option.name}</h3>
                        <p className="text-muted-foreground text-lg">{option.description}</p>
                      </div>
-                     
+
                      {option.available === false ? (
                        <div className="mt-6 p-4 bg-muted/50 rounded-xl">
                          <div className="text-center space-y-4">
@@ -132,7 +132,7 @@ export function SelectionModal({
                          </div>
                        </div>
                      ) : null}
-                     
+
                      {showCost && option.cost && (
                        <div className="mt-6 rounded-xl bg-secondary/50 px-6 py-3 text-lg font-bold">
                          <span className="text-muted-foreground">{option.cost * costConversionRate} credits</span>

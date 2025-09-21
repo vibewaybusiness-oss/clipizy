@@ -24,7 +24,7 @@ export function ClipiziLogo({ className }: ClipiziLogoProps) {
           <stop offset="100%" stopColor="hsl(var(--brand-accent))" />
         </linearGradient>
       </defs>
-      
+
       {/* Background circle */}
       <circle
         cx="16"
@@ -33,7 +33,7 @@ export function ClipiziLogo({ className }: ClipiziLogoProps) {
         fill="url(#logoGradient)"
         className="opacity-20"
       />
-      
+
       {/* Main circle */}
       <circle
         cx="16"
@@ -43,7 +43,7 @@ export function ClipiziLogo({ className }: ClipiziLogoProps) {
         stroke="url(#logoGradient)"
         strokeWidth="2"
       />
-      
+
       {/* Wave pattern */}
       <path
         d="M8 16 Q12 8, 16 16 T24 16"
@@ -52,7 +52,7 @@ export function ClipiziLogo({ className }: ClipiziLogoProps) {
         fill="none"
         strokeLinecap="round"
       />
-      
+
       {/* Inner wave */}
       <path
         d="M10 16 Q14 12, 18 16 T26 16"
@@ -62,7 +62,7 @@ export function ClipiziLogo({ className }: ClipiziLogoProps) {
         strokeLinecap="round"
         opacity="0.7"
       />
-      
+
       {/* Center dot */}
       <circle
         cx="16"

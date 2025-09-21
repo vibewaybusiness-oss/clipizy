@@ -17,11 +17,11 @@ import { StepOverview } from "@/components/create/create-music/step-video";
 import { StepGenerating } from "@/components/create/create-music/step-generating";
 import { StepPreview } from "@/components/create/create-music/step-preview";
 import { MusicAnalysisVisualizer } from "@/components/create/create-music/music-analysis-visualizer";
-import { 
-  Scene, 
-  SceneSchema, 
-  PromptSchema, 
-  SettingsSchema, 
+import {
+  Scene,
+  SceneSchema,
+  PromptSchema,
+  SettingsSchema,
   OverviewSchema
 } from "@/components/clipizi-generator";
 import { useToast } from "@/hooks/use-toast";
@@ -41,7 +41,7 @@ export default function MusicClipPage() {
   const [isGeneratingMusic, setIsGeneratingMusic] = useState(false);
   const [showSceneControls, setShowSceneControls] = useState(false);
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
-  
+
   // Debug logging for currentStep changes
   useEffect(() => {
     console.log('=== CURRENT STEP CHANGED ===');
@@ -55,9 +55,9 @@ export default function MusicClipPage() {
   const [musicAnalysisData, setMusicAnalysisData] = useState<any>(null);
   const [isLoadingAnalysisData, setIsLoadingAnalysisData] = useState(false);
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
-  
+
   const [isGeneratingVideo, startGeneratingVideo] = useTransition();
-  
+
   const { toast } = useToast();
   const vibeFileRef = useRef<HTMLInputElement | null>(null);
   const waveformRef = useRef<WaveformVisualizerRef>(null);
@@ -105,7 +105,7 @@ export default function MusicClipPage() {
       if (waveformRef.current?.stopAudio) {
         waveformRef.current.stopAudio();
       }
-      
+
       if (audioUrl) {
         URL.revokeObjectURL(audioUrl);
       }
@@ -170,9 +170,9 @@ export default function MusicClipPage() {
       });
       return;
     }
-    
+
     setIsGeneratingMusic(true);
-    
+
     try {
       const result = await generateMusicAction({
         prompt: musicPrompt,
@@ -182,16 +182,16 @@ export default function MusicClipPage() {
       });
 
       if (result.success && result.audioDataUri) {
-        toast({ 
-          title: "Music Generated!", 
-          description: "Your new track is ready." 
+        toast({
+          title: "Music Generated!",
+          description: "Your new track is ready."
         });
-        
+
         // Convert data URI to File object
         const response = await fetch(result.audioDataUri);
         const audioBlob = await response.blob();
         const generatedFile = new File([audioBlob], "generated-track.mp3", { type: "audio/mp3" });
-        
+
         setAudioFile(generatedFile);
         setAudioUrl(result.audioDataUri);
         setAudioDuration(result.duration || 20);
@@ -240,10 +240,10 @@ export default function MusicClipPage() {
     setCurrentStep(4);
     console.log('Current step set to 4');
   };
-  
+
   const onOverviewSubmit = (values: z.infer<typeof OverviewSchema>) => {
     setCurrentStep(5);
-    
+
     let videoPrompt = "";
     if (settings?.videoType === 'looped-static' || settings?.videoType === 'looped-animated') {
         videoPrompt = `Create a single, looping video scene based on this description: "${values.videoDescription}". The style should be ${settings.videoStyle || 'cyberpunk'}.`;
@@ -255,9 +255,9 @@ export default function MusicClipPage() {
     if (values.audioVisualizerEnabled) {
         visualizerPrompt = ` Include an audio visualizer with these properties: vertical_position=${values.audioVisualizerPositionV}, horizontal_position=${values.audioVisualizerPositionH}, size=${values.audioVisualizerSize}, type=${values.audioVisualizerType}.`
     }
-    
+
     const fullPrompt = `Style: ${settings?.videoStyle || 'cyberpunk'}. Video Type: ${settings?.videoType}. Budget level: ${settings?.budget?.[0] || 1}. Music: ${prompts?.musicDescription}. Video: ${videoPrompt}. Channel Animation Present: ${!!channelAnimationFile}. ${visualizerPrompt}`;
-    
+
     startGeneratingVideo(async () => {
       const result = await generateVideoAction({ prompt: fullPrompt });
       if (result.success && result.videoDataUri) {
@@ -292,7 +292,7 @@ export default function MusicClipPage() {
       if (waveformRef.current?.stopAudio) {
         waveformRef.current.stopAudio();
       }
-      
+
       // Reset the audio file and go back
       setAudioFile(null);
       setAudioUrl(null);
@@ -341,7 +341,7 @@ export default function MusicClipPage() {
   // Simulate music analysis data for demonstration
   const generateMockAnalysisData = () => {
     if (!audioFile) return null;
-    
+
     return {
       file_path: '/tmp/mock.wav',
       metadata: {
@@ -439,16 +439,16 @@ export default function MusicClipPage() {
       setIsLoadingAnalysisData(true);
       const response = await fetch(`/api/music-clip/projects/${projectId}/analysis`);
       console.log('Backend response status:', response.status);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('Loaded analysis data from backend:', data);
-        
+
         // Extract the first track's analysis data
         if (data.music && Object.keys(data.music).length > 0) {
           const trackId = Object.keys(data.music)[0];
           const trackData = data.music[trackId];
-          
+
           // Convert backend format to our component format
           const analysisData = {
             file_path: '/tmp/analysis.wav',
@@ -502,7 +502,7 @@ export default function MusicClipPage() {
             original_filename: trackData.title || 'Unknown',
             file_size: 0
           };
-          
+
           setMusicAnalysisData(analysisData);
         } else {
           console.log('No music data found in backend response');
@@ -536,7 +536,7 @@ export default function MusicClipPage() {
     const originalLog = console.log;
     console.log = (...args) => {
       originalLog(...args);
-      
+
       // Look for project ID in auto-save logs
       const message = args.join(' ');
       if (message.includes('Auto-save successful for project') || message.includes('Auto-save failed for project')) {
@@ -549,7 +549,7 @@ export default function MusicClipPage() {
         }
       }
     };
-    
+
     return () => {
       console.log = originalLog;
     };
@@ -559,7 +559,7 @@ export default function MusicClipPage() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     let projectId = urlParams.get('projectId') || localStorage.getItem('currentProjectId');
-    
+
     // If no project ID found, try to extract from current URL path
     if (!projectId) {
       const pathParts = window.location.pathname.split('/');
@@ -568,12 +568,12 @@ export default function MusicClipPage() {
         projectId = pathParts[projectIndex + 1];
       }
     }
-    
+
     // Fallback to the project ID from your logs
     if (!projectId) {
       projectId = '702e43c4-0556-4aa5-866a-5bde1e947b31';
     }
-    
+
     setCurrentProjectId(projectId);
     localStorage.setItem('currentProjectId', projectId);
     console.log('Project ID set to:', projectId);
@@ -616,7 +616,7 @@ export default function MusicClipPage() {
         <div className="max-w-7xl mx-auto px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Link 
+              <Link
                 href="/dashboard/create"
                 className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors"
               >
@@ -624,13 +624,13 @@ export default function MusicClipPage() {
                 <span className="text-sm">Back to Create</span>
               </Link>
             </div>
-            
+
             <Badge className="px-4 py-2 text-sm font-medium bg-green-500 text-white rounded-lg flex items-center space-x-2">
               <Zap className="w-4 h-4" />
               <span>Automate Creator</span>
             </Badge>
           </div>
-          
+
         </div>
       </div>
 
@@ -649,7 +649,7 @@ export default function MusicClipPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 gap-6">
-                <Card 
+                <Card
                   className="cursor-pointer border-2 border-green-500 bg-green-500/10 hover:bg-green-500/20 transition-all duration-200 group"
                   onClick={() => {
                     setAutomationType("music");
@@ -668,7 +668,7 @@ export default function MusicClipPage() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="relative border-2 border-muted bg-muted/20 cursor-not-allowed">
                   <CardContent className="p-8">
                     <div className="flex items-center space-x-4">
@@ -685,7 +685,7 @@ export default function MusicClipPage() {
                     <div className="text-center">
                       <h3 className="text-xl font-bold text-white mb-2">Available Soon</h3>
                       <p className="text-white/80 text-sm mb-4">We're working on this feature</p>
-                      <Button 
+                      <Button
                         className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -778,13 +778,13 @@ export default function MusicClipPage() {
                         </div>
                       </div>
                     )}
-                    
+
                     <div className="flex items-center my-6">
                       <div className="flex-1 h-px bg-border"></div>
                       <span className="px-6 text-sm text-muted-foreground font-medium">OR</span>
                       <div className="flex-1 h-px bg-border"></div>
                     </div>
-                    
+
                     <Button className="w-full h-12 text-base font-semibold btn-ai-gradient text-white" onClick={() => setGenerationMode("generate")}>
                       <Sparkles className="w-5 h-5 mr-2" />
                       Generate Music with AI
@@ -802,13 +802,13 @@ export default function MusicClipPage() {
                         minLength={10}
                       />
                     </div>
-                    
+
                     <label htmlFor="vibe-upload" className="flex items-center gap-3 p-4 rounded-lg bg-muted/50 text-sm text-muted-foreground cursor-pointer hover:bg-muted/70 transition-colors border border-border">
                       <Upload className="w-4 h-4"/>
                       <span className="flex-1">{vibeFile ? vibeFile.name : 'Optional: Upload a file for the vibe (image, audio, etc.)'}</span>
                       <input id="vibe-upload" ref={vibeFileRef} type="file" className="hidden" onChange={handleVibeFileChange} />
                     </label>
-                    
+
                     <Button className="w-full h-12 text-base font-semibold btn-ai-gradient text-white" onClick={() => handleGenerateMusic()} disabled={isGeneratingMusic || (!vibeFile && musicPrompt.length < 10)}>
                       {isGeneratingMusic ? (
                         <div className="w-5 h-5 mr-2 animate-spin border-2 border-white border-t-transparent rounded-full"></div>
@@ -817,13 +817,13 @@ export default function MusicClipPage() {
                       )}
                       Generate Music with AI
                     </Button>
-                    
+
                     <div className="flex items-center my-6">
                       <div className="flex-1 h-px bg-border"></div>
                       <span className="px-6 text-sm text-muted-foreground font-medium">OR</span>
                       <div className="flex-1 h-px bg-border"></div>
                     </div>
-                    
+
                     <Button variant="outline" className="w-full h-12 text-base font-semibold hover:bg-muted/80" onClick={() => setGenerationMode("upload")}>
                       <Upload className="w-5 h-5 mr-2" />
                       Upload a File Instead
@@ -1279,26 +1279,26 @@ export default function MusicClipPage() {
             )}
           </div>
           </div>
-          
+
           {/* STEP 4 BUTTONS - Below the columns */}
           {currentStep === 4 && (
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               {/* Back button below left column */}
               <div className="flex justify-start">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setCurrentStep(3)} 
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentStep(3)}
                   className="flex items-center space-x-2 btn-secondary-hover"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>Back</span>
                 </Button>
               </div>
-              
+
               {/* Generate Video button below right column */}
               <div className="flex justify-end">
-                <Button 
-                  onClick={() => overviewForm.handleSubmit(onOverviewSubmit)()} 
+                <Button
+                  onClick={() => overviewForm.handleSubmit(onOverviewSubmit)()}
                   className="w-full h-12 text-base font-semibold btn-ai-gradient text-white flex items-center space-x-2"
                   disabled={isGeneratingVideo}
                 >
@@ -1312,7 +1312,7 @@ export default function MusicClipPage() {
               </div>
             </div>
           )}
-          
+
           {/* NAVIGATION BUTTONS - For Steps 1, 2, and 3 */}
           {audioFile && (currentStep === 1 || currentStep === 2 || currentStep === 3) && (
             <div className="flex items-center justify-between pt-2">
@@ -1322,8 +1322,8 @@ export default function MusicClipPage() {
                 <span>Back</span>
               </Button>
               {currentStep === 1 && (
-                <Button 
-                  onClick={handleContinue} 
+                <Button
+                  onClick={handleContinue}
                   className={`flex items-center space-x-2 text-white ${
                     audioFile ? 'btn-ai-gradient' : 'bg-muted text-muted-foreground cursor-not-allowed'
                   }`}
@@ -1334,8 +1334,8 @@ export default function MusicClipPage() {
                 </Button>
               )}
               {currentStep === 2 && (
-                <Button 
-                  onClick={() => settingsForm.handleSubmit(handleSettingsSubmit)()} 
+                <Button
+                  onClick={() => settingsForm.handleSubmit(handleSettingsSubmit)()}
                   className={`flex items-center space-x-2 text-white ${
                     settingsForm.formState.isValid ? 'btn-ai-gradient' : 'bg-muted text-muted-foreground cursor-not-allowed'
                   }`}
@@ -1348,7 +1348,7 @@ export default function MusicClipPage() {
               {currentStep === 3 && (
                 <>
                   {console.log('=== STEP 3 BUTTON RENDERED ===', { currentStep, audioFile: !!audioFile })}
-                  <Button 
+                  <Button
                     onClick={() => {
                       console.log('=== STEP 3 CONTINUE BUTTON DEBUG ===');
                       console.log('Step 3 continue button clicked');
@@ -1359,12 +1359,12 @@ export default function MusicClipPage() {
                       console.log('Form isValid:', promptForm.formState.isValid);
                       console.log('Form isDirty:', promptForm.formState.isDirty);
                       console.log('Form isSubmitting:', promptForm.formState.isSubmitting);
-                      
+
                       try {
                         console.log('Calling promptForm.handleSubmit...');
                         const result = promptForm.handleSubmit(onPromptSubmit)();
                         console.log('handleSubmit result:', result);
-                        
+
                         // Fallback: if handleSubmit doesn't work, try direct navigation
                         setTimeout(() => {
                           console.log('Fallback: Setting currentStep to 4 directly');
@@ -1376,7 +1376,7 @@ export default function MusicClipPage() {
                         console.log('Error fallback: Setting currentStep to 4 directly');
                         setCurrentStep(4);
                       }
-                    }} 
+                    }}
                     className="flex items-center space-x-2 text-white btn-ai-gradient border-2 border-red-500"
                     style={{ backgroundColor: 'red', minWidth: '200px', minHeight: '50px' }}
                   >

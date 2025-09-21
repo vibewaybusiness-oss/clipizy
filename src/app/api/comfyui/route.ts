@@ -291,7 +291,7 @@ async function recruitComfyUIPod(): Promise<NextResponse> {
         step4: 'Check status in a few minutes'
       }
     });
-    
+
   } catch (error) {
     return NextResponse.json({
       success: false,
@@ -317,19 +317,19 @@ async function releaseComfyUIPod(): Promise<NextResponse> {
     }
 
     const queueStatus = await statusResponse.json();
-    const comfyUIPods = queueStatus.activePods?.filter((pod: any) => 
+    const comfyUIPods = queueStatus.activePods?.filter((pod: any) =>
       pod.workflowName === 'comfyui' || pod.workflowName === 'comfyui_image_qwen'
     ) || [];
-    
+
     if (comfyUIPods.length === 0) {
       return NextResponse.json({
         success: true,
         message: 'No active ComfyUI pods found to release'
       });
     }
-    
+
     const results = [];
-    
+
     // Terminate all ComfyUI pods
     for (const pod of comfyUIPods) {
       try {
@@ -340,7 +340,7 @@ async function releaseComfyUIPod(): Promise<NextResponse> {
             'Content-Type': 'application/json',
           },
         });
-        
+
         const result = await terminateResponse.json();
         results.push({
           podId: pod.id,
@@ -355,10 +355,10 @@ async function releaseComfyUIPod(): Promise<NextResponse> {
         });
       }
     }
-    
+
     const successCount = results.filter(r => r.success).length;
     const totalCount = results.length;
-    
+
     return NextResponse.json({
       success: successCount > 0,
       message: `Released ${successCount}/${totalCount} ComfyUI pods`,
@@ -369,7 +369,7 @@ async function releaseComfyUIPod(): Promise<NextResponse> {
         failedReleases: totalCount - successCount
       }
     });
-    
+
   } catch (error) {
     return NextResponse.json({
       success: false,

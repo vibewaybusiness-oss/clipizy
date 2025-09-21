@@ -8,12 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { 
-  User, 
-  Bell, 
-  Shield, 
-  CreditCard, 
-  Download, 
+import {
+  User,
+  Bell,
+  Shield,
+  CreditCard,
+  Download,
   Trash2,
   Save,
   Eye,
@@ -153,7 +153,7 @@ export default function SettingsPage() {
                   />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="bio">Bio</Label>
                 <Input
@@ -166,7 +166,7 @@ export default function SettingsPage() {
                   placeholder="Tell us about yourself..."
                 />
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="website">Website</Label>
@@ -223,9 +223,9 @@ export default function SettingsPage() {
                   })}
                 />
               </div>
-              
+
               <Separator />
-              
+
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Push Notifications</Label>
@@ -241,9 +241,9 @@ export default function SettingsPage() {
                   })}
                 />
               </div>
-              
+
               <Separator />
-              
+
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Marketing Emails</Label>
@@ -259,9 +259,9 @@ export default function SettingsPage() {
                   })}
                 />
               </div>
-              
+
               <Separator />
-              
+
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Weekly Digest</Label>
@@ -303,16 +303,16 @@ export default function SettingsPage() {
                   checked={settings.privacy.profileVisibility === "public"}
                   onCheckedChange={(checked) => setSettings({
                     ...settings,
-                    privacy: { 
-                      ...settings.privacy, 
-                      profileVisibility: checked ? "public" : "private" 
+                    privacy: {
+                      ...settings.privacy,
+                      profileVisibility: checked ? "public" : "private"
                     }
                   })}
                 />
               </div>
-              
+
               <Separator />
-              
+
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Show Email Address</Label>
@@ -328,9 +328,9 @@ export default function SettingsPage() {
                   })}
                 />
               </div>
-              
+
               <Separator />
-              
+
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Allow Comments</Label>
@@ -368,7 +368,7 @@ export default function SettingsPage() {
                 </div>
                 <Badge className="gradient-primary text-white">Active</Badge>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Button variant="outline" className="w-full">
                   <CreditCard className="w-4 h-4 mr-2" />

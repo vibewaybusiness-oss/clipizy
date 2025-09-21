@@ -58,7 +58,7 @@ export function VideoTheater({ isOpen, onClose, videoSrc, title, description }: 
             </Button>
           </div>
         </DialogHeader>
-        
+
         <div className="relative w-full h-full flex items-center justify-center">
           <video
             className="w-full h-full object-contain"

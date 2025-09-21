@@ -8,12 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Bot, 
-  Loader2, 
-  CheckCircle, 
-  AlertCircle, 
-  Copy, 
+import {
+  Bot,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+  Copy,
   Download,
   Settings,
   Sparkles
@@ -27,12 +27,12 @@ interface GeminiGeneratorProps {
   onApiKeyChange: (key: string) => void;
 }
 
-export function GeminiGenerator({ 
-  post, 
-  onGenerate, 
-  onSave, 
-  apiKey, 
-  onApiKeyChange 
+export function GeminiGenerator({
+  post,
+  onGenerate,
+  onSave,
+  apiKey,
+  onApiKeyChange
 }: GeminiGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] = useState('');
@@ -75,15 +75,15 @@ export function GeminiGenerator({
 
   const generatePrompt = (promptTemplate: GeminiPrompt) => {
     let prompt = promptTemplate.prefix;
-    
+
     // Replace variables in the prompt
     prompt = prompt.replace('{title}', post.title);
     prompt = prompt.replace('{keywords}', post.keywords.join(', '));
     prompt = prompt.replace('{target_audience}', post.tags.join(', '));
     prompt = prompt.replace('{skill_level}', 'beginner to intermediate');
-    
+
     prompt += promptTemplate.suffix;
-    
+
     return prompt;
   };
 
@@ -98,7 +98,7 @@ export function GeminiGenerator({
 
     try {
       const prompt = customPrompt || generatePrompt(promptTemplate);
-      
+
       const response = await fetch('/api/gemini/generate', {
         method: 'POST',
         headers: {
@@ -193,8 +193,8 @@ export function GeminiGenerator({
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>Choose Generation Method</span>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => setShowSettings(!showSettings)}
             >
@@ -224,8 +224,8 @@ export function GeminiGenerator({
                 <CardContent className="p-4">
                   <h3 className="font-semibold mb-2">{prompt.name}</h3>
                   <p className="text-sm text-muted-foreground mb-3">{prompt.description}</p>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     className="w-full"
                     onClick={() => generateContent(prompt)}
                     disabled={isGenerating}
@@ -280,7 +280,7 @@ export function GeminiGenerator({
                   Save as Draft
                 </Button>
               </div>
-              
+
               <div className="border rounded-lg p-4 bg-muted/20 max-h-96 overflow-y-auto">
                 <pre className="whitespace-pre-wrap text-sm">{generatedContent}</pre>
               </div>

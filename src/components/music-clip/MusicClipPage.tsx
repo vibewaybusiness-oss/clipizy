@@ -44,11 +44,11 @@ function MusicClipPage() {
   const urlProjectId = searchParams.get('projectId');
   const isNewProject = searchParams.get('new') !== null;
   const projectManagement = useProjectManagement();
-  
+
   // Use URL projectId if available, otherwise use persisted projectId
   // If it's a new project, don't use persisted projectId
   const projectId = urlProjectId || (isNewProject ? null : projectManagement.state.currentProjectId);
-  
+
   const audioPlayback = useAudioPlayback();
   const musicTracks = useMusicTracks(projectId);
   const promptGeneration = usePromptGeneration();
@@ -58,13 +58,13 @@ function MusicClipPage() {
   const musicAnalysis = useMusicAnalysis(projectId);
   const waveformRef = useRef<WaveformVisualizerRef>(null);
   const lastProcessedDuration = useRef<number>(0);
-  
+
   // TRACK VALIDATION SNAPSHOT FOR LIVE UI
   const [trackValidity, setTrackValidity] = useState<Record<string, boolean>>({});
-  
+
   // Store individual descriptions when switching to reuse mode
   const [preservedIndividualDescriptions, setPreservedIndividualDescriptions] = useState<Record<string, string>>({});
-  
+
   // Music analysis visualization state
   const [musicAnalysisData, setMusicAnalysisData] = useState<any>(null);
   const [isLoadingAnalysisData, setIsLoadingAnalysisData] = useState(false);
@@ -76,14 +76,14 @@ function MusicClipPage() {
       setIsLoadingAnalysisData(true);
       const response = await fetch(`/api/music-clip/projects/${projectId}/analysis`);
       console.log('Backend response status:', response.status);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('Loaded analysis data from backend:', data);
-        
+
         // Extract the first track's analysis data
         let trackData = null;
-        
+
         if (data.music && Object.keys(data.music).length > 0) {
           const trackId = Object.keys(data.music)[0];
           trackData = data.music[trackId];
@@ -95,13 +95,13 @@ function MusicClipPage() {
           // Fallback for direct analysis data
           trackData = data.analysis;
         }
-        
+
         if (trackData) {
           console.log('Track data from backend:', trackData);
           console.log('Track data keys:', Object.keys(trackData));
           console.log('Track data tempo:', trackData.tempo);
           console.log('Track data duration:', trackData.duration);
-          
+
           // Convert backend format to our component format
           const analysisData = {
             file_path: '/tmp/analysis.wav',
@@ -155,7 +155,7 @@ function MusicClipPage() {
             original_filename: trackData.title || 'Unknown',
             file_size: 0
           };
-          
+
           setMusicAnalysisData(analysisData);
         } else {
           console.log('No music data found in backend response');
@@ -179,13 +179,13 @@ function MusicClipPage() {
       loadAnalysisData(projectId);
     }
   }, [musicClipState.state.currentStep, projectId, musicAnalysisData, loadAnalysisData]);
-  
+
   // Check if all tracks are valid for step 3
   const areAllTracksValid = useMemo(() => {
     if (musicTracks.musicTracks.length === 0) return false;
     return musicTracks.musicTracks.every(track => trackValidity[track.id] === true);
   }, [musicTracks.musicTracks, trackValidity]);
-  
+
   const areBoolMapsEqual = (a: Record<string, boolean>, b: Record<string, boolean>) => {
     const aKeys = Object.keys(a);
     const bKeys = Object.keys(b);
@@ -195,7 +195,7 @@ function MusicClipPage() {
     }
     return true;
   };
-  
+
   // Live validation mapping based on reuse toggle state
   useEffect(() => {
     const minLen = 10;
@@ -249,7 +249,7 @@ function MusicClipPage() {
   useEffect(() => {
     if (musicClipState.state.currentStep === 4) {
       console.log('Navigating to step 4 - loading descriptions for prompt form');
-      
+
       if (musicClipState.state.settings?.useSameVideoForAll) {
         // Reuse mode: load shared description into form field
         const sharedDesc = musicClipState.state.sharedDescription || "";
@@ -281,7 +281,7 @@ function MusicClipPage() {
           audio.load();
         }
       });
-      
+
       // Clean up the main audio URL with a delay to ensure audio operations complete
       if (musicClipState.state.audioUrl && musicClipState.state.audioUrl.startsWith('blob:')) {
         setTimeout(() => {
@@ -292,7 +292,7 @@ function MusicClipPage() {
           }
         }, 200);
       }
-      
+
       // Clean up all track blob URLs with a delay
       musicTracks.musicTracks.forEach(track => {
         if (track.url.startsWith('blob:')) {
@@ -316,21 +316,21 @@ function MusicClipPage() {
         console.warn('[MUSIC CLIP] audioFile is not a File or Blob object:', typeof musicClipState.state.audioFile);
         return;
       }
-      
+
       // Only try to get duration for files with actual content
       const tempUrl = URL.createObjectURL(musicClipState.state.audioFile);
       console.log('[MUSIC CLIP] Created temporary blob URL for duration detection:', tempUrl, 'File size:', musicClipState.state.audioFile.size);
-      
+
       const audio = new Audio(tempUrl);
       let isMetadataLoaded = false;
       let isErrorHandled = false;
-      
+
       const handleLoadedMetadata = () => {
         if (!isMetadataLoaded && !isErrorHandled) {
           isMetadataLoaded = true;
           musicClipState.actions.setAudioDuration(audio.duration);
           console.log('[MUSIC CLIP] Audio metadata loaded, duration:', audio.duration);
-          
+
           // Revoke the temporary URL after getting duration
           setTimeout(() => {
             try {
@@ -342,15 +342,15 @@ function MusicClipPage() {
           }, 1000);
         }
       };
-      
+
       const handleError = (e: Event) => {
         if (!isErrorHandled && !isMetadataLoaded) {
           isErrorHandled = true;
           console.error('[MUSIC CLIP] Audio load error for file:', musicClipState.state.audioFile?.name, 'Size:', musicClipState.state.audioFile?.size, e);
-          
+
           // Set duration to 0 for files that can't be loaded
           musicClipState.actions.setAudioDuration(0);
-          
+
           // Revoke URL on error
           setTimeout(() => {
             try {
@@ -362,7 +362,7 @@ function MusicClipPage() {
           }, 1000);
         }
       };
-      
+
       audio.addEventListener('loadedmetadata', handleLoadedMetadata);
       audio.addEventListener('error', handleError);
 
@@ -424,19 +424,19 @@ function MusicClipPage() {
 
   // Track if we've already cleared data for new project
   const hasClearedNewProject = useRef(false);
-  
+
   // Clear project data when starting a new project
   useEffect(() => {
     if (isNewProject && !hasClearedNewProject.current) {
       console.log('Starting new project - clearing all data');
       hasClearedNewProject.current = true;
-      
+
       // Clear project management state
       projectManagement.actions.clearProjectData();
-      
+
       // Clear music tracks
       musicTracks.clearAllTracks();
-      
+
       // Reset music clip state
       try {
         musicClipState.actions.handleReset();
@@ -445,17 +445,17 @@ function MusicClipPage() {
         // Fallback to resetState if actions is not available
         musicClipState.resetState();
       }
-      
+
       // Reset validation state
       setTrackValidity({});
-      
+
       // Clear URL parameters to clean up the URL
       const url = new URL(window.location.href);
       url.searchParams.delete('new');
       window.history.replaceState({}, '', url.toString());
     }
   }, [isNewProject]); // Only depend on isNewProject to prevent infinite loops
-  
+
   // Reset the ref when component unmounts or when isNewProject changes
   useEffect(() => {
     if (!isNewProject) {
@@ -468,7 +468,7 @@ function MusicClipPage() {
     if (projectId && !projectManagement.state.isLoadingProject) {
       // Check if we have localStorage data for this project
       const hasLocalData = musicClipState.state.settings || musicTracks.musicTracks.length > 0;
-      
+
       if (hasLocalData) {
         console.log('Using localStorage data for project:', projectId);
         // localStorage data is already loaded by the hooks
@@ -491,16 +491,16 @@ function MusicClipPage() {
   // Update URL when step changes (with throttling to prevent browser hanging)
   const prevStepRef = useRef(musicClipState.state.currentStep);
   const urlUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   useEffect(() => {
     if (prevStepRef.current !== musicClipState.state.currentStep) {
       console.log('Step changed from', prevStepRef.current, 'to', musicClipState.state.currentStep);
-      
+
       // Clear any pending URL update
       if (urlUpdateTimeoutRef.current) {
         clearTimeout(urlUpdateTimeoutRef.current);
       }
-      
+
       // Throttle URL updates to prevent browser hanging
       urlUpdateTimeoutRef.current = setTimeout(() => {
         const url = new URL(window.location.href);
@@ -513,7 +513,7 @@ function MusicClipPage() {
         prevStepRef.current = musicClipState.state.currentStep;
       }, 100); // 100ms delay
     }
-    
+
     // Cleanup timeout on unmount
     return () => {
       if (urlUpdateTimeoutRef.current) {
@@ -535,11 +535,11 @@ function MusicClipPage() {
         try {
           // Flush all pending auto-saves immediately
           autoSaveService.flushAllSaves();
-          
+
           const musicClipData = musicClipState.actions.getCurrentState();
           const tracksData = musicTracks.getCurrentState();
           const analysisData = musicAnalysis.analysisData;
-          
+
           const data = {
             projectId,
             musicClipData,
@@ -547,11 +547,11 @@ function MusicClipPage() {
             analysisData,
             timestamp: Date.now()
           };
-          
+
           // Use sendBeacon for critical data saving
           const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
           const success = navigator.sendBeacon('/api/music-clip/auto-save', blob);
-          
+
           if (!success) {
             console.warn('Failed to send beacon for auto-save');
           } else {
@@ -569,7 +569,7 @@ function MusicClipPage() {
         if (projectId) {
           // Flush all pending auto-saves when page becomes hidden
           autoSaveService.flushAllSaves();
-          
+
           // Use regular fetch for visibility change (less critical)
           pushDataToBackend(projectId, musicClipState.actions.getCurrentState(), musicTracks.getCurrentState())
             .catch(error => console.error('Failed to push data to backend on visibility change:', error));
@@ -595,7 +595,7 @@ function MusicClipPage() {
       if (!currentPath.includes('/music-clip')) {
         return;
       }
-      
+
       const stepParam = searchParams.get('step');
       if (stepParam) {
         const step = parseInt(stepParam, 10);
@@ -630,7 +630,7 @@ function MusicClipPage() {
   const pushDataToBackend = async (projectId: string, musicClipData: any, tracksData: any) => {
     try {
       console.log('Pushing data to backend for project:', projectId);
-      
+
       // Update project settings using the project management hook
       if (musicClipData?.settings) {
         try {
@@ -641,13 +641,13 @@ function MusicClipPage() {
           // Don't throw here, continue with other operations
         }
       }
-      
+
       // Update tracks if we have track data
       if (tracksData?.musicTracks && tracksData.musicTracks.length > 0) {
         // Update track descriptions and genres
         for (const track of tracksData.musicTracks) {
           const updates: any = {};
-          
+
           // Use individual descriptions from music clip state
           if (musicClipState.state.individualDescriptions[track.id]) {
             updates.video_description = musicClipState.state.individualDescriptions[track.id];
@@ -655,7 +655,7 @@ function MusicClipPage() {
           if (tracksData.trackGenres?.[track.id]) {
             updates.genre = tracksData.trackGenres[track.id];
           }
-          
+
           if (Object.keys(updates).length > 0) {
             console.log(`Updating track ${track.id} with:`, updates);
             try {
@@ -670,14 +670,14 @@ function MusicClipPage() {
           }
         }
       }
-      
+
       // Save shared description separately if in reuse mode
       if (musicClipState.state.settings?.useSameVideoForAll && musicClipState.state.sharedDescription) {
         console.log('Saving shared description to backend:', musicClipState.state.sharedDescription);
         // TODO: Add API call to save shared description to project settings
         // This could be saved as a project-level setting or in a separate table
       }
-      
+
       // Save analysis data to project if available
       if (musicAnalysis.analysisData) {
         try {
@@ -687,7 +687,7 @@ function MusicClipPage() {
           console.error('Failed to save analysis data:', error);
         }
       }
-      
+
       console.log('Successfully pushed data to backend');
     } catch (error) {
       console.error('Failed to push data to backend:', error);
@@ -700,13 +700,13 @@ function MusicClipPage() {
       musicClipState.actions.setIsLoadingExistingProject(true);
       console.log('Loading project from backend:', projectId);
       const projectData = await projectManagement.actions.loadExistingProject(projectId);
-      
+
       // Debug project data structure
       console.log('Project data structure:', projectData);
       console.log('Script structure:', projectData?.script);
       console.log('Steps structure:', projectData?.script?.steps);
       console.log('Music structure:', projectData?.script?.steps?.music);
-      
+
       // Update settings if available - with proper null checks
       if (projectData?.script?.steps?.music?.settings) {
         const settings = projectData.script.steps.music.settings;
@@ -718,12 +718,12 @@ function MusicClipPage() {
         // For old projects that don't have settings, we'll use the default settings
         // The musicClipState should already have default settings initialized
       }
-      
+
       // Update tracks if available
       if (projectData?.tracks.tracks && projectData.tracks.tracks.length > 0) {
         console.log(`Loading ${projectData.tracks.tracks.length} tracks in parallel...`);
         const startTime = performance.now();
-        
+
         // Fetch URLs for all tracks in parallel
         const trackUrlPromises = projectData.tracks.tracks.map(async (track: any) => {
           try {
@@ -745,20 +745,20 @@ function MusicClipPage() {
 
         // Wait for all track URL requests to complete
         const trackResults = await Promise.all(trackUrlPromises);
-        
+
         const endTime = performance.now();
         const loadTime = endTime - startTime;
         const successfulTracks = trackResults.filter(result => result.success).length;
         const failedTracks = trackResults.length - successfulTracks;
         console.log(`Loaded ${trackResults.length} tracks in ${loadTime.toFixed(2)}ms (parallel) - ${successfulTracks} successful, ${failedTracks} failed`);
-        
+
         // Create MusicTrack objects from the results
         const tracks: MusicTrack[] = trackResults.map(({ track, url, success }) => {
           console.log(`Track ${track.id}: URL=${url}, Success=${success}`);
-          
+
           // For existing tracks from backend, don't create a File object
           // The S3 URL will be used directly for playback
-          
+
           return {
             id: track.id,
             // No file property for tracks loaded from backend
@@ -772,19 +772,19 @@ function MusicClipPage() {
             isGenerated: track.ai_generated,
           };
         });
-        
+
         musicTracks.setMusicTracks(tracks);
-        
+
         if (tracks.length > 0) {
           musicTracks.setSelectedTrackId(tracks[0].id);
           musicTracks.setSelectedTrackIds([tracks[0].id]);
         }
-        
+
         // Reset validation state when loading project
         console.log('Resetting validation state for loaded project');
         setTrackValidity({});
       }
-      
+
       // Load analysis data if available
       if (projectData?.analysis) {
         console.log('Loading analysis data from project:', projectData.analysis);
@@ -792,7 +792,7 @@ function MusicClipPage() {
       }
     } catch (error) {
       console.error('Failed to load existing project:', error);
-      
+
       // Show user-friendly error message
       if (error instanceof Error && error.message.includes('Project not found')) {
         toast({
@@ -814,7 +814,7 @@ function MusicClipPage() {
 
   const handleGenerateMusic = async (options?: { duration: number; model: string }, isInstrumental?: boolean) => {
     console.log('handleGenerateMusic called with:', { options, isInstrumental, musicPrompt: musicClipState.state.musicPrompt });
-    
+
     if (!musicClipState.state.musicPrompt.trim()) {
       toast({
         variant: "destructive",
@@ -830,43 +830,43 @@ function MusicClipPage() {
 
   const handleGenerateMusicPrompt = async (selectedGenre?: string, isInstrumental?: boolean) => {
     musicClipState.actions.setIsUploadingTracks(true);
-    
+
     try {
       // Create project if not already created
       const projectId = await projectManagement.actions.createProject();
-      
+
       const categories = selectedGenre ? [selectedGenre] : undefined;
-      
+
       const params = new URLSearchParams({
         prompt_type: 'music',
         source: 'json',
         instrumental: (isInstrumental || false).toString(),
       });
-      
+
       if (categories) {
         params.append('categories', categories.join(','));
       }
 
       const response = await fetch(`/api/prompts/random?${params.toString()}`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch prompt');
       }
-      
+
       const data = await response.json();
-      
+
       // Generate prompts for the specified number of tracks
       const generatedTracks: MusicTrack[] = [];
       for (let i = 0; i < musicClipState.state.musicTracksToGenerate; i++) {
         const trackId = `generated-${Date.now()}-${i}`;
         const trackNumber = musicTracks.musicTracks.length + i + 1;
         const trackName = data.category ? `${data.category} Track ${trackNumber}` : `Generated Track ${trackNumber}`;
-        
+
         // Create a placeholder file for AI-generated tracks
         // Note: These are placeholder tracks for prompt generation only
         // They don't have actual audio files until generated
         const placeholderFile = new File([], trackName, { type: 'audio/wav' });
-        
+
         const track: MusicTrack = {
           id: trackId,
           file: placeholderFile,
@@ -881,20 +881,20 @@ function MusicClipPage() {
         };
         generatedTracks.push(track);
       }
-      
+
       musicTracks.addTracks(generatedTracks);
-      
+
       // Update the music prompt form field
       musicClipState.forms.promptForm.setValue('musicDescription', data.prompt);
-      
+
       // Immediately save the generated prompt to localStorage
       musicClipState.actions.setMusicPrompt(data.prompt);
-      
+
       toast({
         title: "Music Prompts Generated",
         description: `Generated ${musicClipState.state.musicTracksToGenerate} track${musicClipState.state.musicTracksToGenerate !== 1 ? 's' : ''} with ${data.category} style prompts.`,
       });
-      
+
     } catch (error) {
       console.error('Error generating music prompts:', error);
       toast({
@@ -912,18 +912,18 @@ function MusicClipPage() {
     if (isInstrumental !== undefined) {
       musicClipState.actions.setIsInstrumental(isInstrumental);
     }
-    
+
     try {
       const data = await promptGeneration.generateMusicDescription(selectedGenre, isInstrumental);
-      
+
       // Only update the music prompt text area, don't create tracks
       musicClipState.actions.setMusicPrompt(data.prompt);
-      
+
       toast({
         title: "Music Description Generated",
         description: `Generated ${data.category} style description for your music.`,
       });
-      
+
     } catch (error) {
       console.error('Error generating music description:', error);
     }
@@ -939,7 +939,7 @@ function MusicClipPage() {
 
   const handleAudioFileChange = async (files: File[]) => {
     const audioFiles = files.filter(file => file.type.startsWith("audio/"));
-    
+
     if (audioFiles.length === 0) {
       toast({
         variant: "destructive",
@@ -948,31 +948,31 @@ function MusicClipPage() {
       });
       return;
     }
-    
+
     musicClipState.actions.setIsUploadingTracks(true);
-    
+
     try {
       const projectId = await projectManagement.actions.createProject();
-      
+
       if (!projectId) {
         throw new Error('Failed to create project');
       }
-      
+
       // Use parallel batch upload for multiple files
       if (audioFiles.length > 1) {
         const batchResult = await musicClipAPI.uploadTracksBatch(projectId, audioFiles, {
           ai_generated: false,
           instrumental: false,
         });
-        
+
         const newTracks: MusicTrack[] = [];
-        
+
         // Process successful uploads
         for (const result of batchResult.successful_tracks) {
           const file = audioFiles.find(f => f.name === result.filename);
           if (file && result.track_id) {
             const url = URL.createObjectURL(file);
-            
+
             const newTrack: MusicTrack = {
               id: result.track_id,
               file: file,
@@ -985,16 +985,16 @@ function MusicClipPage() {
               videoDescription: result.video_description,
               isGenerated: result.ai_generated || false,
             };
-            
+
             newTracks.push(newTrack);
-            
+
             const audio = new Audio(url);
             audio.addEventListener('loadedmetadata', () => {
               musicTracks.updateTrackDuration(newTrack.id, audio.duration);
             });
           }
         }
-        
+
         // Handle failed uploads
         if (batchResult.failed_uploads > 0) {
           const failedFiles = batchResult.failed_tracks.map(t => t.filename).join(', ');
@@ -1004,15 +1004,15 @@ function MusicClipPage() {
             description: `Failed to upload ${batchResult.failed_uploads} file(s): ${failedFiles}`,
           });
         }
-        
+
         if (newTracks.length > 0) {
           musicTracks.addTracks(newTracks);
-          
+
           const firstTrack = newTracks[0];
           musicClipState.actions.setAudioFile(firstTrack.file || null);
           musicClipState.actions.setAudioUrl(firstTrack.url);
           musicClipState.actions.setAudioDuration(firstTrack.duration);
-          
+
           toast({
             title: "Tracks Uploaded",
             description: `Successfully uploaded ${newTracks.length} track(s) in ${batchResult.processing_time_seconds.toFixed(1)}s.`,
@@ -1026,9 +1026,9 @@ function MusicClipPage() {
             ai_generated: false,
             instrumental: false,
           });
-          
+
           const url = URL.createObjectURL(file);
-          
+
           const newTrack: MusicTrack = {
             id: uploadResult.track_id,
             file: file,
@@ -1041,23 +1041,23 @@ function MusicClipPage() {
             videoDescription: uploadResult.video_description,
             isGenerated: uploadResult.ai_generated,
           };
-          
+
           musicTracks.addTracks([newTrack]);
-          
+
           const audio = new Audio(url);
           audio.addEventListener('loadedmetadata', () => {
             musicTracks.updateTrackDuration(newTrack.id, audio.duration);
           });
-          
+
           musicClipState.actions.setAudioFile(newTrack.file || null);
           musicClipState.actions.setAudioUrl(newTrack.url);
           musicClipState.actions.setAudioDuration(newTrack.duration);
-          
+
           toast({
             title: "Track Uploaded",
             description: `Successfully uploaded ${file.name} to your project.`,
           });
-          
+
         } catch (error) {
           console.error(`Failed to upload track ${file.name}:`, error);
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -1075,7 +1075,7 @@ function MusicClipPage() {
 
   const handleTrackSelect = (track: MusicTrack, event?: React.MouseEvent) => {
     musicTracks.selectTrack(track, event);
-    
+
     // Only set audio file if it exists (for uploaded tracks)
     if (track.file) {
       musicClipState.actions.setAudioFile(track.file);
@@ -1095,9 +1095,9 @@ function MusicClipPage() {
     if (audioPlayback.currentlyPlayingId === trackId) {
       audioPlayback.stopCurrentAudio();
     }
-    
+
     musicTracks.removeTrack(trackId);
-    
+
     if (musicTracks.selectedTrackId === trackId) {
       const remainingTracks = musicTracks.musicTracks.filter(track => track.id !== trackId);
       if (remainingTracks.length > 0) {
@@ -1114,7 +1114,7 @@ function MusicClipPage() {
   const handleTrackReorder = (fromId: string, toId: string, position: 'above' | 'below' | null) => {
     const fromIndex = musicTracks.musicTracks.findIndex(t => t.id === fromId);
     const toIndex = musicTracks.musicTracks.findIndex(t => t.id === toId);
-    
+
     if (fromIndex !== -1 && toIndex !== -1) {
       const adjustedToIndex = position === 'below' ? toIndex + 1 : toIndex;
       musicTracks.reorderTracks(fromIndex, adjustedToIndex);
@@ -1128,9 +1128,9 @@ function MusicClipPage() {
       budget: values.budget || [currentBudget],
       user_price: currentBudget, // Save the user-set price separately
     };
-    
+
     musicClipState.actions.setSettings(settingsWithDefaults);
-    
+
     if (projectManagement.state.currentProjectId) {
       try {
         await projectManagement.actions.updateProjectSettings(projectManagement.state.currentProjectId, settingsWithDefaults);
@@ -1138,45 +1138,45 @@ function MusicClipPage() {
         console.error('Failed to save settings:', error);
       }
     }
-    
+
     musicClipState.actions.setCurrentStep(3);
     musicClipState.actions.setMaxReachedStep(3);
   };
 
   const handleReuseVideoToggle = useCallback((enabled: boolean) => {
     console.log('handleReuseVideoToggle called with:', enabled);
-    
+
     // Get current mode before updating settings
     const currentSettings = musicClipState.forms.settingsForm.getValues();
     const wasInReuseMode = currentSettings.useSameVideoForAll;
-    
+
     // Update the settings state immediately so validation logic works correctly
     const updatedSettings = {
       ...currentSettings,
       useSameVideoForAll: enabled
     };
     musicClipState.actions.setSettings(updatedSettings);
-    
+
     // Get current form value for potential use in both modes
     const currentFormValue = musicClipState.forms.promptForm.getValues("videoDescription") || "";
     let descriptionToUse = "";
-    
+
     if (enabled) {
       // Switching TO reuse mode: save current individual descriptions and load shared description
       console.log('Switching to reuse mode - saving current individual descriptions');
-      
+
       // Save current individual descriptions to localStorage before switching
       const currentIndividualDescriptions = { ...musicClipState.state.individualDescriptions };
       setPreservedIndividualDescriptions(currentIndividualDescriptions);
-      
+
       // Save to localStorage immediately
       if (typeof window !== 'undefined' && projectId) {
         localStorage.setItem(`musicClip_${projectId}_individualDescriptions`, JSON.stringify(currentIndividualDescriptions));
       }
-      
+
       // Load shared description from localStorage or use existing
       const existingSharedDesc = musicClipState.state.sharedDescription || musicClipState.state.prompts?.videoDescription || "";
-      
+
       // If we were already in reuse mode, preserve the current form value
       // If we're switching from individual mode, use stored shared description
       if (wasInReuseMode) {
@@ -1186,22 +1186,22 @@ function MusicClipPage() {
         // When switching from individual to reuse mode, use empty string if no shared description exists
         // This prevents using individual track descriptions as shared descriptions
         descriptionToUse = existingSharedDesc;
-        console.log('Switching from individual to reuse mode - using stored shared description:', { 
-          currentFormValue, 
-          existingSharedDesc, 
+        console.log('Switching from individual to reuse mode - using stored shared description:', {
+          currentFormValue,
+          existingSharedDesc,
           descriptionToUse,
           wasInReuseMode,
           note: 'If shared description contains individual track data, it was incorrectly saved previously'
         });
       }
-      
+
       musicClipState.actions.setSharedDescription(descriptionToUse);
       musicClipState.forms.promptForm.setValue("videoDescription", descriptionToUse, { shouldValidate: true, shouldDirty: true });
-      
+
     } else {
       // Switching FROM reuse mode: save current shared description and load individual descriptions
       console.log('Switching to individual mode - saving current shared description');
-      
+
       // Save current shared description to localStorage before switching
       const currentSharedDesc = musicClipState.state.sharedDescription || musicClipState.forms.promptForm.getValues("videoDescription") || "";
       if (currentSharedDesc) {
@@ -1223,27 +1223,27 @@ function MusicClipPage() {
           }
         }
       }
-      
+
       // Apply loaded individual descriptions
       musicClipState.actions.setIndividualDescriptions(individualDescriptionsToLoad);
-      
+
       // Clear the form field for individual mode
       musicClipState.forms.promptForm.setValue("videoDescription", '', { shouldValidate: true, shouldDirty: true });
     }
-    
+
     // Force immediate validation update by running validation logic directly
     const minLen = 10;
     const maxLen = 500;
     const newMap: Record<string, boolean> = {};
-    
+
     if (enabled) {
       // Reuse mode: validate based on shared description
       const sharedDesc = descriptionToUse?.trim() || "";
       const isValid = sharedDesc.length >= minLen && sharedDesc.length <= maxLen;
-      
+
       // Apply the same validation to all tracks based on shared description
-      musicTracks.musicTracks.forEach(t => { 
-        newMap[t.id] = isValid; 
+      musicTracks.musicTracks.forEach(t => {
+        newMap[t.id] = isValid;
       });
     } else {
       // Individual mode: validate based on individual descriptions
@@ -1253,7 +1253,7 @@ function MusicClipPage() {
         newMap[t.id] = isValid;
       });
     }
-    
+
     // Update validation state immediately
     if (musicTracks.musicTracks.length > 0) {
       setTrackValidity(newMap);
@@ -1262,7 +1262,7 @@ function MusicClipPage() {
 
   const onPromptSubmit = (values: z.infer<typeof PromptSchema>, newTrackDescriptions?: Record<string, string>, trackGenres?: Record<string, string>) => {
     musicClipState.actions.setPrompts(values);
-    
+
     if (musicClipState.state.settings?.useSameVideoForAll) {
       // Reuse mode: save as shared description
       if (values.videoDescription) {
@@ -1277,21 +1277,21 @@ function MusicClipPage() {
         }));
       }
     }
-    
+
     if (trackGenres) {
       musicTracks.setTrackGenres(prev => ({
         ...prev,
         ...trackGenres
       }));
     }
-    
+
     if (trackGenres) {
       musicTracks.setMusicTracks(prev => prev.map(track => ({
         ...track,
         genre: trackGenres[track.id] || track.genre
       })));
     }
-    
+
     musicClipState.actions.setCurrentStep(4);
     musicClipState.actions.setMaxReachedStep(4);
   };
@@ -1304,7 +1304,7 @@ function MusicClipPage() {
     console.log('=== onOverviewSubmit CALLED ===');
     console.log('Values:', values);
     console.log('Current step before:', musicClipState.state.currentStep);
-    
+
     // Navigate to step 4
     console.log('Navigating to step 4...');
     musicClipState.actions.setCurrentStep(4);
@@ -1316,7 +1316,7 @@ function MusicClipPage() {
       e.preventDefault();
       e.stopPropagation();
     }
-    
+
     audioPlayback.stopAllAudio();
     musicClipState.actions.handleReset();
     projectManagement.actions.clearProjectData();
@@ -1325,7 +1325,7 @@ function MusicClipPage() {
     musicTracks.setSelectedTrackIds([]);
     musicTracks.setTrackDescriptions({});
     musicTracks.setTrackGenres({});
-    
+
     router.replace('/dashboard/create');
   };
 
@@ -1398,33 +1398,33 @@ function MusicClipPage() {
             transform: translateY(0);
           }
         }
-        
+
         .animate-fade-in-up {
           animation: fade-in-up 0.6s ease-out forwards;
         }
       `}</style>
-      
+
       <div className="h-screen bg-background flex flex-col">
         {/* HEADER */}
         <div className="border-b border-border bg-card">
           <div className="max-w-7xl mx-auto px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <Link 
+                <Link
                   href="/dashboard/create"
                   className="flex items-center space-x-2 text-foreground hover:text-foreground transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span className="text-sm">Back to Create</span>
                 </Link>
-                
+
               </div>
-              
+
               <div className="flex-1 flex justify-center">
-                <TimelineHeader 
-                  currentStep={musicClipState.state.currentStep} 
+                <TimelineHeader
+                  currentStep={musicClipState.state.currentStep}
                   maxReachedStep={musicClipState.state.maxReachedStep}
-                  totalSteps={4} 
+                  totalSteps={4}
                   onStepClick={(step) => {
                     if (step <= musicClipState.state.maxReachedStep) {
                       musicClipState.actions.setCurrentStep(step as 1 | 2 | 3 | 4);
@@ -1432,7 +1432,7 @@ function MusicClipPage() {
                   }}
                 />
               </div>
-              
+
               <Badge className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg flex items-center space-x-2">
                 <MusicLogo className="w-4 h-4" />
                 <span>Music Clip Creator</span>
@@ -1504,7 +1504,7 @@ function MusicClipPage() {
               </div>
 
               {/* RIGHT SIDE - DRAG AND DROP AREA */}
-              <div 
+              <div
                 className={`flex flex-col h-full xl:col-span-1 min-h-[600px] xl:min-h-[calc(100vh-200px)] transition-all duration-300 ${
                   dragAndDrop.state.isDragOver ? 'scale-[1.02]' : ''
                 }`}
@@ -1513,10 +1513,10 @@ function MusicClipPage() {
                 onDragLeave={(e) => dragAndDrop.actions.handleDragLeave(e, dragAndDrop.state.isTrackReordering)}
                 onDrop={(e) => {
                   dragAndDrop.actions.handleDrop(e, dragAndDrop.state.isTrackReordering);
-                  
+
                   const files = Array.from(e.dataTransfer.files);
                   const audioFiles = files.filter(file => file.type.startsWith('audio/'));
-                  
+
                   if (audioFiles.length === 0) {
                     toast({
                       variant: "destructive",
@@ -1525,13 +1525,13 @@ function MusicClipPage() {
                     });
                     return;
                   }
-                  
+
                   handleAudioFileChange(audioFiles);
                 }}
               >
                 <Card className={`bg-card border  flex-1 flex flex-col min-h-0 transition-all duration-300 ${
-                  dragAndDrop.state.isDragOver 
-                    ? 'border-primary/50 bg-primary/5' 
+                  dragAndDrop.state.isDragOver
+                    ? 'border-primary/50 bg-primary/5'
                     : 'border-border'
                 }`}>
                   <CardHeader className="pb-4">
@@ -1563,7 +1563,7 @@ function MusicClipPage() {
                         </div>
                       )}
                     </div>
-                    
+
                     {musicTracks.musicTracks.length === 0 && (
                       <div className="mt-3 p-3 bg-muted/30 rounded-lg border border-dashed border-border">
                         <p className="text-sm text-muted-foreground text-center">
@@ -1572,7 +1572,7 @@ function MusicClipPage() {
                       </div>
                     )}
                   </CardHeader>
-                  
+
                   <CardContent className="flex-1 flex flex-col min-h-0">
                     <div className="flex-1 min-h-0">
                       {musicClipState.state.isUploadingTracks ? (
@@ -1614,7 +1614,7 @@ function MusicClipPage() {
                           </div>
                         </div>
                       ) : (
-                        <div 
+                        <div
                           className={`p-3 space-y-2 h-full overflow-y-auto transition-all duration-300 relative scrollbar-modern ${
                             dragAndDrop.state.isDragOver ? 'opacity-50' : ''
                           }`}
@@ -1659,7 +1659,7 @@ function MusicClipPage() {
                         </div>
                       )}
                     </div>
-                    
+
                     {musicTracks.selectedTrackIds.length > 1 && (
                       <div className="p-3">
                         <Button
@@ -1683,22 +1683,22 @@ function MusicClipPage() {
                 </Card>
               </div>
             </div>
-            
+
             {/* NAVIGATION BUTTONS */}
             {musicTracks.musicTracks.length > 0 && musicTracks.selectedTrackId && musicClipState.state.currentStep <= 4 && (
               <div className="fixed bottom-0 left-16 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                   <div className="flex items-center justify-between">
                     <div className="w-24 flex-shrink-0">
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={(e) => {
                           if (musicClipState.state.currentStep > 1) {
                             musicClipState.actions.handleBack();
                           } else {
                             handleBack(e);
                           }
-                        }} 
+                        }}
                         className="w-24 h-10 flex items-center justify-center space-x-2 text-foreground border-border hover:bg-muted hover:text-foreground min-w-24 max-w-24"
                         disabled={musicClipState.state.currentStep === 1 && musicTracks.musicTracks.length === 0}
                         style={{ width: '96px', minWidth: '96px', maxWidth: '96px' }}
@@ -1707,10 +1707,10 @@ function MusicClipPage() {
                         <span>Back</span>
                       </Button>
                     </div>
-                    
+
                     {musicClipState.state.currentStep === 3 && (
                       <div className="flex-1 flex justify-end">
-                        <Button 
+                        <Button
                           onClick={async () => {
                             console.log('=== MUSIC CLIP STEP 3 CONTINUE BUTTON CLICKED ===');
                             console.log('Current step:', musicClipState.state.currentStep);
@@ -1718,21 +1718,21 @@ function MusicClipPage() {
                             console.log('Form state:', musicClipState.forms.overviewForm.formState);
                             console.log('Form errors:', musicClipState.forms.overviewForm.formState.errors);
                             console.log('Form isValid:', musicClipState.forms.overviewForm.formState.isValid);
-                            
+
                             // Ensure all tracks are analyzed before proceeding
                             try {
                               musicClipState.actions.setIsAnalyzingMusic(true);
-                              
+
                               // Get tracks that need analysis
                               const tracksNeedingAnalysis = musicAnalysis.getTracksNeedingAnalysis(musicTracks.musicTracks);
-                              
+
                               if (tracksNeedingAnalysis.length > 0) {
                                 console.log(`Analyzing ${tracksNeedingAnalysis.length} tracks before proceeding to step 4`);
                                 await musicAnalysis.analyzeMissingTracks(musicTracks.musicTracks);
                               } else {
                                 console.log('All tracks already analyzed');
                               }
-                              
+
                               // Save analysis data to project if we have any
                               if (musicAnalysis.analysisData && projectManagement.state.currentProjectId) {
                                 try {
@@ -1752,12 +1752,12 @@ function MusicClipPage() {
                             } finally {
                               musicClipState.actions.setIsAnalyzingMusic(false);
                             }
-                            
+
                             // Navigate to step 4
                             console.log('Directly navigating to step 4 (bypassing form validation)...');
                             musicClipState.actions.setCurrentStep(4);
                             console.log('Current step after setCurrentStep(4):', musicClipState.state.currentStep);
-                          }} 
+                          }}
                           className="flex items-center space-x-2 text-white btn-ai-gradient"
                           disabled={musicClipState.state.isGeneratingVideo}
                         >
@@ -1766,10 +1766,10 @@ function MusicClipPage() {
                         </Button>
                       </div>
                     )}
-                    
+
                     {musicClipState.state.currentStep === 1 && (
-                      <Button 
-                        onClick={musicClipState.actions.handleContinue} 
+                      <Button
+                        onClick={musicClipState.actions.handleContinue}
                         className={`flex items-center space-x-2 text-white ${
                           musicTracks.musicTracks.length > 0 && musicTracks.selectedTrackId ? 'btn-ai-gradient' : 'bg-muted text-foreground/50 cursor-not-allowed'
                         }`}
@@ -1779,10 +1779,10 @@ function MusicClipPage() {
                         <ChevronRight className="w-4 h-4" />
                       </Button>
                     )}
-                    
+
                     {musicClipState.state.currentStep === 2 && (
-                      <Button 
-                        onClick={() => musicClipState.forms.settingsForm.handleSubmit(handleSettingsSubmit)()} 
+                      <Button
+                        onClick={() => musicClipState.forms.settingsForm.handleSubmit(handleSettingsSubmit)()}
                         className={`flex items-center space-x-2 text-white ${
                           musicClipState.forms.settingsForm.formState.isValid ? 'btn-ai-gradient' : 'bg-muted text-foreground/50 cursor-not-allowed'
                         }`}
@@ -1792,8 +1792,8 @@ function MusicClipPage() {
                         <ChevronRight className="w-4 h-4" />
                       </Button>
                     )}
-                    
-                    
+
+
                   </div>
                 </div>
               </div>
@@ -1801,7 +1801,7 @@ function MusicClipPage() {
           </div>
         </div>
 
-        
+
         {/* Genre Selector Modal */}
         <GenreSelector
           isOpen={musicClipState.state.showGenreSelector}
@@ -1815,8 +1815,8 @@ function MusicClipPage() {
           isVisible={musicClipState.state.isAnalyzingMusic}
           title="Analyzing Music"
           subtitle="AI is processing your audio tracks..."
-          progress={musicAnalysis.analysisProgress ? 
-            Object.values(musicAnalysis.analysisProgress).filter(status => status === 'completed').length / 
+          progress={musicAnalysis.analysisProgress ?
+            Object.values(musicAnalysis.analysisProgress).filter(status => status === 'completed').length /
             Object.keys(musicAnalysis.analysisProgress).length * 100 : undefined}
         />
 

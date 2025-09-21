@@ -5,11 +5,11 @@ import { ClipiziLogo } from "@/components/vibewave-logo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { 
-  Home, 
-  FileText, 
-  Settings, 
-  LogOut, 
+import {
+  Home,
+  FileText,
+  Settings,
+  LogOut,
   User,
   Menu,
   X,
@@ -42,7 +42,7 @@ export default function AdminLayout({
     <div className="min-h-screen bg-background">
       {/* MOBILE SIDEBAR OVERLAY */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-black/50 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
@@ -75,7 +75,7 @@ export default function AdminLayout({
               {adminNavigation.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
-                
+
                 return (
                   <li key={item.name}>
                     <Link

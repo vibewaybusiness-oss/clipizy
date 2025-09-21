@@ -43,8 +43,8 @@ export function StepNavigation({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className={`${currentStep === 4 ? 'grid grid-cols-1 xl:grid-cols-3 gap-6' : 'flex items-center justify-between'}`}>
           <div className={currentStep === 4 ? 'xl:col-span-2' : ''}>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={(e) => {
                 if (currentStep > 1) {
                   // Go to previous step
@@ -53,7 +53,7 @@ export function StepNavigation({
                   // Go back to previous page
                   onBack(e);
                 }
-              }} 
+              }}
               className="flex items-center space-x-2 btn-secondary-hover"
               disabled={currentStep === 1 && musicTracksCount === 0}
             >
@@ -61,11 +61,11 @@ export function StepNavigation({
               <span>Back</span>
             </Button>
           </div>
-          
+
           {currentStep === 4 && (
             <div className="xl:col-span-1">
-              <Button 
-                onClick={onOverviewSubmit} 
+              <Button
+                onClick={onOverviewSubmit}
                 className="w-full h-10 text-base font-semibold btn-ai-gradient text-white flex items-center space-x-2"
               >
                 <Film className="w-4 h-4" />
@@ -73,10 +73,10 @@ export function StepNavigation({
               </Button>
             </div>
           )}
-          
+
           {currentStep === 1 && (
-            <Button 
-              onClick={onContinue} 
+            <Button
+              onClick={onContinue}
               className={`flex items-center space-x-2 text-white ${
                 musicTracksCount > 0 && selectedTrackId ? 'btn-ai-gradient' : 'bg-muted text-muted-foreground cursor-not-allowed'
               }`}
@@ -86,10 +86,10 @@ export function StepNavigation({
               <ChevronRight className="w-4 h-4" />
             </Button>
           )}
-          
+
           {currentStep === 2 && (
-            <Button 
-              onClick={onSettingsSubmit} 
+            <Button
+              onClick={onSettingsSubmit}
               className={`flex items-center space-x-2 text-white ${
                 settingsFormValid ? 'btn-ai-gradient' : 'bg-muted text-muted-foreground cursor-not-allowed'
               }`}
@@ -99,10 +99,10 @@ export function StepNavigation({
               <ChevronRight className="w-4 h-4" />
             </Button>
           )}
-          
+
           {currentStep === 3 && (
-            <Button 
-              onClick={onPromptSubmit} 
+            <Button
+              onClick={onPromptSubmit}
               className={`flex items-center space-x-2 text-white ${
                 promptFormValid ? 'btn-ai-gradient' : 'bg-muted text-muted-foreground cursor-not-allowed'
               }`}

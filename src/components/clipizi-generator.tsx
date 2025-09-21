@@ -50,15 +50,15 @@ export type Step = "UPLOAD" | "SETTINGS" | "PROMPT" | "OVERVIEW" | "GENERATING" 
 export type GenerationMode = "upload" | "generate";
 
 export const calculateLoopedBudget = async (
-    totalDurationSeconds: number, 
-    trackCount: number, 
+    totalDurationSeconds: number,
+    trackCount: number,
     pricingService: any,
     reuseVideo: boolean = false,
     videoType: 'looped-static' | 'looped-animated' = 'looped-static'
 ): Promise<number> => {
     const totalMinutes = totalDurationSeconds / 60;
     const units = reuseVideo ? 1 : trackCount;
-    
+
     try {
         if (videoType === 'looped-static') {
             const price = await pricingService.calculateImagePrice(units, totalMinutes, 'clipizi-model');
@@ -70,7 +70,7 @@ export const calculateLoopedBudget = async (
     } catch (error) {
         console.error('Error calculating looped budget:', error);
     }
-    
+
     return 100;
 };
 
@@ -83,7 +83,7 @@ export const calculateScenesBudget = async (
     const totalMinutes = totalDurationSeconds / 60;
     const longestTrackMinutes = Math.max(...trackDurations) / 60;
     const videoDuration = reuseVideo ? longestTrackMinutes : totalMinutes;
-    
+
     try {
         const price = await pricingService.calculateVideoPrice(videoDuration, 'clipizi-model');
         return price.credits;
@@ -102,7 +102,7 @@ export const getScenesInfo = (
     const numberOfVideos = trackDurations.length || 1;
     const scenesPerVideo = reuseVideo ? totalScenes : Math.ceil(totalScenes / numberOfVideos);
     const actualNumberOfVideos = reuseVideo ? 1 : numberOfVideos;
-    
+
     return {
         scenesPerVideo,
         numberOfVideos: actualNumberOfVideos,

@@ -58,13 +58,13 @@ export function useReuseVideoclip({
       const savedReuse = localStorage.getItem(`musicClip_${projectId}_reuseEnabled`);
       const savedShared = localStorage.getItem(`musicClip_${projectId}_sharedDescription`);
       const savedIndividual = localStorage.getItem(`musicClip_${projectId}_individualDescriptions`);
-      
+
       console.log('Loaded from localStorage:', {
         reuseEnabled: savedReuse,
         sharedDescription: savedShared,
         individualDescriptions: savedIndividual
       });
-      
+
       if (savedReuse !== null) {
         setIsReuseEnabled(JSON.parse(savedReuse));
       }
@@ -82,13 +82,13 @@ export function useReuseVideoclip({
         const tempReuse = localStorage.getItem('musicClip_temp_reuseEnabled');
         const tempShared = localStorage.getItem('musicClip_temp_sharedDescription');
         const tempIndividual = localStorage.getItem('musicClip_temp_individualDescriptions');
-        
+
         console.log('Loading from temp localStorage:', {
           reuseEnabled: tempReuse,
           sharedDescription: tempShared,
           individualDescriptions: tempIndividual
         });
-        
+
         if (tempReuse !== null) {
           setIsReuseEnabled(JSON.parse(tempReuse));
         }
@@ -162,7 +162,7 @@ export function useReuseVideoclip({
           newTrackDescriptions[trackId] = sharedDesc;
         });
         setTrackDescriptions(newTrackDescriptions);
-        
+
         // Update form with shared description (with a small delay to ensure form is ready)
         setTimeout(() => {
           promptForm.setValue("videoDescription", sharedDesc, { shouldValidate: true, shouldDirty: true });
@@ -170,7 +170,7 @@ export function useReuseVideoclip({
       } else {
         // Individual mode: use individual descriptions
         setTrackDescriptions(completeIndividualDescs);
-        
+
         // Set form to current track's description if available (with a small delay to ensure form is ready)
         setTimeout(() => {
           const currentTrackId = allTrackIds[0]; // Default to first track
@@ -188,7 +188,7 @@ export function useReuseVideoclip({
   useEffect(() => {
     if (musicTracks.length > 0) {
       const allTrackIds = musicTracks.map(track => track.id);
-      
+
       if (isReuseEnabled) {
         // Reuse mode: apply shared description to all tracks
         const newTrackDescriptions: Record<string, string> = {};
@@ -196,7 +196,7 @@ export function useReuseVideoclip({
           newTrackDescriptions[trackId] = sharedDescription;
         });
         setTrackDescriptions(newTrackDescriptions);
-        
+
         // Update form with shared description (with a small delay to ensure form is ready)
         setTimeout(() => {
           promptForm.setValue("videoDescription", sharedDescription, { shouldValidate: true, shouldDirty: true });
@@ -208,7 +208,7 @@ export function useReuseVideoclip({
           completeIndividualDescs[trackId] = individualDescriptions[trackId] || '';
         });
         setTrackDescriptions(completeIndividualDescs);
-        
+
         // Set form to current track's description if available (with a small delay to ensure form is ready)
         setTimeout(() => {
           const currentTrackId = allTrackIds[0]; // Default to first track
@@ -243,7 +243,7 @@ export function useReuseVideoclip({
       const savedReuse = localStorage.getItem(`musicClip_${projectId}_reuseEnabled`);
       const savedShared = localStorage.getItem(`musicClip_${projectId}_sharedDescription`);
       const savedIndividual = localStorage.getItem(`musicClip_${projectId}_individualDescriptions`);
-      
+
       if (savedReuse !== null) {
         setIsReuseEnabled(JSON.parse(savedReuse));
       }
@@ -284,9 +284,9 @@ export function useReuseVideoclip({
       console.log('Skipping empty description update, keeping existing:', sharedDescription);
       return;
     }
-    
+
     setSharedDescription(description);
-    
+
     if (isReuseEnabled) {
       // Update all tracks with the shared description
       const newTrackDescriptions: Record<string, string> = {};
@@ -295,7 +295,7 @@ export function useReuseVideoclip({
       });
       setTrackDescriptions(newTrackDescriptions);
     }
-    
+
     // Save to localStorage immediately
     if (typeof window !== 'undefined') {
       if (projectId) {
@@ -317,21 +317,21 @@ export function useReuseVideoclip({
         console.log('Skipping empty individual description update for track:', trackId, 'keeping existing:', existingDescription);
         return;
       }
-      
+
       // Only update individual descriptions when not in reuse mode
       const newIndividualDescriptions = {
         ...individualDescriptions,
         [trackId]: description
       };
       setIndividualDescriptions(newIndividualDescriptions);
-      
+
       // Update track descriptions
       const newTrackDescriptions = {
         ...trackDescriptions,
         [trackId]: description
       };
       setTrackDescriptions(newTrackDescriptions);
-      
+
       // Save to localStorage immediately
       if (typeof window !== 'undefined') {
         if (projectId) {
@@ -348,29 +348,29 @@ export function useReuseVideoclip({
   // Toggle reuse mode
   const toggleReuse = useCallback((enabled: boolean) => {
     setIsReuseEnabled(enabled);
-    
+
     if (enabled) {
       // Switching to reuse mode
       const currentSharedDesc = promptForm.getValues("videoDescription") || sharedDescription;
       setSharedDescription(currentSharedDesc);
-      
+
       // Save current individual descriptions before switching
       const currentIndividual: Record<string, string> = {};
       musicTracks.forEach(track => {
         currentIndividual[track.id] = individualDescriptions[track.id] || trackDescriptions[track.id] || '';
       });
       setIndividualDescriptions(currentIndividual);
-      
+
       // Apply shared description to all tracks
       const newTrackDescriptions: Record<string, string> = {};
       musicTracks.forEach(track => {
         newTrackDescriptions[track.id] = currentSharedDesc;
       });
       setTrackDescriptions(newTrackDescriptions);
-      
+
       // Update form with shared description
       promptForm.setValue("videoDescription", currentSharedDesc, { shouldValidate: true, shouldDirty: true });
-      
+
       // Save to localStorage immediately
       if (typeof window !== 'undefined') {
         if (projectId) {
@@ -391,7 +391,7 @@ export function useReuseVideoclip({
         restoredDescriptions[track.id] = individualDescriptions[track.id] || trackDescriptions[track.id] || '';
       });
       setTrackDescriptions(restoredDescriptions);
-      
+
       // Set form to current track's description if available
       const currentTrackId = musicTracks.find(track => track.id === settingsForm.getValues("selectedTrackId"))?.id;
       if (currentTrackId && individualDescriptions[currentTrackId]) {
@@ -399,7 +399,7 @@ export function useReuseVideoclip({
       } else {
         promptForm.setValue("videoDescription", "", { shouldValidate: true, shouldDirty: true });
       }
-      
+
       // Save to localStorage immediately
       if (typeof window !== 'undefined') {
         if (projectId) {
@@ -412,11 +412,11 @@ export function useReuseVideoclip({
       }
     }
   }, [
-    promptForm, 
-    sharedDescription, 
-    musicTracks, 
-    individualDescriptions, 
-    trackDescriptions, 
+    promptForm,
+    sharedDescription,
+    musicTracks,
+    individualDescriptions,
+    trackDescriptions,
     setTrackDescriptions,
     settingsForm,
     projectId

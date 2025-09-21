@@ -13,11 +13,11 @@ interface BlogSidebarProps {
   tags: BlogTag[];
 }
 
-export function BlogSidebar({ 
-  popularPosts, 
-  recentPosts, 
-  categories, 
-  tags 
+export function BlogSidebar({
+  popularPosts,
+  recentPosts,
+  categories,
+  tags
 }: BlogSidebarProps) {
   return (
     <div className="space-y-8">
@@ -36,7 +36,7 @@ export function BlogSidebar({
                 {index + 1}
               </div>
               <div className="flex-1 min-w-0">
-                <Link 
+                <Link
                   href={`/blog/${post.slug}`}
                   className="text-sm font-semibold hover:text-primary transition-colors line-clamp-2 group-hover:underline text-foreground/90 leading-snug"
                 >
@@ -82,7 +82,7 @@ export function BlogSidebar({
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <Link 
+                <Link
                   href={`/blog/${post.slug}`}
                   className="text-sm font-medium hover:text-primary transition-colors line-clamp-2 group-hover:underline"
                 >
@@ -106,7 +106,7 @@ export function BlogSidebar({
         <CardContent className="space-y-3">
           {categories.map((category) => (
             <div key={category.id} className="group flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors">
-              <Link 
+              <Link
                 href={`/blog?category=${category.slug}`}
                 className="text-sm font-medium hover:text-primary transition-colors group-hover:underline"
               >
@@ -132,8 +132,8 @@ export function BlogSidebar({
           <div className="flex flex-wrap gap-2">
             {tags.slice(0, 10).map((tag) => (
               <Link key={tag.id} href={`/blog?tag=${tag.slug}`}>
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className="text-xs px-3 py-1 hover:bg-primary/10 hover:border-primary/30 transition-all cursor-pointer"
                 >
                   {tag.name} ({tag.postCount})

@@ -9,11 +9,11 @@ interface PaginationProps {
   maxVisiblePages?: number;
 }
 
-export function Pagination({ 
-  currentPage, 
-  totalPages, 
-  onPageChange, 
-  hasNext, 
+export function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+  hasNext,
   hasPrev,
   maxVisiblePages = 5
 }: PaginationProps) {
@@ -24,18 +24,18 @@ export function Pagination({
   const getVisiblePages = () => {
     const pages: number[] = [];
     const halfVisible = Math.floor(maxVisiblePages / 2);
-    
+
     let start = Math.max(1, currentPage - halfVisible);
     let end = Math.min(totalPages, start + maxVisiblePages - 1);
-    
+
     if (end - start + 1 < maxVisiblePages) {
       start = Math.max(1, end - maxVisiblePages + 1);
     }
-    
+
     for (let i = start; i <= end; i++) {
       pages.push(i);
     }
-    
+
     return pages;
   };
 
@@ -51,7 +51,7 @@ export function Pagination({
       >
         Previous
       </Button>
-      
+
       <div className="flex items-center gap-1">
         {visiblePages.map((page) => (
           <Button
@@ -65,7 +65,7 @@ export function Pagination({
           </Button>
         ))}
       </div>
-      
+
       <Button
         variant="outline"
         size="sm"

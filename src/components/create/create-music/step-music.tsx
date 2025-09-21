@@ -68,7 +68,7 @@ export function StepUpload({
               </div>
             </div>
           </div>
-          
+
           <div className="space-y-6 flex-1 flex flex-col">
             {/* Upload Area */}
             <FileUploadArea
@@ -85,7 +85,7 @@ export function StepUpload({
                 <p className="text-sm text-foreground/70 text-center">MP3, WAV, M4A, etc.</p>
               </div>
             </FileUploadArea>
-            
+
             <div className="flex items-center my-6">
               <div className="flex-1 h-px bg-border"></div>
               <span className="px-6 text-sm text-foreground/70 font-medium">OR</span>
@@ -126,9 +126,9 @@ export function StepUpload({
                   {musicPrompt.length} / 500
                 </div>
               </div>
-              
+
             </div>
-            
+
             {/* Vibe File Upload */}
             <div className="space-y-3">
               <label className="text-sm font-medium text-foreground">Vibe Reference (Optional)</label>
@@ -157,9 +157,9 @@ export function StepUpload({
                 </label>
               </div>
             </div>
-            
-            <Button 
-              className="w-full h-12 text-base font-semibold btn-ai-gradient text-white disabled:opacity-50 disabled:cursor-not-allowed" 
+
+            <Button
+              className="w-full h-12 text-base font-semibold btn-ai-gradient text-white disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleGenerateClick}
               disabled={musicPrompt.length < 10 || promptGeneration.isGenerating}
             >

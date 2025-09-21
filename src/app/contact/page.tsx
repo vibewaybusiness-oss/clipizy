@@ -10,12 +10,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Clock, 
-  Send, 
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Clock,
+  Send,
   MessageSquare,
   Users,
   HelpCircle,
@@ -124,20 +124,20 @@ export default function Contact() {
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0 animated-bg"></div>
         <div className="absolute inset-0 hero-gradient"></div>
-        
+
         <div className="relative container-custom">
           <div className="text-center max-w-4xl mx-auto">
             <Badge className="mb-6 px-4 py-2 text-sm font-medium gradient-primary text-white">
               <MessageSquare className="w-4 h-4 mr-2" />
               Contact Us
             </Badge>
-            
+
             <h1 className="heading-responsive font-bold mb-6 fade-in-up">
               Get in <span className="gradient-text-ai">Touch</span>
             </h1>
-            
+
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto fade-in-up">
-              Have questions about clipizi? Need help with your account? Want to discuss 
+              Have questions about clipizi? Need help with your account? Want to discuss
               enterprise solutions? We're here to help and would love to hear from you.
             </p>
           </div>
@@ -184,7 +184,7 @@ export default function Contact() {
                         />
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="company">Company</Label>
@@ -213,7 +213,7 @@ export default function Contact() {
                         </Select>
                       </div>
                     </div>
-                    
+
                     <div>
                       <Label htmlFor="subject">Subject *</Label>
                       <Input
@@ -225,7 +225,7 @@ export default function Contact() {
                         className="mt-1"
                       />
                     </div>
-                    
+
                     <div>
                       <Label htmlFor="message">Message *</Label>
                       <Textarea
@@ -239,10 +239,10 @@ export default function Contact() {
                         placeholder="Tell us how we can help you..."
                       />
                     </div>
-                    
-                    <Button 
-                      type="submit" 
-                      className="w-full btn-gradient" 
+
+                    <Button
+                      type="submit"
+                      className="w-full btn-gradient"
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
@@ -283,7 +283,7 @@ export default function Contact() {
                   );
                 })}
               </div>
-              
+
               <div className="mt-8 p-6 bg-primary/5 rounded-xl border border-primary/20">
                 <h3 className="font-semibold mb-2 flex items-center">
                   <CheckCircle className="w-5 h-5 text-primary mr-2" />
@@ -315,7 +315,7 @@ export default function Contact() {
               Find answers to common questions about clipizi
             </p>
           </div>
-          
+
           <div className="max-w-4xl mx-auto">
             <div className="space-y-6">
               {faqs.map((faq, index) => (

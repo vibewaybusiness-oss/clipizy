@@ -10,10 +10,10 @@ import { useState } from 'react';
 // Convert markdown to HTML with proper table support
 function convertMarkdownToHtml(content: string): string {
   let html = content;
-  
+
   // Convert markdown tables to HTML
   const tableRegex = /\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|\n\|------\|----------\|--------------\|----------------\|-------------\|\n((?:\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|\n?)+)/g;
-  
+
   html = html.replace(tableRegex, (match, header1, header2, header3, header4, header5, rows) => {
     const tableRows = rows.trim().split('\n').filter(row => row.trim());
     const tableBody = tableRows.map((row, rowIndex) => {
@@ -21,7 +21,7 @@ function convertMarkdownToHtml(content: string): string {
       const isEven = rowIndex % 2 === 0;
       return `<tr class="${isEven ? 'bg-card/80' : 'bg-muted/20'} hover:bg-primary/5 transition-all duration-200">${cells.map((cell, cellIndex) => `<td class="p-6 text-base ${cellIndex === 0 ? 'font-bold text-foreground' : 'text-foreground/80'} leading-relaxed">${cell}</td>`).join('')}</tr>`;
     }).join('');
-    
+
     return `
       <div class="overflow-x-auto my-12 rounded-2xl border border-border/30 shadow-lg bg-card/50 backdrop-blur-sm">
         <table class="w-full border-collapse">
@@ -41,7 +41,7 @@ function convertMarkdownToHtml(content: string): string {
       </div>
     `;
   });
-  
+
       // Convert other markdown elements
       html = html
         .replace(/^### (.*$)/gim, '<div class="my-8 w-full"><div class="w-full h-px bg-border"></div></div><h3 class="text-2xl font-bold mt-6 mb-4 text-foreground tracking-[-0.01em] relative"><span class="bg-gradient-to-r from-primary/20 to-primary/10 px-3 py-1 rounded-lg text-sm font-semibold text-primary absolute -left-4 -top-1">SECTION</span><br/>$1</h3>')
@@ -54,7 +54,7 @@ function convertMarkdownToHtml(content: string): string {
         .replace(/\n\n/g, '</p><p class="my-6 text-foreground/85 leading-relaxed text-lg">')
         .replace(/^(?!<[h|u|d|t])/gm, '<p class="my-6 text-foreground/85 leading-relaxed text-lg">')
         .replace(/(<p class="my-6 text-foreground\/85 leading-relaxed text-lg"><\/p>)/g, '');
-  
+
   return html;
 }
 
@@ -133,7 +133,7 @@ export function BlogPost({ post, onLike, onShare, showHeaderOnly = false, showCo
           <h1 className="text-6xl font-black mb-12 leading-[1.1] bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent tracking-[-0.02em]">
             {post.title}
           </h1>
-          
+
           <p className="text-2xl text-foreground/75 mb-16 leading-relaxed font-light">
             {post.excerpt}
           </p>
@@ -207,10 +207,10 @@ export function BlogPost({ post, onLike, onShare, showHeaderOnly = false, showCo
 
         {/* CONTENT */}
         <div className="prose prose-xl max-w-none prose-headings:font-black prose-headings:text-foreground prose-h1:text-5xl prose-h2:text-4xl prose-h3:text-2xl prose-p:text-foreground/85 prose-p:leading-relaxed prose-p:font-normal prose-p:text-lg prose-p:my-12 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-strong:font-bold prose-ul:list-none prose-ol:list-decimal prose-li:marker:text-muted-foreground prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-muted/50 prose-blockquote:px-8 prose-blockquote:py-6 prose-blockquote:rounded-xl prose-blockquote:my-16 prose-code:bg-muted prose-code:px-3 prose-code:py-1 prose-code:rounded-md prose-code:text-sm prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-xl prose-pre:my-16">
-          <div 
-            dangerouslySetInnerHTML={{ 
+          <div
+            dangerouslySetInnerHTML={{
               __html: convertMarkdownToHtml(post.content)
-            }} 
+            }}
           />
         </div>
 
@@ -283,7 +283,7 @@ export function BlogPost({ post, onLike, onShare, showHeaderOnly = false, showCo
         <h1 className="text-5xl font-bold mb-6 leading-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
           {post.title}
         </h1>
-        
+
         <p className="text-xl text-muted-foreground mb-8 leading-relaxed max-w-3xl">
           {post.excerpt}
         </p>
@@ -350,10 +350,10 @@ export function BlogPost({ post, onLike, onShare, showHeaderOnly = false, showCo
 
       {/* CONTENT */}
       <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-foreground prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:text-muted-foreground prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-ul:list-disc prose-ol:list-decimal prose-li:marker:text-muted-foreground prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-muted/50 prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:rounded-r-lg">
-        <div 
-          dangerouslySetInnerHTML={{ 
+        <div
+          dangerouslySetInnerHTML={{
             __html: convertMarkdownToHtml(post.content)
-          }} 
+          }}
         />
       </div>
 

@@ -60,11 +60,11 @@ export class AutoSaveService {
 
   public scheduleSave(projectId: string, data: Partial<AutoSaveData>) {
     // Check if there's actually data that needs saving
-    const hasTracksToUpload = data.tracksData?.musicTracks?.some((track: any) => 
+    const hasTracksToUpload = data.tracksData?.musicTracks?.some((track: any) =>
       track.file && track.file instanceof File && !track.uploaded
     );
     const hasOtherData = data.musicClipData || data.analysisData;
-    
+
     if (!hasTracksToUpload && !hasOtherData) {
       console.log('No data needs saving, skipping auto-save');
       return;
@@ -155,17 +155,17 @@ export class AutoSaveService {
     try {
       // Only upload tracks that have actual File objects and haven't been uploaded
       if (data.musicTracks && Array.isArray(data.musicTracks)) {
-        const tracksToUpload = data.musicTracks.filter((track: any) => 
+        const tracksToUpload = data.musicTracks.filter((track: any) =>
           track.file && track.file instanceof File && !track.uploaded
         );
-        
+
         if (tracksToUpload.length === 0) {
           console.log('No tracks need uploading');
           return;
         }
-        
+
         console.log(`Found ${tracksToUpload.length} tracks to upload`);
-        
+
         for (const track of tracksToUpload) {
           try {
             console.log(`Uploading track ${track.id} with file:`, track.file.name, track.file.type);
@@ -204,12 +204,12 @@ export class AutoSaveService {
 
   private handleSaveError(projectId: string, data: AutoSaveData) {
     const currentRetries = this.retryAttempts.get(projectId) || 0;
-    
+
     if (currentRetries < this.maxRetries) {
       // Retry with exponential backoff
       const retryDelay = Math.pow(2, currentRetries) * 1000;
       this.retryAttempts.set(projectId, currentRetries + 1);
-      
+
       setTimeout(() => {
         this.saveToBackend(projectId, data);
       }, retryDelay);

@@ -14,12 +14,12 @@ interface PostCardProps {
   showActions?: boolean;
 }
 
-export function PostCard({ 
-  post, 
-  onEdit, 
-  onDelete, 
+export function PostCard({
+  post,
+  onEdit,
+  onDelete,
   onStatusChange,
-  showActions = true 
+  showActions = true
 }: PostCardProps) {
   const getStatusBadge = (post: BlogPost) => {
     if (post.status === 'published') {
@@ -58,9 +58,9 @@ export function PostCard({
                   <Eye className="w-4 h-4" />
                 </Link>
               </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => onEdit?.(post)}
                 asChild
               >
@@ -69,8 +69,8 @@ export function PostCard({
                 </Link>
               </Button>
               {onDelete && (
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="sm"
                   onClick={() => onDelete(post.slug)}
                   className="text-destructive hover:text-destructive"

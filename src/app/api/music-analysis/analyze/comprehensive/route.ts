@@ -5,22 +5,22 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://172.31.247.43:8000';
 export async function POST(request: NextRequest) {
   try {
     console.log('Music analysis comprehensive API route called');
-    
+
     const formData = await request.formData();
     console.log('Form data keys:', Array.from(formData.keys()));
-    
+
     const backendUrl = `${BACKEND_URL}/api/music-analysis/analyze/comprehensive`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout for analysis
-    
+
     const response = await fetch(backendUrl, {
       method: 'POST',
       body: formData,
       signal: controller.signal,
     });
-    
+
     clearTimeout(timeoutId);
 
     console.log('Backend response status:', response.status);
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
     console.log('Backend response data:', data);
-    
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('Music analysis comprehensive API error:', error);

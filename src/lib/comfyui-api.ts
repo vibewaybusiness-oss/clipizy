@@ -20,7 +20,7 @@ interface ComfyUIResponse {
 }
 
 export async function generateImage(
-  workflowName: string, 
+  workflowName: string,
   request: ComfyUIRequest
 ): Promise<NextResponse> {
   try {
@@ -41,7 +41,7 @@ export async function generateImage(
     }
 
     const data = await response.json();
-    
+
     if (data.success) {
       return NextResponse.json({
         success: true,
@@ -82,7 +82,7 @@ export async function downloadImage(
     }
 
     const data = await response.json();
-    
+
     if (data.success && data.download_url) {
       // Redirect to the download URL
       return NextResponse.redirect(data.download_url);

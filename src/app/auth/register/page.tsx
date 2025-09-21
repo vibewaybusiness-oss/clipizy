@@ -43,21 +43,21 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     // Basic validation
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords don't match");
       setIsLoading(false);
       return;
     }
-    
+
     const success = await register(formData.name, formData.email, formData.password);
     if (success) {
       const redirectPath = sessionStorage.getItem("redirect_after_login") || "/dashboard/create";
       sessionStorage.removeItem("redirect_after_login");
       router.push(redirectPath);
     }
-    
+
     setIsLoading(false);
   };
 
@@ -265,7 +265,7 @@ export default function RegisterPage() {
                 </svg>
                 Continue with Google
               </Button>
-              
+
               <Button
                 type="button"
                 variant="outline"

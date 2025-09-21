@@ -5,13 +5,13 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://172.31.247.43:8000';
 export async function DELETE(request: NextRequest) {
   try {
     console.log('Music-clip reset projects API route called');
-    
+
     const backendUrl = `${BACKEND_URL}/music-clip/projects/reset`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-    
+
     const response = await fetch(backendUrl, {
       method: 'DELETE',
       headers: {
@@ -19,7 +19,7 @@ export async function DELETE(request: NextRequest) {
       },
       signal: controller.signal,
     });
-    
+
     clearTimeout(timeoutId);
 
     console.log('Backend response status:', response.status);
@@ -35,7 +35,7 @@ export async function DELETE(request: NextRequest) {
 
     const data = await response.json();
     console.log('Backend response data:', data);
-    
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('Music-clip reset projects API error:', error);

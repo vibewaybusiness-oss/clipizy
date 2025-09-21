@@ -61,9 +61,9 @@ export async function apiRequest<T = any>(
     }
 
     console.log(`API Request: ${method} ${url}`);
-    
+
     const response = await fetch(url, requestOptions);
-    
+
     clearTimeout(timeoutId);
 
     console.log(`API Response: ${response.status} ${response.statusText}`);
@@ -74,7 +74,7 @@ export async function apiRequest<T = any>(
     }
 
     const data = await response.json();
-    
+
     return {
       data,
       status: response.status,
@@ -82,14 +82,14 @@ export async function apiRequest<T = any>(
     };
   } catch (error) {
     clearTimeout(timeoutId);
-    
+
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
         throw new Error(`Request timeout after ${timeout}ms`);
       }
       throw error;
     }
-    
+
     throw new Error('Unknown API error');
   }
 }

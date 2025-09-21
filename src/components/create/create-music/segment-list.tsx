@@ -35,10 +35,10 @@ interface SegmentListProps {
   onSegmentFocus?: (segmentIndex: number) => void;
 }
 
-export function SegmentList({ 
-  segments, 
-  selectedSegment, 
-  onSegmentSelect, 
+export function SegmentList({
+  segments,
+  selectedSegment,
+  onSegmentSelect,
   analysisData,
   onSegmentFocus
 }: SegmentListProps) {
@@ -57,13 +57,13 @@ export function SegmentList({
     // Mock scenes for demonstration - in real implementation, this would come from analysis data
     const sceneTypes: Scene['type'][] = ['intro', 'verse', 'chorus', 'bridge', 'outro', 'solo', 'break'];
     const scenes: Scene[] = [];
-    
+
     // Generate 1-3 scenes per segment for demonstration
     const numScenes = Math.floor(Math.random() * 3) + 1;
     for (let i = 0; i < numScenes; i++) {
       const sceneStart = segment.start_time + (i / numScenes) * segment.duration;
       const sceneEnd = segment.start_time + ((i + 1) / numScenes) * segment.duration;
-      
+
       scenes.push({
         id: `scene-${segment.segment_index}-${i}`,
         name: `${sceneTypes[i % sceneTypes.length].charAt(0).toUpperCase() + sceneTypes[i % sceneTypes.length].slice(1)} ${i + 1}`,
@@ -73,7 +73,7 @@ export function SegmentList({
         type: sceneTypes[i % sceneTypes.length]
       });
     }
-    
+
     return scenes;
   };
 
@@ -112,7 +112,7 @@ export function SegmentList({
             const isSelected = selectedSegment === segment.segment_index;
             const isExpanded = expandedSegments.has(segment.segment_index);
             const scenes = getSegmentScenes(segment);
-            
+
             return (
               <Collapsible
                 key={segment.segment_index}
@@ -154,7 +154,7 @@ export function SegmentList({
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                         <Clock className="w-4 h-4" />
@@ -162,25 +162,25 @@ export function SegmentList({
                           {formatTime(segment.start_time)} - {formatTime(segment.end_time)}
                         </span>
                       </div>
-                      
+
                       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                         <span className="font-medium">Duration:</span>
                         <span>{formatTime(segment.duration)}</span>
                       </div>
-                      
+
                       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                         <Volume2 className="w-4 h-4" />
                         <span>Energy: {Math.round(segmentEnergy * 100)}%</span>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-1">
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-muted-foreground">Energy Level</span>
                         <span className="font-medium">{Math.round(segmentEnergy * 100)}%</span>
                       </div>
                       <div className="w-full bg-muted rounded-full h-2">
-                        <div 
+                        <div
                           className="bg-primary h-2 rounded-full transition-all duration-300"
                           style={{ width: `${Math.min(segmentEnergy * 100, 100)}%` }}
                         />
@@ -188,7 +188,7 @@ export function SegmentList({
                     </div>
                   </div>
                 </div>
-                
+
                 <CollapsibleContent className="mt-2">
                   <div className="ml-4 space-y-2">
                     {scenes.map((scene) => (

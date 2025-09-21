@@ -5,10 +5,10 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://172.31.247.43:8000';
 export async function POST(request: NextRequest) {
   try {
     console.log('Analysis music API route called');
-    
+
     const body = await request.json();
     console.log('Request body:', body);
-    
+
     // Extract track_id from the request body
     const { track_id, audio_data } = body;
     if (!track_id) {
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // For fallback analysis, we need to use the music analysis comprehensive endpoint
     // since the backend analysis endpoint expects a file upload, not audio data
     const backendUrl = `${BACKEND_URL}/api/music-analysis/analyze/comprehensive`;
@@ -33,11 +33,11 @@ export async function POST(request: NextRequest) {
       for (let i = 0; i < binaryData.length; i++) {
         bytes[i] = binaryData.charCodeAt(i);
       }
-      
+
       // Create a Blob and then a File
       const blob = new Blob([bytes], { type: 'audio/wav' });
       const file = new File([blob], `track_${track_id}.wav`, { type: 'audio/wav' });
-      
+
       formData = new FormData();
       formData.append('file', file);
     } else {
@@ -49,13 +49,13 @@ export async function POST(request: NextRequest) {
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout for analysis
-    
+
     const response = await fetch(backendUrl, {
       method: 'POST',
       body: formData,
       signal: controller.signal,
     });
-    
+
     clearTimeout(timeoutId);
 
     console.log('Backend response status:', response.status);
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
     console.log('Backend response data:', data);
-    
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('Analysis music API error:', error);

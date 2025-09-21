@@ -12,10 +12,10 @@ interface FileUploadAreaProps {
   disabled?: boolean;
 }
 
-export function FileUploadArea({ 
-  onFileChange, 
-  accept = "*/*", 
-  multiple = false, 
+export function FileUploadArea({
+  onFileChange,
+  accept = "*/*",
+  multiple = false,
   className = "",
   children,
   disabled = false

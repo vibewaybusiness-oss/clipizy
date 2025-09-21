@@ -77,7 +77,7 @@ export const calculateLoopedBudget = async (
 ): Promise<number> => {
     const totalMinutes = totalDurationSeconds / 60;
     const units = reuseVideo ? 1 : trackCount;
-    
+
     try {
         if (videoType === 'looped-static') {
             const price = await pricingService.calculateImagePrice(units, totalMinutes, 'clipizi-model');
@@ -89,7 +89,7 @@ export const calculateLoopedBudget = async (
     } catch (error) {
         console.error('Error calculating looped budget:', error);
     }
-    
+
     return 100; // Fallback
 };
 
@@ -102,7 +102,7 @@ export const calculateScenesBudget = async (
     const totalMinutes = totalDurationSeconds / 60;
     const longestTrackMinutes = Math.max(...trackDurations) / 60;
     const videoDuration = reuseVideo ? longestTrackMinutes : totalMinutes;
-    
+
     try {
         const price = await pricingService.calculateVideoPrice(videoDuration, 'clipizi-model');
         return price.credits;
@@ -119,15 +119,15 @@ export const getScenesInfo = (
 ) => {
     // Calculate total scenes across all videos: duration / 7.5 seconds per scene
     const totalScenes = Math.ceil(totalDurationSeconds / 7.5);
-    
+
     // Number of videos (tracks)
     const numberOfVideos = trackDurations.length || 1;
-    
+
     // When reusing video, create 1 video with all scenes
     // When not reusing, distribute scenes across multiple videos
     const scenesPerVideo = reuseVideo ? totalScenes : Math.ceil(totalScenes / numberOfVideos);
     const actualNumberOfVideos = reuseVideo ? 1 : numberOfVideos;
-    
+
     return {
         scenesPerVideo,
         numberOfVideos: actualNumberOfVideos,
@@ -151,7 +151,7 @@ export default function clipiziGenerator() {
 
   const [isGeneratingVideo, startGeneratingVideo] = useTransition();
   const [isGeneratingMusic, setIsGeneratingMusic] = useState(false);
-  
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Removed pricing API - using fixed values
@@ -248,7 +248,7 @@ export default function clipiziGenerator() {
     setPrompts(values);
     setStep("OVERVIEW");
   };
-  
+
   const onOverviewSubmit = (values: z.infer<typeof OverviewSchema>) => {
     toast({
       variant: "destructive",

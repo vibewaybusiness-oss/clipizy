@@ -54,7 +54,7 @@ export class MusicClipAPI {
     // Check if we're in a server-side context
     if (typeof window === 'undefined') {
       // Server-side: use full URL
-      this.baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL 
+      this.baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL
         ? `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/music-clip`
         : 'http://localhost:3000/api/music-clip';
     } else {
@@ -104,7 +104,7 @@ export class MusicClipAPI {
     formData.append('file', file);
     formData.append('ai_generated', String(options.ai_generated || false));
     formData.append('instrumental', String(options.instrumental || false));
-    
+
     if (options.prompt) formData.append('prompt', options.prompt);
     if (options.genre) formData.append('genre', options.genre);
     if (options.video_description) formData.append('video_description', options.video_description);
@@ -149,12 +149,12 @@ export class MusicClipAPI {
     failed_tracks: any[];
   }> {
     const formData = new FormData();
-    
+
     // Append all files
     files.forEach(file => {
       formData.append('files', file);
     });
-    
+
     // Append options
     if (options.ai_generated !== undefined) formData.append('ai_generated', options.ai_generated.toString());
     if (options.prompt) formData.append('prompt', options.prompt);

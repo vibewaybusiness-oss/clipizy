@@ -9,10 +9,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Youtube, 
-  Instagram, 
-  Music, 
+import {
+  Youtube,
+  Instagram,
+  Music,
   Upload,
   Settings,
   Calendar,
@@ -61,13 +61,13 @@ export default function PublishDialog({ exportId, exportTitle, children }: Publi
     try {
       const response = await fetch('/api/social-media/accounts');
       const data = await response.json();
-      
+
       const platformData = data.accounts.map((account: any) => ({
         id: account.platform,
         name: account.platform.charAt(0).toUpperCase() + account.platform.slice(1),
         connected: account.connected
       }));
-      
+
       setPlatforms(platformData);
     } catch (error) {
       console.error('Failed to load platforms:', error);
@@ -75,8 +75,8 @@ export default function PublishDialog({ exportId, exportTitle, children }: Publi
   };
 
   const handlePlatformToggle = (platformId: string) => {
-    setSelectedPlatforms(prev => 
-      prev.includes(platformId) 
+    setSelectedPlatforms(prev =>
+      prev.includes(platformId)
         ? prev.filter(id => id !== platformId)
         : [...prev, platformId]
     );
@@ -117,7 +117,7 @@ export default function PublishDialog({ exportId, exportTitle, children }: Publi
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         alert('Video published successfully!');
         setOpen(false);
@@ -169,11 +169,11 @@ export default function PublishDialog({ exportId, exportTitle, children }: Publi
             <Label className="text-base font-medium">Select Platforms</Label>
             <div className="grid gap-3 md:grid-cols-3">
               {platforms.map((platform) => (
-                <Card 
-                  key={platform.id} 
+                <Card
+                  key={platform.id}
                   className={`cursor-pointer transition-all ${
-                    selectedPlatforms.includes(platform.id) 
-                      ? 'ring-2 ring-blue-500 bg-blue-50' 
+                    selectedPlatforms.includes(platform.id)
+                      ? 'ring-2 ring-blue-500 bg-blue-50'
                       : 'hover:bg-gray-50'
                   } ${!platform.connected ? 'opacity-50' : ''}`}
                   onClick={() => platform.connected && handlePlatformToggle(platform.id)}
@@ -189,7 +189,7 @@ export default function PublishDialog({ exportId, exportTitle, children }: Publi
                           {platform.connected ? 'Connected' : 'Not connected'}
                         </p>
                       </div>
-                      <Checkbox 
+                      <Checkbox
                         checked={selectedPlatforms.includes(platform.id)}
                         disabled={!platform.connected}
                       />
@@ -203,7 +203,7 @@ export default function PublishDialog({ exportId, exportTitle, children }: Publi
           {/* Publishing Options */}
           <div className="space-y-4">
             <Label className="text-base font-medium">Publishing Options</Label>
-            
+
             <div className="space-y-3">
               <div>
                 <Label htmlFor="title">Title</Label>
@@ -277,8 +277,8 @@ export default function PublishDialog({ exportId, exportTitle, children }: Publi
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button 
-              onClick={handlePublish} 
+            <Button
+              onClick={handlePublish}
               disabled={loading || selectedPlatforms.length === 0}
               className="flex items-center space-x-2"
             >

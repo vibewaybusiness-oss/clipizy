@@ -31,14 +31,14 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     const success = await login(email, password);
     if (success) {
       const redirectPath = sessionStorage.getItem("redirect_after_login") || "/dashboard/create";
       sessionStorage.removeItem("redirect_after_login");
       router.push(redirectPath);
     }
-    
+
     setIsLoading(false);
   };
 
@@ -197,7 +197,7 @@ export default function LoginPage() {
                 </svg>
                 Continue with Google
               </Button>
-              
+
               <Button
                 type="button"
                 variant="outline"

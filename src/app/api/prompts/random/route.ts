@@ -45,10 +45,10 @@ export async function GET(request: NextRequest) {
     // Add random delay between 1-1.5 seconds to simulate processing time
     const randomDelay = Math.random() * 500 + 1000; // 1-1.5 seconds
     console.log(`Adding ${Math.round(randomDelay)}ms delay to simulate processing`);
-    
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout (increased for delay)
-    
+
     const [response] = await Promise.all([
       fetch(backendUrl, {
         method: 'GET',
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       }),
       new Promise(resolve => setTimeout(resolve, randomDelay))
     ]);
-    
+
     clearTimeout(timeoutId);
 
     console.log('Backend response status:', response.status);
@@ -79,21 +79,21 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Prompt API error:', error);
-    
+
     if (error.name === 'AbortError') {
       return NextResponse.json(
         { error: 'Request timeout - backend server not responding' },
         { status: 504 }
       );
     }
-    
+
     if (error.code === 'ECONNREFUSED') {
       return NextResponse.json(
         { error: 'Cannot connect to backend server - is it running?' },
         { status: 503 }
       );
     }
-    
+
     return NextResponse.json(
       { error: `Internal server error: ${error.message}` },
       { status: 500 }

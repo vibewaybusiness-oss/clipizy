@@ -3,10 +3,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Music, 
-  FileText, 
-  Zap, 
+import {
+  Music,
+  FileText,
+  Zap,
   ArrowRight,
   Sparkles,
   Clock,
@@ -93,15 +93,15 @@ export default function CreatePage() {
           keysToRemove.push(key);
         }
       }
-      
+
       // Remove all music clip related keys
       keysToRemove.forEach(key => {
         localStorage.removeItem(key);
       });
-      
+
       console.log('Cleared localStorage for new project:', keysToRemove);
     }
-    
+
     setShowProjectSelection(false);
     // Add timestamp to force fresh start
     router.push(`/dashboard/create/music-clip?new=${Date.now()}`);
@@ -134,8 +134,8 @@ export default function CreatePage() {
         {creationOptions.map((option) => {
           const Icon = option.icon;
           return (
-            <Card 
-              key={option.id} 
+            <Card
+              key={option.id}
               className={`bg-card clickable-card group relative flex flex-col ${
                 option.popular ? 'ring-2 ring-primary/20' : ''
               } ${option.id === "script-video" ? 'relative' : ''}`}
@@ -147,7 +147,7 @@ export default function CreatePage() {
                   </Badge>
                 </div>
               )}
-              
+
               {option.id === "script-video" && (
                 <div className="absolute inset-0 bg-black/60 z-10 flex items-center justify-center rounded-lg">
                   <div className="text-center">
@@ -156,7 +156,7 @@ export default function CreatePage() {
                   </div>
                 </div>
               )}
-              
+
               {option.id === "script-video" ? (
                 <div className="flex flex-col h-full">
                   <CardHeader className="text-center pb-4 flex-shrink-0">
@@ -170,7 +170,7 @@ export default function CreatePage() {
                       {option.description}
                     </CardDescription>
                   </CardHeader>
-                  
+
                   <CardContent className="pt-0 flex flex-col flex-grow">
                     <div className="space-y-6 flex-grow">
                       {/* FEATURES */}
@@ -182,23 +182,23 @@ export default function CreatePage() {
                           </div>
                         ))}
                       </div>
-                      
+
                       {/* HELP TEXT */}
                       <div className="bg-muted/50 rounded-lg p-4">
                         <p className="text-sm text-muted-foreground leading-relaxed">
                           {option.helpText}
                         </p>
                       </div>
-                      
+
                       {/* METADATA */}
                       <div className="flex items-center justify-center text-sm text-muted-foreground pt-2 border-t border-border">
                         <Clock className="w-4 h-4 mr-2" />
                         <span className="font-medium">{option.estimatedTime}</span>
                       </div>
                     </div>
-                    
+
                     {/* CTA BUTTON - Always at bottom */}
-                    <Button 
+                    <Button
                       className="w-full mt-6 h-12 text-base font-semibold bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white transition-all duration-200 relative z-20"
                     >
                       Notify Me
@@ -219,7 +219,7 @@ export default function CreatePage() {
                       {option.description}
                     </CardDescription>
                   </CardHeader>
-                  
+
                   <CardContent className="pt-0 flex flex-col flex-grow">
                     <div className="space-y-6 flex-grow">
                       {/* FEATURES */}
@@ -231,23 +231,23 @@ export default function CreatePage() {
                           </div>
                         ))}
                       </div>
-                      
+
                       {/* HELP TEXT */}
                       <div className="bg-muted/50 rounded-lg p-4">
                         <p className="text-sm text-muted-foreground leading-relaxed">
                           {option.helpText}
                         </p>
                       </div>
-                      
+
                       {/* METADATA */}
                       <div className="flex items-center justify-center text-sm text-muted-foreground pt-2 border-t border-border">
                         <Clock className="w-4 h-4 mr-2" />
                         <span className="font-medium">{option.estimatedTime}</span>
                       </div>
                     </div>
-                    
+
                     {/* CTA BUTTON - Always at bottom */}
-                    <Button 
+                    <Button
                       className={`w-full mt-6 h-12 text-base font-semibold ${option.popular ? 'bg-primary hover:bg-primary/90 text-white' : 'bg-muted hover:bg-muted/80 text-foreground'} transition-all duration-200`}
                     >
                       Create {option.title}
@@ -268,7 +268,7 @@ export default function CreatePage() {
                       {option.description}
                     </CardDescription>
                   </CardHeader>
-                  
+
                   <CardContent className="pt-0 flex flex-col flex-grow">
                     <div className="space-y-6 flex-grow">
                       {/* FEATURES */}
@@ -280,23 +280,23 @@ export default function CreatePage() {
                           </div>
                         ))}
                       </div>
-                      
+
                       {/* HELP TEXT */}
                       <div className="bg-muted/50 rounded-lg p-4">
                         <p className="text-sm text-muted-foreground leading-relaxed">
                           {option.helpText}
                         </p>
                       </div>
-                      
+
                       {/* METADATA */}
                       <div className="flex items-center justify-center text-sm text-muted-foreground pt-2 border-t border-border">
                         <Clock className="w-4 h-4 mr-2" />
                         <span className="font-medium">{option.estimatedTime}</span>
                       </div>
                     </div>
-                    
+
                     {/* CTA BUTTON - Always at bottom */}
-                    <Button 
+                    <Button
                       className={`w-full mt-6 h-12 text-base font-semibold ${option.popular ? 'bg-primary hover:bg-primary/90 text-white' : 'bg-muted hover:bg-muted/80 text-foreground'} transition-all duration-200`}
                     >
                       Create {option.title}

@@ -42,7 +42,7 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
   const reuseVideo = form.watch("useSameVideoForAll");
 
   // No useEffect needed - validation will be handled directly in the click handler
-  
+
   const [customStyleName, setCustomStyleName] = useState("");
   const [customStyleDescription, setCustomStyleDescription] = useState("");
   const [showVideoTypeSelector, setShowVideoTypeSelector] = useState(false);
@@ -51,30 +51,30 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
   // Use dynamic pricing
   const { pricing } = usePricing();
   const pricingService = usePricingService();
-  
+
   // Calculate dynamic pricing for each video type
   const [videoTypeCosts, setVideoTypeCosts] = useState({ loopedVideoCost: 100, scenesVideoCost: 200 });
-  
+
   useEffect(() => {
     const calculateCosts = async () => {
       if (!pricing) {
         setVideoTypeCosts({ loopedVideoCost: 100, scenesVideoCost: 200 });
         return;
       }
-      
+
       try {
         const totalMinutes = totalDuration / 60;
         const longestTrackMinutes = Math.max(...trackDurations) / 60;
-        
+
         // Calculate for looped-static (same as looped-animated for display purposes)
         const loopedUnits = reuseVideo ? 1 : trackCount;
         const loopedImagePrice = await pricingService.calculateImagePrice(loopedUnits, totalMinutes, 'clipizi-model');
         const loopedAnimationPrice = await pricingService.calculateLoopedAnimationPrice(loopedUnits, totalMinutes, 'clipizi-model');
-        
+
         // Calculate for scenes
         const scenesDuration = reuseVideo ? longestTrackMinutes : totalMinutes;
         const scenesPrice = await pricingService.calculateVideoPrice(scenesDuration, 'clipizi-model');
-        
+
         setVideoTypeCosts({
           loopedVideoCost: Math.min(loopedImagePrice.credits, loopedAnimationPrice.credits),
           scenesVideoCost: scenesPrice.credits
@@ -84,7 +84,7 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
         setVideoTypeCosts({ loopedVideoCost: 100, scenesVideoCost: 200 });
       }
     };
-    
+
     calculateCosts();
   }, [pricing, totalDuration, trackCount, trackDurations, reuseVideo, pricingService]);
 
@@ -94,12 +94,12 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="space-y-4">
               <FormLabel className="text-lg font-semibold">Video graphics & style</FormLabel>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Graphics Type Button */}
-                <Button 
+                <Button
                   type="button"
-                  variant="outline" 
+                  variant="outline"
                   className="w-full justify-between h-16 text-left font-normal btn-secondary-hover group"
                   onClick={(e) => {
                     e.preventDefault();
@@ -136,9 +136,9 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                 </Button>
 
                 {/* Style Button */}
-                <Button 
+                <Button
                   type="button"
-                  variant="outline" 
+                  variant="outline"
                   className="w-full justify-between h-16 text-left font-normal btn-secondary-hover group"
                   onClick={() => setIsStyleSheetOpen(true)}
                 >
@@ -150,7 +150,7 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                       {videoStyle ? (
                         <div className="space-y-1">
                           <div className="font-semibold text-foreground truncate">
-                            {videoStyle === "custom" 
+                            {videoStyle === "custom"
                               ? customStyleName || "Custom Style"
                               : [
                                   { id: "minimalist", name: "Minimalist", icon: "✨" },
@@ -167,7 +167,7 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                             }
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {videoStyle === "custom" 
+                            {videoStyle === "custom"
                               ? "Custom visual style"
                               : (() => {
                                   const description = [
@@ -216,7 +216,7 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                     preview: "A picture of a mountain landscape at sunrise with soft golden light and mist rolling over the peaks."
                   },
                   {
-                    id: "looped-animated", 
+                    id: "looped-animated",
                     name: "Animated Loop",
                     description: "A seamless looping video animation",
                     icon: "🎬",
@@ -226,7 +226,7 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                   },
                   {
                     id: "scenes",
-                    name: "Video with Scenes", 
+                    name: "Video with Scenes",
                     description: "Multiple scenes with complex storytelling",
                     icon: "🎭",
                     gradient: "from-orange-500/20 to-red-500/20",
@@ -250,7 +250,7 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
               {isStyleSheetOpen && (
                 <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" onClick={() => setIsStyleSheetOpen(false)}>
                   <div className="flex items-center justify-center min-h-screen p-4">
-                    <div 
+                    <div
                       className="bg-background rounded-3xl  max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col"
                       onClick={(e) => e.stopPropagation()}
                     >
@@ -271,7 +271,7 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                           <X className="h-6 w-6" />
                         </Button>
                       </div>
-                      
+
                       {/* Content */}
                       <div className="flex-1 overflow-y-auto p-8">
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -306,17 +306,17 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                                   <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                                 </div>
                               )}
-                              
+
                               <div className="h-full flex flex-col">
                                 {/* Icon Container */}
                                 <div className={`flex-1 bg-gradient-to-br ${style.gradient} rounded-lg flex items-center justify-center relative overflow-hidden mb-2`}>
                                   <span className="text-3xl">{style.icon}</span>
                                 </div>
-                                
+
                                 {/* Content */}
                                 <div className="space-y-1">
                                   <h3 className="font-bold text-sm text-foreground text-center truncate">{style.name}</h3>
-                                  
+
                                   {/* Keyword */}
                                   <div className="flex justify-center">
                                     <span className="px-2 py-0.5 bg-muted/50 text-xs font-medium text-muted-foreground rounded-full">
@@ -328,7 +328,7 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                             </div>
                           ))}
                         </div>
-                        
+
                         {/* Custom Style Section */}
                         <div className="mt-8 pt-8 border-t border-border">
                           <div className="flex items-center justify-between mb-6">
@@ -338,9 +338,9 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                             </div>
                             <Dialog>
                               <DialogTrigger asChild>
-                                <Button 
+                                <Button
                                   type="button"
-                                  variant="outline" 
+                                  variant="outline"
                                   className="h-12 px-6 flex items-center space-x-3 btn-secondary-hover"
                                 >
                                   <Plus className="w-5 h-5" />
@@ -376,9 +376,9 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                                   </div>
                                 </div>
                                 <DialogFooter>
-                                  <Button 
-                                    type="button" 
-                                    variant="outline" 
+                                  <Button
+                                    type="button"
+                                    variant="outline"
                                     className="btn-secondary-hover"
                                     onClick={() => {
                                       setCustomStyleName("");
@@ -387,7 +387,7 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                                   >
                                     Cancel
                                   </Button>
-                                  <Button 
+                                  <Button
                                     type="button"
                                     onClick={() => {
                                       if (customStyleName.trim()) {
@@ -410,7 +410,7 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                   </div>
                 </div>
               )}
-              
+
               <FormField
                 control={form.control}
                 name="videoStyle"
@@ -423,30 +423,30 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                   </FormItem>
                 )}
               />
-            </div>        
+            </div>
 
             {/* Animation Style Options - Only show for animated loops */}
             {videoType === 'looped-animated' && (
               <div className="space-y-4">
                 <FormLabel className="text-lg font-semibold">Animation Style</FormLabel>
-                
+
                 <div className="space-y-3">
                   <FormField
                     control={form.control}
                     name="animationStyle"
                     render={({ field }) => (
                       <FormItem>
-                        <div 
+                        <div
                           className={`flex items-center space-x-4 p-3 rounded-lg border border-border transition-colors duration-200 group cursor-pointer ${
-                            field.value === "loop" 
-                            ? 'bg-blue-50 border-blue-200 dark:bg-[hsl(207_90%_68%_/_0.1)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                            field.value === "loop"
+                            ? 'bg-blue-50 border-blue-200 dark:bg-[hsl(207_90%_68%_/_0.1)] dark:border-[hsl(207_90%_68%_/_0.6)]'
                             : 'bg-card hover:bg-muted/50'
                           }`}
                           onClick={() => field.onChange("loop")}
                         >
                           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
                             field.value === "loop"
-                              ? 'bg-blue-500 border-blue-500 dark:bg-[hsl(207_90%_68%_/_0.6)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                              ? 'bg-blue-500 border-blue-500 dark:bg-[hsl(207_90%_68%_/_0.6)] dark:border-[hsl(207_90%_68%_/_0.6)]'
                               : 'border-muted-foreground'
                           }`}>
                             {field.value === "loop" && (
@@ -471,17 +471,17 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                     name="animationStyle"
                     render={({ field }) => (
                       <FormItem>
-                        <div 
+                        <div
                           className={`flex items-center space-x-4 p-3 rounded-lg border border-border transition-colors duration-200 group cursor-pointer ${
-                            field.value === "boomerang" 
-                              ? 'bg-blue-50 border-blue-200 dark:bg-[hsl(207_90%_68%_/_0.1)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                            field.value === "boomerang"
+                              ? 'bg-blue-50 border-blue-200 dark:bg-[hsl(207_90%_68%_/_0.1)] dark:border-[hsl(207_90%_68%_/_0.6)]'
                               : 'bg-card hover:bg-muted/50'
                           }`}
                           onClick={() => field.onChange("boomerang")}
                         >
                           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
                             field.value === "boomerang"
-                              ? 'bg-blue-500 border-blue-500 dark:bg-[hsl(207_90%_68%_/_0.6)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                              ? 'bg-blue-500 border-blue-500 dark:bg-[hsl(207_90%_68%_/_0.6)] dark:border-[hsl(207_90%_68%_/_0.6)]'
                               : 'border-muted-foreground'
                           }`}>
                             {field.value === "boomerang" && (
@@ -507,24 +507,24 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
             {/* Video Creation Options */}
             <div className="space-y-4">
               <FormLabel className="text-lg font-semibold">Video Creation Options</FormLabel>
-              
+
               <div className="space-y-3">
                 <FormField
                   control={form.control}
                   name="createIndividualVideos"
                   render={({ field }) => (
                     <FormItem>
-                      <div 
+                      <div
                         className={`flex items-center space-x-4 p-3 rounded-lg border border-border transition-colors duration-200 group cursor-pointer ${
-                          field.value 
-                            ? 'bg-blue-50 border-blue-200 dark:bg-[hsl(207_90%_68%_/_0.1)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                          field.value
+                            ? 'bg-blue-50 border-blue-200 dark:bg-[hsl(207_90%_68%_/_0.1)] dark:border-[hsl(207_90%_68%_/_0.6)]'
                             : 'bg-card hover:bg-muted/50'
                         }`}
                         onClick={() => field.onChange(!field.value)}
                       >
                         <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                          field.value 
-                            ? 'bg-blue-500 border-blue-500 dark:bg-[hsl(207_90%_68%_/_0.6)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                          field.value
+                            ? 'bg-blue-500 border-blue-500 dark:bg-[hsl(207_90%_68%_/_0.6)] dark:border-[hsl(207_90%_68%_/_0.6)]'
                             : 'border-muted-foreground'
                         }`}>
                           {field.value && (
@@ -549,17 +549,17 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                   name="createCompilation"
                   render={({ field }) => (
                     <FormItem>
-                      <div 
+                      <div
                         className={`flex items-center space-x-4 p-3 rounded-lg border border-border transition-colors duration-200 group cursor-pointer ${
-                          field.value 
-                          ? 'bg-blue-50 border-blue-200 dark:bg-[hsl(207_90%_68%_/_0.1)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                          field.value
+                          ? 'bg-blue-50 border-blue-200 dark:bg-[hsl(207_90%_68%_/_0.1)] dark:border-[hsl(207_90%_68%_/_0.6)]'
                           : 'bg-card hover:bg-muted/50'
                       }`}
                       onClick={() => field.onChange(!field.value)}
                     >
                       <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                        field.value 
-                          ? 'bg-blue-500 border-blue-500 dark:bg-[hsl(207_90%_68%_/_0.6)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                        field.value
+                          ? 'bg-blue-500 border-blue-500 dark:bg-[hsl(207_90%_68%_/_0.6)] dark:border-[hsl(207_90%_68%_/_0.6)]'
                             : 'border-muted-foreground'
                         }`}>
                           {field.value && (
@@ -584,10 +584,10 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                   name="useSameVideoForAll"
                   render={({ field }) => (
                     <FormItem>
-                      <div 
+                      <div
                         className={`flex items-center space-x-4 p-3 rounded-lg border border-border transition-colors duration-200 group cursor-pointer ${
-                          field.value 
-                            ? 'bg-blue-50 border-blue-200 dark:bg-[hsl(207_90%_68%_/_0.1)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                          field.value
+                            ? 'bg-blue-50 border-blue-200 dark:bg-[hsl(207_90%_68%_/_0.1)] dark:border-[hsl(207_90%_68%_/_0.6)]'
                             : 'bg-card hover:bg-muted/50'
                         }`}
                         onClick={() => {
@@ -600,8 +600,8 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
                         }}
                       >
                         <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                          field.value 
-                            ? 'bg-blue-500 border-blue-500 dark:bg-[hsl(207_90%_68%_/_0.6)] dark:border-[hsl(207_90%_68%_/_0.6)]' 
+                          field.value
+                            ? 'bg-blue-500 border-blue-500 dark:bg-[hsl(207_90%_68%_/_0.6)] dark:border-[hsl(207_90%_68%_/_0.6)]'
                             : 'border-muted-foreground'
                         }`}>
                           {field.value && (
@@ -650,8 +650,8 @@ export function StepSettings({ form, audioDuration, totalDuration, trackCount, t
             {!hideNavigation && (
               <div className="flex justify-between">
                 <Button type="button" variant="outline" className="btn-secondary-hover" onClick={onBack}>Back</Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="btn-ai-gradient text-white flex items-center space-x-2"
                 >
                   <Video className="w-4 h-4" />

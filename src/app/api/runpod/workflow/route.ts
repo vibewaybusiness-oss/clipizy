@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const queueManager = getQueueManager();
-    
+
     // Stop the queue manager and cleanup
     await queueManager.stop();
     await queueManager.cleanup();

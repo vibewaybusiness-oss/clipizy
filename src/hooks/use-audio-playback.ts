@@ -30,12 +30,12 @@ export function useAudioPlayback() {
     if (audio) {
       audio.pause();
       audio.currentTime = 0;
-      
+
       // Clean up event listeners
       if ((audio as any)._cleanup) {
         (audio as any)._cleanup();
       }
-      
+
       // Revoke the blob URL if it was created for this audio
       if (audio.src.startsWith('blob:')) {
         try {
@@ -46,11 +46,11 @@ export function useAudioPlayback() {
           console.warn('Failed to revoke blob URL:', error);
         }
       }
-      
+
       // Clear the src to prevent further requests
       audio.src = '';
       audio.load();
-      
+
       setCurrentAudio(null);
     }
     setIsPlaying(false);
@@ -60,7 +60,7 @@ export function useAudioPlayback() {
   const stopAllAudio = useCallback(() => {
     // Stop current audio
     stopCurrentAudio();
-    
+
     // Stop any remaining audio elements in the DOM
     const audioElements = document.querySelectorAll('audio');
     audioElements.forEach(audio => {
@@ -71,7 +71,7 @@ export function useAudioPlayback() {
         audio.load();
       }
     });
-    
+
     // Force stop any media elements
     const mediaElements = document.querySelectorAll('video, audio');
     mediaElements.forEach(media => {
@@ -90,12 +90,12 @@ export function useAudioPlayback() {
       'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/mp4', 'audio/aac', 'audio/webm',
       'audio/x-m4a', 'audio/m4a', 'audio/x-wav', 'audio/wave', 'audio/x-pn-wav'
     ];
-    
+
     // Check MIME type first
     if (validTypes.includes(file.type)) {
       return true;
     }
-    
+
     // Check file extension as fallback
     const audioExtensions = /\.(mp3|wav|ogg|m4a|aac|webm|flac|wma)$/i;
     return audioExtensions.test(file.name);
@@ -104,7 +104,7 @@ export function useAudioPlayback() {
   // Helper function to validate audio URL
   const isValidAudioUrl = (url: string): boolean => {
     if (!url || url === '') return false;
-    
+
     // Check for valid URL format
     try {
       new URL(url);
@@ -113,7 +113,7 @@ export function useAudioPlayback() {
       if (url.startsWith('blob:')) return true;
       return false;
     }
-    
+
     // Check for audio file extensions
     const audioExtensions = ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.webm'];
     return audioExtensions.some(ext => url.toLowerCase().includes(ext)) || url.startsWith('blob:');
@@ -127,18 +127,18 @@ export function useAudioPlayback() {
         console.log('File is very small, skipping content validation:', file.name, file.size);
         return true;
       }
-      
+
       // Read the first few bytes to check for audio file signatures
       const buffer = await file.slice(0, 16).arrayBuffer();
       const uint8Array = new Uint8Array(buffer);
-      
+
       // Check for common audio file signatures
       // MP3: ID3 tag (49 44 33) or frame sync (FF FB/FA/F2/F3)
       // WAV: RIFF header (52 49 46 46)
       // OGG: OggS header (4F 67 67 53)
       // M4A: ftyp box (66 74 79 70)
       // FLAC: fLaC header (66 4C 61 43)
-      
+
       const signatures = [
         [0x49, 0x44, 0x33], // ID3 (MP3)
         [0xFF, 0xFB], // MP3 frame sync
@@ -150,21 +150,21 @@ export function useAudioPlayback() {
         [0x66, 0x74, 0x79, 0x70], // ftyp (M4A)
         [0x66, 0x4C, 0x61, 0x43], // fLaC (FLAC)
       ];
-      
+
       for (const signature of signatures) {
         if (signature.every((byte, index) => uint8Array[index] === byte)) {
           console.log('Valid audio file signature found:', signature);
           return true;
         }
       }
-      
-      // If no signature is found, but the file has a valid MIME type and extension, 
+
+      // If no signature is found, but the file has a valid MIME type and extension,
       // assume it's valid (some audio files might not have standard headers)
       if (isValidAudioFile(file)) {
         console.log('No signature found but file type appears valid:', file.name);
         return true;
       }
-      
+
       console.warn('No valid audio file signature found in file:', file.name);
       return false;
     } catch (error) {
@@ -197,7 +197,7 @@ export function useAudioPlayback() {
     // Start playing the selected track
     let audioUrl = track.url;
     console.log('Playing track:', track.id, 'URL:', track.url, 'File size:', track.file?.size);
-    
+
     // Check if we have a valid URL or file
     if (!track.url || track.url === '') {
       // Only create blob URL if the file has actual content and valid format
@@ -211,7 +211,7 @@ export function useAudioPlayback() {
           });
           return;
         }
-        
+
         // Additional validation: check if the file has valid audio data
         console.log('File details:', {
           name: track.file.name,
@@ -219,12 +219,12 @@ export function useAudioPlayback() {
           size: track.file.size,
           lastModified: track.file.lastModified
         });
-        
+
         // Check if file size is suspiciously small (might be empty/corrupted)
         if (track.file.size < 1024) { // Less than 1KB
           console.warn('Audio file is very small, might be corrupted:', track.file.size, 'bytes');
         }
-        
+
         // Validate audio file content
         const hasValidContent = await validateAudioFileContent(track.file);
         if (!hasValidContent) {
@@ -236,7 +236,7 @@ export function useAudioPlayback() {
           });
           return;
         }
-        
+
         // Validate that track.file is actually a File or Blob object
         if (!(track.file instanceof File) && !(track.file instanceof Blob)) {
           console.error('Track file is not a File or Blob object:', typeof track.file, track.id);
@@ -247,7 +247,7 @@ export function useAudioPlayback() {
           });
           return;
         }
-        
+
         audioUrl = URL.createObjectURL(track.file);
         trackBlobUrl(audioUrl, `use-audio-playback:playTrack:${track.id}`);
         console.log('Created new blob URL for track:', track.id, 'URL:', audioUrl);
@@ -263,7 +263,7 @@ export function useAudioPlayback() {
     } else {
       // Use the provided URL (S3 URL for existing projects or existing blob URL)
       console.log('Using provided URL for track:', track.id, 'URL:', track.url);
-      
+
       // Validate the URL format
       if (!isValidAudioUrl(track.url)) {
         console.error('Invalid audio URL format for track:', track.id, 'URL:', track.url);
@@ -274,7 +274,7 @@ export function useAudioPlayback() {
         });
         return;
       }
-      
+
       // Check if it's a blob URL that might have been revoked
       if (track.url.startsWith('blob:')) {
         console.log('Testing blob URL accessibility for track:', track.id, 'URL:', track.url);
@@ -285,21 +285,21 @@ export function useAudioPlayback() {
             const timeout = setTimeout(() => {
               reject(new Error('Blob URL test timeout'));
             }, 2000);
-            
+
             testAudio.addEventListener('canplaythrough', () => {
               clearTimeout(timeout);
               resolve(true);
             });
-            
+
             testAudio.addEventListener('error', (e) => {
               clearTimeout(timeout);
               reject(new Error('Blob URL is no longer accessible'));
             });
-            
+
             // Start loading the audio
             testAudio.load();
           });
-          
+
           console.log('Blob URL accessibility test passed for track:', track.id);
           audioUrl = track.url;
         } catch (testError) {
@@ -316,7 +316,7 @@ export function useAudioPlayback() {
               });
               return;
             }
-            
+
             console.log('Recreating blob URL from file for track:', track.id);
             audioUrl = URL.createObjectURL(track.file);
             trackBlobUrl(audioUrl, `use-audio-playback:playTrack:recreate:${track.id}`);
@@ -334,13 +334,13 @@ export function useAudioPlayback() {
         console.log('Using non-blob URL for track:', track.id, 'URL:', track.url);
         audioUrl = track.url;
       }
-      
+
       // Check for common CORS or accessibility issues
       if (track.url.startsWith('http') && !track.url.includes(window.location.origin)) {
         console.warn('Cross-origin audio URL detected - may have CORS issues:', track.url);
       }
     }
-    
+
     // Final validation of the audio URL before creating Audio object
     if (!audioUrl || audioUrl === '') {
       console.error('Invalid audio URL for track:', track.id);
@@ -351,16 +351,16 @@ export function useAudioPlayback() {
       });
       return;
     }
-    
+
     // Additional debugging for the audio URL
     console.log('Creating Audio object with URL:', audioUrl);
     console.log('URL type:', typeof audioUrl);
     console.log('URL length:', audioUrl.length);
-    
+
     const audio = new Audio(audioUrl);
     setCurrentAudio(audio);
     setCurrentlyPlayingId(track.id);
-    
+
     // Log audio element properties immediately after creation
     console.log('Audio element created:', {
       src: audio.src,
@@ -368,7 +368,7 @@ export function useAudioPlayback() {
       readyState: audio.readyState,
       preload: audio.preload
     });
-    
+
     // Set a timeout to handle cases where audio fails to load
     const loadTimeout = setTimeout(() => {
       console.error('Audio load timeout for track:', track.id);
@@ -379,23 +379,23 @@ export function useAudioPlayback() {
       });
       stopCurrentAudio();
     }, 10000); // 10 second timeout
-    
+
     // Add event listeners with proper cleanup
     const handleEnded = () => {
       clearTimeout(loadTimeout);
       stopCurrentAudio();
     };
-    
+
     const handleError = (e: Event) => {
       clearTimeout(loadTimeout);
-      
+
       // Log the raw error event for debugging
       console.error('Raw audio error event:', e);
       console.error('Error event type:', e.type);
       console.error('Error event target:', e.target);
-      
+
       const error = e.target as HTMLAudioElement;
-      
+
       // More comprehensive error information extraction
       const errorDetails = {
         error: error?.error ? {
@@ -411,7 +411,7 @@ export function useAudioPlayback() {
         paused: error?.paused,
         ended: error?.ended
       };
-      
+
       console.error('Audio error details:', errorDetails);
       console.error('Audio element properties:', {
         src: error?.src,
@@ -419,7 +419,7 @@ export function useAudioPlayback() {
         readyState: error?.readyState,
         error: error?.error
       });
-      
+
       // Try to recover from blob URL issues by recreating the URL
       if (audioUrl.startsWith('blob:') && track.file && track.file.size > 0) {
         console.log('Attempting to recover from blob URL error by recreating URL for track:', track.id);
@@ -434,18 +434,18 @@ export function useAudioPlayback() {
             });
             return;
           }
-          
+
           // Revoke the old blob URL
           URL.revokeObjectURL(audioUrl);
-          
+
           // Create a new blob URL
           const newAudioUrl = URL.createObjectURL(track.file);
           trackBlobUrl(newAudioUrl, `use-audio-playback:playTrack:recovery:${track.id}`);
-          
+
           // Update the audio element with the new URL
           audio.src = newAudioUrl;
           audio.load();
-          
+
           // Try to play again
           audio.play().then(() => {
             console.log('Audio playback recovered successfully for track:', track.id);
@@ -455,21 +455,21 @@ export function useAudioPlayback() {
             // If recovery fails, show the error message
             showAudioError(error, audioUrl);
           });
-          
+
           return; // Exit early if we're attempting recovery
         } catch (recoveryError) {
           console.error('Failed to recreate blob URL for recovery:', recoveryError);
         }
       }
-      
+
       // If we can't recover, show the error
       showAudioError(error, audioUrl);
     };
-    
+
     const showAudioError = (error: HTMLAudioElement, failedUrl: string) => {
       // Determine specific error message based on error type
       let errorMessage = "Failed to play the audio file. The file may be corrupted or in an unsupported format.";
-      
+
       if (error?.error) {
         // Check for specific error names first
         if ((error.error as any).name === 'NotSupportedError') {
@@ -502,7 +502,7 @@ export function useAudioPlayback() {
           errorMessage = "Audio file is still loading. This may indicate a network or CORS issue.";
         }
       }
-      
+
       // Check for specific error patterns in the console
       if (typeof window !== 'undefined' && window.console) {
         // This will help identify if it's a CORS issue
@@ -513,11 +513,11 @@ export function useAudioPlayback() {
         console.error('4. Audio file is corrupted or empty');
         console.error('5. Network connectivity issues');
       }
-      
+
       // Additional context for debugging
       console.error('Final error message:', errorMessage);
       console.error('Audio URL that failed:', failedUrl);
-      
+
       toast({
         variant: "destructive",
         title: "Playback Error",
@@ -525,22 +525,22 @@ export function useAudioPlayback() {
       });
       stopCurrentAudio();
     };
-    
+
     const handleLoadStart = () => {
       console.log('Audio load started for track:', track.id);
     };
-    
+
     const handleCanPlay = () => {
       clearTimeout(loadTimeout);
       console.log('Audio can play for track:', track.id);
     };
-    
+
     // Store references for cleanup
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
     audio.addEventListener('loadstart', handleLoadStart);
     audio.addEventListener('canplay', handleCanPlay);
-    
+
     // Store cleanup function on the audio element for later use
     (audio as any)._cleanup = () => {
       clearTimeout(loadTimeout);

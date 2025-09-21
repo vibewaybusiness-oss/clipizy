@@ -3,12 +3,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Plus, 
-  Play, 
-  Clock, 
-  TrendingUp, 
-  Users, 
+import {
+  Plus,
+  Play,
+  Clock,
+  TrendingUp,
+  Users,
   Star,
   ArrowRight,
   Sparkles,
@@ -140,7 +140,7 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Button className="bg-primary hover:bg-primary/90 text-white" asChild>
             <Link href="/dashboard/create">
               <Plus className="w-4 h-4 mr-2" />
@@ -216,7 +216,7 @@ export default function DashboardPage() {
             </Link>
           </Button>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {recentProjects.map((project) => (
             <Card key={project.id} className="bg-card border border-border hover:border-border/60 transition-colors group">
@@ -238,10 +238,10 @@ export default function DashboardPage() {
                     }}
                   />
                   <div className="absolute top-2 right-2">
-                    <Badge 
+                    <Badge
                       className={`${
-                        project.status === "completed" 
-                          ? "bg-green-500 text-white" 
+                        project.status === "completed"
+                          ? "bg-green-500 text-white"
                           : "bg-yellow-500 text-white"
                       }`}
                     >
@@ -252,17 +252,17 @@ export default function DashboardPage() {
                     {project.duration}
                   </div>
                 </div>
-                
+
                 <div className="p-4">
                   <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
                     {project.title}
                   </h3>
-                  
+
                   <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
                     <span>{project.views.toLocaleString()} views</span>
                     <span>{project.createdAt}</span>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2">
                     <Button size="sm" variant="outline" className="flex-1">
                       <Play className="w-3 h-3 mr-1" />

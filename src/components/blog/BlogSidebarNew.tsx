@@ -14,11 +14,11 @@ interface BlogSidebarNewProps {
   tags: BlogTag[];
 }
 
-export function BlogSidebarNew({ 
-  popularPosts, 
-  recentPosts, 
-  categories, 
-  tags 
+export function BlogSidebarNew({
+  popularPosts,
+  recentPosts,
+  categories,
+  tags
 }: BlogSidebarNewProps) {
   return (
     <div className="space-y-6">
@@ -60,7 +60,7 @@ export function BlogSidebarNew({
                 {index + 1}
               </div>
               <div className="flex-1 min-w-0">
-                <Link 
+                <Link
                   href={`/blog/${post.slug}`}
                   className="text-sm font-medium hover:text-primary transition-colors line-clamp-2 group-hover:underline"
                 >
@@ -84,8 +84,8 @@ export function BlogSidebarNew({
         </CardHeader>
         <CardContent className="space-y-3">
           {categories.map((category) => (
-            <Link 
-              key={category.id} 
+            <Link
+              key={category.id}
               href={`/blog?category=${category.slug}`}
               className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors group"
             >
@@ -144,8 +144,8 @@ export function BlogSidebarNew({
           <div className="flex flex-wrap gap-2">
             {tags.slice(0, 8).map((tag) => (
               <Link key={tag.id} href={`/blog?tag=${tag.slug}`}>
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className="text-xs hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer"
                 >
                   {tag.name}

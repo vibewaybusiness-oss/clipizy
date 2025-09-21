@@ -15,38 +15,38 @@ export function usePromptGeneration() {
   const generatePrompt = useCallback(async (options: PromptGenerationOptions) => {
     console.log('generatePrompt called, setting isGenerating to true');
     setIsGenerating(true);
-    
+
     try {
       const params = new URLSearchParams({
         prompt_type: options.promptType,
         source: options.source || 'json',
       });
-      
+
       if (options.instrumental !== undefined) {
         params.append('instrumental', options.instrumental.toString());
       }
-      
+
       if (options.categories && options.categories.length > 0) {
         params.append('categories', options.categories.join(','));
       }
 
       console.log('Making API call to:', `/api/prompts/random?${params.toString()}`);
       const response = await fetch(`/api/prompts/random?${params.toString()}`);
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Failed to fetch prompt: ${response.status} ${errorText}`);
       }
-      
+
       const data = await response.json();
       console.log('API response received:', data);
-      
+
       if (!data.prompt) {
         throw new Error('No prompt received from server');
       }
-      
+
       return data;
-      
+
     } catch (error) {
       console.error('Error generating prompt:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -72,11 +72,11 @@ export function usePromptGeneration() {
 
   const generateVideoPrompt = useCallback(async (videoType: string, genre?: string) => {
     let promptType: 'image_prompts' | 'video_prompts' = 'image_prompts';
-    
+
     if (videoType === 'scenes') {
       promptType = 'video_prompts';
     }
-    
+
     return generatePrompt({
       promptType,
       categories: genre ? [genre] : undefined,

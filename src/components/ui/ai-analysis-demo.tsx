@@ -11,7 +11,7 @@ export function AIAnalysisDemo() {
   const startDemo = () => {
     setIsVisible(true);
     setProgress(0);
-    
+
     // Simulate progress
     const interval = setInterval(() => {
       setProgress(prev => {
@@ -36,7 +36,7 @@ export function AIAnalysisDemo() {
           Start AI Analysis Demo
         </Button>
       </div>
-      
+
       <AIAnalysisOverlay
         isVisible={isVisible}
         title="Analyzing Music"

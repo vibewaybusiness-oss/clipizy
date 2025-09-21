@@ -5,13 +5,13 @@ export async function GET(request: NextRequest) {
   try {
     console.log('Music-clip projects API route called');
     console.log('BACKEND_URL env var:', process.env.BACKEND_URL);
-    
+
     const backendUrl = `${getBackendUrl()}/music-clip/projects`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), getTimeout('default'));
-    
+
     const response = await fetch(backendUrl, {
       method: 'GET',
       headers: {
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       },
       signal: controller.signal,
     });
-    
+
     clearTimeout(timeoutId);
 
     console.log('Backend response status:', response.status);
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
     console.log('Backend response data:', data);
-    
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('Music-clip projects API error:', error);
@@ -49,16 +49,16 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     console.log('Music-clip create project API route called');
-    
+
     const body = await request.json();
     console.log('Request body:', body);
-    
+
     const backendUrl = `${getBackendUrl()}/music-clip/projects`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), getTimeout('default'));
-    
+
     const response = await fetch(backendUrl, {
       method: 'POST',
       headers: {
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
       signal: controller.signal,
     });
-    
+
     clearTimeout(timeoutId);
 
     console.log('Backend response status:', response.status);
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
     console.log('Backend response data:', data);
-    
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('Music-clip create project API error:', error);

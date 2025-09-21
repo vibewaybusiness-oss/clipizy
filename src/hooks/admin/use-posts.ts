@@ -51,7 +51,7 @@ export function usePosts() {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Mock data for now - replace with actual API call
       const mockPosts: Post[] = [
         {
@@ -156,7 +156,7 @@ export function usePosts() {
     try {
       // Mock delete - replace with actual API call
       console.log('Deleting post:', postId);
-      
+
       if (data) {
         setData({
           ...data,
@@ -176,7 +176,7 @@ export function usePosts() {
     try {
       // Mock status update - replace with actual API call
       console.log('Updating post status:', postId, newStatus);
-      
+
       if (data) {
         setData({
           ...data,

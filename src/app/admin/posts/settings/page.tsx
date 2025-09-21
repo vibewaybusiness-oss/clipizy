@@ -9,10 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { 
-  Settings, 
-  Bot, 
-  Save, 
+import {
+  Settings,
+  Bot,
+  Save,
   Download,
   Upload,
   RefreshCw
@@ -71,7 +71,7 @@ export default function ContentCalendarSettingsPage() {
       prompts,
       exportedAt: new Date().toISOString()
     };
-    
+
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -154,7 +154,7 @@ export default function ContentCalendarSettingsPage() {
               Get your API key from the <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Google AI Studio</a>
             </p>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <Label htmlFor="autoGenerate">Auto-Generate Content</Label>
@@ -202,7 +202,7 @@ export default function ContentCalendarSettingsPage() {
                 ))}
               </div>
             </div>
-            
+
             <div>
               <Label htmlFor="publishingTime">Publishing Time</Label>
               <Input
@@ -216,7 +216,7 @@ export default function ContentCalendarSettingsPage() {
               />
             </div>
           </div>
-          
+
           <div>
             <Label htmlFor="timezone">Timezone</Label>
             <select

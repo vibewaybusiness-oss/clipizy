@@ -27,7 +27,7 @@ type BudgetSliderProps = {
 const getCostPerUnit = async (videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricingService: any, reuseVideo: boolean = false) => {
   try {
     const totalMinutes = totalDuration / 60;
-    
+
     if (videoType === 'looped-static') {
       const units = reuseVideo ? 1 : trackCount;
       const price = await pricingService.calculateImagePrice(units, totalMinutes);
@@ -45,7 +45,7 @@ const getCostPerUnit = async (videoType: string, trackCount: number, totalDurati
   } catch (error) {
     console.error('Error calculating cost:', error);
   }
-  
+
   return 100; // Default to 100 credits
 };
 
@@ -64,13 +64,13 @@ const getUnitsFromBudget = async (budget: number, videoType: string, trackCount:
 // Calculate number of videos that can be created based on budget
 const calculateVideoCount = async (budget: number, videoType: string, trackCount: number, totalDuration: number, trackDurations: number[], pricingService: any, reuseVideo: boolean = false) => {
   const units = await getUnitsFromBudget(budget, videoType, trackCount, totalDuration, trackDurations, pricingService, reuseVideo);
-  
+
   if (videoType === 'scenes') {
     // For scenes, when reusing video, we create 1 video with all scenes
     // When not reusing, we create multiple videos
     return reuseVideo ? 1 : units;
   }
-  
+
   return units;
 };
 
@@ -89,25 +89,25 @@ const getUnitsFromSliderValue = (sliderValue: number, minUnits: number, maxUnits
   return Math.round(minUnits + (sliderValue / 100) * (maxUnits - minUnits));
 };
 
-export function BudgetSlider({ 
-  videoType, 
-  audioDuration, 
-  value, 
-  onValueChange, 
-  totalDuration = 0, 
-  trackCount = 1, 
-  trackDurations = [], 
-  reuseVideo = false 
+export function BudgetSlider({
+  videoType,
+  audioDuration,
+  value,
+  onValueChange,
+  totalDuration = 0,
+  trackCount = 1,
+  trackDurations = [],
+  reuseVideo = false
 }: BudgetSliderProps) {
   const { pricing, loading: pricingLoading, error: pricingError } = usePricing();
   const pricingService = usePricingService();
-  
+
   // Calculate cost based on video type
   const [calculatedCost, setCalculatedCost] = useState(100);
-  
+
   // Memoize trackDurations to prevent infinite re-renders
   const memoizedTrackDurations = useMemo(() => trackDurations, [trackDurations?.join(',')]);
-  
+
   // Use ref to track previous values and prevent unnecessary updates
   const prevValuesRef = useRef({
     videoType,
@@ -134,7 +134,7 @@ export function BudgetSlider({
         }
       }
     };
-    
+
     // Check if any relevant values have actually changed
     const currentValues = {
       videoType,
@@ -144,11 +144,11 @@ export function BudgetSlider({
       pricing,
       reuseVideo
     };
-    
-    const hasChanged = Object.keys(currentValues).some(key => 
+
+    const hasChanged = Object.keys(currentValues).some(key =>
       currentValues[key as keyof typeof currentValues] !== prevValuesRef.current[key as keyof typeof prevValuesRef.current]
     );
-    
+
     if (hasChanged) {
       updateCost();
       prevValuesRef.current = currentValues;
@@ -163,7 +163,7 @@ export function BudgetSlider({
   const minScenesPerVideo = 1; // Minimum 1 scene per video
   const videosToCreate = reuseVideo ? 1 : totalVideos;
   const maxScenesPerVideo = Math.ceil(totalScenes / videosToCreate); // Maximum scenes per video (total scenes ÷ number of videos)
-  
+
   // Calculate cost per scene
   const costPerScene = useMemo(() => {
     if (videoType === 'scenes' && pricing) {
@@ -177,18 +177,18 @@ export function BudgetSlider({
   // Use the external value as the source of truth, handle NaN
   const currentValue = value[0] || 0;
   const inputValue = isNaN(currentValue) ? 0 : currentValue;
-  
+
   // For scenes, calculate current scenes per video from budget
-  const currentScenesPerVideo = videoType === 'scenes' 
+  const currentScenesPerVideo = videoType === 'scenes'
     ? (inputValue <= 0 || isNaN(inputValue))
       ? maxScenesPerVideo  // Use maximum when no value is set
       : Math.max(minScenesPerVideo, Math.min(maxScenesPerVideo, Math.floor(inputValue / (costPerScene * videosToCreate))))
     : 1;
-  
+
   // For scenes, map scenes per video (1-maxScenesPerVideo) to slider value (0-100)
   // If inputValue is 0 or invalid, start at maximum (100) to show max scenes per video
-  const sliderValue = videoType === 'scenes' 
-    ? (inputValue <= 0 || isNaN(inputValue)) 
+  const sliderValue = videoType === 'scenes'
+    ? (inputValue <= 0 || isNaN(inputValue))
       ? 100  // Start at maximum when no value is set
       : Math.round(((currentScenesPerVideo - minScenesPerVideo) / Math.max(1, maxScenesPerVideo - minScenesPerVideo)) * 100)
     : 0;
@@ -216,19 +216,19 @@ export function BudgetSlider({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoType, pricing, calculatedCost, maxScenesPerVideo, costPerScene, reuseVideo, totalVideos, videosToCreate]);
 
-  
+
   const handleSliderChange = (newSliderValue: number[]) => {
     if (videoType === 'scenes') {
       // Map slider value (0-100) to scenes per video (1-maxScenesPerVideo)
       const sliderPercent = newSliderValue[0] / 100;
       const newScenesPerVideo = Math.max(minScenesPerVideo, Math.min(maxScenesPerVideo, Math.round(minScenesPerVideo + sliderPercent * (maxScenesPerVideo - minScenesPerVideo))));
-      
+
       // Calculate budget based on scenes per video
       const newBudgetValue = newScenesPerVideo * costPerScene * videosToCreate;
-      
+
       // Round to nearest 5
       const roundedBudget = Math.ceil(newBudgetValue / 5) * 5;
-      
+
       // Only update if the value actually changed to prevent infinite loops
       if (Math.abs(roundedBudget - inputValue) > 1) {
         onValueChange([roundedBudget]);
@@ -254,25 +254,25 @@ export function BudgetSlider({
       let budget = inputValue;
       const minBudget = costPerScene * videosToCreate; // 1 scene per video
       const maxBudget = isNaN(calculatedCost) ? 1000 : calculatedCost; // Use calculated cost as maximum
-      
+
       if (isNaN(budget) || budget < minBudget) budget = minBudget;
       if (budget > maxBudget) budget = maxBudget;
-      
+
       // Snap to nearest scenes per video
       const scenesPerVideo = Math.floor(budget / (costPerScene * videosToCreate));
       const snappedScenesPerVideo = Math.max(minScenesPerVideo, Math.min(maxScenesPerVideo, scenesPerVideo));
       const snappedBudget = snappedScenesPerVideo * costPerScene * videosToCreate;
-      
+
       // Round to nearest 5
       const roundedBudget = Math.ceil(snappedBudget / 5) * 5;
-      
+
       onValueChange([roundedBudget]);
     }
   }
 
   // Calculate video count for current budget
   const [videoCount, setVideoCount] = useState(trackCount);
-  
+
   useEffect(() => {
     const updateVideoCount = async () => {
       if (videoType === 'scenes') {
@@ -289,9 +289,9 @@ export function BudgetSlider({
     };
     updateVideoCount();
   }, [inputValue, videoType, trackCount, totalDuration, memoizedTrackDurations, pricingService, reuseVideo]);
-  
+
   // Get scenes info for display
-  const scenesInfo = videoType === 'scenes' 
+  const scenesInfo = videoType === 'scenes'
     ? (() => {
         const numberOfVideos = videosToCreate; // Use the calculated videos to create
         const scenesPerVideo = currentScenesPerVideo; // Current scenes per video from slider
@@ -302,7 +302,7 @@ export function BudgetSlider({
         };
       })()
     : null;
-  
+
   // Get video type label
   const getVideoTypeLabel = () => {
     if (videoType === 'looped-static') return 'images';
@@ -357,8 +357,8 @@ export function BudgetSlider({
           <div className="flex items-center space-x-2">
             <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">credits</span>
-                <Input 
-                    type="number" 
+                <Input
+                    type="number"
                     value={isNaN(inputValue) ? 0 : inputValue}
                     onChange={handleInputChange}
                     onBlur={handleInputBlur}
@@ -369,7 +369,7 @@ export function BudgetSlider({
                 />
             </div>
             <span className="text-sm text-muted-foreground">
-              {videoType === 'scenes' 
+              {videoType === 'scenes'
                 ? `(${scenesInfo?.numberOfVideos || 0} videos of ${scenesInfo?.scenesPerVideo || 0} scenes)`
                 : `(${videoCount} ${getVideoTypeLabel()})`
               }
@@ -410,8 +410,8 @@ export function BudgetSlider({
             </span>
             <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">credits</span>
-                <Input 
-                    type="number" 
+                <Input
+                    type="number"
                     value={isNaN(calculatedCost) ? 0 : calculatedCost}
                     readOnly
                     className="w-32 pl-12 pr-2 text-right font-semibold bg-muted/50"

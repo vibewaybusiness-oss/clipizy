@@ -1,13 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Music, 
-  Video, 
-  Film, 
-  MoreVertical, 
-  Play, 
-  Edit, 
+import {
+  Music,
+  Video,
+  Film,
+  MoreVertical,
+  Play,
+  Edit,
   Trash2,
   Calendar,
   Clock
@@ -41,12 +41,12 @@ const STATUS_COLORS = {
   draft: 'bg-gray-100 text-gray-800',
 };
 
-export function ProjectCard({ 
-  project, 
-  onDelete, 
-  onEdit, 
-  onPlay, 
-  viewMode = 'grid' 
+export function ProjectCard({
+  project,
+  onDelete,
+  onEdit,
+  onPlay,
+  viewMode = 'grid'
 }: ProjectCardProps) {
   const IconComponent = PROJECT_ICONS[project.type];
 
@@ -88,7 +88,7 @@ export function ProjectCard({
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <Badge className={STATUS_COLORS[project.status]}>
                 {project.status}
@@ -100,8 +100,8 @@ export function ProjectCard({
                 <Button size="sm" variant="outline" onClick={handleEdit}>
                   <Edit className="w-4 h-4" />
                 </Button>
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   variant="outline"
                   onClick={handleDelete}
                 >
@@ -145,7 +145,7 @@ export function ProjectCard({
                 <Edit className="w-4 h-4 mr-2" />
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 className="text-red-600"
                 onClick={handleDelete}
               >

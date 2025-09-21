@@ -174,15 +174,15 @@ export class MusicAnalysisAPI {
         }
 
         console.log(`Fetching track from URL for analysis: ${track.url}`);
-        
+
         // Fetch the audio file from URL
         const response = await fetch(track.url);
         if (!response.ok) {
           throw new Error(`Failed to fetch audio from URL: ${response.statusText}`);
         }
-        
+
         const blob = await response.blob();
-        
+
         // Create a File object from the blob
         file = new File([blob], track.name, { type: blob.type || 'audio/wav' });
       } else {
@@ -254,7 +254,7 @@ export class MusicAnalysisAPI {
       };
     } catch (error) {
       console.error(`Failed to analyze track ${track.id}:`, error);
-      
+
       // Try fallback analysis using the existing analysis service
       try {
         console.log(`Attempting fallback analysis for track ${track.id}`);
@@ -262,7 +262,7 @@ export class MusicAnalysisAPI {
         return fallbackAnalysis;
       } catch (fallbackError) {
         console.error(`Fallback analysis also failed for track ${track.id}:`, fallbackError);
-        
+
         // Final fallback: return mock analysis data
         console.log(`Using mock analysis for track ${track.id}`);
         return {
@@ -405,15 +405,15 @@ export class MusicAnalysisAPI {
         }
 
         console.log(`Fetching track from URL for fallback analysis: ${track.url}`);
-        
+
         // Fetch the audio file from URL
         const response = await fetch(track.url);
         if (!response.ok) {
           throw new Error(`Failed to fetch audio from URL: ${response.statusText}`);
         }
-        
+
         const blob = await response.blob();
-        
+
         // Convert Blob to data URI
         dataUri = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
@@ -449,7 +449,7 @@ export class MusicAnalysisAPI {
       }
 
       const analysis = await response.json();
-      
+
       // Transform to our expected format
       return {
         trackId: track.id,
@@ -486,15 +486,15 @@ export class MusicAnalysisAPI {
 
   async analyzeTracksInParallel(tracks: MusicTrack[]): Promise<MusicAnalysisResult[]> {
     console.log(`Starting parallel analysis for ${tracks.length} tracks`);
-    
+
     // For better parallel processing, we'll use Promise.allSettled to handle individual failures
     // and also add a small delay between requests to avoid overwhelming the server
     const analysisPromises = tracks.map((track, index) => {
       console.log(`Creating promise for track ${index + 1}/${tracks.length}: ${track.id}`);
-      
+
       // Add a small delay to stagger requests slightly (helps with connection limits)
       const delay = index * 100; // 100ms delay between each request start
-      
+
       const promise = new Promise<MusicAnalysisResult>((resolve, reject) => {
         setTimeout(() => {
           console.log(`Starting delayed analysis for track ${track.id} after ${delay}ms delay`);
@@ -509,20 +509,20 @@ export class MusicAnalysisAPI {
             });
         }, delay);
       });
-      
+
       return promise;
     });
-    
+
     console.log(`All ${analysisPromises.length} promises created with staggered delays, starting Promise.allSettled...`);
     console.log(`Promise.allSettled started at: ${new Date().toISOString()}`);
-    
+
     try {
       const results = await Promise.allSettled(analysisPromises);
-      
+
       // Process results and handle any failures
       const successfulResults: MusicAnalysisResult[] = [];
       const failedResults: MusicAnalysisResult[] = [];
-      
+
       results.forEach((result, index) => {
         if (result.status === 'fulfilled') {
           successfulResults.push(result.value);
@@ -534,9 +534,9 @@ export class MusicAnalysisAPI {
           } as MusicAnalysisResult);
         }
       });
-      
+
       console.log(`Completed parallel analysis: ${successfulResults.length} successful, ${failedResults.length} failed at: ${new Date().toISOString()}`);
-      
+
       // Return all results (both successful and failed)
       return [...successfulResults, ...failedResults];
     } catch (error) {

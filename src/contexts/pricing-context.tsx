@@ -184,7 +184,7 @@ export function PricingProvider({ children }: { children: React.ReactNode }) {
       // TODO: Load from API
       // For now, use default plans
       setPlans(defaultPlans);
-      
+
       // Load selected plan from localStorage
       if (typeof window !== 'undefined') {
         const storedPlan = localStorage.getItem('selectedPlan');
@@ -202,7 +202,7 @@ export function PricingProvider({ children }: { children: React.ReactNode }) {
 
   const selectPlan = (plan: PricingPlan) => {
     setSelectedPlan(plan);
-    
+
     // Store in localStorage
     if (typeof window !== 'undefined') {
       localStorage.setItem('selectedPlan', JSON.stringify(plan));
@@ -215,12 +215,12 @@ export function PricingProvider({ children }: { children: React.ReactNode }) {
 
   const calculatePrice = (plan: PricingPlan, isYearly: boolean = false): number => {
     if (plan.price === 0) return 0;
-    
+
     if (isYearly && plan.interval === 'month') {
       // Apply yearly discount (2 months free)
       return plan.price * 10;
     }
-    
+
     return plan.price;
   };
 

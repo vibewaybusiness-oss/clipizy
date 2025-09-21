@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Gemini generation error:', error);
     return NextResponse.json(
-      { 
+      {
         error: error instanceof Error ? error.message : 'Failed to generate content',
         details: error instanceof Error ? error.stack : undefined
       },
@@ -79,12 +79,12 @@ export async function POST(request: NextRequest) {
 function formatBlogContent(content: string, post: any): string {
   // Basic formatting to ensure proper markdown structure
   let formatted = content.trim();
-  
+
   // Ensure the content starts with a proper heading
   if (!formatted.startsWith('#')) {
     formatted = `# ${post.title}\n\n${formatted}`;
   }
-  
+
   // Add metadata section
   const metadata = `---
 title: "${post.title}"
@@ -102,6 +102,6 @@ publishedAt: "${post.scheduledFor || new Date().toISOString()}"
 ---
 
 `;
-  
+
   return metadata + formatted;
 }

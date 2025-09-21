@@ -16,7 +16,7 @@ export function InfoPopup({ className = "" }: InfoPopupProps) {
 
   useEffect(() => {
     setIsClient(true);
-    
+
     // Add CSS for responsive positioning
     const style = document.createElement('style');
     style.textContent = `
@@ -33,7 +33,7 @@ export function InfoPopup({ className = "" }: InfoPopupProps) {
       }
     `;
     document.head.appendChild(style);
-    
+
     return () => {
       document.head.removeChild(style);
     };
@@ -63,13 +63,13 @@ export function InfoPopup({ className = "" }: InfoPopupProps) {
   }
 
   return (
-    <div 
+    <div
       data-info-popup
-      className={`fixed top-4 left-16 z-[70] md:left-4 ${className}`} 
-      style={{ 
-        position: 'fixed !important', 
-        top: '16px !important', 
-        left: '64px !important', 
+      className={`fixed top-4 left-16 z-[70] md:left-4 ${className}`}
+      style={{
+        position: 'fixed !important',
+        top: '16px !important',
+        left: '64px !important',
         zIndex: '70 !important'
       }}
     >

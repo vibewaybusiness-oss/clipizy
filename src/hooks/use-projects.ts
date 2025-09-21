@@ -36,8 +36,8 @@ export function useProjects() {
     try {
       setError(null);
       const updatedProject = await projectsAPI.updateProject(projectId, projectData);
-      setProjects(prev => 
-        prev.map(project => 
+      setProjects(prev =>
+        prev.map(project =>
           project.id === projectId ? updatedProject : project
         )
       );
@@ -92,7 +92,7 @@ export function useProject(projectId: string) {
 
   const fetchProject = useCallback(async () => {
     if (!projectId) return;
-    
+
     try {
       setLoading(true);
       setError(null);

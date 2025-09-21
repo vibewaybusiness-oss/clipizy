@@ -29,13 +29,13 @@ interface BlogListProps {
   }) => void;
 }
 
-export function BlogList({ 
-  posts, 
-  categories, 
-  tags, 
-  pagination, 
+export function BlogList({
+  posts,
+  categories,
+  tags,
+  pagination,
   onPageChange,
-  onFilterChange 
+  onFilterChange
 }: BlogListProps) {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -43,29 +43,29 @@ export function BlogList({
 
   const handleSearch = (value: string) => {
     setSearch(value);
-    onFilterChange?.({ 
-      search: value, 
-      category: selectedCategory, 
-      tag: selectedTag 
+    onFilterChange?.({
+      search: value,
+      category: selectedCategory,
+      tag: selectedTag
     });
   };
 
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value);
-    onFilterChange?.({ 
-      search, 
-      category: value, 
-      tag: selectedTag 
+    onFilterChange?.({
+      search,
+      category: value,
+      tag: selectedTag
     });
   };
 
   const handleTagChange = (tag: string) => {
     const newTag = selectedTag === tag ? '' : tag;
     setSelectedTag(newTag);
-    onFilterChange?.({ 
-      search, 
-      category: selectedCategory, 
-      tag: newTag 
+    onFilterChange?.({
+      search,
+      category: selectedCategory,
+      tag: newTag
     });
   };
 
@@ -175,7 +175,7 @@ export function BlogList({
               >
                 Previous
               </Button>
-              
+
               <div className="flex items-center gap-1">
                 {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
                   <Button
@@ -189,7 +189,7 @@ export function BlogList({
                   </Button>
                 ))}
               </div>
-              
+
               <Button
                 variant="outline"
                 size="sm"

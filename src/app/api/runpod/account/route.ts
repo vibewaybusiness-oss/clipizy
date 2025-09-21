@@ -11,16 +11,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(accountSummary);
     } else {
       const accountInfo = await getAccountInfo();
-      return NextResponse.json({ 
-        success: true, 
-        data: accountInfo 
+      return NextResponse.json({
+        success: true,
+        data: accountInfo
       });
     }
   } catch (error) {
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     );

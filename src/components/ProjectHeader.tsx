@@ -23,7 +23,7 @@ export function ProjectHeader({
       <div className="max-w-7xl mx-auto px-8 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <button 
+            <button
               onClick={(e) => onBack(e)}
               className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors"
             >
@@ -31,16 +31,16 @@ export function ProjectHeader({
               <span className="text-sm">Back to Create</span>
             </button>
           </div>
-          
+
           <div className="flex-1 flex justify-center">
-            <TimelineHeader 
-              currentStep={currentStep} 
+            <TimelineHeader
+              currentStep={currentStep}
               maxReachedStep={maxReachedStep}
-              totalSteps={4} 
+              totalSteps={4}
               onStepClick={onStepClick}
             />
           </div>
-          
+
           <Badge className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg flex items-center space-x-2">
             <MusicLogo className="w-4 h-4" />
             <span>Music Clip Creator</span>

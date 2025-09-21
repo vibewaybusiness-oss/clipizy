@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     const filename = searchParams.get('filename') || '';
     const subfolder = searchParams.get('subfolder') || '';
     const type = searchParams.get('type') || 'output';
-    
+
     return await downloadImage(filename, subfolder, type);
   } catch (error) {
     console.error('ComfyUI download error:', error);

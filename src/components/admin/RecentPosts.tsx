@@ -12,10 +12,10 @@ interface RecentPostsProps {
   maxPosts?: number;
 }
 
-export function RecentPosts({ 
-  posts, 
+export function RecentPosts({
+  posts,
   title = 'Recent Posts',
-  maxPosts = 3 
+  maxPosts = 3
 }: RecentPostsProps) {
   const displayPosts = posts.slice(0, maxPosts);
 

@@ -36,7 +36,7 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         </div>
       )}
-      
+
       <CardHeader className={post.featuredImage ? 'pt-6' : 'pt-6'}>
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
           <User className="w-4 h-4" />
@@ -45,7 +45,7 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
           <Calendar className="w-4 h-4" />
           <span>{formatDate(post.publishedAt)}</span>
         </div>
-        
+
         <h3 className={`font-semibold group-hover:text-primary transition-colors leading-tight ${
           featured ? 'text-xl mb-3' : 'text-lg mb-3'
         }`}>
@@ -53,14 +53,14 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
             {post.title}
           </Link>
         </h3>
-        
+
         <p className={`text-muted-foreground leading-relaxed ${
           featured ? 'text-base' : 'text-sm'
         }`}>
           {post.excerpt}
         </p>
       </CardHeader>
-      
+
       <CardContent className="pt-0">
         <div className="flex flex-wrap gap-2 mb-4">
           <Badge variant="secondary" className="text-xs px-2 py-1">
@@ -73,7 +73,7 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
           ))}
         </div>
       </CardContent>
-      
+
       <CardFooter className="pt-0 pb-6 flex items-center justify-between text-sm text-muted-foreground">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-1">
