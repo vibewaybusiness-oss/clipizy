@@ -8,5 +8,5 @@ export const API_BASE_URL = process.env.NODE_ENV === 'production'
 export const API_PATHS = {
   AUTH: '/auth',
   API: '/api',
-  MUSIC_CLIP: '/music-clip',
+  MUSIC_CLIP: '/api/music-clip',
 } as const;

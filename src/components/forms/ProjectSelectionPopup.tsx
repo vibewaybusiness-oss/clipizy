@@ -47,6 +47,23 @@ export function ProjectSelectionPopup({
   // Reset and fetch projects when popup opens
   useEffect(() => {
     if (isOpen) {
+      // Log user ID when create-music popup opens
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          console.log('🎵 Create-Music Popup Opened!');
+          console.log('👤 User ID:', user.id);
+          console.log('📧 User Email:', user.email);
+          console.log('👨‍💼 User Name:', user.name);
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+        }
+      } else {
+        console.log('🎵 Create-Music Popup Opened!');
+        console.log('⚠️ No user data found in localStorage');
+      }
+      
       resetAndFetchProjects();
     }
   }, [isOpen]);

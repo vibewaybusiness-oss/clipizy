@@ -4,6 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Home,
   Plus,
@@ -12,7 +21,8 @@ import {
   LogOut,
   User,
   Menu,
-  X
+  X,
+  ChevronDown
 } from "lucide-react";
 import { ProtectedRoute } from "@/components/layout/protected-route";
 import { useAuth } from "@/contexts/auth-context";
@@ -103,34 +113,74 @@ export default function DashboardLayout({
               </ul>
             </nav>
 
-            {/* LOGOUT BUTTON */}
-            <div className="p-2">
-              <Button
-                variant="ghost"
-                className="w-12 h-12 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200"
-                onClick={logout}
-                title="Sign Out"
-              >
-                <LogOut className="w-5 h-5" />
-              </Button>
-            </div>
           </div>
         </div>
 
         {/* MAIN CONTENT */}
         <div className="md:ml-16">
-          {/* MOBILE MENU BUTTON */}
-          <div className="md:hidden fixed top-4 left-4 z-40">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSidebarOpen(true)}
-              className="bg-gray-900/80 backdrop-blur border border-gray-700 text-white hover:bg-gray-800"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </div>
+          {/* TOP SIDEBAR */}
+          <div className="sticky top-0 z-30 bg-background border-b border-border">
+            <div className="flex items-center justify-between px-4 py-3">
+              {/* MOBILE MENU BUTTON */}
+              <div className="md:hidden">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSidebarOpen(true)}
+                  className="bg-gray-900/80 backdrop-blur border border-gray-700 text-white hover:bg-gray-800"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </div>
 
+              {/* SPACER FOR MOBILE */}
+              <div className="md:hidden flex-1" />
+
+              {/* USER PROFILE DROPDOWN */}
+              <div className="flex items-center space-x-4">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user?.avatar} alt={user?.name || "User"} />
+                        <AvatarFallback className="text-xs">
+                          {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{user?.name || "User"}</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {user?.email || "user@example.com"}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/profile" className="flex items-center">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/settings" className="flex items-center">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout} className="text-red-600 focus:text-red-600">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </div>
 
           {/* PAGE CONTENT */}
           <main className="flex-1 min-h-screen bg-background">

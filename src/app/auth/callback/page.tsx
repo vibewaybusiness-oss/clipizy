@@ -71,6 +71,12 @@ function OAuthCallbackContent() {
         // Update auth context
         setUser(data.user);
 
+        // Log user ID to console after successful OAuth login
+        console.log('🎉 OAuth Login Successful!');
+        console.log('👤 User ID:', data.user.id);
+        console.log('📧 User Email:', data.user.email);
+        console.log('👨‍💼 User Name:', data.user.name);
+
         setStatus('success');
         setMessage('Authentication successful! Redirecting...');
 

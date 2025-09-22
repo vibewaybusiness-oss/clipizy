@@ -58,6 +58,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (response.ok) {
             const userData = await response.json();
             setUser(userData);
+            
+            // Log user ID to console when user state is restored
+            console.log('🔄 Auth State Restored');
+            console.log('👤 User ID:', userData.id);
+            console.log('📧 User Email:', userData.email);
+            console.log('👨‍💼 User Name:', userData.name);
           } else {
             localStorage.removeItem('access_token');
             localStorage.removeItem('user');
@@ -101,6 +107,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const userData = await userResponse.json();
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
+          
+          // Log user ID to console after successful login
+          console.log('🔐 Login Successful!');
+          console.log('👤 User ID:', userData.id);
+          console.log('📧 User Email:', userData.email);
+          console.log('👨‍💼 User Name:', userData.name);
+          
           return true;
         }
       }
@@ -128,6 +141,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const userData = await response.json();
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Log user ID to console after successful signup
+        console.log('📝 Signup Successful!');
+        console.log('👤 User ID:', userData.id);
+        console.log('📧 User Email:', userData.email);
+        console.log('👨‍💼 User Name:', userData.name);
+        
         return true;
       }
       return false;

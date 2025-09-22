@@ -14,13 +14,13 @@ const WINDOWS_HOST_IP = '172.31.240.1'; // Fallback Windows host IP
 // Backend Configuration
 export const BACKEND_CONFIG = {
   // Primary backend URL - use WSL IP for WSL environments
-  url: process.env.BACKEND_URL || `http://${WSL_IP}:8000/api`,
+  url: process.env.BACKEND_URL || `http://${WSL_IP}:8000`,
 
   // Fallback URLs for different environments
   fallbackUrls: {
-    localhost: 'http://localhost:8000/api',
-    wsl: `http://${WSL_IP}:8000/api`,
-    windows: `http://${WINDOWS_HOST_IP}:8000/api`,
+    localhost: 'http://localhost:8000',
+    wsl: `http://${WSL_IP}:8000`,
+    windows: `http://${WINDOWS_HOST_IP}:8000`,
   },
 
   // Timeout configurations
