@@ -15,10 +15,5 @@
       "src": "/api/(.*)",
       "dest": "/api/vercel_main.py"
     }
-  ],
-  "functions": {
-    "api/vercel_main.py": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }
