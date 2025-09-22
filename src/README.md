@@ -2,7 +2,7 @@
 
 ## Overview
 
-The dashboard is a comprehensive video creation platform built with Next.js, React, and TypeScript. It provides a multi-step workflow for creating AI-generated music videos with various customization options.
+The dashboard is a comprehensive video creation platform built with Next.js, React, and TypeScript. It provides a multi-step workflow for creating AI-generated music videos / videos with various customization options.
 
 ## Architecture
 

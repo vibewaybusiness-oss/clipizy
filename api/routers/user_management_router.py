@@ -2,12 +2,14 @@
 User Management Router - Handle user directory and profile operations
 """
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 from api.db import get_db
 from api.models import User
 from api.routers.auth_router import get_current_user
 from api.services.user_creation_service import user_creation_service
 from typing import Dict, Any
+from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
@@ -177,7 +179,7 @@ def get_user_settings(
                 "analyticsTracking": db_settings.get("privacy", {}).get("analytics_tracking", True),
                 "marketingEmails": db_settings.get("privacy", {}).get("marketing_emails", False),
                 "profileDiscovery": db_settings.get("privacy", {}).get("profile_discovery", False),
-                "activityVisibility": db_settings.get("privacy", {}).get("activity_visibility", "followers")
+                "activityVisibility": db_settings.get("privacy", {}).get("activity_visibility", "followers"),
             },
             "security": {
                 "twoFactorEnabled": db_settings.get("security", {}).get("two_factor_enabled", False),
@@ -471,4 +473,243 @@ def delete_user_account(
         raise HTTPException(
             status_code=500, 
             detail="Failed to delete account"
+        )
+
+@router.get("/app-settings")
+def get_app_settings(
+    current_user: User = Depends(get_current_user)
+):
+    """Get application settings for the user"""
+    try:
+        db_settings = current_user.settings or {}
+        
+        app_settings = {
+            "theme": db_settings.get("preferences", {}).get("theme", "system"),
+            "language": db_settings.get("preferences", {}).get("language", "en"),
+            "timezone": db_settings.get("preferences", {}).get("timezone", "UTC"),
+            "soundEnabled": db_settings.get("preferences", {}).get("sound_enabled", True),
+            "soundVolume": db_settings.get("preferences", {}).get("sound_volume", 70),
+            "animationsEnabled": db_settings.get("preferences", {}).get("animations_enabled", True),
+            "reducedMotion": db_settings.get("preferences", {}).get("reduced_motion", False),
+            "autoPlay": db_settings.get("preferences", {}).get("auto_play", False),
+            "quality": db_settings.get("preferences", {}).get("quality", "1080p"),
+            "maxVideoLength": db_settings.get("preferences", {}).get("max_video_length", 10),
+            "moderateLyrics": db_settings.get("preferences", {}).get("moderate_lyrics", False),
+            "dataSaving": db_settings.get("preferences", {}).get("data_saving", False),
+            "developerMode": db_settings.get("preferences", {}).get("developer_mode", False)
+        }
+        
+        return {
+            "success": True,
+            "settings": app_settings
+        }
+    except Exception as e:
+        logger.error(f"Error getting app settings: {str(e)}")
+        raise HTTPException(
+            status_code=500, 
+            detail="Failed to get app settings"
+        )
+
+@router.put("/app-settings")
+def update_app_settings(
+    settings_data: Dict[str, Any],
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update application settings for the user"""
+    try:
+        if current_user.settings is None:
+            current_user.settings = {}
+        
+        db_settings = current_user.settings.copy()
+        
+        # Update preferences in database
+        if "preferences" not in db_settings:
+            db_settings["preferences"] = {}
+        
+        db_settings["preferences"].update({
+            "theme": settings_data.get("theme", "system"),
+            "language": settings_data.get("language", "en"),
+            "timezone": settings_data.get("timezone", "UTC"),
+            "sound_enabled": settings_data.get("soundEnabled", True),
+            "sound_volume": settings_data.get("soundVolume", 70),
+            "animations_enabled": settings_data.get("animationsEnabled", True),
+            "reduced_motion": settings_data.get("reducedMotion", False),
+            "auto_play": settings_data.get("autoPlay", False),
+            "quality": settings_data.get("quality", "1080p"),
+            "max_video_length": settings_data.get("maxVideoLength", 10),
+            "moderate_lyrics": settings_data.get("moderateLyrics", False),
+            "data_saving": settings_data.get("dataSaving", False),
+            "developer_mode": settings_data.get("developerMode", False)
+        })
+        
+        current_user.settings = db_settings
+        current_user.updated_at = datetime.utcnow()
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": "App settings updated successfully"
+        }
+    except Exception as e:
+        logger.error(f"Error updating app settings: {str(e)}")
+        db.rollback()
+        raise HTTPException(
+            status_code=500, 
+            detail="Failed to update app settings"
+        )
+
+@router.get("/social-settings")
+def get_social_settings(
+    current_user: User = Depends(get_current_user)
+):
+    """Get social media settings for the user"""
+    try:
+        db_settings = current_user.settings or {}
+        
+        social_settings = {
+            "autoTagClipizi": db_settings.get("social", {}).get("auto_tag_clipizi", True),
+            "includeWatermark": db_settings.get("social", {}).get("include_watermark", True),
+            "autoPost": db_settings.get("social", {}).get("auto_post", False),
+            "postDelay": db_settings.get("social", {}).get("post_delay", 5),
+            "includeHashtags": db_settings.get("social", {}).get("include_hashtags", True),
+            "customHashtags": db_settings.get("social", {}).get("custom_hashtags", "#music #vibewave #ai"),
+            "tagFriends": db_settings.get("social", {}).get("tag_friends", False),
+            "crossPost": db_settings.get("social", {}).get("cross_post", False)
+        }
+        
+        return {
+            "success": True,
+            "settings": social_settings
+        }
+    except Exception as e:
+        logger.error(f"Error getting social settings: {str(e)}")
+        raise HTTPException(
+            status_code=500, 
+            detail="Failed to get social settings"
+        )
+
+@router.put("/social-settings")
+def update_social_settings(
+    settings_data: Dict[str, Any],
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update social media settings for the user"""
+    try:
+        if current_user.settings is None:
+            current_user.settings = {}
+        
+        db_settings = current_user.settings.copy()
+        
+        # Update social settings in database
+        if "social" not in db_settings:
+            db_settings["social"] = {}
+        
+        db_settings["social"].update({
+            "auto_tag_clipizi": settings_data.get("autoTagClipizi", True),
+            "include_watermark": settings_data.get("includeWatermark", True),
+            "auto_post": settings_data.get("autoPost", False),
+            "post_delay": settings_data.get("postDelay", 5),
+            "include_hashtags": settings_data.get("includeHashtags", True),
+            "custom_hashtags": settings_data.get("customHashtags", "#music #vibewave #ai"),
+            "tag_friends": settings_data.get("tagFriends", False),
+            "cross_post": settings_data.get("crossPost", False)
+        })
+        
+        current_user.settings = db_settings
+        current_user.updated_at = datetime.utcnow()
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": "Social settings updated successfully"
+        }
+    except Exception as e:
+        logger.error(f"Error updating social settings: {str(e)}")
+        db.rollback()
+        raise HTTPException(
+            status_code=500, 
+            detail="Failed to update social settings"
+        )
+
+@router.get("/subscription")
+def get_user_subscription(
+    current_user: User = Depends(get_current_user)
+):
+    """Get user subscription information"""
+    try:
+        subscription_info = {
+            "tier": current_user.plan or "free",
+            "status": "active",
+            "renewsAt": None,
+            "billingCycle": None,
+            "price": 0,
+            "currency": "USD"
+        }
+        
+        # Add pricing based on tier
+        if current_user.plan == "plus":
+            subscription_info["price"] = 6
+            subscription_info["billingCycle"] = "monthly"
+        elif current_user.plan == "pro":
+            subscription_info["price"] = 18
+            subscription_info["billingCycle"] = "monthly"
+        elif current_user.plan == "enterprise":
+            subscription_info["price"] = 48
+            subscription_info["billingCycle"] = "monthly"
+        
+        return {
+            "success": True,
+            "subscription": subscription_info
+        }
+    except Exception as e:
+        logger.error(f"Error getting subscription info: {str(e)}")
+        raise HTTPException(
+            status_code=500, 
+            detail="Failed to get subscription information"
+        )
+
+@router.get("/export-data")
+def export_user_data(
+    current_user: User = Depends(get_current_user)
+):
+    """Export user data as JSON"""
+    try:
+        from pathlib import Path
+        import json
+        
+        user_id = str(current_user.id)
+        user_dir = Path("users") / user_id
+        
+        export_data = {
+            "user_id": user_id,
+            "email": current_user.email,
+            "username": current_user.username,
+            "bio": current_user.bio,
+            "created_at": current_user.created_at.isoformat() if current_user.created_at else None,
+            "last_login": current_user.last_login.isoformat() if current_user.last_login else None,
+            "settings": current_user.settings or {},
+            "exported_at": datetime.utcnow().isoformat()
+        }
+        
+        # Add any additional data from user directory
+        if user_dir.exists():
+            export_data["user_directory"] = {
+                "exists": True,
+                "path": str(user_dir)
+            }
+        
+        return Response(
+            content=json.dumps(export_data, indent=2),
+            media_type="application/json",
+            headers={
+                "Content-Disposition": f"attachment; filename=clipizi-data-export-{user_id}.json"
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error exporting user data: {str(e)}")
+        raise HTTPException(
+            status_code=500, 
+            detail="Failed to export user data"
         )
