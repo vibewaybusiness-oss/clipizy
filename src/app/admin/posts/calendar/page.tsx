@@ -5,7 +5,7 @@ import { ContentCalendar as ContentCalendarComponent } from '@/components/calend
 import { GeminiGenerator } from '@/components/calendar/GeminiGenerator';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { StatsCard, QuickActions } from '@/components/admin';
+import { StatsCard, QuickActions } from '@/components/features/admin';
 import { useContentCalendar } from '@/hooks/admin';
 import {
   Calendar,

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { ContentCalendar, BlogPost, ContentCluster } from '@/types/domains';
+import type { ContentCalendar, CalendarBlogPost, ContentCluster } from '@/types/domains';
 
 interface CalendarStats {
   total: number;
@@ -60,7 +60,7 @@ export function useContentCalendar() {
       setError(null);
 
       // Mock data for now - replace with actual API call
-      const mockPosts: BlogPost[] = [
+      const mockPosts: CalendarBlogPost[] = [
         {
           id: '1',
           title: 'Getting Started with Music Production',
@@ -130,7 +130,7 @@ export function useContentCalendar() {
     }
   };
 
-  const updatePost = (postId: string, updatedPost: Partial<BlogPost>) => {
+  const updatePost = (postId: string, updatedPost: Partial<CalendarBlogPost>) => {
     setCalendar(prev => ({
       ...prev,
       posts: prev.posts.map(post =>
@@ -139,8 +139,8 @@ export function useContentCalendar() {
     }));
   };
 
-  const addPost = (newPost: Omit<BlogPost, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const post: BlogPost = {
+  const addPost = (newPost: Omit<CalendarBlogPost, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const post: CalendarBlogPost = {
       ...newPost,
       id: Date.now().toString(),
       createdAt: new Date().toISOString(),
