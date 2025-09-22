@@ -2,9 +2,7 @@
   "version": 2,
   "functions": {
     "api/vercel_main.py": {
-      "runtime": "python3.11",
-      "maxDuration": 30,
-      "memory": 1024
+      "runtime": "python3.9"
     }
   },
   "routes": [
@@ -12,8 +10,5 @@
       "src": "/api/(.*)",
       "dest": "/api/vercel_main.py"
     }
-  ],
-  "env": {
-    "PYTHONPATH": "/var/task"
-  }
+  ]
 }

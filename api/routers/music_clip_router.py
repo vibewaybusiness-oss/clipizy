@@ -889,6 +889,7 @@ def get_project_analysis(
     """Get project analysis data."""
     try:
         user_id = str(current_user.id)
+        logger.info(f"Getting analysis for project {project_id} by user {user_id}")
 
         # Get the project
         project = db.query(Project).filter(
@@ -898,8 +899,10 @@ def get_project_analysis(
         ).first()
 
         if not project:
-            raise HTTPException(status_code=404, detail="Project not found")
+            logger.warning(f"Project {project_id} not found for user {user_id}")
+            raise HTTPException(status_code=404, detail="Project not found or access denied")
 
+        logger.info(f"Found project {project_id}, returning analysis data")
         return {
             "analysis": getattr(project, 'analysis', None) or {}
         }

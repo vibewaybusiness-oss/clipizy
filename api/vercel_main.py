@@ -20,11 +20,11 @@ from api.routers import (
     stats_router,
     job_router,
     prompt_router,
-    credits_router,
     payment_router,
     social_media_router,
     automation_router
 )
+from api.routers.points_router import router as points_router
 
 # Import services for initialization
 from api.services.vercel_compatibility import check_ml_availability
@@ -116,7 +116,7 @@ app.include_router(export_router, prefix="/exports", tags=["exports"])
 app.include_router(stats_router, prefix="/stats", tags=["stats"])
 app.include_router(job_router, prefix="/jobs", tags=["jobs"])
 app.include_router(prompt_router, prefix="/prompts", tags=["prompts"])
-app.include_router(credits_router, prefix="/api", tags=["credits"])
+app.include_router(points_router, prefix="/api", tags=["points"])
 app.include_router(payment_router, prefix="/api", tags=["payments"])
 app.include_router(social_media_router, tags=["social-media"])
 app.include_router(automation_router, tags=["automation"])
