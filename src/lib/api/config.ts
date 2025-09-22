@@ -1,7 +1,9 @@
 // API Configuration
+import { getBackendUrl } from '@/lib/config';
+
 export const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? 'https://api.vibewave.com' 
-  : 'http://localhost:8000';
+  : getBackendUrl();
 
 export const API_PATHS = {
   AUTH: '/auth',

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { getBackendUrl } from '@/lib/config';
 
 export default function OAuthCallbackPage() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -42,7 +43,7 @@ export default function OAuthCallbackPage() {
         setMessage('Completing authentication...');
 
         // Call the backend OAuth callback endpoint directly
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || getBackendUrl();
         const response = await fetch(`${backendUrl}/auth/${provider}/callback`, {
           method: 'POST',
           headers: {
