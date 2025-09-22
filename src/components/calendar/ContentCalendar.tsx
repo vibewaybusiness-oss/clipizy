@@ -3,10 +3,18 @@
 import React from 'react';
 
 interface ContentCalendarProps {
-  // Add props as needed
+  calendar: any;
+  onPostClick: (post: any) => void;
+  onGeneratePost: (post: any) => void;
+  onEditPost: (post: any) => void;
 }
 
-export function ContentCalendar({}: ContentCalendarProps) {
+export function ContentCalendar({
+  calendar,
+  onPostClick,
+  onGeneratePost,
+  onEditPost
+}: ContentCalendarProps) {
   return (
     <div className="p-4">
       <h2 className="text-lg font-semibold mb-4">Content Calendar</h2>
