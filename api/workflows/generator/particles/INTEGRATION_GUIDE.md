@@ -12,7 +12,7 @@ In your main FastAPI application file (e.g., `api/main.py`):
 from fastapi import FastAPI
 from routers.particle_router import router as particle_router
 
-app = FastAPI(title="clipizi API", version="1.0.0")
+app = FastAPI(title="clipizy API", version="1.0.0")
 
 # Include particle router
 app.include_router(particle_router)
@@ -263,7 +263,7 @@ Example error response:
 1. **File Path Validation**: Validate all file paths to prevent directory traversal
 2. **Resource Limits**: Set limits on particle count, resolution, and duration
 3. **Authentication**: Add authentication for production use
-4. **Rate Limiting**: Implement rate limiting for API endpoints
+4. **Rate Limiting**: Implement rate limiting for API endcredits
 
 ## Monitoring
 

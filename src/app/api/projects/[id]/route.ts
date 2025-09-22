@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockProjects } from '@/lib/mock-data';
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://127.0.0.1:8000';
-const USE_MOCK_DATA = process.env.NODE_ENV === 'development';
 
 export async function GET(
   request: NextRequest,
@@ -10,16 +8,6 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    if (USE_MOCK_DATA) {
-      const project = mockProjects.find(p => p.id === id);
-      if (!project) {
-        return NextResponse.json(
-          { error: 'Project not found' },
-          { status: 404 }
-        );
-      }
-      return NextResponse.json(project);
-    }
 
     const response = await fetch(`${BACKEND_URL}/projects/${id}`, {
       method: 'GET',
@@ -90,17 +78,6 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    if (USE_MOCK_DATA) {
-      const projectIndex = mockProjects.findIndex(p => p.id === id);
-      if (projectIndex === -1) {
-        return NextResponse.json(
-          { error: 'Project not found' },
-          { status: 404 }
-        );
-      }
-      mockProjects.splice(projectIndex, 1);
-      return NextResponse.json({ success: true });
-    }
 
     const response = await fetch(`${BACKEND_URL}/projects/${id}`, {
       method: 'DELETE',

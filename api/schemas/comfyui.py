@@ -154,7 +154,7 @@ class WorkflowRequest(BaseModel):
 class ComfyUIHealthStatus(BaseModel):
     """Health status for ComfyUI instance"""
     is_running: bool
-    endpoints_accessible: List[str] = Field(default_factory=list)
+    endcredits_accessible: List[str] = Field(default_factory=list)
     error: Optional[str] = None
     base_url: str
     comfyui_version: Optional[str] = None

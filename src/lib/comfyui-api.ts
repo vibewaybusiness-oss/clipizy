@@ -1,150 +1,134 @@
-import { NextResponse } from 'next/server';
+/**
+ * ComfyUI API client for image generation and workflow management
+ */
 
-interface ComfyUIRequest {
-  prompt: string;
-  negative_prompt?: string;
-  width?: number;
-  height?: number;
-  seed?: number;
-  steps?: number;
-  cfg?: number;
-  sampler?: string;
-  scheduler?: string;
+const COMFYUI_BASE_URL = process.env.NEXT_PUBLIC_COMFYUI_URL || 'http://localhost:8188';
+
+export interface ComfyUIWorkflow {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  inputs: Record<string, any>;
+  outputs: Record<string, any>;
 }
 
-interface ComfyUIResponse {
-  success: boolean;
-  prompt_id?: string;
-  error?: string;
-  images?: string[];
+export interface ComfyUIStatus {
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  progress: number;
+  current_step: number;
+  total_steps: number;
+  message?: string;
+  result?: {
+    images: string[];
+    metadata: Record<string, any>;
+  };
 }
 
+export interface ComfyUIGenerationRequest {
+  workflow: string;
+  inputs: Record<string, any>;
+  priority?: number;
+}
+
+/**
+ * Get available ComfyUI workflows
+ */
+export async function getAvailableWorkflows(): Promise<ComfyUIWorkflow[]> {
+  try {
+    const response = await fetch(`${COMFYUI_BASE_URL}/workflows`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch workflows: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching ComfyUI workflows:', error);
+    return [];
+  }
+}
+
+/**
+ * Generate image using ComfyUI
+ */
 export async function generateImage(
   workflowName: string,
-  request: ComfyUIRequest
-): Promise<NextResponse> {
+  inputs: Record<string, any>
+): Promise<{ promptId: string; status: string }> {
   try {
-    // Call the backend API
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/comfyui/generate`, {
+    const response = await fetch(`${COMFYUI_BASE_URL}/generate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        workflow_name: workflowName,
-        input_data: request
-      })
+        workflow: workflowName,
+        inputs,
+      }),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to generate image: ${response.statusText}`);
     }
 
-    const data = await response.json();
-
-    if (data.success) {
-      return NextResponse.json({
-        success: true,
-        prompt_id: data.prompt_id,
-        images: data.images || []
-      });
-    } else {
-      return NextResponse.json({
-        success: false,
-        error: data.error || 'Image generation failed'
-      }, { status: 500 });
-    }
+    return await response.json();
   } catch (error) {
-    console.error('ComfyUI generation error:', error);
-    return NextResponse.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Image generation failed'
-    }, { status: 500 });
+    console.error('Error generating image:', error);
+    throw error;
   }
 }
 
-export async function downloadImage(
-  filename: string,
-  subfolder: string = '',
-  type: string = 'output'
-): Promise<NextResponse> {
+/**
+ * Get workflow status
+ */
+export async function getWorkflowStatus(promptId: string): Promise<ComfyUIStatus> {
   try {
-    // Call the backend API to get the download URL
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/comfyui/download?filename=${encodeURIComponent(filename)}&subfolder=${encodeURIComponent(subfolder)}&type=${encodeURIComponent(type)}`,
-      {
-        method: 'GET',
-      }
-    );
-
+    const response = await fetch(`${COMFYUI_BASE_URL}/status/${promptId}`);
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to get status: ${response.statusText}`);
     }
-
-    const data = await response.json();
-
-    if (data.success && data.download_url) {
-      // Redirect to the download URL
-      return NextResponse.redirect(data.download_url);
-    } else {
-      return NextResponse.json({
-        success: false,
-        error: data.error || 'Download failed'
-      }, { status: 500 });
-    }
+    return await response.json();
   } catch (error) {
-    console.error('ComfyUI download error:', error);
-    return NextResponse.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Download failed'
-    }, { status: 500 });
+    console.error('Error getting workflow status:', error);
+    throw error;
   }
 }
 
-export async function getWorkflowStatus(promptId: string): Promise<NextResponse> {
+/**
+ * Download generated image
+ */
+export async function downloadImage(imageUrl: string): Promise<Blob> {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/comfyui/status/${promptId}`,
-      {
-        method: 'GET',
-      }
-    );
-
+    const response = await fetch(imageUrl);
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to download image: ${response.statusText}`);
     }
-
-    const data = await response.json();
-    return NextResponse.json(data);
+    return await response.blob();
   } catch (error) {
-    console.error('ComfyUI status error:', error);
-    return NextResponse.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Status check failed'
-    }, { status: 500 });
+    console.error('Error downloading image:', error);
+    throw error;
   }
 }
 
-export async function getAvailableWorkflows(): Promise<NextResponse> {
+/**
+ * Get ComfyUI system status
+ */
+export async function getSystemStatus(): Promise<{
+  status: 'online' | 'offline';
+  version: string;
+  uptime: number;
+}> {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/comfyui/workflows`,
-      {
-        method: 'GET',
-      }
-    );
-
+    const response = await fetch(`${COMFYUI_BASE_URL}/status`);
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to get system status: ${response.statusText}`);
     }
-
-    const data = await response.json();
-    return NextResponse.json(data);
+    return await response.json();
   } catch (error) {
-    console.error('ComfyUI workflows error:', error);
-    return NextResponse.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch workflows'
-    }, { status: 500 });
+    console.error('Error getting system status:', error);
+    return {
+      status: 'offline',
+      version: 'unknown',
+      uptime: 0,
+    };
   }
 }

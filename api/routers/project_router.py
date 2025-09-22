@@ -84,3 +84,32 @@ def upload_audio_file(
     db.refresh(track)
 
     return track
+
+@router.delete("/{project_id}")
+def delete_project(
+    project_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a project and all its associated tracks."""
+    project = db.query(Project).filter(Project.id == project_id, Project.user_id == str(current_user.id)).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Delete all tracks associated with this project
+    tracks = db.query(Track).filter(Track.project_id == project_id).all()
+    for track in tracks:
+        # Delete the file from storage if it exists
+        if track.file_path and track.file_path.startswith("s3://"):
+            try:
+                storage_service.delete_file(track.file_path)
+            except Exception as e:
+                # Log error but don't fail the deletion
+                print(f"Warning: Could not delete file {track.file_path}: {e}")
+        db.delete(track)
+    
+    # Delete the project
+    db.delete(project)
+    db.commit()
+    
+    return {"message": "Project deleted successfully"}

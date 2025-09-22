@@ -15,7 +15,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ProjectSelectionPopup } from "@/components/create/create-music/project-selection-popup";
+import { ProjectSelectionPopup } from "@/components/forms/ProjectSelectionPopup";
 
 const creationOptions = [
   {

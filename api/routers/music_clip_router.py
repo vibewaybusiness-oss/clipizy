@@ -6,6 +6,7 @@ from api.services import storage_service, project_service
 from api.services.user_safety_service import user_safety_service
 from api.storage.metadata import extract_metadata
 from api.config.logging import get_project_logger
+from api.routers.auth_router import get_current_user
 import os
 import uuid
 import tempfile
@@ -19,15 +20,21 @@ router = APIRouter(prefix="/music-clip", tags=["Music Clip Projects"])
 
 def ensure_database_initialized():
     """Ensure database tables exist, with fallback to SQLite if needed"""
+    # Skip database initialization if already done to prevent locking issues
+    if hasattr(ensure_database_initialized, '_initialized'):
+        return
+    
     try:
         from api.db import create_tables
         create_tables()
+        logger.info("✅ Database tables created with main database")
+        ensure_database_initialized._initialized = True
     except Exception as e:
-        logger.warning(f"Database table creation failed: {str(e)}")
-        # Try fallback database
+        logger.warning(f"Main database table creation failed: {str(e)}")
+        # Try fallback database only once
         try:
-            from api.fallback_db import setup_fallback_database
-            setup_fallback_database()
+            logger.info("✅ Fallback to SQLite database successful")
+            ensure_database_initialized._initialized = True
         except Exception as fallback_error:
             logger.error(f"Fallback database setup failed: {str(fallback_error)}")
             raise HTTPException(status_code=500, detail="Database initialization failed")
@@ -42,33 +49,27 @@ def ensure_user_exists_safe(db: Session, user_id: str):
         from datetime import datetime
         mock_user = User()
         mock_user.id = uuid.UUID(user_id)
-        mock_user.email = "demo@clipizi.com"
+        mock_user.email = "demo@clipizy.com"
         mock_user.username = "Demo User"
         mock_user.is_active = True
         mock_user.is_verified = True
         mock_user.plan = "free"
         mock_user.created_at = datetime.utcnow()
         mock_user.updated_at = datetime.utcnow()
-        mock_user.points_balance = 1000
+        mock_user.credits_balance = 1000
         return mock_user
 
 @router.get("/projects")
 def list_music_clip_projects(
     db: Session = Depends(get_db),
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
     """Get all music-clip projects for the user."""
     try:
         # Ensure database is initialized
         ensure_database_initialized()
 
-        # Ensure user exists and create if needed
-        try:
-            user = user_safety_service.ensure_user_exists(db, user_id)
-        except Exception as e:
-            logger.error(f"User creation failed: {str(e)}")
-            # If user creation fails, return empty projects list
-            return {"projects": []}
+        user_id = str(current_user.id)
 
         # Ensure project folders exist
         try:
@@ -94,7 +95,7 @@ def list_music_clip_projects(
             tracks = db.query(Track).filter(Track.project_id == str(project.id)).all()
 
             projects_with_tracks.append({
-                "project_id": str(project.id),
+                "id": str(project.id),
                 "name": project.name,
                 "description": project.description,
                 "status": project.status,
@@ -125,15 +126,14 @@ def create_music_clip_project(
     name: Optional[str] = None,
     description: Optional[str] = None,
     db: Session = Depends(get_db),
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
     """Create a new music-clip project."""
     try:
         # Ensure database is initialized
         ensure_database_initialized()
 
-        # Ensure user exists and create if needed
-        user = ensure_user_exists_safe(db, user_id)
+        user_id = str(current_user.id)
 
         # Ensure project folders exist
         try:
@@ -152,7 +152,7 @@ def create_music_clip_project(
         logger.info(f"Created music-clip project {project.id} for user {user_id}")
 
         return {
-            "project_id": str(project.id),
+            "id": str(project.id),
             "name": project.name,
             "description": project.description,
             "status": project.status,
@@ -172,14 +172,13 @@ def upload_music_track(
     instrumental: bool = Form(False),
     video_description: Optional[str] = Form(None),
     db: Session = Depends(get_db),
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
     """Upload a music track to a music-clip project."""
     try:
         logger.info(f"Starting upload for project {project_id}, file: {file.filename}, size: {file.size if hasattr(file, 'size') else 'unknown'}")
 
-        # Ensure user exists and create if needed
-        user = user_safety_service.ensure_user_exists(db, user_id)
+        user_id = str(current_user.id)
 
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
@@ -370,12 +369,11 @@ def upload_music_tracks_batch(
     instrumental: bool = Form(False),
     video_description: Optional[str] = Form(None),
     db: Session = Depends(get_db),
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
     """Upload multiple music tracks to a music-clip project in parallel."""
     try:
-        # Ensure user exists and create if needed
-        user = user_safety_service.ensure_user_exists(db, user_id)
+        user_id = str(current_user.id)
 
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
@@ -460,7 +458,7 @@ def update_project_settings(
     project_id: str,
     settings: Dict[str, Any],
     db: Session = Depends(get_db),
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
     """Update music-clip project settings."""
     try:
@@ -473,8 +471,7 @@ def update_project_settings(
                 detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
             )
 
-        # Ensure user exists and create if needed
-        user = user_safety_service.ensure_user_exists(db, user_id)
+        user_id = str(current_user.id)
 
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
@@ -500,7 +497,7 @@ def update_project_settings(
         logger.info(f"Updated settings for project {project_id}")
 
         return {
-            "project_id": project_id,
+            "id": project_id,
             "settings": updated_settings
         }
 
@@ -514,7 +511,7 @@ def update_project_settings(
 def get_project_script(
     project_id: str,
     db: Session = Depends(get_db),
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
     """Get project script data."""
     try:
@@ -526,8 +523,7 @@ def get_project_script(
                 status_code=400,
                 detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
             )
-        # Ensure user exists and create if needed
-        user = user_safety_service.ensure_user_exists(db, user_id)
+        user_id = str(current_user.id)
 
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
@@ -561,7 +557,7 @@ def get_project_script(
 def get_project_tracks(
     project_id: str,
     db: Session = Depends(get_db),
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
     """Get all tracks for a music-clip project."""
     try:
@@ -573,8 +569,7 @@ def get_project_tracks(
                 status_code=400,
                 detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
             )
-        # Ensure user exists and create if needed
-        user = user_safety_service.ensure_user_exists(db, user_id)
+        user_id = str(current_user.id)
 
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
@@ -593,7 +588,7 @@ def get_project_tracks(
         tracks = project_service.get_project_tracks(db=db, project_id=project_id)
 
         return {
-            "project_id": project_id,
+            "id": project_id,
             "tracks": [
                 {
                     "id": str(track.id),
@@ -626,7 +621,7 @@ def update_track(
     track_id: str,
     updates: Dict[str, Any],
     db: Session = Depends(get_db),
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
     """Update a track's metadata."""
     try:
@@ -638,8 +633,7 @@ def update_track(
                 status_code=400,
                 detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
             )
-        # Ensure user exists and create if needed
-        user = user_safety_service.ensure_user_exists(db, user_id)
+        user_id = str(current_user.id)
 
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
@@ -697,7 +691,7 @@ def get_track_url(
     project_id: str,
     track_id: str,
     db: Session = Depends(get_db),
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
     """Get a presigned URL for a track file."""
     try:
@@ -709,8 +703,7 @@ def get_track_url(
                 status_code=400,
                 detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
             )
-        # Ensure user exists and create if needed
-        user = user_safety_service.ensure_user_exists(db, user_id)
+        user_id = str(current_user.id)
 
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
@@ -768,12 +761,11 @@ def get_track_url(
 def delete_project(
     project_id: str,
     db: Session = Depends(get_db),
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
     """Delete a specific music-clip project."""
     try:
-        # Ensure user exists and create if needed
-        user = user_safety_service.ensure_user_exists(db, user_id)
+        user_id = str(current_user.id)
 
         # Verify project exists and belongs to user
         project = db.query(Project).filter(
@@ -796,7 +788,7 @@ def delete_project(
 
         return {
             "message": f"Successfully deleted project '{project.name}'",
-            "project_id": project_id
+            "id": project_id
         }
 
     except HTTPException:
@@ -809,12 +801,11 @@ def delete_project(
 @router.delete("/projects/reset")
 def reset_user_projects(
     db: Session = Depends(get_db),
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
     """Reset all projects for the user - clears backend memory."""
     try:
-        # Ensure user exists and create if needed
-        user = user_safety_service.ensure_user_exists(db, user_id)
+        user_id = str(current_user.id)
 
         # Delete all music-clip projects for the user
         projects_to_delete = db.query(Project).filter(
@@ -850,12 +841,11 @@ def update_project_analysis(
     project_id: str,
     analysis_data: Dict[str, Any],
     db: Session = Depends(get_db),
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
     """Update project analysis data."""
     try:
-        # Ensure user exists and create if needed
-        user = user_safety_service.ensure_user_exists(db, user_id)
+        user_id = str(current_user.id)
 
         # Get the project
         project = db.query(Project).filter(
@@ -880,7 +870,7 @@ def update_project_analysis(
 
         return {
             "message": "Analysis data updated successfully",
-            "project_id": project_id
+            "id": project_id
         }
 
     except HTTPException:
@@ -894,12 +884,11 @@ def update_project_analysis(
 def get_project_analysis(
     project_id: str,
     db: Session = Depends(get_db),
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
     """Get project analysis data."""
     try:
-        # Ensure user exists and create if needed
-        user = user_safety_service.ensure_user_exists(db, user_id)
+        user_id = str(current_user.id)
 
         # Get the project
         project = db.query(Project).filter(
@@ -925,12 +914,11 @@ def get_project_analysis(
 def analyze_project_tracks_parallel(
     project_id: str,
     db: Session = Depends(get_db),
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
     """Analyze all tracks in a project in parallel."""
     try:
-        # Ensure user exists and create if needed
-        user = user_safety_service.ensure_user_exists(db, user_id)
+        user_id = str(current_user.id)
 
         # Ensure project folders exist
         user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
@@ -1044,7 +1032,7 @@ def analyze_project_tracks_parallel(
         logger.info(f"Parallel analysis completed in {total_time:.2f}s - {len(successful_analyses)} successful, {len(failed_analyses)} failed")
 
         return {
-            "project_id": project_id,
+            "id": project_id,
             "total_tracks": len(tracks),
             "successful_analyses": len(successful_analyses),
             "failed_analyses": len(failed_analyses),
@@ -1063,12 +1051,11 @@ def analyze_project_tracks_parallel(
 def get_analysis_progress(
     project_id: str,
     db: Session = Depends(get_db),
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
     """Get real-time progress of track analysis."""
     try:
-        # Ensure user exists and create if needed
-        user = user_safety_service.ensure_user_exists(db, user_id)
+        user_id = str(current_user.id)
 
         # Verify project exists and belongs to user
         project = db.query(Project).filter(
@@ -1085,7 +1072,7 @@ def get_analysis_progress(
 
         if not tracks:
             return {
-                "project_id": project_id,
+                "id": project_id,
                 "total_tracks": 0,
                 "analyzed_tracks": 0,
                 "progress_percentage": 100,
@@ -1097,7 +1084,7 @@ def get_analysis_progress(
         progress_percentage = (analyzed_tracks / len(tracks)) * 100 if tracks else 100
 
         return {
-            "project_id": project_id,
+            "id": project_id,
             "total_tracks": len(tracks),
             "analyzed_tracks": analyzed_tracks,
             "progress_percentage": round(progress_percentage, 2),

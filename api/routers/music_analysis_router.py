@@ -1,6 +1,6 @@
 """
-Music Analysis Router for clipizi API
-Provides endpoints for comprehensive music analysis
+Music Analysis Router for clipizy API
+Provides endcredits for comprehensive music analysis
 """
 
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query, Depends

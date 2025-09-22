@@ -91,7 +91,7 @@ export default function CreatePostPage() {
           slug: formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
           author: {
             name: 'Admin User',
-            email: 'admin@clipizi.com'
+            email: 'admin@clipizy.com'
           },
           publishedAt,
           scheduledFor,

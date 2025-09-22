@@ -32,14 +32,21 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    const success = await login(email, password);
-    if (success) {
-      const redirectPath = sessionStorage.getItem("redirect_after_login") || "/dashboard/create";
-      sessionStorage.removeItem("redirect_after_login");
-      router.push(redirectPath);
+    try {
+      const success = await login(email, password);
+      if (success) {
+        const redirectPath = sessionStorage.getItem("redirect_after_login") || "/dashboard/create";
+        sessionStorage.removeItem("redirect_after_login");
+        router.push(redirectPath);
+      } else {
+        // Handle login failure
+        console.error("Login failed");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const handleGoogleLogin = async () => {
@@ -71,7 +78,7 @@ export default function LoginPage() {
           <Link href="/" className="inline-block">
             <Badge className="px-6 py-3 text-lg font-bold gradient-primary text-white mb-4">
               <Sparkles className="w-6 h-6 mr-2" />
-              clipizi
+              clipizy
             </Badge>
           </Link>
           <h1 className="text-3xl font-bold gradient-text mb-2">Welcome Back</h1>

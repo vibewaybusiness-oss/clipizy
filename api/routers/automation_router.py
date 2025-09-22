@@ -1,11 +1,13 @@
 """
 Automation Pipeline Router
-REST API endpoints for automated content creation and publishing workflows
+REST API endcredits for automated content creation and publishing workflows
 """
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import Dict, List, Any, Optional
+from api.routers.auth_router import get_current_user
 from api.db import get_db
+from api.models import User
 from api.services.automation_pipeline import AutomationPipeline
 from api.services import json_store
 import logging
@@ -20,7 +22,7 @@ automation_pipeline = AutomationPipeline(json_store)
 @router.post("/workflows")
 async def create_workflow(
     workflow_config: Dict[str, Any],
-    user_id: str = "00000000-0000-0000-0000-000000000001",
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Create an automated workflow for content creation and publishing"""
@@ -36,7 +38,7 @@ async def create_workflow(
 @router.post("/workflows/{workflow_id}/execute")
 async def execute_workflow(
     workflow_id: str,
-    user_id: str = "00000000-0000-0000-0000-000000000001",
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Execute an automated workflow"""
@@ -52,8 +54,10 @@ async def execute_workflow(
 @router.get("/workflows/{workflow_id}/status")
 async def get_workflow_status(
     workflow_id: str,
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
+    user_id = str(current_user.id)
+
     """Get the status of a workflow"""
     try:
         result = await automation_pipeline.get_workflow_status(
@@ -68,7 +72,7 @@ async def get_workflow_status(
 async def create_schedule(
     workflow_config: Dict[str, Any],
     schedule: Dict[str, Any],
-    user_id: str = "00000000-0000-0000-0000-000000000001",
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Create a recurring automated workflow"""
@@ -167,7 +171,7 @@ async def get_workflow_templates():
 async def create_from_template(
     template_id: str,
     customizations: Dict[str, Any] = {},
-    user_id: str = "00000000-0000-0000-0000-000000000001",
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Create a workflow from a template with customizations"""
@@ -214,9 +218,11 @@ async def create_from_template(
 
 @router.get("/analytics")
 async def get_automation_analytics(
-    user_id: str = "00000000-0000-0000-0000-000000000001",
+    current_user: User = Depends(get_current_user),
     days: int = 30
 ):
+    user_id = str(current_user.id)
+
     """Get analytics for automated workflows"""
     try:
         # This would aggregate data from all workflows and their results

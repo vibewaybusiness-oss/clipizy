@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { BlogPost } from '@/types';
-import { BlogPost as BlogPostComponent } from '@/components/blog/BlogPost';
-import { BlogSidebarNew } from '@/components/blog/BlogSidebarNew';
+import { BlogPost as BlogPostComponent } from '@/components/features/blog/BlogPost';
+import { BlogSidebarNew } from '@/components/features/blog/BlogSidebarNew';
 import { Card, CardContent } from '@/components/ui/card';
 import { FileText, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';

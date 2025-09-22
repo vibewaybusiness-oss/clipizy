@@ -1,5 +1,5 @@
 """
-Database models for clipizi Backend
+Database models for clipizy Backend
 """
 from .user import User
 from .social_account import SocialAccount
@@ -12,8 +12,8 @@ from .export import Export
 from .audio import Audio
 from .job import Job
 from .user_settings import UserSettings
-from .points import PointsTransaction, PointsTransactionType
-from .payment import Payment, PaymentStatus, PaymentMethod
+from .pricing import CreditsTransaction, CreditsTransactionType
+from .pricing import Payment, PaymentStatus, PaymentMethod
 from .comfyui import (
     ComfyUIWorkflowExecution,
     ComfyUIPod,

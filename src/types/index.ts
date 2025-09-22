@@ -1,3 +1,2 @@
-// Re-export all types
-export * from './calendar';
-export * from './blog';
+// Re-export all types from domains
+export * from './domains';

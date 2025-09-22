@@ -1,4 +1,4 @@
-import type { ContentCalendar, ContentCluster, BlogPost, CalendarSettings } from '@/types/calendar';
+import type { ContentCalendar, ContentCluster, BlogPost, CalendarSettings } from '@/types/domains';
 
 export const contentClusters: ContentCluster[] = [
   {
@@ -55,8 +55,8 @@ export const calendarSettings: CalendarSettings = {
   promptPrefix: 'Generate a blog post for the following scene: ',
   promptSuffix: '',
   defaultAuthor: {
-    name: 'clipizi Team',
-    email: 'content@clipizi.com'
+    name: 'clipizy Team',
+    email: 'content@clipizy.com'
   }
 };
 
@@ -65,7 +65,7 @@ export const plannedBlogPosts: Omit<BlogPost, 'id' | 'content' | 'excerpt' | 'pu
   {
     title: 'How to Make a Music Video in 5 Minutes with AI (No Editing Skills Needed)',
     slug: 'ai-music-video-generator-5-minutes',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-01-07T10:00:00Z',
     tags: ['AI music video', 'tutorial', 'beginner', 'quick start'],
     category: 'Tutorials',
@@ -83,7 +83,7 @@ Making a music video no longer requires expensive gear or weeks of editing. With
 
 - Traditional music video production is expensive and time-consuming.
 - AI music video generators simplify the process for independent artists and creators.
-- With clipizi, you can upload a song, choose a style, and export a video in 5 minutes.
+- With clipizy, you can upload a song, choose a style, and export a video in 5 minutes.
 - Share directly to YouTube, TikTok, or Instagram without extra editing.
 - The result: professional-looking visuals that amplify your music.
 
@@ -91,7 +91,7 @@ Making a music video no longer requires expensive gear or weeks of editing. With
 
 Creating a music video traditionally requires filming, editing, and costly software. For indie musicians or creators, that's often unrealistic.
 
-AI changes the game. An automatic music video maker like clipizi can:
+AI changes the game. An automatic music video maker like clipizy can:
 
 - Convert your audio into dynamic visuals
 - Save thousands in production costs
@@ -102,7 +102,7 @@ AI changes the game. An automatic music video maker like clipizi can:
 
 ### 1. Upload Your Track
 
-Drag and drop your MP3 or WAV file into clipizi. The platform processes your audio in seconds.
+Drag and drop your MP3 or WAV file into clipizy. The platform processes your audio in seconds.
 
 ### 2. Choose a Visual Style
 
@@ -133,7 +133,7 @@ Hit "generate" and let the AI do the work. Within minutes, your video is ready f
 
 - An AI music video generator makes video production accessible to all.
 - You can create a professional-looking video in under 5 minutes.
-- clipizi handles the heavy lifting — you just bring the music.
+- clipizy handles the heavy lifting — you just bring the music.
 
 ## FAQ
 
@@ -141,26 +141,26 @@ Hit "generate" and let the AI do the work. Within minutes, your video is ready f
 Yes. As long as your song and visuals are rights-cleared, YouTube allows monetization.
 
 **Q: Do I need editing skills?**
-No — clipizi is built for creators without technical backgrounds.
+No — clipizy is built for creators without technical backgrounds.
 
 **Q: What formats are supported?**
 Standard exports include 16:9 for YouTube, 9:16 for TikTok/Reels, and 1:1 for Instagram posts.
 
 **Q: Is the generated content mine to use?**
-Yes. You own the rights to content you create, per clipizi's Terms.
+Yes. You own the rights to content you create, per clipizy's Terms.
 
 ## CTA
 
-👉 Ready to turn your next track into a video? Create your first AI-generated music video with clipizi in just 5 minutes.`,
+👉 Ready to turn your next track into a video? Create your first AI-generated music video with clipizy in just 5 minutes.`,
     excerpt: 'Learn how to create a professional music video in just 5 minutes using an AI music video generator. Perfect for indie artists and creators.',
-    seoTitle: 'Make a Music Video in 5 Minutes with AI | clipizi',
+    seoTitle: 'Make a Music Video in 5 Minutes with AI | clipizy',
     metaDescription: 'Learn how to create a professional music video in just 5 minutes using an AI music video generator. Perfect for indie artists and creators.',
     secondaryKeywords: ['music video creation online', 'create music video with AI']
   },
   {
     title: 'How to Start a Faceless YouTube Channel in 2025 (with AI Tools)',
     slug: 'start-faceless-youtube-channel-2025-ai-tools',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-01-10T10:00:00Z',
     tags: ['YouTube automation', 'faceless channel', 'AI tools', '2025'],
     category: 'Tutorials',
@@ -172,15 +172,15 @@ Yes. You own the rights to content you create, per clipizi's Terms.
     month: 1
   },
   {
-    title: 'Step-by-Step: Turn Your Song into a Visual Story with clipizi',
-    slug: 'turn-song-visual-story-clipizi-step-by-step',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    title: 'Step-by-Step: Turn Your Song into a Visual Story with clipizy',
+    slug: 'turn-song-visual-story-clipizy-step-by-step',
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-01-14T10:00:00Z',
-    tags: ['clipizi tutorial', 'visual storytelling', 'music video', 'step-by-step'],
+    tags: ['clipizy tutorial', 'visual storytelling', 'music video', 'step-by-step'],
     category: 'Tutorials',
     status: 'planned',
     priority: 'high',
-    keywords: ['clipizi tutorial', 'visual storytelling'],
+    keywords: ['clipizy tutorial', 'visual storytelling'],
     cluster: 'ai-music-videos',
     week: 2,
     month: 1
@@ -188,7 +188,7 @@ Yes. You own the rights to content you create, per clipizi's Terms.
   {
     title: '10 Faceless YouTube Niches You Can Build with AI Video Generation',
     slug: '10-faceless-youtube-niches-ai-video-generation',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-01-17T10:00:00Z',
     tags: ['YouTube niches', 'faceless channels', 'AI video', 'content ideas'],
     category: 'Strategy',
@@ -202,7 +202,7 @@ Yes. You own the rights to content you create, per clipizi's Terms.
   {
     title: 'DIY vs AI: Why AI is the Future of Music Video Production',
     slug: 'diy-vs-ai-future-music-video-production',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-01-21T10:00:00Z',
     tags: ['AI vs DIY', 'music video production', 'future trends', 'comparison'],
     category: 'Opinion',
@@ -214,11 +214,11 @@ Yes. You own the rights to content you create, per clipizi's Terms.
     month: 1
   },
   {
-    title: 'From Script to Video: Automating Your YouTube Channel with clipizi',
-    slug: 'script-to-video-automating-youtube-channel-clipizi',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    title: 'From Script to Video: Automating Your YouTube Channel with clipizy',
+    slug: 'script-to-video-automating-youtube-channel-clipizy',
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-01-24T10:00:00Z',
-    tags: ['YouTube automation', 'script to video', 'clipizi', 'workflow'],
+    tags: ['YouTube automation', 'script to video', 'clipizy', 'workflow'],
     category: 'Tutorials',
     status: 'planned',
     priority: 'high',
@@ -230,7 +230,7 @@ Yes. You own the rights to content you create, per clipizi's Terms.
   {
     title: 'Top 5 AI Music Video Generators Compared [2025 Edition]',
     slug: 'top-ai-music-video-generators-2025',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-01-28T10:00:00Z',
     tags: ['AI tools comparison', 'music video generators', '2025', 'review'],
     category: 'Comparison',
@@ -247,7 +247,7 @@ AI is revolutionizing music video production. Here's a breakdown of the top 5 to
 ## TL;DR
 
 - AI tools save musicians time and money compared to traditional video production.
-- clipizi leads for music-first creators.
+- clipizy leads for music-first creators.
 - Pictory and InVideo are solid for marketers repurposing content.
 - Runway excels at cinematic generative video.
 - Descript helps when editing narration-heavy projects.
@@ -266,7 +266,7 @@ An AI music video generator lets you:
 
 | Tool | Best For | Key Features | Pricing (2025) | Ease of Use |
 |------|----------|--------------|----------------|-------------|
-| **clipizi** | Musicians & creators | Music-to-video AI, style templates, exports for socials | Freemium + Pro | ⭐⭐⭐⭐⭐ |
+| **clipizy** | Musicians & creators | Music-to-video AI, style templates, exports for socials | Freemium + Pro | ⭐⭐⭐⭐⭐ |
 | **Pictory** | Marketers | Blog-to-video, stock footage library | Paid plans | ⭐⭐⭐⭐ |
 | **InVideo** | Social video ads | Templates, quick branding options | Freemium | ⭐⭐⭐⭐ |
 | **Runway** | Experimental creators | Generative video (scenes, animations) | Paid tiers | ⭐⭐⭐ |
@@ -274,7 +274,7 @@ An AI music video generator lets you:
 
 ## Which One Should You Choose?
 
-- **If you're a musician**: clipizi is purpose-built for turning songs into music videos fast.
+- **If you're a musician**: clipizy is purpose-built for turning songs into music videos fast.
 - **If you're a marketer**: Pictory or InVideo may fit better for repurposing written content.
 - **If you're into experimental visuals**: Runway can generate fresh AI scenes.
 - **If you focus on talking-head content**: Descript is excellent.
@@ -282,13 +282,13 @@ An AI music video generator lets you:
 ## Key Takeaways
 
 - AI music video generators are now mainstream in 2025.
-- Each tool has a niche — musicians should prioritize clipizi.
+- Each tool has a niche — musicians should prioritize clipizy.
 - Choosing the right platform depends on your goals (music vs marketing vs experimental art).
 
 ## FAQ
 
 **Q: Which AI video generator is best for beginners?**
-clipizi offers the simplest workflow for musicians.
+clipizy offers the simplest workflow for musicians.
 
 **Q: Can these tools replace professional editors?**
 They replace some workflows, but high-end cinematic videos still require human creativity.
@@ -301,16 +301,16 @@ No. The point of these platforms is automation and accessibility.
 
 ## CTA
 
-👉 Want to try the best AI music video generator built for artists? Sign up for clipizi and create your first video free.`,
-    excerpt: 'Discover the best AI music video makers in 2025. Compare clipizi, Pictory, InVideo, Runway, and Descript to find your perfect fit.',
+👉 Want to try the best AI music video generator built for artists? Sign up for clipizy and create your first video free.`,
+    excerpt: 'Discover the best AI music video makers in 2025. Compare clipizy, Pictory, InVideo, Runway, and Descript to find your perfect fit.',
     seoTitle: 'Top 5 AI Music Video Generators Compared [2025 Edition]',
-    metaDescription: 'Discover the best AI music video makers in 2025. Compare clipizi, Pictory, InVideo, Runway, and Descript to find your perfect fit.',
+    metaDescription: 'Discover the best AI music video makers in 2025. Compare clipizy, Pictory, InVideo, Runway, and Descript to find your perfect fit.',
     secondaryKeywords: ['music video creation online', 'best AI video generator']
   },
   {
     title: 'YouTube Automation Myths: What\'s Allowed, What\'s Not',
     slug: 'youtube-automation-myths-allowed-not',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-01-31T10:00:00Z',
     tags: ['YouTube automation', 'myths', 'policies', 'guidelines'],
     category: 'Education',
@@ -325,7 +325,7 @@ No. The point of these platforms is automation and accessibility.
   {
     title: 'How to Make Viral TikTok Videos with AI in Minutes',
     slug: 'make-viral-tiktok-videos-ai-minutes',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-02-04T10:00:00Z',
     tags: ['TikTok', 'viral videos', 'AI', 'quick creation'],
     category: 'Tutorials',
@@ -339,7 +339,7 @@ No. The point of these platforms is automation and accessibility.
   {
     title: 'How Marketing Teams Can Automate Social Media Videos with AI',
     slug: 'marketing-teams-automate-social-media-videos-ai',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-02-07T10:00:00Z',
     tags: ['marketing automation', 'social media', 'AI', 'teams'],
     category: 'Marketing',
@@ -353,7 +353,7 @@ No. The point of these platforms is automation and accessibility.
   {
     title: 'Best AI Tools for Instagram Reels & TikTok Creators in 2025',
     slug: 'best-ai-tools-instagram-reels-tiktok-creators-2025',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-02-11T10:00:00Z',
     tags: ['AI tools', 'Instagram Reels', 'TikTok', '2025'],
     category: 'Tools',
@@ -365,11 +365,11 @@ No. The point of these platforms is automation and accessibility.
     month: 2
   },
   {
-    title: 'AI for Agencies: Scale Client Content with clipizi',
-    slug: 'ai-agencies-scale-client-content-clipizi',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    title: 'AI for Agencies: Scale Client Content with clipizy',
+    slug: 'ai-agencies-scale-client-content-clipizy',
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-02-14T10:00:00Z',
-    tags: ['agencies', 'client content', 'scaling', 'clipizi'],
+    tags: ['agencies', 'client content', 'scaling', 'clipizy'],
     category: 'Business',
     status: 'planned',
     priority: 'medium',
@@ -381,7 +381,7 @@ No. The point of these platforms is automation and accessibility.
   {
     title: 'How to Repurpose Music Videos into Shorts Automatically',
     slug: 'repurpose-music-videos-shorts-automatically',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-02-18T10:00:00Z',
     tags: ['repurposing', 'shorts', 'automation', 'music videos'],
     category: 'Tutorials',
@@ -395,7 +395,7 @@ No. The point of these platforms is automation and accessibility.
   {
     title: 'The Future of Social Media Marketing: AI-Generated Content',
     slug: 'future-social-media-marketing-ai-generated-content',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-02-21T10:00:00Z',
     tags: ['future trends', 'social media marketing', 'AI content'],
     category: 'Trends',
@@ -409,7 +409,7 @@ No. The point of these platforms is automation and accessibility.
   {
     title: 'TikTok Trends You Can Automate with AI Video Tools',
     slug: 'tiktok-trends-automate-ai-video-tools',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-02-25T10:00:00Z',
     tags: ['TikTok trends', 'automation', 'AI tools', 'viral'],
     category: 'Strategy',
@@ -423,7 +423,7 @@ No. The point of these platforms is automation and accessibility.
   {
     title: 'How to Create Branded Video Ads with AI (Under 10 Minutes)',
     slug: 'create-branded-video-ads-ai-under-10-minutes',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-02-28T10:00:00Z',
     tags: ['branded ads', 'AI', 'quick creation', 'marketing'],
     category: 'Tutorials',
@@ -438,7 +438,7 @@ No. The point of these platforms is automation and accessibility.
   {
     title: 'Case Study: How an Indie Artist Got 100k Views Using AI-Generated Videos',
     slug: 'case-study-indie-artist-100k-views-ai-generated-videos',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-03-04T10:00:00Z',
     tags: ['case study', 'indie artist', '100k views', 'AI videos'],
     category: 'Case Study',
@@ -452,7 +452,7 @@ No. The point of these platforms is automation and accessibility.
   {
     title: 'Case Study: 1,000,000 Views from Auto-Generated Shorts',
     slug: 'case-study-1-million-views-auto-generated-shorts',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-03-07T10:00:00Z',
     tags: ['case study', '1M views', 'auto-generated', 'shorts'],
     category: 'Case Study',
@@ -466,7 +466,7 @@ No. The point of these platforms is automation and accessibility.
   {
     title: 'How to Make a Music Video Without Expensive Software',
     slug: 'make-music-video-without-expensive-software',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-03-11T10:00:00Z',
     tags: ['music video', 'free tools', 'budget-friendly', 'tutorial'],
     category: 'Tutorials',
@@ -480,7 +480,7 @@ No. The point of these platforms is automation and accessibility.
   {
     title: '10 Ways AI Video Tools Can Cut Your Marketing Costs in Half',
     slug: '10-ways-ai-video-tools-cut-marketing-costs-half',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-03-14T10:00:00Z',
     tags: ['cost savings', 'marketing', 'AI tools', 'ROI'],
     category: 'Business',
@@ -494,7 +494,7 @@ No. The point of these platforms is automation and accessibility.
   {
     title: 'Top 10 Free AI Tools Every Content Creator Should Know',
     slug: 'top-10-free-ai-tools-content-creator-should-know',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-03-18T10:00:00Z',
     tags: ['free AI tools', 'content creators', 'tools list', 'resources'],
     category: 'Resources',
@@ -508,7 +508,7 @@ No. The point of these platforms is automation and accessibility.
   {
     title: 'How AI is Changing the Music Industry in 2025',
     slug: 'how-ai-changing-music-industry-2025',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-03-21T10:00:00Z',
     tags: ['AI music industry', '2025 trends', 'music technology'],
     category: 'Trends',
@@ -522,7 +522,7 @@ No. The point of these platforms is automation and accessibility.
   {
     title: 'Beginner\'s Guide to AI in Music & Video Creation',
     slug: 'beginners-guide-ai-music-video-creation',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-03-25T10:00:00Z',
     tags: ['beginner guide', 'AI music', 'video creation', 'tutorial'],
     category: 'Tutorials',
@@ -536,7 +536,7 @@ No. The point of these platforms is automation and accessibility.
   {
     title: '5 Mistakes to Avoid When Using AI for Content Creation',
     slug: '5-mistakes-avoid-using-ai-content-creation',
-    author: { name: 'clipizi Team', email: 'content@clipizi.com' },
+    author: { name: 'clipizy Team', email: 'content@clipizy.com' },
     scheduledFor: '2024-03-28T10:00:00Z',
     tags: ['mistakes', 'AI content', 'tips', 'avoid'],
     category: 'Tips',
@@ -550,8 +550,8 @@ No. The point of these platforms is automation and accessibility.
 ];
 
 export const contentCalendar: ContentCalendar = {
-  id: 'clipizi-90-day-seo',
-  name: 'clipizi 90-Day SEO Publishing Calendar',
+  id: 'clipizy-90-day-seo',
+  name: 'clipizy 90-Day SEO Publishing Calendar',
   description: 'Strategic content calendar for building authority in AI music video creation and YouTube automation',
   startDate: '2024-01-01T00:00:00Z',
   endDate: '2024-03-31T23:59:59Z',

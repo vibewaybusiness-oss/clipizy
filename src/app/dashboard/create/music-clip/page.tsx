@@ -4,7 +4,7 @@ import React from "react";
 import dynamic from "next/dynamic";
 
 // Dynamically import the MusicClipPage component to avoid SSR issues
-const MusicClipPage = dynamic(() => import("../../../../components/music-clip/MusicClipPage"), {
+const MusicClipPage = dynamic(() => import("@/components/features/music-clip/MusicClipPage"), {
   ssr: false,
   loading: () => (
     <div className="h-screen bg-background flex items-center justify-center">

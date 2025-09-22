@@ -1,15 +1,16 @@
 """
 Social Media Automation Router
-REST API endpoints for social media account management and automated publishing
+REST API endcredits for social media account management and automated publishing
 """
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Optional
+from api.routers.auth_router import get_current_user
 from api.db import get_db
 from api.services.social_media_service import SocialMediaService
 from api.services import json_store
 from api.schemas.social_account import SocialAccountCreate, SocialAccountRead
-from api.models import SocialAccount, Export
+from api.models import SocialAccount, Export, User
 import logging
 
 logger = logging.getLogger(__name__)
@@ -23,12 +24,14 @@ social_media_service = SocialMediaService(json_store)
 async def connect_account(
     platform: str,
     auth_data: Dict[str, Any],
-    user_id: str = "00000000-0000-0000-0000-000000000001",  # Default user for now
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Connect a social media account via OAuth"""
     if platform not in ["youtube", "tiktok", "instagram"]:
         raise HTTPException(status_code=400, detail="Unsupported platform")
+
+    user_id = str(current_user.id)
 
     try:
         social_account = await social_media_service.connect_account(
@@ -49,10 +52,12 @@ async def connect_account(
 
 @router.get("/accounts")
 async def get_connected_accounts(
-    user_id: str = "00000000-0000-0000-0000-000000000001",
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Get all connected social media accounts for a user"""
+    user_id = str(current_user.id)
+    
     accounts = db.query(SocialAccount).filter(
         SocialAccount.user_id == user_id
     ).all()
@@ -73,10 +78,12 @@ async def get_connected_accounts(
 @router.delete("/accounts/{account_id}")
 async def disconnect_account(
     account_id: str,
-    user_id: str = "00000000-0000-0000-0000-000000000001",
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Disconnect a social media account"""
+    user_id = str(current_user.id)
+    
     account = db.query(SocialAccount).filter(
         SocialAccount.id == account_id,
         SocialAccount.user_id == user_id
@@ -95,10 +102,12 @@ async def publish_video(
     export_id: str,
     platforms: List[str],
     publish_options: Dict[str, Any],
-    user_id: str = "00000000-0000-0000-0000-000000000001",
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Publish a video to one or more social media platforms"""
+    user_id = str(current_user.id)
+    
     # Get the export
     export = db.query(Export).filter(
         Export.id == export_id,
@@ -137,7 +146,7 @@ async def publish_video(
 @router.get("/analytics/{stats_id}")
 async def get_video_analytics(
     stats_id: str,
-    user_id: str = "00000000-0000-0000-0000-000000000001",
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Get current analytics for a published video"""
@@ -157,7 +166,7 @@ async def batch_publish_multiple_exports(
     export_ids: List[str],
     platforms: List[str],
     publish_options: Dict[str, Any],
-    user_id: str = "00000000-0000-0000-0000-000000000001",
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Publish multiple videos to multiple platforms"""
@@ -225,8 +234,10 @@ async def get_supported_platforms():
 async def test_platform_connection(
     platform: str,
     access_token: str,
-    user_id: str = "00000000-0000-0000-0000-000000000001"
+    current_user: User = Depends(get_current_user)
 ):
+    user_id = str(current_user.id)
+
     """Test connection to a social media platform without saving"""
     if platform not in ["youtube", "tiktok", "instagram"]:
         raise HTTPException(status_code=400, detail="Unsupported platform")

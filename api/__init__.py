@@ -1,3 +1,3 @@
 """
-clipizi Backend API Package
+clipizy Backend API Package
 """

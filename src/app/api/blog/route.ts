@@ -16,7 +16,7 @@ Making a music video no longer requires expensive gear or weeks of editing. With
 
 - Traditional music video production is expensive and time-consuming.
 - AI music video generators simplify the process for independent artists and creators.
-- With clipizi, you can upload a song, choose a style, and export a video in 5 minutes.
+- With clipizy, you can upload a song, choose a style, and export a video in 5 minutes.
 - Share directly to YouTube, TikTok, or Instagram without extra editing.
 - The result: professional-looking visuals that amplify your music.
 
@@ -24,7 +24,7 @@ Making a music video no longer requires expensive gear or weeks of editing. With
 
 Creating a music video traditionally requires filming, editing, and costly software. For indie musicians or creators, that's often unrealistic.
 
-AI changes the game. An automatic music video maker like clipizi can:
+AI changes the game. An automatic music video maker like clipizy can:
 
 - Convert your audio into dynamic visuals
 - Save thousands in production costs
@@ -35,7 +35,7 @@ AI changes the game. An automatic music video maker like clipizi can:
 
 ### 1. Upload Your Track
 
-Drag and drop your MP3 or WAV file into clipizi. The platform processes your audio in seconds.
+Drag and drop your MP3 or WAV file into clipizy. The platform processes your audio in seconds.
 
 ### 2. Choose a Visual Style
 
@@ -66,7 +66,7 @@ Hit "generate" and let the AI do the work. Within minutes, your video is ready f
 
 - An AI music video generator makes video production accessible to all.
 - You can create a professional-looking video in under 5 minutes.
-- clipizi handles the heavy lifting — you just bring the music.
+- clipizy handles the heavy lifting — you just bring the music.
 
 ## FAQ
 
@@ -74,21 +74,21 @@ Hit "generate" and let the AI do the work. Within minutes, your video is ready f
 Yes. As long as your song and visuals are rights-cleared, YouTube allows monetization.
 
 **Q: Do I need editing skills?**
-No — clipizi is built for creators without technical backgrounds.
+No — clipizy is built for creators without technical backgrounds.
 
 **Q: What formats are supported?**
 Standard exports include 16:9 for YouTube, 9:16 for TikTok/Reels, and 1:1 for Instagram posts.
 
 **Q: Is the generated content mine to use?**
-Yes. You own the rights to content you create, per clipizi's Terms.
+Yes. You own the rights to content you create, per clipizy's Terms.
 
 ## CTA
 
-👉 Ready to turn your next track into a video? Create your first AI-generated music video with clipizi in just 5 minutes.`,
+👉 Ready to turn your next track into a video? Create your first AI-generated music video with clipizy in just 5 minutes.`,
     author: {
-      name: 'clipizi Team',
-      email: 'content@clipizi.com',
-      avatar: '/avatars/clipizi-team.jpg'
+      name: 'clipizy Team',
+      email: 'content@clipizy.com',
+      avatar: '/avatars/clipizy-team.jpg'
     },
     publishedAt: '2024-01-07T10:00:00Z',
     updatedAt: '2024-01-07T10:00:00Z',
@@ -109,7 +109,7 @@ Yes. You own the rights to content you create, per clipizi's Terms.
     id: '2',
     title: 'Top 5 AI Music Video Generators Compared [2025 Edition]',
     slug: 'top-ai-music-video-generators-2025',
-    excerpt: 'Discover the best AI music video makers in 2025. Compare clipizi, Pictory, InVideo, Runway, and Descript to find your perfect fit.',
+    excerpt: 'Discover the best AI music video makers in 2025. Compare clipizy, Pictory, InVideo, Runway, and Descript to find your perfect fit.',
     content: `# Top 5 AI Music Video Generators Compared [2025 Edition]
 
 AI is revolutionizing music video production. Here's a breakdown of the top 5 tools in 2025, their features, and how they stack up.
@@ -117,7 +117,7 @@ AI is revolutionizing music video production. Here's a breakdown of the top 5 to
 ## TL;DR
 
 - AI tools save musicians time and money compared to traditional video production.
-- clipizi leads for music-first creators.
+- clipizy leads for music-first creators.
 - Pictory and InVideo are solid for marketers repurposing content.
 - Runway excels at cinematic generative video.
 - Descript helps when editing narration-heavy projects.
@@ -136,7 +136,7 @@ An AI music video generator lets you:
 
 | Tool | Best For | Key Features | Pricing (2025) | Ease of Use |
 |------|----------|--------------|----------------|-------------|
-| **clipizi** | Musicians & creators | Music-to-video AI, style templates, exports for socials | Freemium + Pro | ⭐⭐⭐⭐⭐ |
+| **clipizy** | Musicians & creators | Music-to-video AI, style templates, exports for socials | Freemium + Pro | ⭐⭐⭐⭐⭐ |
 | **Pictory** | Marketers | Blog-to-video, stock footage library | Paid plans | ⭐⭐⭐⭐ |
 | **InVideo** | Social video ads | Templates, quick branding options | Freemium | ⭐⭐⭐⭐ |
 | **Runway** | Experimental creators | Generative video (scenes, animations) | Paid tiers | ⭐⭐⭐ |
@@ -144,7 +144,7 @@ An AI music video generator lets you:
 
 ## Which One Should You Choose?
 
-- **If you're a musician**: clipizi is purpose-built for turning songs into music videos fast.
+- **If you're a musician**: clipizy is purpose-built for turning songs into music videos fast.
 - **If you're a marketer**: Pictory or InVideo may fit better for repurposing written content.
 - **If you're into experimental visuals**: Runway can generate fresh AI scenes.
 - **If you focus on talking-head content**: Descript is excellent.
@@ -152,13 +152,13 @@ An AI music video generator lets you:
 ## Key Takeaways
 
 - AI music video generators are now mainstream in 2025.
-- Each tool has a niche — musicians should prioritize clipizi.
+- Each tool has a niche — musicians should prioritize clipizy.
 - Choosing the right platform depends on your goals (music vs marketing vs experimental art).
 
 ## FAQ
 
 **Q: Which AI video generator is best for beginners?**
-clipizi offers the simplest workflow for musicians.
+clipizy offers the simplest workflow for musicians.
 
 **Q: Can these tools replace professional editors?**
 They replace some workflows, but high-end cinematic videos still require human creativity.
@@ -171,11 +171,11 @@ No. The point of these platforms is automation and accessibility.
 
 ## CTA
 
-👉 Want to try the best AI music video generator built for artists? Sign up for clipizi and create your first video free.`,
+👉 Want to try the best AI music video generator built for artists? Sign up for clipizy and create your first video free.`,
     author: {
-      name: 'clipizi Team',
-      email: 'content@clipizi.com',
-      avatar: '/avatars/clipizi-team.jpg'
+      name: 'clipizy Team',
+      email: 'content@clipizy.com',
+      avatar: '/avatars/clipizy-team.jpg'
     },
     publishedAt: '2024-01-28T10:00:00Z',
     updatedAt: '2024-01-28T10:00:00Z',

@@ -397,12 +397,12 @@ class TrapNationBassVisualizer:
         # Use the circle radius as the x-axis for waveform positioning with circle scale factor
         waveform_radius = r_core * self.waveform_scale_factor  # Position waveform outside the green circle
 
-        # Create many more points for perfectly smooth circular waveform
-        num_points = 360  # 360 points for smooth circle (1 degree per point)
-        angles = np.linspace(0, 2 * np.pi, num_points)
+        # Create many more credits for perfectly smooth circular waveform
+        num_credits = 360  # 360 credits for smooth circle (1 degree per point)
+        angles = np.linspace(0, 2 * np.pi, num_credits)
 
-        # Create waveform based on frequency bands - interpolate to match num_points
-        freq_interpolated = np.interp(np.linspace(0, 1, num_points),
+        # Create waveform based on frequency bands - interpolate to match num_credits
+        freq_interpolated = np.interp(np.linspace(0, 1, num_credits),
                                     np.linspace(0, 1, len(frequency_bands)),
                                     frequency_bands)
 
@@ -416,8 +416,8 @@ class TrapNationBassVisualizer:
             waveform_offsets.append(amplitude + wave_motion)
 
         # Create left half waveform (from -π/2 to π/2)
-        left_angles = angles[(num_points//4):(3*num_points//4)]  # -π/2 to π/2
-        left_offsets = waveform_offsets[(num_points//4):(3*num_points//4)]
+        left_angles = angles[(num_credits//4):(3*num_credits//4)]  # -π/2 to π/2
+        left_offsets = waveform_offsets[(num_credits//4):(3*num_credits//4)]
 
         # Convert to cartesian coordinates for left half
         left_x = []
@@ -431,8 +431,8 @@ class TrapNationBassVisualizer:
 
         # Mirror the waveform for right half (from π/2 to 3π/2)
         right_angles = np.concatenate([
-            angles[(3*num_points//4):],  # π/2 to 2π
-            angles[:num_points//4]       # 0 to π/2
+            angles[(3*num_credits//4):],  # π/2 to 2π
+            angles[:num_credits//4]       # 0 to π/2
         ])
         right_offsets = np.concatenate([
             left_offsets[::-1],  # Reverse the left offsets
@@ -453,7 +453,7 @@ class TrapNationBassVisualizer:
         all_y = left_y + right_y
 
         # Draw the waveform as connected lines with anti-aliasing
-        points = np.column_stack((all_x, all_y)).astype(np.int32)
+        credits = np.column_stack((all_x, all_y)).astype(np.int32)
 
         # Color based on overall energy
         overall_energy = sum(frequency_bands) / len(frequency_bands)
@@ -461,11 +461,11 @@ class TrapNationBassVisualizer:
         color = (intensity, intensity // 2, intensity // 3)  # Warm color
 
         # Draw the waveform with smooth lines
-        for i in range(len(points) - 1):
-            cv2.line(frame, tuple(points[i]), tuple(points[i + 1]), color, 2, lineType=cv2.LINE_AA)
+        for i in range(len(credits) - 1):
+            cv2.line(frame, tuple(credits[i]), tuple(credits[i + 1]), color, 2, lineType=cv2.LINE_AA)
 
         # Close the circle smoothly
-        cv2.line(frame, tuple(points[-1]), tuple(points[0]), color, 2, lineType=cv2.LINE_AA)
+        cv2.line(frame, tuple(credits[-1]), tuple(credits[0]), color, 2, lineType=cv2.LINE_AA)
 
         return frame
 
@@ -496,8 +496,8 @@ class TrapNationBassVisualizer:
     def _draw_symmetric_wave_outline(self, frame, radius, color, thickness, freq_strength, t, layer_index):
         """Draw symmetric wave outline - left half with mirrored right half (Y-axis symmetry)"""
         # Create wave pattern for left half circle (-π/2 to π/2)
-        num_points = 64
-        angles = np.linspace(-np.pi/2, np.pi/2, num_points)
+        num_credits = 64
+        angles = np.linspace(-np.pi/2, np.pi/2, num_credits)
 
         # Create wave pattern based on frequency strength and time - always visible
         wave_amplitude = 10 + freq_strength * 15  # Always have some amplitude
@@ -527,7 +527,7 @@ class TrapNationBassVisualizer:
         left_y = self.cy + left_radii * np.sin(angles)
 
         # Mirror the pattern for right half (π/2 to 3π/2)
-        right_angles = np.linspace(np.pi/2, 3*np.pi/2, num_points)
+        right_angles = np.linspace(np.pi/2, 3*np.pi/2, num_credits)
         right_radii = radius + wave_offset[::-1]  # Reverse the wave pattern
         right_x = self.cx + right_radii * np.cos(right_angles)
         right_y = self.cy + right_radii * np.sin(right_angles)
@@ -537,16 +537,16 @@ class TrapNationBassVisualizer:
         all_y = np.concatenate([left_y, right_y])
 
         # Draw the symmetric wave outline
-        points = np.column_stack((all_x, all_y)).astype(np.int32)
+        credits = np.column_stack((all_x, all_y)).astype(np.int32)
 
         # Draw as connected line segments with varying thickness
-        for i in range(len(points) - 1):
+        for i in range(len(credits) - 1):
             # Vary thickness based on wave amplitude
             current_thickness = max(1, int(thickness * (0.8 + 0.2 * abs(wave_offset[i % len(wave_offset)]) / wave_amplitude)))
-            cv2.line(frame, tuple(points[i]), tuple(points[i + 1]), color, current_thickness, lineType=cv2.LINE_AA)
+            cv2.line(frame, tuple(credits[i]), tuple(credits[i + 1]), color, current_thickness, lineType=cv2.LINE_AA)
 
         # Close the circle by connecting last point to first
-        cv2.line(frame, tuple(points[-1]), tuple(points[0]), color, thickness, lineType=cv2.LINE_AA)
+        cv2.line(frame, tuple(credits[-1]), tuple(credits[0]), color, thickness, lineType=cv2.LINE_AA)
 
     def _add_jagged_effect(self, radius, freq_strength, t, layer_index):
         """Add jagged/dripping effect to circle edges"""
@@ -554,9 +554,9 @@ class TrapNationBassVisualizer:
         jagged_factor = 0.1 + freq_strength * 0.2
         frequency = 2 + layer_index * 0.5
 
-        # Generate jagged points around the circle
-        num_points = 64
-        angles = np.linspace(0, 2 * np.pi, num_points)
+        # Generate jagged credits around the circle
+        num_credits = 64
+        angles = np.linspace(0, 2 * np.pi, num_credits)
         jagged_radius = radius * (1 + jagged_factor * np.sin(angles * frequency + t * 4))
 
         return np.mean(jagged_radius)  # Return average for circle drawing
@@ -572,8 +572,8 @@ class TrapNationBassVisualizer:
             ring_amp = wave_amp * (1.0 - ring * 0.2)
 
             # Generate Y-axis symmetric wave pattern
-            num_points = 120
-            angles = np.linspace(-np.pi/2, np.pi/2, num_points // 2)
+            num_credits = 120
+            angles = np.linspace(-np.pi/2, np.pi/2, num_credits // 2)
 
             # Create wave pattern for left half - always visible
             wave_freq = 2 + ring * 0.5  # Fixed frequency, no wave_frequency dependency
@@ -585,7 +585,7 @@ class TrapNationBassVisualizer:
             left_y = self.cy + left_radii * np.sin(angles)
 
             # Mirror the pattern for right half
-            right_angles = np.linspace(np.pi/2, 3*np.pi/2, num_points // 2)
+            right_angles = np.linspace(np.pi/2, 3*np.pi/2, num_credits // 2)
             right_radii = ring_radius + wave_offset[::-1]  # Reverse the wave pattern
             right_x = self.cx + right_radii * np.cos(right_angles)
             right_y = self.cy + right_radii * np.sin(right_angles)
@@ -594,27 +594,27 @@ class TrapNationBassVisualizer:
             all_x = np.concatenate([left_x, right_x])
             all_y = np.concatenate([left_y, right_y])
 
-            # Draw wave as connected points
-            points = np.column_stack((all_x, all_y)).astype(np.int32)
+            # Draw wave as connected credits
+            credits = np.column_stack((all_x, all_y)).astype(np.int32)
 
             # Color based on ring and energy
             intensity = int(255 * (0.7 + overall_energy * 0.3))
             color = (intensity, intensity // 2, intensity // 3)  # Warm color
 
             # Draw the Y-axis symmetric wave
-            for i in range(len(points) - 1):
-                cv2.line(frame, tuple(points[i]), tuple(points[i + 1]), color, 2, lineType=cv2.LINE_AA)
+            for i in range(len(credits) - 1):
+                cv2.line(frame, tuple(credits[i]), tuple(credits[i + 1]), color, 2, lineType=cv2.LINE_AA)
 
             # Close the circle
-            cv2.line(frame, tuple(points[-1]), tuple(points[0]), color, 2, lineType=cv2.LINE_AA)
+            cv2.line(frame, tuple(credits[-1]), tuple(credits[0]), color, 2, lineType=cv2.LINE_AA)
 
         return frame
 
     def _draw_frequency_circle(self, frame, base_radius, frequency_bands, circle_config):
         """Draw a single frequency-based circle with given color and scale factor"""
-        # Create many points for smooth circular visualization
-        num_points = 360  # 360 points for smooth circle (1 degree per point)
-        angles = np.linspace(0, 2 * np.pi, num_points)
+        # Create many credits for smooth circular visualization
+        num_credits = 360  # 360 credits for smooth circle (1 degree per point)
+        angles = np.linspace(0, 2 * np.pi, num_credits)
 
         # Map frequency bands to angular positions
         # Bass (0) -> π/2, Mid (3) -> π, High (6) -> 3π/2
@@ -632,7 +632,7 @@ class TrapNationBassVisualizer:
         enhanced_frequency_bands = self._apply_enhanced_mode_smooth(frequency_bands, 0)
 
         # Create frequency-based radius offsets
-        radius_offsets = np.zeros(num_points)
+        radius_offsets = np.zeros(num_credits)
 
         for i, (freq_strength, target_angle) in enumerate(zip(enhanced_frequency_bands, freq_angles)):
             # Calculate distance from each angle to the target frequency angle
@@ -702,14 +702,14 @@ class TrapNationBassVisualizer:
         x_coords = self.cx + final_radii * np.cos(all_angles)
         y_coords = self.cy + final_radii * np.sin(all_angles)
 
-        # Draw the frequency-based circle as connected points
-        points = np.column_stack((x_coords, y_coords)).astype(np.int32)
+        # Draw the frequency-based circle as connected credits
+        credits = np.column_stack((x_coords, y_coords)).astype(np.int32)
 
         # Use the circle's defined color
         color = circle_config['color']
 
         # Draw the frequency-based circle as filled polygon
-        cv2.fillPoly(frame, [points], color, lineType=cv2.LINE_AA)
+        cv2.fillPoly(frame, [credits], color, lineType=cv2.LINE_AA)
 
         return frame
 

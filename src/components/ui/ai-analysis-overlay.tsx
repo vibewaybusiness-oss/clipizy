@@ -212,36 +212,6 @@ export function AIAnalysisOverlay({
                 </motion.p>
               </motion.div>
 
-              {/* Progress bar with smooth animations */}
-              {progress !== undefined && (
-                <motion.div
-                  className="w-full max-w-sm mx-auto"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.9, duration: 0.6 }}
-                >
-                  <div className="w-full bg-white/20 rounded-full h-3 overflow-hidden backdrop-blur-sm">
-                    <motion.div
-                      className="h-full bg-gradient-to-r from-primary via-primary/90 to-primary/80 rounded-full relative"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progress}%` }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                    >
-                      <motion.div
-                        className="absolute inset-0 bg-white/20 rounded-full"
-                        animate={{
-                          x: ["-100%", "100%"],
-                        }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }}
-                      />
-                    </motion.div>
-                  </div>
-                </motion.div>
-              )}
 
               {/* Animated loading dots with wave effect */}
               <motion.div

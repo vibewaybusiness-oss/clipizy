@@ -1,0 +1,38 @@
+{
+  "user_id": "011db5f7-c365-400f-a10a-9e7b3577fbaf",
+  "email": "test@example.com",
+  "username": "Test User",
+  "created_at": "92335559-df87-4cd1-b932-0feea6953dbd",
+  "profile": {
+    "display_name": "Test User",
+    "bio": "",
+    "avatar_url": "",
+    "website": "",
+    "location": "",
+    "timezone": "UTC"
+  },
+  "preferences": {
+    "theme": "system",
+    "language": "en",
+    "notifications": {
+      "email": true,
+      "push": true,
+      "marketing": false
+    },
+    "privacy": {
+      "profile_public": false,
+      "show_activity": true
+    }
+  },
+  "billing": {
+    "plan": "free",
+    "payment_method": null,
+    "billing_address": null,
+    "invoices": []
+  },
+  "security": {
+    "two_factor_enabled": false,
+    "login_history": [],
+    "api_keys": []
+  }
+}

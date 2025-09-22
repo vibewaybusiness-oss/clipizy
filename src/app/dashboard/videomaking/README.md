@@ -1,6 +1,6 @@
 # Video Making Dashboard Integration
 
-This directory contains the integration of the advanced videomaking interface into the clipizi Studio dashboard.
+This directory contains the integration of the advanced videomaking interface into the clipizy Studio dashboard.
 
 ## Files
 
@@ -59,7 +59,7 @@ src/app/dashboard/videomaking/
 ### Adding New Features
 1. Create new components in the `@videomaking/` directory
 2. Import and use them in the main page
-3. Add any new API endpoints as needed
+3. Add any new API endcredits as needed
 4. Update the documentation
 
 ### Customizing the Interface

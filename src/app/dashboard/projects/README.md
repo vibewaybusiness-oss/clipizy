@@ -1,6 +1,6 @@
 # Projects Page
 
-This page displays and manages user projects in the clipizi application.
+This page displays and manages user projects in the clipizy application.
 
 ## Features
 
@@ -50,7 +50,7 @@ Reusable component for displaying individual projects:
 - **useProjects**: Custom hook for state management
 - **API Routes**: Next.js API routes that proxy to backend
 
-## API Endpoints
+## API Endcredits
 
 - `GET /api/projects` - List all projects
 - `GET /api/projects/[id]` - Get specific project

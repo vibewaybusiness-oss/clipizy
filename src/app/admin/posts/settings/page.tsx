@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { PromptConfig } from '@/components/calendar/PromptConfig';
-import type { GeminiPrompt } from '@/types/calendar';
+import type { GeminiPrompt } from '@/types/domains';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,8 +26,8 @@ export default function ContentCalendarSettingsPage() {
     geminiApiKey: '',
     autoGenerate: false,
     defaultAuthor: {
-      name: 'clipizi Team',
-      email: 'content@clipizi.com'
+      name: 'clipizy Team',
+      email: 'content@clipizy.com'
     },
     publishingSchedule: {
       days: ['tuesday', 'friday'],

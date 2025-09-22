@@ -4,12 +4,12 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://127.0.0.1:8000';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('Points transactions API route called');
+    console.log('Credits transactions API route called');
 
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit') || '50';
 
-    const backendUrl = `${BACKEND_URL}/api/points/transactions?limit=${limit}`;
+    const backendUrl = `${BACKEND_URL}/api/credits/transactions?limit=${limit}`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Points transactions API error:', error);
+    console.error('Credits transactions API error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

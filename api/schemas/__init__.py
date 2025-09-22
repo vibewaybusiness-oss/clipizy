@@ -1,4 +1,5 @@
 from .user import UserCreate, UserRead, UserUpdate, UserLogin, Token
+from .oauth import OAuthTokenRequest, OAuthUserInfo, OAuthResponse
 from .social_account import SocialAccountCreate, SocialAccountRead
 from .project import ProjectCreate, ProjectRead, ProjectUpdate
 from .track import TrackCreate, TrackRead
@@ -9,14 +10,12 @@ from .export import ExportCreate, ExportRead
 from .stats import StatsRead
 from .job import JobCreate, JobResponse
 from .analysis import AnalysisResponse
-from .points import (
-    PointsTransactionCreate,
-    PointsTransactionRead,
-    PointsBalance,
-    PointsPurchaseRequest,
-    PointsSpendRequest
-)
-from .payment import (
+from .pricing import (
+    CreditsTransactionCreate,
+    CreditsTransactionRead,
+    CreditsBalance,
+    CreditsPurchaseRequest,
+    CreditsSpendRequest,
     PaymentCreate,
     PaymentRead,
     PaymentIntentCreate,
@@ -68,6 +67,11 @@ __all__ = [
     "UserLogin",
     "Token",
 
+    # OAuth
+    "OAuthTokenRequest",
+    "OAuthUserInfo",
+    "OAuthResponse",
+
     # Social Accounts
     "SocialAccountCreate",
     "SocialAccountRead",
@@ -107,12 +111,12 @@ __all__ = [
     # Analysis
     "AnalysisResponse",
 
-    # Points
-    "PointsTransactionCreate",
-    "PointsTransactionRead",
-    "PointsBalance",
-    "PointsPurchaseRequest",
-    "PointsSpendRequest",
+    # Credits
+    "CreditsTransactionCreate",
+    "CreditsTransactionRead",
+    "CreditsBalance",
+    "CreditsPurchaseRequest",
+    "CreditsSpendRequest",
 
     # Payments
     "PaymentCreate",

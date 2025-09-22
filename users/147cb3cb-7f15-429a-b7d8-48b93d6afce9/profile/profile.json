@@ -1,0 +1,38 @@
+{
+  "user_id": "147cb3cb-7f15-429a-b7d8-48b93d6afce9",
+  "email": "vibeway.business@gmail.com",
+  "username": "William Abhamon",
+  "created_at": "e4e3f873-1c6d-41b9-a150-bc449da9cfb5",
+  "profile": {
+    "display_name": "William Abhamon",
+    "bio": "",
+    "avatar_url": "",
+    "website": "",
+    "location": "",
+    "timezone": "UTC"
+  },
+  "preferences": {
+    "theme": "system",
+    "language": "en",
+    "notifications": {
+      "email": true,
+      "push": true,
+      "marketing": false
+    },
+    "privacy": {
+      "profile_public": false,
+      "show_activity": true
+    }
+  },
+  "billing": {
+    "plan": "free",
+    "payment_method": null,
+    "billing_address": null,
+    "invoices": []
+  },
+  "security": {
+    "two_factor_enabled": false,
+    "login_history": [],
+    "api_keys": []
+  }
+}

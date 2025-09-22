@@ -12,7 +12,7 @@ from api.config.logging import get_storage_logger
 logger = get_storage_logger()
 
 class StorageService:
-    def __init__(self, bucket: str = "clipizi", endpoint_url: str = "http://localhost:9000"):
+    def __init__(self, bucket: str = "clipizy", endpoint_url: str = "http://localhost:9000"):
         logger.info(f"StorageService initialized with bucket: {bucket}, endpoint: {endpoint_url}")
         self.bucket = bucket
         self.endpoint_url = endpoint_url
@@ -46,6 +46,14 @@ class StorageService:
         path = f"users/{user_id}/music-clip/projects/{project_id}/{file_type}/{filename}"
         logger.debug(f"Generated music-clip path: {path}")
         return path
+
+    def ensure_folder_exists(self, folder_path: str):
+        """Ensure a folder exists in S3 storage"""
+        try:
+            self.storage.ensure_folder_exists(folder_path)
+            logger.debug(f"Ensured folder exists: {folder_path}")
+        except Exception as e:
+            logger.warning(f"Could not ensure folder exists {folder_path}: {e}")
 
     def upload_music_track(self, file: UploadFile, user_id: str, project_id: str, filename: str) -> str:
         """Upload a music track to the music-clip project structure"""
@@ -141,7 +149,7 @@ class StorageService:
 
 # Create a default instance with proper configuration
 def get_storage_service():
-    from api.config import settings
+    from api.config.settings import settings
     return StorageService(
         bucket=settings.s3_bucket,
         endpoint_url=settings.s3_endpoint_url

@@ -48,6 +48,16 @@ class S3Storage:
         except:
             return False
 
+    def ensure_folder_exists(self, folder_path: str):
+        """Ensure a folder exists in S3 by creating a placeholder file"""
+        try:
+            # Create a placeholder file to ensure the folder exists
+            placeholder_key = f"{folder_path.rstrip('/')}/.placeholder"
+            self.s3.put_object(Bucket=self.bucket, Key=placeholder_key, Body="")
+        except Exception as e:
+            # Folder might already exist, which is fine
+            pass
+
     # ---- Presigned URLs ----
     def get_presigned_url(self, key: str, expiration: int = 3600):
         return self.s3.generate_presigned_url(

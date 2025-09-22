@@ -2,8 +2,8 @@ UNIFIED PARTICLE SYSTEM - FINAL TEST SUMMARY
 ==================================================
 
 Test Date: 2025-09-19 17:00:46
-Audio File: \\wsl.localhost\Ubuntu\home\unix\code\clipizi\api\processing\music\generator\particles\song.wav
-Output Directory: \\wsl.localhost\Ubuntu\home\unix\code\clipizi\api\tests\final_outputs
+Audio File: \\wsl.localhost\Ubuntu\home\unix\code\clipizy\api\processing\music\generator\particles\song.wav
+Output Directory: \\wsl.localhost\Ubuntu\home\unix\code\clipizy\api\tests\final_outputs
 
 PARTICLE TYPES TESTED:
 -------------------------

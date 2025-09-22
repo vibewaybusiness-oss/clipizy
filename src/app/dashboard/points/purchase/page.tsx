@@ -17,68 +17,68 @@ import {
   Zap,
   Star
 } from "lucide-react";
-import { usePoints } from "@/hooks/use-points";
-import { useToast } from "@/hooks/use-toast";
+import { useCredits } from "@/hooks/commerce/use-credits";
+import { useToast } from "@/hooks/ui/use-toast";
 import Link from "next/link";
 
-const pointsPackages = [
+const creditsPackages = [
   {
     id: "starter",
     name: "Starter Pack",
-    points: 1000,
+    credits: 1000,
     price: 10,
     bonus: 0,
     popular: false,
-    description: "Perfect for trying out clipizi",
-    features: ["1,000 points", "Basic video generation", "Standard quality"],
+    description: "Perfect for trying out clipizy",
+    features: ["1,000 credits", "Basic video generation", "Standard quality"],
     color: "border-gray-200"
   },
   {
     id: "creator",
     name: "Creator Pack",
-    points: 5000,
+    credits: 5000,
     price: 40,
     bonus: 1000,
     popular: true,
     description: "Most popular choice for creators",
-    features: ["5,000 points", "1,000 bonus points", "High quality generation", "Priority processing"],
+    features: ["5,000 credits", "1,000 bonus credits", "High quality generation", "Priority processing"],
     color: "border-blue-200"
   },
   {
     id: "pro",
     name: "Pro Pack",
-    points: 15000,
+    credits: 15000,
     price: 100,
     bonus: 5000,
     popular: false,
     description: "For professional content creators",
-    features: ["15,000 points", "5,000 bonus points", "Ultra high quality", "Priority processing", "Advanced features"],
+    features: ["15,000 credits", "5,000 bonus credits", "Ultra high quality", "Priority processing", "Advanced features"],
     color: "border-purple-200"
   }
 ];
 
 export default function PurchasePage() {
-  const { balance, purchasePoints } = usePoints();
+  const { balance, purchaseCredits } = useCredits();
   const { toast } = useToast();
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
   const [customAmount, setCustomAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handlePurchase = async (packageId: string) => {
-    const pkg = pointsPackages.find(p => p.id === packageId);
+    const pkg = creditsPackages.find(p => p.id === packageId);
     if (!pkg) return;
 
     try {
       setIsProcessing(true);
       setSelectedPackage(packageId);
 
-      const result = await purchasePoints({
+      const result = await purchaseCredits({
         amount_dollars: pkg.price
       });
 
       toast({
         title: "Payment Intent Created",
-        description: `Please complete payment to add ${pkg.points + pkg.bonus} points to your account`,
+        description: `Please complete payment to add ${pkg.credits + pkg.bonus} credits to your account`,
       });
 
     } catch (error) {
@@ -103,13 +103,13 @@ export default function PurchasePage() {
     try {
       setIsProcessing(true);
 
-      const result = await purchasePoints({
+      const result = await purchaseCredits({
         amount_dollars: amount
       });
 
       toast({
         title: "Payment Intent Created",
-        description: `Please complete payment to add ${Math.floor(amount * 100)} points to your account`,
+        description: `Please complete payment to add ${Math.floor(amount * 100)} credits to your account`,
       });
 
       setCustomAmount("");
@@ -126,15 +126,15 @@ export default function PurchasePage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/points">
+            <Link href="/dashboard/credits">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Points
+              Back to Credits
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Purchase Points</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Purchase Credits</h1>
             <p className="text-muted-foreground text-lg">
-              Choose a package or enter a custom amount to buy points
+              Choose a package or enter a custom amount to buy credits
             </p>
           </div>
         </div>
@@ -151,7 +151,7 @@ export default function PurchasePage() {
               <div>
                 <h2 className="text-xl font-semibold text-foreground">Current Balance</h2>
                 <div className="text-3xl font-bold text-primary">
-                  {balance?.current_balance?.toLocaleString() || 0} Points
+                  {balance?.current_balance?.toLocaleString() || 0} Credits
                 </div>
               </div>
             </div>
@@ -170,7 +170,7 @@ export default function PurchasePage() {
             <h2 className="text-2xl font-semibold mb-6">Point Packages</h2>
 
             <div className="space-y-4">
-              {pointsPackages.map((pkg) => (
+              {creditsPackages.map((pkg) => (
                 <Card
                   key={pkg.id}
                   className={`relative cursor-pointer transition-all duration-200 hover:shadow-lg ${
@@ -196,7 +196,7 @@ export default function PurchasePage() {
                           <div>
                             <div className="text-3xl font-bold">${pkg.price}</div>
                             <div className="text-sm text-muted-foreground">
-                              {(pkg.points + pkg.bonus).toLocaleString()} points
+                              {(pkg.credits + pkg.bonus).toLocaleString()} credits
                               {pkg.bonus > 0 && (
                                 <span className="text-green-500 ml-1">
                                   (+{pkg.bonus.toLocaleString()} bonus)
@@ -247,7 +247,7 @@ export default function PurchasePage() {
                 <span>Custom Amount</span>
               </CardTitle>
               <CardDescription>
-                Purchase any amount of points (100 points per $1)
+                Purchase any amount of credits (100 credits per $1)
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -270,7 +270,7 @@ export default function PurchasePage() {
                 <div className="p-4 bg-muted/50 rounded-lg">
                   <div className="text-sm text-muted-foreground mb-1">You'll receive:</div>
                   <div className="text-2xl font-bold text-primary">
-                    {Math.floor(parseFloat(customAmount) * 100).toLocaleString()} points
+                    {Math.floor(parseFloat(customAmount) * 100).toLocaleString()} credits
                   </div>
                 </div>
               )}
@@ -296,7 +296,7 @@ export default function PurchasePage() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Coins className="w-5 h-5" />
-                <span>How Points Work</span>
+                <span>How Credits Work</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -305,7 +305,7 @@ export default function PurchasePage() {
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <div>
                     <div className="font-medium">Video Generation</div>
-                    <div className="text-sm text-muted-foreground">50-500 points per video depending on length and quality</div>
+                    <div className="text-sm text-muted-foreground">50-500 credits per video depending on length and quality</div>
                   </div>
                 </div>
 
@@ -320,16 +320,16 @@ export default function PurchasePage() {
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <div className="font-medium">Points Never Expire</div>
-                    <div className="text-sm text-muted-foreground">Purchased points are yours forever</div>
+                    <div className="font-medium">Credits Never Expire</div>
+                    <div className="text-sm text-muted-foreground">Purchased credits are yours forever</div>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <div className="font-medium">Bonus Points</div>
-                    <div className="text-sm text-muted-foreground">Get extra points with larger packages</div>
+                    <div className="font-medium">Bonus Credits</div>
+                    <div className="text-sm text-muted-foreground">Get extra credits with larger packages</div>
                   </div>
                 </div>
               </div>

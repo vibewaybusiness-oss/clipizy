@@ -7,7 +7,7 @@ from api.schemas import (
     PaymentRead,
     PaymentWebhookData
 )
-from api.services import stripe_service
+from api.services import stripe_service, credits_service, PRICES
 from api.routers.auth_router import get_current_user
 from api.models import User
 from typing import List
@@ -21,7 +21,7 @@ def create_payment_intent(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Create a Stripe payment intent for points purchase"""
+    """Create a Stripe payment intent for credits purchase"""
     try:
         return stripe_service.create_payment_intent(db, str(current_user.id), payment_data)
     except Exception as e:
@@ -43,7 +43,7 @@ def confirm_payment_intent(
             "message": "Payment confirmed successfully",
             "payment_id": str(payment.id),
             "status": payment.status.value,
-            "points_added": payment.points_purchased
+            "credits_added": payment.credits_purchased
         }
     except Exception as e:
         raise HTTPException(
@@ -166,3 +166,29 @@ def get_payment(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error retrieving payment: {str(e)}"
         )
+
+# PRICING ENDPOINTS
+@router.get("/pricing/config")
+def get_pricing_config():
+    """Get the complete pricing configuration"""
+    return PRICES
+
+@router.get("/pricing/music")
+def price_music(num_tracks: int = 1):
+    """Calculate price for music generation"""
+    return credits_service.calculate_music_price(num_tracks)
+
+@router.get("/pricing/image")
+def price_image(num_units: int, total_minutes: float):
+    """Calculate price for image generation"""
+    return credits_service.calculate_image_price(num_units, total_minutes)
+
+@router.get("/pricing/looped-animation")
+def price_looped(num_units: int, total_minutes: float):
+    """Calculate price for looped animation generation"""
+    return credits_service.calculate_looped_animation_price(num_units, total_minutes)
+
+@router.get("/pricing/video")
+def price_video(duration_minutes: float):
+    """Calculate price for video generation"""
+    return credits_service.calculate_video_price(duration_minutes)

@@ -21,6 +21,7 @@ export async function PUT(
     const response = await fetch(backendUrl, {
       method: 'PUT',
       headers: {
+        'Authorization': request.headers.get('Authorization') || '',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(analysisData),
@@ -85,6 +86,10 @@ export async function GET(
     
     const response = await fetch(backendUrl, {
       method: 'GET',
+      headers: {
+        'Authorization': request.headers.get('Authorization') || '',
+        'Content-Type': 'application/json',
+      },
       signal: controller.signal,
     });
     

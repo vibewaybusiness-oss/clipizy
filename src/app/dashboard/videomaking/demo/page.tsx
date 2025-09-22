@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { VideoMaker } from '../../../../../@videomaking/components/VideoMaker';
-import { VideoProject } from '../../../../../@videomaking/types';
+import { VideoMaker } from '@videomaking/components/VideoMaker';
+import { VideoProject } from '@videomaking/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

@@ -6,7 +6,7 @@ A comprehensive particle system that combines all particle types into a single, 
 
 - **6 Different Particle Types**: Snow, Zen, Enhanced, Bouncing, Continuous Spawning, and No Music
 - **Music Responsive**: Bass-triggered effects and audio synchronization
-- **FastAPI Integration**: Ready-to-use API endpoints
+- **FastAPI Integration**: Ready-to-use API endcredits
 - **Configurable**: Extensive configuration options for all particle behaviors
 - **High Performance**: Optimized for real-time rendering
 - **Audio Support**: Automatic audio loading and synchronization
@@ -98,7 +98,7 @@ from routers.particle_router import router
 app = FastAPI()
 app.include_router(router)
 
-# Available endpoints:
+# Available endcredits:
 # POST /particles/create - Create particle system
 # GET /particles/types - List particle types
 # GET /particles/systems - List active systems
@@ -146,7 +146,7 @@ enhanced_mode = {
 }
 ```
 
-## API Endpoints
+## API Endcredits
 
 ### Particle System Management
 
@@ -288,4 +288,4 @@ export PARTICLE_DEBUG=1
 
 ## License
 
-This unified particle system is part of the clipizi project and follows the same licensing terms.
+This unified particle system is part of the clipizy project and follows the same licensing terms.

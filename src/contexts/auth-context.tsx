@@ -6,36 +6,60 @@ interface User {
   id: string;
   email: string;
   name?: string;
+  username?: string;
   avatar?: string;
+  is_active?: boolean;
+  is_admin?: boolean;
+  created_at?: string;
+  last_login?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name?: string) => Promise<void>;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  signIn: (email: string, password: string) => Promise<boolean>;
+  signUp: (email: string, password: string, name?: string) => Promise<boolean>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<void>;
+  loginWithGoogle: () => Promise<boolean>;
+  loginWithGithub: () => Promise<boolean>;
+  refreshAccessToken: () => Promise<boolean>;
+  setUser: (user: User | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session on mount
     checkAuthState();
   }, []);
 
   const checkAuthState = async () => {
     try {
-      // Check localStorage for user data
       if (typeof window !== 'undefined') {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
+        const token = localStorage.getItem('access_token');
+        if (token) {
+          const response = await fetch(`${API_BASE_URL}/auth/me`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (response.ok) {
+            const userData = await response.json();
+            setUser(userData);
+          } else {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user');
+          }
         }
       }
     } catch (error) {
@@ -45,53 +69,104 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<boolean> => {
     setLoading(true);
     try {
-      // TODO: Implement actual authentication logic
-      // For now, create a mock user
-      const mockUser: User = {
-        id: '1',
-        email,
-        name: email.split('@')[0],
-      };
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      setUser(mockUser);
-
-      // Store in localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(mockUser));
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('access_token', data.access_token);
+        if (data.refresh_token) {
+          localStorage.setItem('refresh_token', data.refresh_token);
+        }
+        
+        // Get user data
+        const userResponse = await fetch(`${API_BASE_URL}/auth/me`, {
+          headers: {
+            'Authorization': `Bearer ${data.access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          setUser(userData);
+          localStorage.setItem('user', JSON.stringify(userData));
+          return true;
+        }
       }
+      return false;
     } catch (error) {
       console.error('Sign in error:', error);
-      throw error;
+      return false;
     } finally {
       setLoading(false);
     }
   };
 
-  const signUp = async (email: string, password: string, name?: string) => {
+  const signUp = async (email: string, password: string, name?: string): Promise<boolean> => {
     setLoading(true);
     try {
-      // TODO: Implement actual registration logic
-      // For now, create a mock user
-      const mockUser: User = {
-        id: '1',
-        email,
-        name: name || email.split('@')[0],
-      };
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, name }),
+      });
 
-      setUser(mockUser);
-
-      // Store in localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(mockUser));
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+        return true;
       }
+      return false;
     } catch (error) {
       console.error('Sign up error:', error);
-      throw error;
+      return false;
     } finally {
       setLoading(false);
+    }
+  };
+
+  const refreshAccessToken = async (): Promise<boolean> => {
+    try {
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (!refreshToken) {
+        return false;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('access_token', data.access_token);
+        return true;
+      } else {
+        // Refresh token is invalid, clear everything
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        setUser(null);
+        return false;
+      }
+    } catch (error) {
+      console.error('Token refresh error:', error);
+      return false;
     }
   };
 
@@ -103,10 +178,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Remove from localStorage
       if (typeof window !== 'undefined') {
         localStorage.removeItem('user');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
       }
     } catch (error) {
       console.error('Sign out error:', error);
-      throw error;
     } finally {
       setLoading(false);
     }
@@ -125,17 +201,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.error('Update profile error:', error);
-      throw error;
+    }
+  };
+
+  const loginWithGoogle = async (): Promise<boolean> => {
+    try {
+      setLoading(true);
+      
+      // Get Google OAuth URL from backend
+      const response = await fetch(`${API_BASE_URL}/auth/google`);
+      const data = await response.json();
+      
+      if (data.auth_url) {
+        // Redirect to Google OAuth
+        window.location.href = data.auth_url;
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Google login error:', error);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loginWithGithub = async (): Promise<boolean> => {
+    try {
+      setLoading(true);
+      
+      // Get GitHub OAuth URL from backend
+      const response = await fetch(`${API_BASE_URL}/auth/github`);
+      const data = await response.json();
+      
+      if (data.auth_url) {
+        // Redirect to GitHub OAuth
+        window.location.href = data.auth_url;
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('GitHub login error:', error);
+      return false;
+    } finally {
+      setLoading(false);
     }
   };
 
   const value: AuthContextType = {
     user,
     loading,
+    isAuthenticated: !!user,
+    isAdmin: !!(user && user.is_admin),
     signIn,
     signUp,
     signOut,
     updateProfile,
+    loginWithGoogle,
+    loginWithGithub,
+    refreshAccessToken,
+    setUser,
   };
 
   return (

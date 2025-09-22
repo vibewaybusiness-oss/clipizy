@@ -4,8 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Shield, Eye, Database, Lock, Users, Globe } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy - clipizi',
-  description: 'Privacy Policy for clipizi AI-powered music video creation platform',
+  title: 'Privacy Policy - clipizy',
+  description: 'Privacy Policy for clipizy AI-powered music video creation platform',
   robots: {
     index: true,
     follow: true,
@@ -54,7 +54,7 @@ export default function PrivacyPolicy() {
                 <ul className="list-disc list-inside space-y-2 ml-4">
                   <li>Audio files uploaded for video generation</li>
                   <li>Images, graphics, and visual assets you provide</li>
-                  <li>Videos and other content generated through clipizi</li>
+                  <li>Videos and other content generated through clipizy</li>
                   <li>Project settings and customization details</li>
                   <li>Social media content and associated metadata</li>
                 </ul>
@@ -172,7 +172,7 @@ export default function PrivacyPolicy() {
                   <li>Withdraw consent for processing (where applicable)</li>
                 </ul>
                 <p>
-                  You can manage many preferences directly through your account settings. For other requests, contact us at privacy@clipizi.ai. We respond within 30 days.
+                  You can manage many preferences directly through your account settings. For other requests, contact us at privacy@clipizy.ai. We respond within 30 days.
                 </p>
               </CardContent>
             </Card>
@@ -214,10 +214,10 @@ export default function PrivacyPolicy() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p>
-                  clipizi provides automated tools for generating multimedia content. We do not monitor or review user input or AI-generated outputs before delivery. You are solely responsible for the legality, accuracy, and appropriateness of any content created, uploaded, or distributed using clipizi.
+                  clipizy provides automated tools for generating multimedia content. We do not monitor or review user input or AI-generated outputs before delivery. You are solely responsible for the legality, accuracy, and appropriateness of any content created, uploaded, or distributed using clipizy.
                 </p>
                 <p>
-                  clipizi disclaims all liability arising from user-generated or AI-generated content, including but not limited to intellectual property infringement, offensive or unlawful material, and misuse of the Service.
+                  clipizy disclaims all liability arising from user-generated or AI-generated content, including but not limited to intellectual property infringement, offensive or unlawful material, and misuse of the Service.
                 </p>
               </CardContent>
             </Card>

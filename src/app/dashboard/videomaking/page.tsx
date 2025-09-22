@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
-import { VideoMaker } from '../../../../@videomaking/components/VideoMaker';
-import { VideoProject, ExportFormat } from '../../../../@videomaking/types';
-import { createRunPodIntegration } from '../../../../@videomaking/integrations/runpod-integration';
-import { createOllamaIntegration } from '../../../../@videomaking/integrations/ollama-integration';
+import { VideoMaker } from '@videomaking/components/VideoMaker';
+import { VideoProject, ExportFormat } from '@videomaking/types';
+import { createRunPodIntegration } from '@videomaking/integrations/runpod-integration';
+import { createOllamaIntegration } from '@videomaking/integrations/ollama-integration';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -62,7 +62,10 @@ export default function VideoMakingPage() {
     try {
       await fetch('/api/projects', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
         body: JSON.stringify(updatedProject)
       });
     } catch (error) {
@@ -75,7 +78,10 @@ export default function VideoMakingPage() {
     try {
       const response = await fetch('/api/projects', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
         body: JSON.stringify(project)
       });
 

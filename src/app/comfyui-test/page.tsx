@@ -23,7 +23,11 @@ export default function ComfyUITestPage() {
     setError('');
 
     try {
-      const response = await fetch('/api/comfyui/status');
+      const response = await fetch('/api/comfyui/status', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+      },
+    });
       const data = await response.json();
 
       if (data.success) {
@@ -52,7 +56,10 @@ export default function ComfyUITestPage() {
 
     try {
       const response = await fetch('/api/comfyui?action=recruit', {
-        method: 'POST'
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
       });
       const data = await response.json();
 
@@ -84,7 +91,10 @@ export default function ComfyUITestPage() {
 
     try {
       const response = await fetch('/api/comfyui?action=release', {
-        method: 'POST'
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
       });
       const data = await response.json();
 
@@ -106,7 +116,11 @@ export default function ComfyUITestPage() {
     setError('');
 
     try {
-      const response = await fetch('/api/comfyui?action=expose-port');
+      const response = await fetch('/api/comfyui?action=expose-port', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+      },
+    });
       const data = await response.json();
 
       if (data.success) {

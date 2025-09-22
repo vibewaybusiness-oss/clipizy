@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/ui/use-toast";
 import {
   Mail,
   Phone,
@@ -137,7 +137,7 @@ export default function Contact() {
             </h1>
 
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto fade-in-up">
-              Have questions about clipizi? Need help with your account? Want to discuss
+              Have questions about clipizy? Need help with your account? Want to discuss
               enterprise solutions? We're here to help and would love to hear from you.
             </p>
           </div>
@@ -312,7 +312,7 @@ export default function Contact() {
               Frequently Asked <span className="gradient-text">Questions</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Find answers to common questions about clipizi
+              Find answers to common questions about clipizy
             </p>
           </div>
 
@@ -343,7 +343,7 @@ export default function Contact() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" className="text-lg px-8 py-4" asChild>
-              <Link href="mailto:hello@clipizi.ai">
+              <Link href="mailto:hello@clipizy.ai">
                 <Mail className="w-5 h-5 mr-2" />
                 Email Support
               </Link>
@@ -351,7 +351,7 @@ export default function Contact() {
             <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-primary" asChild>
               <Link href="/dashboard/create">
                 <Sparkles className="w-5 h-5 mr-2" />
-                Try clipizi
+                Try clipizy
               </Link>
             </Button>
           </div>

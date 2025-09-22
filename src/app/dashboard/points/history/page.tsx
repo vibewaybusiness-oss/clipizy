@@ -19,7 +19,7 @@ import {
   XCircle,
   Clock
 } from "lucide-react";
-import { usePoints } from "@/hooks/use-points";
+import { useCredits } from "@/hooks/commerce/use-credits";
 import Link from "next/link";
 
 const transactionTypes = {
@@ -32,7 +32,7 @@ const transactionTypes = {
 };
 
 export default function TransactionHistoryPage() {
-  const { transactions, loading, fetchTransactions } = usePoints();
+  const { transactions, loading, fetchTransactions } = useCredits();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [filteredTransactions, setFilteredTransactions] = useState(transactions);
@@ -75,7 +75,7 @@ export default function TransactionHistoryPage() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `points-transactions-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `credits-transactions-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -96,15 +96,15 @@ export default function TransactionHistoryPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/points">
+            <Link href="/dashboard/credits">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Points
+              Back to Credits
             </Link>
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">Transaction History</h1>
             <p className="text-muted-foreground text-lg">
-              Complete history of all your points transactions
+              Complete history of all your credits transactions
             </p>
           </div>
         </div>
@@ -167,8 +167,8 @@ export default function TransactionHistoryPage() {
               </p>
               {!searchTerm && filterType === "all" && (
                 <Button asChild>
-                  <Link href="/dashboard/points">
-                    Purchase Points
+                  <Link href="/dashboard/credits">
+                    Purchase Credits
                   </Link>
                 </Button>
               )}
@@ -195,7 +195,7 @@ export default function TransactionHistoryPage() {
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
                           <h3 className="font-semibold text-foreground">
-                            {transaction.description || "Points Transaction"}
+                            {transaction.description || "Credits Transaction"}
                           </h3>
                           <Badge className={typeInfo?.color}>
                             {typeInfo?.label || transaction.transaction_type}

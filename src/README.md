@@ -33,7 +33,7 @@ src/
 │   │   ├── step-generating.tsx # Generation progress
 │   │   └── step-preview.tsx   # Video preview and download
 │   ├── ui/                # Reusable UI components
-│   └── clipizi-generator.tsx # Main generator component
+│   └── clipizy-generator.tsx # Main generator component
 └── contexts/              # React contexts
 ```
 
@@ -49,7 +49,7 @@ src/
 - Protected route wrapper
 - User authentication integration
 
-**Styling**: Uses Tailwind CSS with custom sidebar styling and responsive breakpoints.
+**Styling**: Uses Tailwind CSS with custom sidebar styling and responsive breakcredits.
 
 ### 2. Dashboard Pages
 
@@ -280,7 +280,7 @@ export function StepExample({ form, onSubmit, onBack }: StepExampleProps) {
 ## Best Practices
 
 1. **Consistent Styling**: Always use the predefined CSS classes and design tokens
-2. **Responsive Design**: Test on multiple screen sizes using Tailwind breakpoints
+2. **Responsive Design**: Test on multiple screen sizes using Tailwind breakcredits
 3. **Accessibility**: Include proper ARIA labels and keyboard navigation
 4. **Error Handling**: Provide clear error messages and fallback states
 5. **Loading States**: Show progress indicators for async operations
@@ -303,7 +303,7 @@ export function StepExample({ form, onSubmit, onBack }: StepExampleProps) {
 - **Generator Steps**: `src/components/generator/`
 - **UI Components**: `src/components/ui/`
 - **Global Styles**: `src/app/globals.css`
-- **Type Definitions**: `src/components/clipizi-generator.tsx` (types section)
+- **Type Definitions**: `src/components/clipizy-generator.tsx` (types section)
 - **Configuration**: `src/lib/config.ts`
 
 This documentation provides a comprehensive overview of the dashboard component architecture, styling system, and development patterns used throughout the application.

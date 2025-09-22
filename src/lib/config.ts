@@ -8,7 +8,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 // WSL Network Configuration
 // In WSL, we need to use the actual WSL IP address instead of localhost
-const WSL_IP = '172.31.247.43';
+const WSL_IP = '172.31.240.1';
 const WINDOWS_HOST_IP = '172.31.240.1'; // Fallback Windows host IP
 
 // Backend Configuration
@@ -25,7 +25,7 @@ export const BACKEND_CONFIG = {
 
   // Timeout configurations
   timeouts: {
-    default: 10000, // 10 seconds
+    default: 30000, // 30 seconds
     upload: 600000, // 10 minutes for file uploads
     analysis: 300000, // 5 minutes for analysis
   },

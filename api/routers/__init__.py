@@ -10,10 +10,9 @@ from .runpod_router import runpod_router
 from .comfyui_router import router as comfyui_router
 from .music_analysis_router import router as music_analysis_router
 from .visualizer_router import router as visualizer_router
-from .pricing_router import router as pricing_router
 from .analysis_router import router as analysis_router
 from .particle_router import router as particle_router
-from .points_router import router as points_router
+from .points_router import router as credits_router
 from .payment_router import router as payment_router
 from .social_media_router import router as social_media_router
 from .automation_router import router as automation_router
@@ -31,10 +30,9 @@ all_routers = [
     comfyui_router,
     music_analysis_router,
     visualizer_router,
-    pricing_router,
     analysis_router,
     particle_router,
-    points_router,
+    credits_router,
     payment_router,
     social_media_router,
     automation_router,

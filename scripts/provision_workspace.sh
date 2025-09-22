@@ -8,7 +8,7 @@ LINK_MODELS="${LINK_MODELS:-true}"
 COMFYUI_REPO="${COMFYUI_REPO:-https://github.com/comfyanonymous/ComfyUI.git}"
 
 mkdir -p "$WORKSPACE_DIR/ComfyUI"
-mkdir -p "$WORKSPACE_DIR/models/checkpoints"
+mkdir -p "$WORKSPACE_DIR/models/checkcredits"
 mkdir -p "$WORKSPACE_DIR/models/clip"
 mkdir -p "$WORKSPACE_DIR/models/vae"
 mkdir -p "$WORKSPACE_DIR/models/loras"
@@ -28,7 +28,7 @@ fi
 
 if [ "$LINK_MODELS" = "true" ] && [ -d "$WORKSPACE_DIR/ComfyUI" ]; then
   mkdir -p "$WORKSPACE_DIR/ComfyUI/models"
-  for d in checkpoints clip vae loras controlnet; do
+  for d in checkcredits clip vae loras controlnet; do
     TARGET="$WORKSPACE_DIR/models/$d"
     LINK="$WORKSPACE_DIR/ComfyUI/models/$d"
     mkdir -p "$TARGET"

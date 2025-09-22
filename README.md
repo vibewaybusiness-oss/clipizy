@@ -1,4 +1,4 @@
-# clipizi - AI-Powered Music Video Creation
+# clipizy - AI-Powered Music Video Creation
 
 Google developer
 
@@ -40,7 +40,7 @@ Transform your audio into stunning music videos with the power of AI. Create pro
 ### 1. Clone & Setup
 ```bash
 git clone <repository-url>
-cd clipizi
+cd clipizy
 ```
 
 ### 2. Start Local Development Stack
@@ -65,7 +65,7 @@ cd clipizi
 ## 📁 Project Structure
 
 ```
-clipizi/
+clipizy/
 ├── src/                    # Next.js frontend
 │   ├── app/               # App Router pages
 │   ├── components/        # React components
@@ -202,4 +202,4 @@ Since everything talks through APIs and S3, your code doesn't change much when y
 ## 📞 Contact
 
 - **Email**: vibeway.business@gmail.com
-- **Project**: clipizi AI Music Video Creation
+- **Project**: clipizy AI Music Video Creation

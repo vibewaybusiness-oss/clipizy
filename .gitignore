@@ -42,8 +42,8 @@ next-env.d.ts
 
 .venv
 .api/tests/*
-@videomaking/*
-logs/*
+logs
+Others
 
 # firebase
 firebase-debug.log

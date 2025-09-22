@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# clipizi Development Environment Startup Script
+# clipizy Development Environment Startup Script
 # This script starts all required services for local development
 
-echo "🚀 Starting clipizi Development Environment..."
+echo "🚀 Starting clipizy Development Environment..."
 echo "================================================"
 
 # Colors for output
@@ -13,15 +13,17 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-bash stop.sh
+# Skip stop script to avoid sudo requirement
+# bash scripts/startup/stop.sh
 
 # Function to check if a command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-docker stop clipizi-minio clipizi-postgres
-docker rm clipizi-minio clipizi-postgres
+# Try to stop existing containers without sudo
+docker stop clipizy-minio clipizy-postgres 2>/dev/null || true
+docker rm clipizy-minio clipizy-postgres 2>/dev/null || true
 
 # Function to check if a port is in use
 port_in_use() {
@@ -53,7 +55,7 @@ echo -e "${BLUE}🗄️  Starting MinIO (S3 replacement)...${NC}"
 if port_in_use 9000; then
     echo -e "${YELLOW}⚠️  Port 9000 is already in use. MinIO might already be running.${NC}"
 else
-    sudo docker run -d --name clipizi-minio \
+    docker run -d --name clipizy-minio \
         -p 9000:9000 -p 9001:9001 \
         -e "MINIO_ROOT_USER=admin" \
         -e "MINIO_ROOT_PASSWORD=admin123" \
@@ -64,9 +66,9 @@ fi
 # Start PostgreSQL
 echo -e "${BLUE}🗄️  Starting PostgreSQL...${NC}"
 # Kill any existing PostgreSQL processes
-sudo pkill -f postgres 2>/dev/null || true
-sudo docker stop clipizi-postgres 2>/dev/null || true
-sudo docker rm clipizi-postgres 2>/dev/null || true
+pkill -f postgres 2>/dev/null || true
+docker stop clipizy-postgres 2>/dev/null || true
+docker rm clipizy-postgres 2>/dev/null || true
 
 if port_in_use 5432; then
     echo -e "${YELLOW}⚠️  Port 5432 is still in use. Using port 5433 instead.${NC}"
@@ -75,10 +77,10 @@ else
     POSTGRES_PORT=5432
 fi
 
-sudo docker run -d --name clipizi-postgres \
+docker run -d --name clipizy-postgres \
     -e POSTGRES_PASSWORD=postgres \
-    -e POSTGRES_DB=clipizi \
-    -p $POSTGRES_PORT:5432 \
+    -e POSTGRES_DB=clipizy \
+    -p 0.0.0.0:$POSTGRES_PORT:5432 \
     postgres:15
 echo -e "${GREEN}✅ PostgreSQL started at localhost:$POSTGRES_PORT${NC}"
 
@@ -87,7 +89,23 @@ echo -e "${BLUE}⏳ Waiting for services to be ready...${NC}"
 sleep 5
 
 # Set database URL based on PostgreSQL port
-export DATABASE_URL="postgresql://postgres:postgres@localhost:$POSTGRES_PORT/clipizi"
+# Use psycopg3 driver for WSL compatibility
+export DATABASE_URL="postgresql+psycopg://postgres:postgres@localhost:$POSTGRES_PORT/clipizy"
+
+# Initialize database
+echo -e "${BLUE}🗄️  Initializing database...${NC}"
+if [ -f "scripts/backend/init_database.py" ]; then
+    echo -e "${YELLOW}📋 Setting up database tables and schema...${NC}"
+    DATABASE_URL="postgresql+psycopg://postgres:postgres@localhost:$POSTGRES_PORT/clipizy" python scripts/backend/init_database.py
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✅ Database initialized successfully${NC}"
+    else
+        echo -e "${RED}❌ Database initialization failed${NC}"
+        echo -e "${YELLOW}⚠️  Continuing with startup, but database may not be ready${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠️  init_database.py not found. Skipping database initialization.${NC}"
+fi
 
 # Start FastAPI Backend
 echo -e "${BLUE}🐍 Starting FastAPI Backend...${NC}"
@@ -104,12 +122,11 @@ else
     source .venv/bin/activate
 
     echo -e "${YELLOW}📦 Installing Python dependencies...${NC}"
+    pip install -r requirements.txt
 
     echo -e "${YELLOW}🚀 Starting FastAPI server...${NC}"
-    cd api
-    DATABASE_URL="postgresql://postgres:postgres@localhost:$POSTGRES_PORT/clipizi" python start.py &
+    DATABASE_URL="postgresql+psycopg://postgres:postgres@localhost:$POSTGRES_PORT/clipizy" python scripts/backend/start.py &
     echo -e "${GREEN}✅ FastAPI started at http://localhost:8000${NC}"
-    cd ..
 fi
 
 # Start ComfyUI (GPU processing)
@@ -141,12 +158,22 @@ else
     fi
 
     echo -e "${YELLOW}🚀 Starting Next.js development server...${NC}"
-    npm run dev &
-    echo -e "${GREEN}✅ Next.js started at http://localhost:3000${NC}"
+    bash start-nextjs.sh &
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✅ Next.js started at http://localhost:3000${NC}"
+    else
+        echo -e "${RED}❌ Failed to start Next.js${NC}"
+        echo -e "${YELLOW}💡 To fix this issue, run the following commands in WSL:${NC}"
+        echo -e "${YELLOW}   cd /home/unix/code/vibewave${NC}"
+        echo -e "${YELLOW}   rm -rf node_modules package-lock.json .next${NC}"
+        echo -e "${YELLOW}   npm install${NC}"
+        echo -e "${YELLOW}   npm run dev${NC}"
+        echo -e "${YELLOW}   See FIX_NEXTJS_ISSUE.md for more details${NC}"
+    fi
 fi
 
 echo ""
-echo -e "${GREEN}🎉 clipizi Development Environment Started!${NC}"
+echo -e "${GREEN}🎉 clipizy Development Environment Started!${NC}"
 echo "================================================"
 echo -e "${BLUE}📱 Frontend:${NC} http://localhost:3000"
 echo -e "${BLUE}🔧 API Docs:${NC} http://localhost:8000/docs"
@@ -154,7 +181,13 @@ echo -e "${BLUE}🗄️  MinIO Console:${NC} http://localhost:9001 (admin/admin1
 echo -e "${BLUE}🎨 ComfyUI:${NC} http://localhost:8188"
 echo -e "${BLUE}🗄️  PostgreSQL:${NC} localhost:$POSTGRES_PORT (postgres/postgres)"
 echo ""
+echo -e "${YELLOW}📝 Next Steps:${NC}"
+echo -e "${YELLOW}   1. Register a user at http://localhost:3000/auth/register${NC}"
+echo -e "${YELLOW}   2. To create an admin user, run:${NC}"
+echo -e "${YELLOW}      cd api && python create_admin_user.py${NC}"
+echo -e "${YELLOW}   3. Access admin panel at http://localhost:3000/admin${NC}"
+echo ""
 echo -e "${YELLOW}💡 To stop all services, run: ./stop.sh${NC}"
-echo -e "${YELLOW}💡 To view logs, run: docker logs -f clipizi-minio${NC}"
+echo -e "${YELLOW}💡 To view logs, run: docker logs -f clipizy-minio${NC}"
 echo ""
 echo -e "${GREEN}Happy coding! 🚀${NC}"

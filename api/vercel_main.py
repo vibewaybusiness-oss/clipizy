@@ -20,8 +20,7 @@ from api.routers import (
     stats_router,
     job_router,
     prompt_router,
-    pricing_router,
-    points_router,
+    credits_router,
     payment_router,
     social_media_router,
     automation_router
@@ -30,8 +29,7 @@ from api.routers import (
 # Import services for initialization
 from api.services.vercel_compatibility import check_ml_availability
 from api.db import create_tables
-from api.config import settings
-from api.fallback_db import setup_fallback_database
+from api.config.settings import settings
 
 class LargeBodyMiddleware(BaseHTTPMiddleware):
     """Middleware to handle large request bodies"""
@@ -71,7 +69,7 @@ class LargeBodyMiddleware(BaseHTTPMiddleware):
 async def lifespan(app: FastAPI):
     """Application lifespan manager"""
     # Startup
-    print("🚀 Starting clipizi API (Vercel optimized)...")
+    print("🚀 Starting clipizy API (Vercel optimized)...")
     
     # Check ML availability
     ml_status = check_ml_availability()
@@ -84,21 +82,15 @@ async def lifespan(app: FastAPI):
         print("✅ Database tables created/verified")
     except Exception as e:
         print(f"⚠️ Database table creation failed: {e}")
-        # Try fallback database if main database fails
-        try:
-            setup_fallback_database()
-            print("✅ Fallback database setup successful")
-        except Exception as fallback_error:
-            print(f"⚠️ Fallback database setup failed: {fallback_error}")
-
+        
     yield
 
     # Shutdown
-    print("🛑 Shutting down clipizi API...")
+    print("🛑 Shutting down clipizy API...")
 
 # Create FastAPI app
 app = FastAPI(
-    title="clipizi API (Vercel)",
+    title="clipizy API (Vercel)",
     description="AI-powered music video generation platform - Vercel optimized",
     version="1.0.0",
     lifespan=lifespan
@@ -124,8 +116,7 @@ app.include_router(export_router, prefix="/exports", tags=["exports"])
 app.include_router(stats_router, prefix="/stats", tags=["stats"])
 app.include_router(job_router, prefix="/jobs", tags=["jobs"])
 app.include_router(prompt_router, prefix="/prompts", tags=["prompts"])
-app.include_router(pricing_router, prefix="/pricing", tags=["pricing"])
-app.include_router(points_router, prefix="/api", tags=["points"])
+app.include_router(credits_router, prefix="/api", tags=["credits"])
 app.include_router(payment_router, prefix="/api", tags=["payments"])
 app.include_router(social_media_router, tags=["social-media"])
 app.include_router(automation_router, tags=["automation"])
@@ -136,7 +127,7 @@ async def root():
     """Root endpoint"""
     ml_status = check_ml_availability()
     return {
-        "message": "clipizi API (Vercel optimized)",
+        "message": "clipizy API (Vercel optimized)",
         "version": "1.0.0",
         "status": "running",
         "docs": "/docs",
@@ -152,7 +143,7 @@ async def health_check():
     ml_status = check_ml_availability()
     return {
         "status": "healthy",
-        "service": "clipizi API (Vercel)",
+        "service": "clipizy API (Vercel)",
         "version": "1.0.0",
         "ml_libraries": ml_status,
         "environment": "vercel"

@@ -1,36 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { ClipiziLogo } from "@/components/vibewave-logo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Home,
   Plus,
   FolderOpen,
-  BarChart3,
   Settings,
   LogOut,
   User,
   Menu,
-  X,
-  TestTube,
-  Video,
-  Coins
+  X
 } from "lucide-react";
-// import { ProtectedRoute } from "@/components/protected-route";
-// import { useAuth } from "@/contexts/auth-context";
+import { ProtectedRoute } from "@/components/layout/protected-route";
+import { useAuth } from "@/contexts/auth-context";
 
 const navigation = [
   { name: "Overview", href: "/dashboard", icon: Home },
   { name: "Projects", href: "/dashboard/projects", icon: FolderOpen },
-  { name: "Video Editor", href: "/dashboard/videomaking", icon: Video },
-  { name: "Points", href: "/dashboard/points", icon: Coins },
-  { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-  { name: "Test", href: "/dashboard/test", icon: TestTube },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
+  { name: "Profile", href: "/dashboard/profile", icon: User },
 ];
 
 export default function DashboardLayout({
@@ -40,14 +30,14 @@ export default function DashboardLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
-  // const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
 
-  // Mock user data for testing
-  const user = { id: "1", name: "Test User", email: "test@example.com" };
-  const logout = () => console.log("Logout clicked");
+  const logout = async () => {
+    await signOut();
+  };
 
   return (
-    // <ProtectedRoute>
+    <ProtectedRoute>
       <div className="min-h-screen bg-background">
         {/* MOBILE SIDEBAR OVERLAY */}
         {sidebarOpen && (
@@ -64,9 +54,6 @@ export default function DashboardLayout({
           <div className="flex flex-col h-full">
             {/* SIDEBAR HEADER */}
             <div className="flex items-center justify-center p-4">
-              <Link href="/" className="flex items-center justify-center w-8 h-8 group">
-                <ClipiziLogo className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
-              </Link>
               <Button
                 variant="ghost"
                 size="sm"
@@ -116,7 +103,7 @@ export default function DashboardLayout({
               </ul>
             </nav>
 
-            {/* USER PROFILE */}
+            {/* LOGOUT BUTTON */}
             <div className="p-2">
               <Button
                 variant="ghost"
@@ -124,7 +111,7 @@ export default function DashboardLayout({
                 onClick={logout}
                 title="Sign Out"
               >
-                <User className="w-5 h-5" />
+                <LogOut className="w-5 h-5" />
               </Button>
             </div>
           </div>
@@ -144,12 +131,13 @@ export default function DashboardLayout({
             </Button>
           </div>
 
+
           {/* PAGE CONTENT */}
           <main className="flex-1 min-h-screen bg-background">
             {children}
           </main>
         </div>
       </div>
-    // </ProtectedRoute>
+    </ProtectedRoute>
   );
 }

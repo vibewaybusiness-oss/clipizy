@@ -164,7 +164,7 @@ class ComfyUIService:
         """Comprehensive health check for ComfyUI server - only check port 8188"""
         health_status = ComfyUIHealthStatus(
             is_running=False,
-            endpoints_accessible=[],
+            endcredits_accessible=[],
             error=None,
             base_url=self.base_url,
             comfyui_version=None,
@@ -181,7 +181,7 @@ class ComfyUIService:
                     if response.status == 200:
                         data = await response.json()
                         if 'system' in data and 'comfyui_version' in data.get('system', {}):
-                            health_status.endpoints_accessible.append("/system_stats")
+                            health_status.endcredits_accessible.append("/system_stats")
                             health_status.is_running = True
                             health_status.comfyui_version = data['system'].get('comfyui_version')
                             health_status.system_info = data.get('system', {})

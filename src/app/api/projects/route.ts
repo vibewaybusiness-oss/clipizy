@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockProjects } from '@/lib/mock-data';
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://172.31.247.43:8000';
-const USE_MOCK_DATA = process.env.NODE_ENV === 'development';
 
 export async function GET(request: NextRequest) {
   try {
-    if (USE_MOCK_DATA) {
-      return NextResponse.json(mockProjects);
-    }
 
-    const response = await fetch(`${BACKEND_URL}/projects/projects`, {
+    const response = await fetch(`${BACKEND_URL}/projects`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -41,7 +36,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const response = await fetch(`${BACKEND_URL}/projects/projects`, {
+    const response = await fetch(`${BACKEND_URL}/projects`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

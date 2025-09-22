@@ -22,13 +22,13 @@ export interface PricingConfig {
       price: number;
       description: string;
     };
-    "clipizi-model": {
+    "clipizy-model": {
       price: number;
       description: string;
     };
   };
   image_generator: {
-    "clipizi-model": {
+    "clipizy-model": {
       minute_rate: number;
       unit_rate: number;
       min: number;
@@ -37,7 +37,7 @@ export interface PricingConfig {
     };
   };
   looped_animation_generator: {
-    "clipizi-model": {
+    "clipizy-model": {
       minute_rate: number;
       unit_rate: number;
       min: number;
@@ -46,7 +46,7 @@ export interface PricingConfig {
     };
   };
   video_generator: {
-    "clipizi-model": {
+    "clipizy-model": {
       "video-duration": number;
       minute_rate: number;
       min: number;
@@ -132,13 +132,13 @@ const defaultPricingConfig: PricingConfig = {
       price: 0.5,
       description: "Generate a music track based on the description."
     },
-    "clipizi-model": {
+    "clipizy-model": {
       price: 1.0,
       description: "Generate a music track based on the description."
     }
   },
   image_generator: {
-    "clipizi-model": {
+    "clipizy-model": {
       minute_rate: 0.10,
       unit_rate: 0.50,
       min: 3,
@@ -147,7 +147,7 @@ const defaultPricingConfig: PricingConfig = {
     }
   },
   looped_animation_generator: {
-    "clipizi-model": {
+    "clipizy-model": {
       minute_rate: 0.11,
       unit_rate: 1,
       min: 3,
@@ -156,7 +156,7 @@ const defaultPricingConfig: PricingConfig = {
     }
   },
   video_generator: {
-    "clipizi-model": {
+    "clipizy-model": {
       "video-duration": 5,
       minute_rate: 10,
       min: 20,

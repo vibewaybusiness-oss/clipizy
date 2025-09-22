@@ -13,12 +13,12 @@ metadata.py → Low-level extraction utils (ffmpeg, Pillow) to ensure coherence
 ___________________________________________________________________________________
 
 # Initialize storage
-storage = S3Storage(bucket="clipizi", endpoint_url="http://localhost:9000")
+storage = S3Storage(bucket="clipizy", endpoint_url="http://localhost:9000")
 
 # Upload a music file
 key = asset_path("john.doe@example.com", "music-clip", "123", "music", "track1.wav")
 with open("track1.wav", "rb") as f:
-    storage.s3.upload_fileobj(f, "clipizi", key)
+    storage.s3.upload_fileobj(f, "clipizy", key)
 
 # Save script.json
 json_store = JSONStore(storage)

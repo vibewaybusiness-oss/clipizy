@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { Sparkles, Mail, Lock, Eye, EyeOff, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
@@ -21,53 +21,77 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  
   const router = useRouter();
-  const { register, loginWithGoogle, loginWithGithub, isAuthenticated } = useAuth();
+  const { signUp, loginWithGoogle, loginWithGithub, isAuthenticated } = useAuth();
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      const redirectPath = sessionStorage.getItem("redirect_after_login") || "/dashboard/create";
-      sessionStorage.removeItem("redirect_after_login");
-      router.push(redirectPath);
+      router.push("/dashboard/create");
     }
   }, [isAuthenticated, router]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    // Basic validation
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match");
-      setIsLoading(false);
+    
+    if (!validateForm()) {
       return;
     }
 
-    const success = await register(formData.name, formData.email, formData.password);
-    if (success) {
-      const redirectPath = sessionStorage.getItem("redirect_after_login") || "/dashboard/create";
-      sessionStorage.removeItem("redirect_after_login");
-      router.push(redirectPath);
+    setIsLoading(true);
+    try {
+      await signUp(formData.email, formData.password, formData.name);
+      router.push("/dashboard/create");
+    } catch (error) {
+      console.error("Registration error:", error);
+      setErrors({ general: "Registration failed. Please try again." });
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    setIsLoading(false);
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
   };
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     const success = await loginWithGoogle();
     if (success) {
-      const redirectPath = sessionStorage.getItem("redirect_after_login") || "/dashboard/create";
-      sessionStorage.removeItem("redirect_after_login");
-      router.push(redirectPath);
+      router.push("/dashboard/create");
     }
     setIsLoading(false);
   };
@@ -76,9 +100,7 @@ export default function RegisterPage() {
     setIsLoading(true);
     const success = await loginWithGithub();
     if (success) {
-      const redirectPath = sessionStorage.getItem("redirect_after_login") || "/dashboard/create";
-      sessionStorage.removeItem("redirect_after_login");
-      router.push(redirectPath);
+      router.push("/dashboard/create");
     }
     setIsLoading(false);
   };
@@ -90,37 +112,45 @@ export default function RegisterPage() {
           <Link href="/" className="inline-block">
             <Badge className="px-6 py-3 text-lg font-bold gradient-primary text-white mb-4">
               <Sparkles className="w-6 h-6 mr-2" />
-              clipizi
+              clipizy
             </Badge>
           </Link>
-          <h1 className="text-3xl font-bold gradient-text mb-2">Join clipizi</h1>
-          <p className="text-muted-foreground">Create your account and start making amazing videos</p>
+          <h1 className="text-3xl font-bold gradient-text mb-2">Create Account</h1>
+          <p className="text-muted-foreground">Join us and start creating amazing content</p>
         </div>
 
         <Card className="card-modern">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
+            <CardTitle className="text-2xl font-bold">Sign Up</CardTitle>
             <CardDescription>
-              Get started with your free trial today
+              Create your account to get started
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {errors.general && (
+                <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                  {errors.general}
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="name"
-                    name="name"
                     type="text"
                     placeholder="Enter your full name"
                     value={formData.name}
-                    onChange={handleInputChange}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
                     className="pl-10"
                     required
                   />
                 </div>
+                {errors.name && (
+                  <p className="text-sm text-red-600">{errors.name}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -129,15 +159,17 @@ export default function RegisterPage() {
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="email"
-                    name="email"
                     type="email"
                     placeholder="Enter your email"
                     value={formData.email}
-                    onChange={handleInputChange}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
                     className="pl-10"
                     required
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-sm text-red-600">{errors.email}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -146,11 +178,10 @@ export default function RegisterPage() {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
-                    name="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Create a password"
                     value={formData.password}
-                    onChange={handleInputChange}
+                    onChange={(e) => handleInputChange("password", e.target.value)}
                     className="pl-10 pr-10"
                     required
                   />
@@ -168,6 +199,9 @@ export default function RegisterPage() {
                     )}
                   </Button>
                 </div>
+                {errors.password && (
+                  <p className="text-sm text-red-600">{errors.password}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -176,11 +210,10 @@ export default function RegisterPage() {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="confirmPassword"
-                    name="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
-                    onChange={handleInputChange}
+                    onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
                     className="pl-10 pr-10"
                     required
                   />
@@ -198,25 +231,9 @@ export default function RegisterPage() {
                     )}
                   </Button>
                 </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <input
-                  id="terms"
-                  type="checkbox"
-                  className="rounded border-border"
-                  required
-                />
-                <Label htmlFor="terms" className="text-sm">
-                  I agree to the{" "}
-                  <Link href="/terms" className="text-primary hover:underline">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link href="/privacy" className="text-primary hover:underline">
-                    Privacy Policy
-                  </Link>
-                </Label>
+                {errors.confirmPassword && (
+                  <p className="text-sm text-red-600">{errors.confirmPassword}</p>
+                )}
               </div>
 
               <Button
@@ -292,16 +309,16 @@ export default function RegisterPage() {
         </Card>
 
         <div className="mt-8 text-center">
-          <div className="flex items-center justify-center space-x-4 text-xs text-muted-foreground">
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-primary rounded-full mr-2"></div>
-              <span>14-day free trial</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-primary rounded-full mr-2"></div>
-              <span>No credit card required</span>
-            </div>
-          </div>
+          <p className="text-xs text-muted-foreground">
+            By creating an account, you agree to our{" "}
+            <Link href="/terms" className="text-primary hover:underline">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" className="text-primary hover:underline">
+              Privacy Policy
+            </Link>
+          </p>
         </div>
       </div>
     </div>

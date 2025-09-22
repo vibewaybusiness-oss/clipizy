@@ -604,9 +604,11 @@ class PodManager:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    async def wait_for_pod_ready(self, pod_id: str, max_attempts: int = 20) -> Dict[str, Any]:
-        """Wait for pod to be ready with IP and ComfyUI port 8188"""
+    async def wait_for_pod_ready(self, pod_id: str, max_attempts: int = 30) -> Dict[str, Any]:
+        """Wait for pod to be ready with IP and ComfyUI port 8188, and verify ComfyUI is actually running"""
         print(f"⏳ Waiting for pod {pod_id} to be ready with ComfyUI port 8188...")
+        
+        # First phase: Wait for pod to be running with port configured
         for attempt in range(1, max_attempts + 1):
             try:
                 pod_status = await self.get_pod_by_id(pod_id)
@@ -627,18 +629,25 @@ class PodManager:
                         # Only check for ComfyUI port 8188 - no uptime requirement
                         if has_public_ip and has_comfyui_port:
                             print(f"✅ Pod {pod_id} is ready with ComfyUI port 8188")
-
-                            return {
-                                "success": True,
-                                "finalStatus": status,
-                                "podInfo": {
-                                    "id": pod_id,
-                                    "ip": pod.public_ip or pod.ip or "",
-                                    "port": 8188,  # ComfyUI port
-                                    "status": status or "",
-                                    "ready": True
+                            
+                            # Second phase: Wait for ComfyUI to actually be running
+                            print(f"🔍 Verifying ComfyUI is actually running on pod {pod_id}...")
+                            comfyui_ready = await self._wait_for_comfyui_ready(pod_id, max_attempts=20)
+                            
+                            if comfyui_ready:
+                                return {
+                                    "success": True,
+                                    "finalStatus": status,
+                                    "podInfo": {
+                                        "id": pod_id,
+                                        "ip": pod.public_ip or pod.ip or "",
+                                        "port": 8188,  # ComfyUI port
+                                        "status": status or "",
+                                        "ready": True
+                                    }
                                 }
-                            }
+                            else:
+                                print(f"⏳ ComfyUI not ready on pod {pod_id}, continuing to wait...")
                         else:
                             reason = "Pod is running but not ready:"
                             if not has_public_ip:
@@ -660,6 +669,26 @@ class PodManager:
 
         return {"success": False, "error": f"Pod did not become ready with ComfyUI port 8188 within {max_attempts * 5} seconds", "finalStatus": "TIMEOUT"}
 
+    async def _wait_for_comfyui_ready(self, pod_id: str, max_attempts: int = 20) -> bool:
+        """Wait for ComfyUI to actually be running and responding"""
+        print(f"⏳ Waiting for ComfyUI to be ready on pod {pod_id}...")
+        
+        for attempt in range(1, max_attempts + 1):
+            try:
+                comfyui_ready = await self._check_comfyui_ready(pod_id)
+                if comfyui_ready:
+                    print(f"✅ ComfyUI is now ready on pod {pod_id}")
+                    return True
+                else:
+                    print(f"⏳ ComfyUI not ready yet (attempt {attempt}/{max_attempts})")
+                    await asyncio.sleep(10)  # Wait 10 seconds between ComfyUI checks
+            except Exception as e:
+                print(f"❌ Error checking ComfyUI readiness (attempt {attempt}): {e}")
+                await asyncio.sleep(10)
+        
+        print(f"❌ ComfyUI did not become ready on pod {pod_id} within {max_attempts * 10} seconds")
+        return False
+
     async def _check_comfyui_ready(self, pod_id: str) -> bool:
         """Check if ComfyUI is actually running on the pod"""
         try:
@@ -670,13 +699,35 @@ class PodManager:
             comfyui_url = f"https://{pod_id}-8188.proxy.runpod.net"
 
             async with aiohttp.ClientSession() as session:
-                async with session.get(f"{comfyui_url}/system_stats", timeout=aiohttp.ClientTimeout(total=5)) as response:
-                    if response.status == 200:
-                        print(f"✅ ComfyUI is running on pod {pod_id}")
-                        return True
-                    else:
-                        print(f"⏳ ComfyUI not ready on pod {pod_id} (status: {response.status})")
-                        return False
+                # Try multiple endpoints to ensure ComfyUI is fully ready
+                endpoints_to_check = [
+                    "/system_stats",
+                    "/history",
+                    "/"
+                ]
+                
+                for endpoint in endpoints_to_check:
+                    try:
+                        async with session.get(f"{comfyui_url}{endpoint}", timeout=aiohttp.ClientTimeout(total=10)) as response:
+                            if response.status == 200:
+                                if endpoint == "/system_stats":
+                                    data = await response.json()
+                                    if 'system' in data and 'comfyui_version' in data.get('system', {}):
+                                        print(f"✅ ComfyUI is running on pod {pod_id} (version: {data['system'].get('comfyui_version')})")
+                                        return True
+                                    else:
+                                        print(f"⏳ ComfyUI not ready on pod {pod_id} (invalid response format)")
+                                        return False
+                                else:
+                                    print(f"✅ ComfyUI is running on pod {pod_id} (endpoint {endpoint} responding)")
+                                    return True
+                            else:
+                                print(f"⏳ ComfyUI not ready on pod {pod_id} (endpoint {endpoint} status: {response.status})")
+                    except Exception as e:
+                        print(f"⏳ ComfyUI check failed for pod {pod_id} (endpoint {endpoint}): {e}")
+                        continue
+                
+                return False
         except Exception as e:
             print(f"⏳ ComfyUI check failed for pod {pod_id}: {e}")
             return False

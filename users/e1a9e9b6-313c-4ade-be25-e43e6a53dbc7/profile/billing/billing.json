@@ -1,0 +1,19 @@
+{
+  "user_id": "e1a9e9b6-313c-4ade-be25-e43e6a53dbc7",
+  "current_plan": "free",
+  "billing_info": {
+    "payment_methods": [],
+    "billing_address": null,
+    "tax_id": null
+  },
+  "subscription": {
+    "status": "active",
+    "next_billing_date": null,
+    "cancel_at_period_end": false
+  },
+  "usage": {
+    "projects_created": 0,
+    "storage_used_mb": 0,
+    "api_calls_made": 0
+  }
+}

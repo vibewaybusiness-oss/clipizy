@@ -21,6 +21,7 @@ export async function DELETE(
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': request.headers.get('Authorization') || '',
       },
       signal: controller.signal,
     });

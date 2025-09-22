@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { BlogPost, BlogCategory, BlogTag, BlogStats } from '@/types';
-import { BlogList } from '@/components/blog/BlogList';
-import { BlogSidebarNew } from '@/components/blog/BlogSidebarNew';
-import { BlogHero } from '@/components/blog/BlogHero';
+import { BlogList } from '@/components/features/blog/BlogList';
+import { BlogSidebarNew } from '@/components/features/blog/BlogSidebarNew';
+import { BlogHero } from '@/components/features/blog/BlogHero';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, Users, Calendar } from 'lucide-react';
 

@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': request.headers.get('Authorization') || '',
       },
       signal: controller.signal,
     });
@@ -63,6 +64,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': request.headers.get('Authorization') || '',
       },
       body: JSON.stringify(body),
       signal: controller.signal,

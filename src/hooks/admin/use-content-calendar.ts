@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { ContentCalendar, BlogPost, ContentCluster } from '@/types/calendar';
+import type { ContentCalendar, BlogPost, ContentCluster } from '@/types/domains';
 
 interface CalendarStats {
   total: number;

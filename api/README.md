@@ -1,11 +1,11 @@
-# clipizi Backend API
+# clipizy Backend API
 
 
 godaddy:
 
 Microsoft
 admin@clipizy.com
-PWD=clipiziouiOUI2007@@@
+PWD=clipizyouiOUI2007@@@
 
 
 FastAPI backend for AI-powered music video creation platform.
@@ -156,15 +156,15 @@ users/
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `DATABASE_URL` | Database connection string | `sqlite:///./clipizi.db` |
+| `DATABASE_URL` | Database connection string | `sqlite:///./clipizy.db` |
 | `S3_ENDPOINT` | S3/MinIO endpoint | `http://127.0.0.1:9000` |
 | `S3_ACCESS_KEY` | S3 access key | `admin` |
 | `S3_SECRET_KEY` | S3 secret key | `admin123` |
-| `S3_BUCKET` | S3 bucket name | `clipizi` |
+| `S3_BUCKET` | S3 bucket name | `clipizy` |
 | `RUNPOD_API_KEY` | RunPod API key | `changeme` |
 | `SECRET_KEY` | JWT secret key | `your-secret-key` |
 
-## 📚 API Endpoints
+## 📚 API Endcredits
 
 ### Authentication
 - `POST /auth/register` - Register new user

@@ -2,7 +2,7 @@
 alwaysApply: true
 ---
 
-# clipizi - AI-Powered Music Video Creation
+# clipizy - AI-Powered Music Video Creation
 ================================================
 
 Everything is already running:
@@ -46,7 +46,7 @@ NEVER USE MOCK DATA OR TEST FUNCTIONS: RUN ACTUAL TEST: USING REAL FUNCTIONS IF 
 ### 1. Clone & Setup
 ```bash
 git clone <repository-url>
-cd clipizi
+cd clipizy
 ```
 
 ### 2. Start Local Development Stack
@@ -71,7 +71,7 @@ cd clipizi
 ## 📁 Project Structure
 
 ```
-clipizi/
+clipizy/
 ├── src/                    # Next.js frontend
 │   ├── app/               # App Router pages
 │   ├── components/        # React components
@@ -191,7 +191,7 @@ Since everything talks through APIs and S3, your code doesn't change much when y
 ## 📞 Contact
 
 - **Email**: vibeway.business@gmail.com
-- **Project**: clipizi AI Music Video Creation# clipizi - AI-Powered Music Video Creation
+- **Project**: clipizy AI Music Video Creation# clipizy - AI-Powered Music Video Creation
 
 
 NEVER Start the server. Server backend + frontend + database are already up and running.
@@ -224,7 +224,7 @@ NEVER USE MOCK DATA OR TEST FUNCTIONS: RUN ACTUAL TEST: USING REAL FUNCTIONS IF 
 ### 1. Clone & Setup
 ```bash
 git clone <repository-url>
-cd clipizi
+cd clipizy
 ```
 
 ### 2. Start Local Development Stack
@@ -249,7 +249,7 @@ cd clipizi
 ## 📁 Project Structure
 
 ```
-clipizi/
+clipizy/
 ├── src/                    # Next.js frontend
 │   ├── app/               # App Router pages
 │   ├── components/        # React components
@@ -369,4 +369,4 @@ Since everything talks through APIs and S3, your code doesn't change much when y
 ## 📞 Contact
 
 - **Email**: vibeway.business@gmail.com
-- **Project**: clipizi AI Music Video Creation
+- **Project**: clipizy AI Music Video Creation

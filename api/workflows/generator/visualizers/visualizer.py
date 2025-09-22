@@ -77,7 +77,7 @@ class AudioVisualizerBase:
             top_active: Whether to draw dots in the top half (True) or not (False)
             bottom_active: Whether to draw dots in the bottom half (True) or not (False)
             fill_alpha: Alpha value for filled area under the curve (0.0-1.0)
-            border_alpha: Alpha value for the border/highest points (0.0-1.0)
+            border_alpha: Alpha value for the border/highest credits (0.0-1.0)
             smooth_arcs: Whether to use smooth curves instead of straight lines (True/False)
             enhanced_mode: Dict with enhanced waveform behavior settings
                 - active: Whether enhanced mode is enabled (True/False)
@@ -702,16 +702,16 @@ class WaveformVisualizer(AudioVisualizerBase):
     def __init__(self):
         super().__init__("Waveform")
 
-    def _create_smooth_curve(self, points, interpolation_factor=8):
+    def _create_smooth_curve(self, credits, interpolation_factor=8):
         """Create smooth curves using cubic spline interpolation with better smoothing"""
-        if len(points) < 2:
-            return points
+        if len(credits) < 2:
+            return credits
 
-        if len(points) == 2:
-            # For just 2 points, create a simple smooth interpolation
-            x1, y1 = points[0]
-            x2, y2 = points[1]
-            smooth_points = []
+        if len(credits) == 2:
+            # For just 2 credits, create a simple smooth interpolation
+            x1, y1 = credits[0]
+            x2, y2 = credits[1]
+            smooth_credits = []
 
             for i in range(interpolation_factor + 1):
                 t = i / interpolation_factor
@@ -719,30 +719,30 @@ class WaveformVisualizer(AudioVisualizerBase):
                 smooth_t = t * t * (3.0 - 2.0 * t)  # smoothstep function
                 x = int(x1 + (x2 - x1) * smooth_t)
                 y = int(y1 + (y2 - y1) * smooth_t)
-                smooth_points.append((x, y))
+                smooth_credits.append((x, y))
 
-            return smooth_points
+            return smooth_credits
 
-        # For 3+ points, use cubic spline interpolation
-        x_coords = [p[0] for p in points]
-        y_coords = [p[1] for p in points]
+        # For 3+ credits, use cubic spline interpolation
+        x_coords = [p[0] for p in credits]
+        y_coords = [p[1] for p in credits]
 
-        # Create much more interpolated points for ultra-smooth curves
+        # Create much more interpolated credits for ultra-smooth curves
         x_smooth = []
         y_smooth = []
 
         # Add first point
-        x_smooth.append(points[0][0])
-        y_smooth.append(points[0][1])
+        x_smooth.append(credits[0][0])
+        y_smooth.append(credits[0][1])
 
-        for i in range(len(points) - 1):
-            x1, y1 = points[i]
-            x2, y2 = points[i + 1]
+        for i in range(len(credits) - 1):
+            x1, y1 = credits[i]
+            x2, y2 = credits[i + 1]
 
-            # Calculate control points for cubic bezier-like smoothing
+            # Calculate control credits for cubic bezier-like smoothing
             if i > 0:
                 # Use previous point for better continuity
-                x0, y0 = points[i - 1]
+                x0, y0 = credits[i - 1]
                 # Control point 1: influenced by previous point
                 cp1_x = x1 + (x1 - x0) * 0.2
                 cp1_y = y1 + (y1 - y0) * 0.2
@@ -750,9 +750,9 @@ class WaveformVisualizer(AudioVisualizerBase):
                 cp1_x = x1
                 cp1_y = y1
 
-            if i < len(points) - 2:
+            if i < len(credits) - 2:
                 # Use next point for better continuity
-                x3, y3 = points[i + 2]
+                x3, y3 = credits[i + 2]
                 # Control point 2: influenced by next point
                 cp2_x = x2 - (x3 - x2) * 0.2
                 cp2_y = y2 - (y3 - y2) * 0.2
@@ -825,13 +825,13 @@ class WaveformVisualizer(AudioVisualizerBase):
         min_wave_h = int(total_height * bar_height_min / 100)
         max_wave_h = int(total_height * bar_height_max / 100)
 
-        # Calculate the number of points to draw
+        # Calculate the number of credits to draw
         if mirror_right:
-            points_per_side = n_segments // 2
-            left_values = values[:points_per_side]
-            right_values = values[:points_per_side]
+            credits_per_side = n_segments // 2
+            left_values = values[:credits_per_side]
+            right_values = values[:credits_per_side]
         else:
-            points_per_side = n_segments
+            credits_per_side = n_segments
             left_values = values
             right_values = []
 
@@ -844,26 +844,26 @@ class WaveformVisualizer(AudioVisualizerBase):
             else:
                 start_x = int(total_width * x_position / 100) - left_width // 2
 
-            # Create points for the top waveform
-            top_points = []
+            # Create credits for the top waveform
+            top_credits = []
             for j in range(len(left_values)):
                 amp = left_values[j]
                 x = start_x + int((j / (len(left_values) - 1)) * left_width) if len(left_values) > 1 else start_x + left_width // 2
                 wave_h = int(min_wave_h + amp * (max_wave_h - min_wave_h))
                 y = center_y - wave_h // 2
-                top_points.append((x, y))
+                top_credits.append((x, y))
 
             # Draw filled area under the top curve
-            if len(top_points) > 1:
-                # Create polygon points for filled area
-                fill_points = top_points.copy()
-                # Add bottom points to close the area
-                fill_points.append((top_points[-1][0], center_y))
-                fill_points.append((top_points[0][0], center_y))
-                fill_points.append(top_points[0])
+            if len(top_credits) > 1:
+                # Create polygon credits for filled area
+                fill_credits = top_credits.copy()
+                # Add bottom credits to close the area
+                fill_credits.append((top_credits[-1][0], center_y))
+                fill_credits.append((top_credits[0][0], center_y))
+                fill_credits.append(top_credits[0])
 
                 # Convert to numpy array for fillPoly
-                fill_points_array = np.array(fill_points, np.int32)
+                fill_credits_array = np.array(fill_credits, np.int32)
 
                 # Calculate fill color with alpha
                 if transparency:
@@ -877,11 +877,11 @@ class WaveformVisualizer(AudioVisualizerBase):
 
                 # Create overlay for alpha blending
                 overlay = frame.copy()
-                cv2.fillPoly(overlay, [fill_points_array], fill_color)
+                cv2.fillPoly(overlay, [fill_credits_array], fill_color)
                 cv2.addWeighted(frame, 1 - fill_alpha, overlay, fill_alpha, 0, frame)
 
-            # Draw border (highest points) with full alpha
-            if smooth_arcs and len(top_points) > 2:
+            # Draw border (highest credits) with full alpha
+            if smooth_arcs and len(top_credits) > 2:
                 # Create smooth curves using interpolation
                 if transparency:
                     border_color_intensity = int(255 * np.mean(left_values))
@@ -892,16 +892,16 @@ class WaveformVisualizer(AudioVisualizerBase):
                                min(255, int(color[1] * (border_color_intensity + 50) / 255)),
                                min(255, int(color[2] * (border_color_intensity + 50) / 255)))
 
-                # Interpolate points for smooth curves
-                smooth_points = self._create_smooth_curve(top_points)
-                if len(smooth_points) > 1:
-                    for i in range(len(smooth_points) - 1):
-                        cv2.line(frame, smooth_points[i], smooth_points[i + 1], border_color, max(1, bar_thickness))
+                # Interpolate credits for smooth curves
+                smooth_credits = self._create_smooth_curve(top_credits)
+                if len(smooth_credits) > 1:
+                    for i in range(len(smooth_credits) - 1):
+                        cv2.line(frame, smooth_credits[i], smooth_credits[i + 1], border_color, max(1, bar_thickness))
             else:
                 # Draw straight lines
-                for i in range(len(top_points) - 1):
-                    x1, y1 = top_points[i]
-                    x2, y2 = top_points[i + 1]
+                for i in range(len(top_credits) - 1):
+                    x1, y1 = top_credits[i]
+                    x2, y2 = top_credits[i + 1]
 
                     # Calculate border color
                     if transparency:
@@ -925,26 +925,26 @@ class WaveformVisualizer(AudioVisualizerBase):
             else:
                 start_x = int(total_width * x_position / 100) - left_width // 2
 
-            # Create points for the bottom waveform
-            bottom_points = []
+            # Create credits for the bottom waveform
+            bottom_credits = []
             for j in range(len(left_values)):
                 amp = left_values[j]
                 x = start_x + int((j / (len(left_values) - 1)) * left_width) if len(left_values) > 1 else start_x + left_width // 2
                 wave_h = int(min_wave_h + amp * (max_wave_h - min_wave_h))
                 y = center_y + wave_h // 2
-                bottom_points.append((x, y))
+                bottom_credits.append((x, y))
 
             # Draw filled area above the bottom curve
-            if len(bottom_points) > 1:
-                # Create polygon points for filled area
-                fill_points = bottom_points.copy()
-                # Add top points to close the area
-                fill_points.append((bottom_points[-1][0], center_y))
-                fill_points.append((bottom_points[0][0], center_y))
-                fill_points.append(bottom_points[0])
+            if len(bottom_credits) > 1:
+                # Create polygon credits for filled area
+                fill_credits = bottom_credits.copy()
+                # Add top credits to close the area
+                fill_credits.append((bottom_credits[-1][0], center_y))
+                fill_credits.append((bottom_credits[0][0], center_y))
+                fill_credits.append(bottom_credits[0])
 
                 # Convert to numpy array for fillPoly
-                fill_points_array = np.array(fill_points, np.int32)
+                fill_credits_array = np.array(fill_credits, np.int32)
 
                 # Calculate fill color with alpha
                 if transparency:
@@ -958,11 +958,11 @@ class WaveformVisualizer(AudioVisualizerBase):
 
                 # Create overlay for alpha blending
                 overlay = frame.copy()
-                cv2.fillPoly(overlay, [fill_points_array], fill_color)
+                cv2.fillPoly(overlay, [fill_credits_array], fill_color)
                 cv2.addWeighted(frame, 1 - fill_alpha, overlay, fill_alpha, 0, frame)
 
-            # Draw border (highest points) with full alpha
-            if smooth_arcs and len(bottom_points) > 2:
+            # Draw border (highest credits) with full alpha
+            if smooth_arcs and len(bottom_credits) > 2:
                 # Create smooth curves using interpolation
                 if transparency:
                     border_color_intensity = int(255 * np.mean(left_values))
@@ -973,16 +973,16 @@ class WaveformVisualizer(AudioVisualizerBase):
                                min(255, int(color[1] * (border_color_intensity + 50) / 255)),
                                min(255, int(color[2] * (border_color_intensity + 50) / 255)))
 
-                # Interpolate points for smooth curves
-                smooth_points = self._create_smooth_curve(bottom_points)
-                if len(smooth_points) > 1:
-                    for i in range(len(smooth_points) - 1):
-                        cv2.line(frame, smooth_points[i], smooth_points[i + 1], border_color, max(1, bar_thickness))
+                # Interpolate credits for smooth curves
+                smooth_credits = self._create_smooth_curve(bottom_credits)
+                if len(smooth_credits) > 1:
+                    for i in range(len(smooth_credits) - 1):
+                        cv2.line(frame, smooth_credits[i], smooth_credits[i + 1], border_color, max(1, bar_thickness))
             else:
                 # Draw straight lines
-                for i in range(len(bottom_points) - 1):
-                    x1, y1 = bottom_points[i]
-                    x2, y2 = bottom_points[i + 1]
+                for i in range(len(bottom_credits) - 1):
+                    x1, y1 = bottom_credits[i]
+                    x2, y2 = bottom_credits[i + 1]
 
                     # Calculate border color
                     if transparency:
@@ -1003,27 +1003,27 @@ class WaveformVisualizer(AudioVisualizerBase):
             center_x = int(total_width * x_position / 100)
             right_start_x = center_x
 
-            # Create points for the mirrored top waveform
-            top_points = []
+            # Create credits for the mirrored top waveform
+            top_credits = []
             for j in range(len(right_values)):
                 mirror_j = len(right_values) - 1 - j
                 amp = right_values[mirror_j]
                 x = right_start_x + int((j / (len(right_values) - 1)) * right_width) if len(right_values) > 1 else right_start_x + right_width // 2
                 wave_h = int(min_wave_h + amp * (max_wave_h - min_wave_h))
                 y = center_y - wave_h // 2
-                top_points.append((x, y))
+                top_credits.append((x, y))
 
             # Draw filled area under the top curve
-            if len(top_points) > 1:
-                # Create polygon points for filled area
-                fill_points = top_points.copy()
-                # Add bottom points to close the area
-                fill_points.append((top_points[-1][0], center_y))
-                fill_points.append((top_points[0][0], center_y))
-                fill_points.append(top_points[0])
+            if len(top_credits) > 1:
+                # Create polygon credits for filled area
+                fill_credits = top_credits.copy()
+                # Add bottom credits to close the area
+                fill_credits.append((top_credits[-1][0], center_y))
+                fill_credits.append((top_credits[0][0], center_y))
+                fill_credits.append(top_credits[0])
 
                 # Convert to numpy array for fillPoly
-                fill_points_array = np.array(fill_points, np.int32)
+                fill_credits_array = np.array(fill_credits, np.int32)
 
                 # Calculate fill color with alpha
                 if transparency:
@@ -1037,11 +1037,11 @@ class WaveformVisualizer(AudioVisualizerBase):
 
                 # Create overlay for alpha blending
                 overlay = frame.copy()
-                cv2.fillPoly(overlay, [fill_points_array], fill_color)
+                cv2.fillPoly(overlay, [fill_credits_array], fill_color)
                 cv2.addWeighted(frame, 1 - fill_alpha, overlay, fill_alpha, 0, frame)
 
-            # Draw border (highest points) with full alpha
-            if smooth_arcs and len(top_points) > 2:
+            # Draw border (highest credits) with full alpha
+            if smooth_arcs and len(top_credits) > 2:
                 # Create smooth curves using interpolation
                 if transparency:
                     border_color_intensity = int(255 * np.mean(right_values))
@@ -1052,16 +1052,16 @@ class WaveformVisualizer(AudioVisualizerBase):
                                min(255, int(color[1] * (border_color_intensity + 50) / 255)),
                                min(255, int(color[2] * (border_color_intensity + 50) / 255)))
 
-                # Interpolate points for smooth curves
-                smooth_points = self._create_smooth_curve(top_points)
-                if len(smooth_points) > 1:
-                    for i in range(len(smooth_points) - 1):
-                        cv2.line(frame, smooth_points[i], smooth_points[i + 1], border_color, max(1, bar_thickness))
+                # Interpolate credits for smooth curves
+                smooth_credits = self._create_smooth_curve(top_credits)
+                if len(smooth_credits) > 1:
+                    for i in range(len(smooth_credits) - 1):
+                        cv2.line(frame, smooth_credits[i], smooth_credits[i + 1], border_color, max(1, bar_thickness))
             else:
                 # Draw straight lines
-                for i in range(len(top_points) - 1):
-                    x1, y1 = top_points[i]
-                    x2, y2 = top_points[i + 1]
+                for i in range(len(top_credits) - 1):
+                    x1, y1 = top_credits[i]
+                    x2, y2 = top_credits[i + 1]
 
                     # Calculate border color
                     if transparency:
@@ -1082,27 +1082,27 @@ class WaveformVisualizer(AudioVisualizerBase):
             center_x = int(total_width * x_position / 100)
             right_start_x = center_x
 
-            # Create points for the mirrored bottom waveform
-            bottom_points = []
+            # Create credits for the mirrored bottom waveform
+            bottom_credits = []
             for j in range(len(right_values)):
                 mirror_j = len(right_values) - 1 - j
                 amp = right_values[mirror_j]
                 x = right_start_x + int((j / (len(right_values) - 1)) * right_width) if len(right_values) > 1 else right_start_x + right_width // 2
                 wave_h = int(min_wave_h + amp * (max_wave_h - min_wave_h))
                 y = center_y + wave_h // 2
-                bottom_points.append((x, y))
+                bottom_credits.append((x, y))
 
             # Draw filled area above the bottom curve
-            if len(bottom_points) > 1:
-                # Create polygon points for filled area
-                fill_points = bottom_points.copy()
-                # Add top points to close the area
-                fill_points.append((bottom_points[-1][0], center_y))
-                fill_points.append((bottom_points[0][0], center_y))
-                fill_points.append(bottom_points[0])
+            if len(bottom_credits) > 1:
+                # Create polygon credits for filled area
+                fill_credits = bottom_credits.copy()
+                # Add top credits to close the area
+                fill_credits.append((bottom_credits[-1][0], center_y))
+                fill_credits.append((bottom_credits[0][0], center_y))
+                fill_credits.append(bottom_credits[0])
 
                 # Convert to numpy array for fillPoly
-                fill_points_array = np.array(fill_points, np.int32)
+                fill_credits_array = np.array(fill_credits, np.int32)
 
                 # Calculate fill color with alpha
                 if transparency:
@@ -1116,11 +1116,11 @@ class WaveformVisualizer(AudioVisualizerBase):
 
                 # Create overlay for alpha blending
                 overlay = frame.copy()
-                cv2.fillPoly(overlay, [fill_points_array], fill_color)
+                cv2.fillPoly(overlay, [fill_credits_array], fill_color)
                 cv2.addWeighted(frame, 1 - fill_alpha, overlay, fill_alpha, 0, frame)
 
-            # Draw border (highest points) with full alpha
-            if smooth_arcs and len(bottom_points) > 2:
+            # Draw border (highest credits) with full alpha
+            if smooth_arcs and len(bottom_credits) > 2:
                 # Create smooth curves using interpolation
                 if transparency:
                     border_color_intensity = int(255 * np.mean(right_values))
@@ -1131,16 +1131,16 @@ class WaveformVisualizer(AudioVisualizerBase):
                                min(255, int(color[1] * (border_color_intensity + 50) / 255)),
                                min(255, int(color[2] * (border_color_intensity + 50) / 255)))
 
-                # Interpolate points for smooth curves
-                smooth_points = self._create_smooth_curve(bottom_points)
-                if len(smooth_points) > 1:
-                    for i in range(len(smooth_points) - 1):
-                        cv2.line(frame, smooth_points[i], smooth_points[i + 1], border_color, max(1, bar_thickness))
+                # Interpolate credits for smooth curves
+                smooth_credits = self._create_smooth_curve(bottom_credits)
+                if len(smooth_credits) > 1:
+                    for i in range(len(smooth_credits) - 1):
+                        cv2.line(frame, smooth_credits[i], smooth_credits[i + 1], border_color, max(1, bar_thickness))
             else:
                 # Draw straight lines
-                for i in range(len(bottom_points) - 1):
-                    x1, y1 = bottom_points[i]
-                    x2, y2 = bottom_points[i + 1]
+                for i in range(len(bottom_credits) - 1):
+                    x1, y1 = bottom_credits[i]
+                    x2, y2 = bottom_credits[i + 1]
 
                     # Calculate border color
                     if transparency:

@@ -586,18 +586,35 @@ class UnifiedQueueManager:
             comfyui_url = f"https://{pod_id}-8188.proxy.runpod.net"
 
             async with aiohttp.ClientSession() as session:
-                async with session.get(f"{comfyui_url}/system_stats", timeout=aiohttp.ClientTimeout(total=5)) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        if 'system' in data and 'comfyui_version' in data.get('system', {}):
-                            print(f"✅ ComfyUI is running on pod {pod_id} (version: {data['system'].get('comfyui_version')})")
-                            return True
-                        else:
-                            print(f"⏳ ComfyUI not ready on pod {pod_id} (invalid response format)")
-                            return False
-                    else:
-                        print(f"⏳ ComfyUI not ready on pod {pod_id} (status: {response.status})")
-                        return False
+                # Try multiple endpoints to ensure ComfyUI is fully ready
+                endpoints_to_check = [
+                    "/system_stats",
+                    "/history",
+                    "/"
+                ]
+                
+                for endpoint in endpoints_to_check:
+                    try:
+                        async with session.get(f"{comfyui_url}{endpoint}", timeout=aiohttp.ClientTimeout(total=10)) as response:
+                            if response.status == 200:
+                                if endpoint == "/system_stats":
+                                    data = await response.json()
+                                    if 'system' in data and 'comfyui_version' in data.get('system', {}):
+                                        print(f"✅ ComfyUI is running on pod {pod_id} (version: {data['system'].get('comfyui_version')})")
+                                        return True
+                                    else:
+                                        print(f"⏳ ComfyUI not ready on pod {pod_id} (invalid response format)")
+                                        return False
+                                else:
+                                    print(f"✅ ComfyUI is running on pod {pod_id} (endpoint {endpoint} responding)")
+                                    return True
+                            else:
+                                print(f"⏳ ComfyUI not ready on pod {pod_id} (endpoint {endpoint} status: {response.status})")
+                    except Exception as e:
+                        print(f"⏳ ComfyUI check failed for pod {pod_id} (endpoint {endpoint}): {e}")
+                        continue
+                
+                return False
         except Exception as e:
             print(f"⏳ ComfyUI check failed for pod {pod_id}: {e}")
             return False

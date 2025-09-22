@@ -4,9 +4,9 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://127.0.0.1:8000';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('Points balance API route called');
+    console.log('Credits balance API route called');
 
-    const backendUrl = `${BACKEND_URL}/api/points/balance`;
+    const backendUrl = `${BACKEND_URL}/api/credits/balance`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Points balance API error:', error);
+    console.error('Credits balance API error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

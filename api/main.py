@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-clipizi FastAPI Main Application
+clipizy FastAPI Main Application
 """
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +9,10 @@ from starlette.middleware.base import BaseHTTPMiddleware
 import uvicorn
 import os
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 
 # Import routers
 from api.routers import (
@@ -19,7 +23,6 @@ from api.routers import (
     stats_router,
     job_router,
     prompt_router,
-    pricing_router,
     analysis_router,
     music_analysis_router,
     music_clip_router,
@@ -27,18 +30,18 @@ from api.routers import (
     visualizer_router,
     comfyui_router,
     runpod_router,
-    points_router,
+    credits_router,
     payment_router,
     social_media_router,
     automation_router
 )
+from api.routers.user_management_router import router as user_management_router
 
 # Import services for initialization
 from api.services.comfyui_service import get_comfyui_manager
 from api.services.queues_service import get_queue_manager
 from api.db import create_tables
-from api.config import settings
-from api.fallback_db import setup_fallback_database
+from api.config.settings import settings
 
 class LargeBodyMiddleware(BaseHTTPMiddleware):
     """Middleware to handle large request bodies"""
@@ -78,7 +81,7 @@ class LargeBodyMiddleware(BaseHTTPMiddleware):
 async def lifespan(app: FastAPI):
     """Application lifespan manager"""
     # Startup
-    print("🚀 Starting clipizi API...")
+    print("🚀 Starting clipizy API...")
 
     # Create database tables
     try:
@@ -87,50 +90,14 @@ async def lifespan(app: FastAPI):
         print("✅ Database tables created/verified")
     except Exception as e:
         print(f"⚠️ Database table creation failed: {e}")
-        # Try fallback database if main database fails
-        try:
-            setup_fallback_database()
-            print("✅ Fallback database setup successful")
-        except Exception as fallback_error:
-            print(f"⚠️ Fallback database setup failed: {fallback_error}")
 
-    # Initialize default user and storage
+    # Initialize storage buckets
     try:
-        from api.db import get_db
-        from api.models import User
-        from api.services.user_safety_service import user_safety_service
         from api.services.storage_service import storage_service
-        import uuid
-        
-        # Get database session
-        db = next(get_db())
-        
-        # Create default user if it doesn't exist
-        default_user_id = "00000000-0000-0000-0000-000000000001"
-        try:
-            user = user_safety_service.ensure_user_exists(db, default_user_id)
-            print(f"✅ Default user ensured: {user.email}")
-        except Exception as user_error:
-            print(f"⚠️ User creation failed: {user_error}")
-        
-        # Initialize storage buckets
-        try:
-            storage_service.ensure_bucket_exists("clipizi")
-            print("✅ Storage bucket 'clipizi' ensured")
-        except Exception as storage_error:
-            print(f"⚠️ Storage bucket creation failed: {storage_error}")
-            
-        # Ensure project folders exist for default user
-        try:
-            user_safety_service.ensure_project_folders_exist(default_user_id, "music-clip")
-            print("✅ Project folders ensured for default user")
-        except Exception as folder_error:
-            print(f"⚠️ Project folder creation failed: {folder_error}")
-            
-        db.close()
-        
-    except Exception as init_error:
-        print(f"⚠️ Database initialization failed: {init_error}")
+        storage_service.ensure_bucket_exists("clipizy")
+        print("✅ Storage bucket 'clipizy' ensured")
+    except Exception as storage_error:
+        print(f"⚠️ Storage bucket creation failed: {storage_error}")
 
     # Initialize ComfyUI manager
     try:
@@ -151,7 +118,7 @@ async def lifespan(app: FastAPI):
     yield
 
     # Shutdown
-    print("🛑 Shutting down clipizi API...")
+    print("🛑 Shutting down clipizy API...")
 
     # Cleanup ComfyUI manager
     try:
@@ -171,7 +138,7 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI app
 app = FastAPI(
-    title="clipizi API",
+    title="clipizy API",
     description="AI-powered music video generation platform",
     version="1.0.0",
     lifespan=lifespan
@@ -190,14 +157,13 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(auth_router, prefix="/auth", tags=["auth"])
+app.include_router(auth_router, tags=["auth"])
 app.include_router(project_router, prefix="/projects", tags=["projects"])
 app.include_router(track_router, prefix="/tracks", tags=["tracks"])
 app.include_router(export_router, prefix="/exports", tags=["exports"])
 app.include_router(stats_router, prefix="/stats", tags=["stats"])
 app.include_router(job_router, prefix="/jobs", tags=["jobs"])
 app.include_router(prompt_router, prefix="/prompts", tags=["prompts"])
-app.include_router(pricing_router, prefix="/pricing", tags=["pricing"])
 app.include_router(analysis_router, prefix="/analysis", tags=["analysis"])
 app.include_router(music_analysis_router)
 app.include_router(music_clip_router)
@@ -205,17 +171,18 @@ app.include_router(particle_router, prefix="/particles", tags=["particles"])
 app.include_router(visualizer_router, prefix="/visualizers", tags=["visualizers"])
 app.include_router(comfyui_router, prefix="/comfyui", tags=["comfyui"])
 app.include_router(runpod_router, prefix="/runpod", tags=["runpod"])
-app.include_router(points_router, prefix="/api", tags=["points"])
+app.include_router(credits_router, prefix="/api", tags=["credits"])
 app.include_router(payment_router, prefix="/api", tags=["payments"])
 app.include_router(social_media_router, tags=["social-media"])
 app.include_router(automation_router, tags=["automation"])
+app.include_router(user_management_router, tags=["user-management"])
 
 # Root endpoint
 @app.get("/")
 async def root():
     """Root endpoint"""
     return {
-        "message": "clipizi API",
+        "message": "clipizy API",
         "version": "1.0.0",
         "status": "running",
         "docs": "/docs",
@@ -228,7 +195,7 @@ async def health_check():
     """Health check endpoint"""
     return {
         "status": "healthy",
-        "service": "clipizi API",
+        "service": "clipizy API",
         "version": "1.0.0"
     }
 

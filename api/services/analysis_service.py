@@ -274,7 +274,7 @@ class AnalysisService:
             overall_descriptors = self.generate_music_descriptors(overall_features)
             result['music_descriptors'] = overall_descriptors
 
-            # Create actual segments from boundary points
+            # Create actual segments from boundary credits
             segments_sec = result.get('segments_sec', [])
             segments = []
             segment_analysis = []

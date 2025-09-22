@@ -350,11 +350,11 @@ class AudioVisualizerBase:
         max_wave_h = int(config.height * config.bar_height_max / 100)
 
         if config.mirror_right:
-            points_per_side = n_segments // 2
-            left_values = values[:points_per_side]
-            right_values = values[:points_per_side]
+            credits_per_side = n_segments // 2
+            left_values = values[:credits_per_side]
+            right_values = values[:credits_per_side]
         else:
-            points_per_side = n_segments
+            credits_per_side = n_segments
             left_values = values
             right_values = []
 
@@ -366,21 +366,21 @@ class AudioVisualizerBase:
             else:
                 start_x = int(config.width * config.x_position / 100) - left_width // 2
             
-            top_points = []
+            top_credits = []
             for j in range(len(left_values)):
                 amp = left_values[j]
                 x = start_x + int((j / (len(left_values) - 1)) * left_width) if len(left_values) > 1 else start_x + left_width // 2
                 wave_h = int(min_wave_h + amp * (max_wave_h - min_wave_h))
                 y = center_y - wave_h // 2
-                top_points.append((x, y))
+                top_credits.append((x, y))
             
-            if len(top_points) > 1:
-                fill_points = top_points.copy()
-                fill_points.append((top_points[-1][0], center_y))
-                fill_points.append((top_points[0][0], center_y))
-                fill_points.append(top_points[0])
+            if len(top_credits) > 1:
+                fill_credits = top_credits.copy()
+                fill_credits.append((top_credits[-1][0], center_y))
+                fill_credits.append((top_credits[0][0], center_y))
+                fill_credits.append(top_credits[0])
                 
-                fill_points_array = np.array(fill_points, np.int32)
+                fill_credits_array = np.array(fill_credits, np.int32)
                 
                 if config.transparency:
                     fill_color_intensity = int(255 * np.mean(left_values))
@@ -392,10 +392,10 @@ class AudioVisualizerBase:
                              min(255, int(config.color[2] * (fill_color_intensity + 50) / 255)))
                 
                 overlay = frame.copy()
-                cv2.fillPoly(overlay, [fill_points_array], fill_color)
+                cv2.fillPoly(overlay, [fill_credits_array], fill_color)
                 cv2.addWeighted(frame, 1 - config.fill_alpha, overlay, config.fill_alpha, 0, frame)
             
-            if config.smooth_arcs and len(top_points) > 2:
+            if config.smooth_arcs and len(top_credits) > 2:
                 if config.transparency:
                     border_color_intensity = int(255 * np.mean(left_values))
                 else:
@@ -405,14 +405,14 @@ class AudioVisualizerBase:
                                min(255, int(config.color[1] * (border_color_intensity + 50) / 255)), 
                                min(255, int(config.color[2] * (border_color_intensity + 50) / 255)))
                 
-                smooth_points = self._create_smooth_curve(top_points)
-                if len(smooth_points) > 1:
-                    for i in range(len(smooth_points) - 1):
-                        cv2.line(frame, smooth_points[i], smooth_points[i + 1], border_color, max(1, config.bar_thickness))
+                smooth_credits = self._create_smooth_curve(top_credits)
+                if len(smooth_credits) > 1:
+                    for i in range(len(smooth_credits) - 1):
+                        cv2.line(frame, smooth_credits[i], smooth_credits[i + 1], border_color, max(1, config.bar_thickness))
             else:
-                for i in range(len(top_points) - 1):
-                    x1, y1 = top_points[i]
-                    x2, y2 = top_points[i + 1]
+                for i in range(len(top_credits) - 1):
+                    x1, y1 = top_credits[i]
+                    x2, y2 = top_credits[i + 1]
                     
                     if config.transparency:
                         border_color_intensity = int(255 * max(left_values[i], left_values[i + 1]))
@@ -493,47 +493,47 @@ class AudioVisualizerBase:
                 blended_color = tuple(int(c * alpha) for c in color)
                 cv2.circle(frame, (x, y), radius - i, blended_color, 1)
 
-    def _create_smooth_curve(self, points: List[Tuple[int, int]], interpolation_factor: int = 8) -> List[Tuple[int, int]]:
-        if len(points) < 2:
-            return points
+    def _create_smooth_curve(self, credits: List[Tuple[int, int]], interpolation_factor: int = 8) -> List[Tuple[int, int]]:
+        if len(credits) < 2:
+            return credits
         
-        if len(points) == 2:
-            x1, y1 = points[0]
-            x2, y2 = points[1]
-            smooth_points = []
+        if len(credits) == 2:
+            x1, y1 = credits[0]
+            x2, y2 = credits[1]
+            smooth_credits = []
             
             for i in range(interpolation_factor + 1):
                 t = i / interpolation_factor
                 smooth_t = t * t * (3.0 - 2.0 * t)
                 x = int(x1 + (x2 - x1) * smooth_t)
                 y = int(y1 + (y2 - y1) * smooth_t)
-                smooth_points.append((x, y))
+                smooth_credits.append((x, y))
             
-            return smooth_points
+            return smooth_credits
         
-        x_coords = [p[0] for p in points]
-        y_coords = [p[1] for p in points]
+        x_coords = [p[0] for p in credits]
+        y_coords = [p[1] for p in credits]
         
         x_smooth = []
         y_smooth = []
         
-        x_smooth.append(points[0][0])
-        y_smooth.append(points[0][1])
+        x_smooth.append(credits[0][0])
+        y_smooth.append(credits[0][1])
         
-        for i in range(len(points) - 1):
-            x1, y1 = points[i]
-            x2, y2 = points[i + 1]
+        for i in range(len(credits) - 1):
+            x1, y1 = credits[i]
+            x2, y2 = credits[i + 1]
             
             if i > 0:
-                x0, y0 = points[i - 1]
+                x0, y0 = credits[i - 1]
                 cp1_x = x1 + (x1 - x0) * 0.2
                 cp1_y = y1 + (y1 - y0) * 0.2
             else:
                 cp1_x = x1
                 cp1_y = y1
             
-            if i < len(points) - 2:
-                x3, y3 = points[i + 2]
+            if i < len(credits) - 2:
+                x3, y3 = credits[i + 2]
                 cp2_x = x2 - (x3 - x2) * 0.2
                 cp2_y = y2 - (y3 - y2) * 0.2
             else:

@@ -30,7 +30,7 @@ const mockUsers: User[] = [
   {
     id: '1',
     name: 'Admin User',
-    email: 'admin@clipizi.com',
+    email: 'admin@clipizy.com',
     role: 'admin',
     createdAt: '2024-01-01T00:00:00Z',
     lastActive: '2024-01-20T10:30:00Z',
@@ -40,7 +40,7 @@ const mockUsers: User[] = [
   {
     id: '2',
     name: 'Sarah Johnson',
-    email: 'sarah@clipizi.com',
+    email: 'sarah@clipizy.com',
     role: 'user',
     createdAt: '2024-01-05T00:00:00Z',
     lastActive: '2024-01-19T15:45:00Z',
@@ -50,7 +50,7 @@ const mockUsers: User[] = [
   {
     id: '3',
     name: 'Mike Chen',
-    email: 'mike@clipizi.com',
+    email: 'mike@clipizy.com',
     role: 'user',
     createdAt: '2024-01-10T00:00:00Z',
     lastActive: '2024-01-18T09:20:00Z',
@@ -60,7 +60,7 @@ const mockUsers: User[] = [
   {
     id: '4',
     name: 'Alex Rivera',
-    email: 'alex@clipizi.com',
+    email: 'alex@clipizy.com',
     role: 'moderator',
     createdAt: '2024-01-12T00:00:00Z',
     lastActive: '2024-01-17T14:10:00Z',

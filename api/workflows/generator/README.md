@@ -1,11 +1,11 @@
 # Unified Visualizer System
 
-A comprehensive audio visualizer system for the clipizi API backend, providing multiple visualization styles for music videos.
+A comprehensive audio visualizer system for the clipizy API backend, providing multiple visualization styles for music videos.
 
 ## Features
 
 - **Multiple Visualizer Types**: Linear bars, dots, waveforms, bass circles, and trap nation styles
-- **FastAPI Integration**: RESTful API endpoints for creating visualizers
+- **FastAPI Integration**: RESTful API endcredits for creating visualizers
 - **Configurable Parameters**: Extensive customization options for all visualizer types
 - **Background Processing**: Asynchronous job processing with status tracking
 - **High Performance**: Optimized for real-time audio processing
@@ -27,7 +27,7 @@ Circular visualization with dots positioned around a center point.
 ### 5. Trap Nation (`trap_nation`)
 Radial bar visualization extending from center outward.
 
-## API Endpoints
+## API Endcredits
 
 ### Get Available Visualizers
 ```

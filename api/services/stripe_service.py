@@ -6,9 +6,9 @@ import stripe
 import os
 from sqlalchemy.orm import Session
 from api.models import User, Payment
-from api.models.payment import PaymentStatus, PaymentMethod
+from api.models.pricing import PaymentStatus, PaymentMethod
 from api.schemas import PaymentIntentCreate, PaymentIntentResponse, PaymentWebhookData
-from api.services.pricing_service import points_service
+from api.services.pricing_service import credits_service
 from api.config.logging import get_project_logger
 from typing import Optional, Dict, Any
 import json
@@ -27,14 +27,14 @@ class StripeService:
     
     def create_payment_intent(self, db: Session, user_id: str, 
                             payment_data: PaymentIntentCreate) -> PaymentIntentResponse:
-        """Create a Stripe payment intent for points purchase"""
+        """Create a Stripe payment intent for credits purchase"""
         try:
             user = db.query(User).filter(User.id == user_id).first()
             if not user:
                 raise ValueError(f"User {user_id} not found")
             
             amount_cents = int(payment_data.amount_dollars * 100)
-            points_purchased = int(payment_data.amount_dollars * payment_data.points_per_dollar)
+            credits_purchased = int(payment_data.amount_dollars * payment_data.credits_per_dollar)
             
             # Create or get Stripe customer
             stripe_customer_id = user.billing_id
@@ -55,8 +55,8 @@ class StripeService:
                 "customer": stripe_customer_id,
                 "metadata": {
                     "user_id": str(user_id),
-                    "points_purchased": str(points_purchased),
-                    "points_per_dollar": str(payment_data.points_per_dollar)
+                    "credits_purchased": str(credits_purchased),
+                    "credits_per_dollar": str(payment_data.credits_per_dollar)
                 }
             }
             
@@ -75,10 +75,10 @@ class StripeService:
                 amount_cents=amount_cents,
                 currency=payment_data.currency,
                 payment_method=PaymentMethod.STRIPE_CARD,
-                points_purchased=points_purchased,
-                points_per_dollar=payment_data.points_per_dollar,
+                credits_purchased=credits_purchased,
+                credits_per_dollar=payment_data.credits_per_dollar,
                 status=PaymentStatus.PENDING,
-                description=payment_data.description or f"Purchase of {points_purchased} points"
+                description=payment_data.description or f"Purchase of {credits_purchased} credits"
             )
             
             db.add(payment)
@@ -91,7 +91,7 @@ class StripeService:
                 client_secret=payment_intent.client_secret,
                 payment_intent_id=payment_intent.id,
                 amount_cents=amount_cents,
-                points_purchased=points_purchased,
+                credits_purchased=credits_purchased,
                 status=payment_intent.status
             )
             
@@ -118,19 +118,19 @@ class StripeService:
                 payment.stripe_charge_id = intent.latest_charge
                 payment.completed_at = intent.created
                 
-                # Add points to user's account
-                points_service.add_points(
+                # Add credits to user's account
+                credits_service.add_credits(
                     db=db,
                     user_id=str(payment.user_id),
-                    amount=payment.points_purchased,
+                    amount=payment.credits_purchased,
                     transaction_type="purchased",
-                    description=f"Points purchase - {payment.points_purchased} points",
+                    description=f"Credits purchase - {payment.credits_purchased} credits",
                     reference_id=str(payment.id),
                     reference_type="payment"
                 )
                 
                 db.commit()
-                logger.info(f"Payment {payment_intent_id} confirmed and points added")
+                logger.info(f"Payment {payment_intent_id} confirmed and credits added")
             
             elif intent.status == "requires_payment_method":
                 payment.status = PaymentStatus.FAILED
@@ -197,13 +197,13 @@ class StripeService:
             payment.stripe_charge_id = payment_intent.get('latest_charge')
             payment.completed_at = payment_intent['created']
             
-            # Add points to user's account
-            points_service.add_points(
+            # Add credits to user's account
+            credits_service.add_credits(
                 db=db,
                 user_id=str(payment.user_id),
-                amount=payment.points_purchased,
+                amount=payment.credits_purchased,
                 transaction_type="purchased",
-                description=f"Points purchase - {payment.points_purchased} points",
+                description=f"Credits purchase - {payment.credits_purchased} credits",
                 reference_id=str(payment.id),
                 reference_type="payment"
             )
@@ -286,21 +286,21 @@ class StripeService:
             # Update payment status
             payment.status = PaymentStatus.REFUNDED
             
-            # Calculate points to refund
-            refund_points = int((refund_amount / payment.amount_cents) * payment.points_purchased)
+            # Calculate credits to refund
+            refund_credits = int((refund_amount / payment.amount_cents) * payment.credits_purchased)
             
-            # Refund points to user
-            if refund_points > 0:
-                points_service.refund_points(
+            # Refund credits to user
+            if refund_credits > 0:
+                credits_service.refund_credits(
                     db=db,
                     user_id=str(payment.user_id),
-                    amount=refund_points,
+                    amount=refund_credits,
                     description=f"Refund for payment {payment_id}",
                     reference_id=payment_id
                 )
             
             db.commit()
-            logger.info(f"Refunded payment {payment_id}: {refund_amount} cents, {refund_points} points")
+            logger.info(f"Refunded payment {payment_id}: {refund_amount} cents, {refund_credits} credits")
             return True
             
         except Exception as e:

@@ -1,0 +1,20 @@
+{
+  "user_id": "76d13c35-6bf8-444d-8ced-e333b7f64e70",
+  "app_settings": {
+    "default_project_type": "music-clip",
+    "auto_save": true,
+    "export_quality": "high",
+    "watermark_enabled": false
+  },
+  "editor_settings": {
+    "theme": "dark",
+    "font_size": 14,
+    "auto_complete": true
+  },
+  "notification_settings": {
+    "project_complete": true,
+    "export_ready": true,
+    "system_updates": true,
+    "marketing": false
+  }
+}

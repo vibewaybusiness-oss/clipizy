@@ -1,5 +1,5 @@
 """
-Configuration management for clipizi Backend
+Configuration management for clipizy Backend
 """
 import os
 from typing import Optional
@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     s3_endpoint_url: str = "http://127.0.0.1:9000"  # Alias for compatibility
     s3_access_key: str = "admin"
     s3_secret_key: str = "admin123"
-    s3_bucket: str = "clipizi"
+    s3_bucket: str = "clipizy"
     s3_region: str = "us-east-1"
 
     # RunPod

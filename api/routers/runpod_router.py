@@ -1,5 +1,5 @@
 # runpod/routers.py
-# Consolidated router definitions for all RunPod endpoints
+# Consolidated router definitions for all RunPod endcredits
 
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException

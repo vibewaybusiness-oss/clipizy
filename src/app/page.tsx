@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { VideoTheater } from "@/components/video-theater";
+import { VideoTheater } from "@/components/common/video-theater";
+import { StructuredData } from "@/components/seo/structured-data";
 import {
   Sparkles,
   Zap,
@@ -31,33 +32,33 @@ import {
 const features = [
   {
     icon: Wand2,
-    title: "AI-Powered Generation",
-    description: "Advanced AI algorithms create stunning music videos from your audio in minutes, not hours."
+    title: "AI-Powered Long-Form Content Generation",
+    description: "Advanced AI algorithms create stunning music videos, social media content, and long-form media from your audio in minutes, not hours. Perfect for TikTok, Instagram, YouTube, and other platforms."
   },
   {
     icon: Palette,
-    title: "Multiple Styles",
-    description: "Choose from various visual styles including abstract, cinematic, animated, and more."
+    title: "Multiple Visual Styles & Themes",
+    description: "Choose from various visual styles including abstract, cinematic, animated, and more. Optimized for different social media platforms and content types."
   },
   {
     icon: Music,
-    title: "Audio Analysis",
-    description: "Smart audio analysis automatically syncs visuals with your music's rhythm and mood."
+    title: "Smart Audio Analysis & Sync",
+    description: "Intelligent audio analysis automatically syncs visuals with your music's rhythm, mood, and beats. Creates engaging content that resonates with your audience."
   },
   {
     icon: Video,
-    title: "High Quality Output",
-    description: "Export your videos in 4K resolution with professional-grade quality and smooth playback."
+    title: "4K High Quality Output",
+    description: "Export your videos in 4K resolution with professional-grade quality and smooth playback. Perfect for all social media platforms and professional use."
   },
   {
     icon: Clock,
-    title: "Lightning Fast",
-    description: "Generate complete music videos in under 5 minutes with our optimized AI processing."
+    title: "Lightning Fast Processing",
+    description: "Generate complete music videos and social media content in under 5 minutes with our optimized AI processing. Scale your content creation effortlessly."
   },
   {
     icon: Users,
-    title: "Easy Collaboration",
-    description: "Share projects with team members and collaborate on creative decisions in real-time."
+    title: "Team Collaboration & Automation",
+    description: "Share projects with team members, collaborate on creative decisions in real-time, and automate your social media posting schedule."
   }
 ];
 
@@ -66,13 +67,15 @@ const pricingPlans = [
     name: "Starter",
     price: "$9",
     period: "/month",
-    description: "Perfect for individual creators",
+    description: "Perfect for individual content creators and musicians",
     features: [
       "5 video generations per month",
-      "HD quality (1080p)",
-      "Basic visual styles",
+      "HD quality (1080p) output",
+      "Basic visual styles and themes",
+      "Social media automation (3 platforms)",
       "Email support",
-      "Commercial license"
+      "Commercial license included",
+      "Basic analytics dashboard"
     ],
     popular: false,
     cta: "Start Free Trial"
@@ -81,15 +84,17 @@ const pricingPlans = [
     name: "Pro",
     price: "$29",
     period: "/month",
-    description: "For professional content creators",
+    description: "For professional content creators and agencies",
     features: [
       "50 video generations per month",
       "4K quality output",
-      "All visual styles",
+      "All visual styles and themes",
+      "Full social media automation (all platforms)",
       "Priority support",
-      "Commercial license",
-      "Custom branding",
-      "API access"
+      "Commercial license included",
+      "Custom branding options",
+      "API access for integrations",
+      "Advanced analytics and insights"
     ],
     popular: true,
     cta: "Start Free Trial"
@@ -98,17 +103,19 @@ const pricingPlans = [
     name: "Team",
     price: "$99",
     period: "/month",
-    description: "For small teams and studios",
+    description: "For small teams and content studios",
     features: [
       "200 video generations per month",
       "4K quality output",
-      "All visual styles",
+      "All visual styles and themes",
+      "Complete social media automation suite",
       "Priority support",
-      "Team collaboration",
-      "Custom branding",
-      "API access",
-      "Team management",
-      "Analytics dashboard"
+      "Team collaboration tools",
+      "Custom branding and white-label options",
+      "Full API access",
+      "Team management dashboard",
+      "Advanced analytics and reporting",
+      "Content calendar management"
     ],
     popular: false,
     cta: "Start Free Trial"
@@ -117,17 +124,19 @@ const pricingPlans = [
     name: "Enterprise",
     price: "Custom",
     period: "",
-    description: "For large organizations",
+    description: "For large organizations and media companies",
     features: [
-      "Unlimited generations",
+      "Unlimited video generations",
       "4K+ quality output",
-      "All visual styles",
-      "Dedicated support",
+      "All visual styles and themes",
+      "Enterprise social media automation",
+      "Dedicated support and account manager",
       "White-label solution",
-      "Custom integrations",
+      "Custom integrations and workflows",
       "Advanced team management",
-      "Custom analytics",
-      "SLA guarantee"
+      "Custom analytics and reporting",
+      "SLA guarantee",
+      "On-premise deployment options"
     ],
     popular: false,
     cta: "Contact Sales"
@@ -137,29 +146,29 @@ const pricingPlans = [
 const testimonials = [
   {
     name: "Sarah Chen",
-    role: "Music Producer",
-    content: "clipizi has revolutionized how I create music videos. What used to take days now takes minutes!",
+    role: "Music Producer & Content Creator",
+    content: "VibeWave has revolutionized how I create music videos and social media content. What used to take days now takes minutes! The automated posting feature saves me hours every week.",
     avatar: "SC"
   },
   {
     name: "Marcus Rodriguez",
-    role: "Content Creator",
-    content: "The AI understands my music better than I do. The visual sync is absolutely perfect every time.",
+    role: "Social Media Manager",
+    content: "The AI understands my content strategy better than I do. The visual sync is absolutely perfect every time, and the social media automation has increased our engagement by 300%.",
     avatar: "MR"
   },
   {
     name: "Emily Watson",
     role: "Marketing Director",
-    content: "We've cut our video production costs by 80% while improving quality. It's a game-changer.",
+    content: "We've cut our video production costs by 80% while improving quality and scaling our content output. VibeWave's long-form content creation is a complete game-changer for our brand.",
     avatar: "EW"
   }
 ];
 
 const stats = [
-  { number: "10K+", label: "Videos Created" },
-  { number: "500+", label: "Happy Creators" },
-  { number: "99.9%", label: "Uptime" },
-  { number: "4.9/5", label: "User Rating" }
+  { number: "50K+", label: "Videos & Content Created" },
+  { number: "2K+", label: "Active Content Creators" },
+  { number: "99.9%", label: "Platform Uptime" },
+  { number: "4.9/5", label: "User Satisfaction Rating" }
 ];
 
 export default function Home() {
@@ -179,6 +188,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
+      {/* STRUCTURED DATA */}
+      <StructuredData type="website" data={{}} />
+      <StructuredData type="organization" data={{}} />
+      <StructuredData type="software" data={{}} />
+      <StructuredData type="product" data={{}} />
+      <StructuredData type="service" data={{}} />
+      
       {/* HERO SECTION */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 animated-bg"></div>
@@ -191,6 +207,10 @@ export default function Home() {
           onLoadedMetadata={(e) => {
             e.currentTarget.currentTime = 9;
           }}
+          onError={(e) => {
+            // Hide video if it fails to load
+            e.currentTarget.style.display = 'none';
+          }}
         >
           <source src="/media/hero_section.mp4" type="video/mp4" />
         </video>
@@ -199,18 +219,19 @@ export default function Home() {
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="heading-responsive font-bold mb-8 fade-in-up">
               Transform Your Audio Into
-              <span className="gradient-text-ai block">Stunning Music Videos</span>
+              <span className="gradient-text-ai block">Stunning Long-Form Media Content</span>
           </h1>
 
             <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto fade-in-up">
               Upload your audio, describe your vision, and let our advanced AI create
-              professional music videos in minutes. No editing skills required.
+              professional music videos, social media content, and automated posts in minutes. 
+              Perfect for TikTok, Instagram, YouTube, and all major platforms. No editing skills required.
             </p>
 
             <div className="mb-16 fade-in-up">
               <Badge className="px-6 py-3 text-base font-medium gradient-primary text-white">
                 <Sparkles className="w-5 h-5 mr-3" />
-                AI-Powered Content Creation
+                AI-Powered Long-Form Media & Social Media Automation
               </Badge>
             </div>
 
@@ -256,7 +277,8 @@ export default function Home() {
               See What Our AI Can <span className="gradient-text-ai">Create</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Real videos generated by our AI from user audio files
+              Real music videos and social media content generated by our AI from user audio files. 
+              Perfect for TikTok, Instagram, YouTube, and all major platforms.
             </p>
           </div>
 
@@ -284,10 +306,21 @@ export default function Home() {
                       e.currentTarget.muted = false;
                     }
                   }}
+                  onError={(e) => {
+                    console.error('Video load error:', e);
+                    // Hide video on error and show placeholder
+                    const video = e.target as HTMLVideoElement;
+                    video.style.display = 'none';
+                    const placeholder = video.nextElementSibling as HTMLElement;
+                    if (placeholder) placeholder.style.display = 'flex';
+                  }}
                 >
                   <source src="/media/thumbnail_1.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
+                <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-2xl font-bold" style={{display: 'none'}}>
+                  Demo Video
+                </div>
               </div>
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <Button
@@ -328,10 +361,21 @@ export default function Home() {
                       e.currentTarget.muted = false;
                     }
                   }}
+                  onError={(e) => {
+                    console.error('Video load error:', e);
+                    // Hide video on error and show placeholder
+                    const video = e.target as HTMLVideoElement;
+                    video.style.display = 'none';
+                    const placeholder = video.nextElementSibling as HTMLElement;
+                    if (placeholder) placeholder.style.display = 'flex';
+                  }}
                 >
                   <source src="/media/thumbnail_2.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
+                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold" style={{display: 'none'}}>
+                  Demo Video
+                </div>
               </div>
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <Button
@@ -372,10 +416,21 @@ export default function Home() {
                       e.currentTarget.muted = false;
                     }
                   }}
+                  onError={(e) => {
+                    console.error('Video load error:', e);
+                    // Hide video on error and show placeholder
+                    const video = e.target as HTMLVideoElement;
+                    video.style.display = 'none';
+                    const placeholder = video.nextElementSibling as HTMLElement;
+                    if (placeholder) placeholder.style.display = 'flex';
+                  }}
                 >
                   <source src="/media/thumbnail_3.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
+                <div className="w-full h-full bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center text-white text-2xl font-bold" style={{display: 'none'}}>
+                  Demo Video
+                </div>
               </div>
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <Button
@@ -412,10 +467,10 @@ export default function Home() {
           <div className="text-center mb-16">
             <h2 className="heading-responsive font-bold mb-4">
               Powerful Features for
-              <span className="gradient-text"> Creative Professionals</span>
+              <span className="gradient-text"> Content Creators & Social Media Professionals</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to create professional music videos with AI
+              Everything you need to create professional music videos, long-form content, and automated social media posts with AI
             </p>
           </div>
 
@@ -450,7 +505,7 @@ export default function Home() {
               How It <span className="gradient-text">Works</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Create professional music videos in three simple steps
+              Create professional music videos, social media content, and automated posts in three simple steps
             </p>
           </div>
 
@@ -459,9 +514,9 @@ export default function Home() {
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Music className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">1. Upload Audio</h3>
+              <h3 className="text-xl font-semibold mb-2">1. Upload Audio & Set Goals</h3>
               <p className="text-muted-foreground">
-                Upload your audio file or describe the music you want to create
+                Upload your audio file, describe your vision, and select target platforms (TikTok, Instagram, YouTube, etc.)
               </p>
             </div>
 
@@ -469,9 +524,9 @@ export default function Home() {
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Wand2 className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">2. Customize Style</h3>
+              <h3 className="text-xl font-semibold mb-2">2. Customize Style & Automation</h3>
               <p className="text-muted-foreground">
-                Choose your visual style, mood, and any specific requirements
+                Choose your visual style, mood, posting schedule, and automation settings for social media
               </p>
             </div>
 
@@ -479,9 +534,9 @@ export default function Home() {
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Video className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">3. Generate & Download</h3>
+              <h3 className="text-xl font-semibold mb-2">3. Generate & Automate</h3>
               <p className="text-muted-foreground">
-                AI creates your video and you can download it in high quality
+                AI creates your content and automatically posts to your social media platforms
               </p>
             </div>
           </div>
@@ -493,10 +548,10 @@ export default function Home() {
         <div className="container-custom">
           <div className="text-center mb-16">
             <h2 className="heading-responsive font-bold mb-4">
-              Loved by <span className="gradient-text">Creators Worldwide</span>
+              Loved by <span className="gradient-text">Content Creators & Social Media Professionals Worldwide</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              See what our users are saying about clipizi
+              See what our users are saying about VibeWave's AI-powered content creation platform
             </p>
           </div>
 
@@ -599,42 +654,58 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PRICING FAQ SECTION */}
+      {/* COMPREHENSIVE FAQ SECTION */}
       <section className="py-16 bg-background">
         <div className="container-custom">
           <div className="text-center mb-12">
-            <h3 className="text-2xl font-bold mb-4">Frequently Asked Questions</h3>
-            <p className="text-muted-foreground">Everything you need to know about our pricing</p>
+            <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
+            <p className="text-muted-foreground">Everything you need to know about VibeWave's AI-powered content creation platform</p>
           </div>
 
           <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div>
-                <h4 className="font-semibold mb-2">Can I change plans anytime?</h4>
-                <p className="text-sm text-muted-foreground">Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.</p>
+                <h3 className="font-semibold mb-2">What types of content can VibeWave create?</h3>
+                <p className="text-sm text-muted-foreground">VibeWave creates music videos, TikTok content, Instagram posts, YouTube videos, and other long-form media content. Our AI can generate content for all major social media platforms with platform-specific optimizations.</p>
               </div>
               <div>
-                <h4 className="font-semibold mb-2">What happens to unused generations?</h4>
-                <p className="text-sm text-muted-foreground">Unused video generations don't roll over to the next month. We recommend using them before your billing cycle renews.</p>
+                <h3 className="font-semibold mb-2">How does the social media automation work?</h3>
+                <p className="text-sm text-muted-foreground">Our platform automatically posts your generated content to your connected social media accounts according to your schedule. You can set posting times, frequency, and platform-specific content variations.</p>
               </div>
               <div>
-                <h4 className="font-semibold mb-2">Do you offer refunds?</h4>
-                <p className="text-sm text-muted-foreground">We offer a 14-day money-back guarantee for all new subscriptions. Contact support for assistance.</p>
+                <h3 className="font-semibold mb-2">Can I use the generated content commercially?</h3>
+                <p className="text-sm text-muted-foreground">Yes! All plans include commercial usage rights. You can use your generated videos and content for any commercial purpose, including marketing, advertising, and client work.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-2">What audio formats are supported?</h3>
+                <p className="text-sm text-muted-foreground">We support all major audio formats including MP3, WAV, FLAC, AAC, and M4A. Our AI analyzes the audio to create perfectly synced visual content.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-2">Is there a free trial available?</h3>
+                <p className="text-sm text-muted-foreground">Yes! All plans come with a 14-day free trial. No credit card required to start. You can create up to 3 videos during the trial period.</p>
               </div>
             </div>
 
             <div className="space-y-6">
               <div>
-                <h4 className="font-semibold mb-2">Is there a free trial?</h4>
-                <p className="text-sm text-muted-foreground">Yes! All plans come with a 14-day free trial. No credit card required to start.</p>
+                <h3 className="font-semibold mb-2">Can I change plans anytime?</h3>
+                <p className="text-sm text-muted-foreground">Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately, and you'll be charged or credited accordingly.</p>
               </div>
               <div>
-                <h4 className="font-semibold mb-2">Can I use videos commercially?</h4>
-                <p className="text-sm text-muted-foreground">All plans include commercial usage rights. You can use your generated videos for any commercial purpose.</p>
+                <h3 className="font-semibold mb-2">How long does it take to generate content?</h3>
+                <p className="text-sm text-muted-foreground">Most content is generated in under 5 minutes. Complex long-form content may take up to 15 minutes. You'll receive email notifications when your content is ready.</p>
               </div>
               <div>
-                <h4 className="font-semibold mb-2">What payment methods do you accept?</h4>
-                <p className="text-sm text-muted-foreground">We accept all major credit cards, PayPal, and bank transfers for Enterprise plans.</p>
+                <h3 className="font-semibold mb-2">What social media platforms are supported?</h3>
+                <p className="text-sm text-muted-foreground">We support TikTok, Instagram, YouTube, Facebook, Twitter, LinkedIn, and more. Each platform gets optimized content formats and aspect ratios.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-2">Do you offer team collaboration features?</h3>
+                <p className="text-sm text-muted-foreground">Yes! Team plans include collaboration tools, shared workspaces, approval workflows, and team management features for content studios and agencies.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-2">What payment methods do you accept?</h3>
+                <p className="text-sm text-muted-foreground">We accept all major credit cards, PayPal, and bank transfers for Enterprise plans. All payments are processed securely through Stripe.</p>
               </div>
             </div>
           </div>
@@ -646,10 +717,10 @@ export default function Home() {
         <div className="container-custom text-center">
           <h2 className="heading-responsive font-bold mb-4">
             Ready to Create Your First
-            <span className="block">AI Music Video?</span>
+            <span className="block">AI-Powered Long-Form Media Content?</span>
           </h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
-            Join thousands of creators who are already using clipizi to bring their music to life
+            Join thousands of content creators and social media professionals who are already using VibeWave to scale their content production and automate their social media presence
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" className="text-lg px-8 py-4" asChild>

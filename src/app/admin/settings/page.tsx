@@ -20,11 +20,11 @@ import {
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState({
-    siteName: 'clipizi',
+    siteName: 'clipizy',
     siteDescription: 'AI-Powered Music Video Creation',
-    siteUrl: 'https://clipizi.ai',
-    adminEmail: 'admin@clipizi.com',
-    supportEmail: 'support@clipizi.com',
+    siteUrl: 'https://clipizy.ai',
+    adminEmail: 'admin@clipizy.com',
+    supportEmail: 'support@clipizy.com',
     timezone: 'UTC',
     language: 'en',
     allowComments: true,

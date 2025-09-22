@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
 from sqlalchemy.types import TypeDecorator, CHAR
 import uuid
-from api.config import settings
+from api.config.settings import settings
 
 class GUID(TypeDecorator):
     """Platform-independent GUID type.
@@ -83,3 +83,10 @@ def drop_tables():
     Drop all tables in the database
     """
     Base.metadata.drop_all(bind=engine)
+
+
+def get_database_url():
+    """
+    Get the database URL from settings
+    """
+    return settings.database_url

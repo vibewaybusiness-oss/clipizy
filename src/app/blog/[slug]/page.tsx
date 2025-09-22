@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { BlogPostPageClient } from './client';
-import { blogPostMetadata } from '@/lib/blog-metadata';
+import { blogPostMetadata } from '@/components/features/blog/blog-metadata';
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   
   if (!metadata) {
     return {
-      title: 'Blog Post Not Found - clipizi',
+      title: 'Blog Post Not Found - clipizy',
       description: 'The requested blog post could not be found.',
     };
   }
@@ -37,11 +37,11 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       publishedTime: metadata.publishedAt,
       authors: [metadata.author],
       tags: metadata.tags,
-      url: `https://clipizi.ai/blog/${metadata.slug}`,
-      siteName: 'clipizi',
+      url: `https://clipizy.ai/blog/${metadata.slug}`,
+      siteName: 'clipizy',
       images: [
         {
-          url: `https://clipizi.ai/blog/${metadata.slug}.jpg`,
+          url: `https://clipizy.ai/blog/${metadata.slug}.jpg`,
           width: 1200,
           height: 630,
           alt: metadata.title,
@@ -52,10 +52,10 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       card: 'summary_large_image',
       title: metadata.title,
       description: metadata.description,
-      images: [`https://clipizi.ai/blog/${metadata.slug}.jpg`],
+      images: [`https://clipizy.ai/blog/${metadata.slug}.jpg`],
     },
     alternates: {
-      canonical: `https://clipizi.ai/blog/${metadata.slug}`,
+      canonical: `https://clipizy.ai/blog/${metadata.slug}`,
     },
   };
 }

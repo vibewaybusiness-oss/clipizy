@@ -1,58 +1,83 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
-import { ConditionalLayout } from "@/components/conditional-layout"
+import { ConditionalLayout } from "@/components/layout/conditional-layout"
 import { AuthProvider } from "@/contexts/auth-context"
 import { PricingProvider } from "@/contexts/pricing-context"
 import { ThemeProvider } from "@/contexts/ThemeContext"
-import { InfoPopup } from "@/components/info-popup"
 
 export const metadata: Metadata = {
-  title: 'clipizi - AI-Powered Music Video Creation',
-  description: 'Transform your audio into stunning music videos with the power of AI. Create professional content in minutes, not hours.',
-  keywords: 'AI, music video, content creation, video generation, artificial intelligence, creative tools',
-  authors: [{ name: 'clipizi Team' }],
-  creator: 'clipizi',
-  publisher: 'clipizi',
+  title: 'VibeWave - AI-Powered Long-Form Media Content Creation Platform',
+  description: 'Transform your audio into stunning music videos and automated social media content with advanced AI. Create professional long-form media content for social platforms in minutes. Perfect for content creators, musicians, and businesses.',
+  keywords: 'AI music video generator, automated social media content, long-form media creation, AI video generation, social media automation, content creation platform, music video maker, AI content creator, video automation, social media posts generator, TikTok video creator, Instagram content automation, YouTube video maker, AI video editor, automated content creation, social media management, content marketing automation, video production AI, music video AI, social media AI tools',
+  authors: [{ name: 'VibeWave Team' }],
+  creator: 'VibeWave',
+  publisher: 'VibeWave',
+  applicationName: 'VibeWave',
+  generator: 'Next.js',
+  referrer: 'origin-when-cross-origin',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://clipizi.ai'),
+  metadataBase: new URL('https://vibewave.ai'),
+  alternates: {
+    canonical: 'https://vibewave.ai',
+  },
   openGraph: {
-    title: 'clipizi - AI-Powered Music Video Creation',
-    description: 'Transform your audio into stunning music videos with the power of AI. Create professional content in minutes, not hours.',
-    url: 'https://clipizi.ai',
-    siteName: 'clipizi',
+    title: 'VibeWave - AI-Powered Long-Form Media Content Creation Platform',
+    description: 'Transform your audio into stunning music videos and automated social media content with advanced AI. Create professional long-form media content for social platforms in minutes.',
+    url: 'https://vibewave.ai',
+    siteName: 'VibeWave',
     images: [
       {
-        url: '/og-image.jpg',
+        url: 'https://vibewave.ai/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'clipizi - AI Music Video Creation',
+        alt: 'VibeWave - AI-Powered Long-Form Media Content Creation',
+        type: 'image/jpeg',
+      },
+      {
+        url: 'https://vibewave.ai/og-image-square.jpg',
+        width: 1200,
+        height: 1200,
+        alt: 'VibeWave - AI Content Creation Platform',
+        type: 'image/jpeg',
       },
     ],
     locale: 'en_US',
     type: 'website',
+    countryName: 'United States',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'clipizi - AI-Powered Music Video Creation',
-    description: 'Transform your audio into stunning music videos with the power of AI.',
-    images: ['/og-image.jpg'],
+    title: 'VibeWave - AI-Powered Long-Form Media Content Creation',
+    description: 'Transform your audio into stunning music videos and automated social media content with advanced AI. Create professional content in minutes.',
+    images: ['https://vibewave.ai/og-image.jpg'],
+    creator: '@vibewave',
+    site: '@vibewave',
   },
   robots: {
     index: true,
     follow: true,
+    nocache: false,
     googleBot: {
       index: true,
       follow: true,
+      noimageindex: false,
       'max-video-preview': -1,
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
   },
+  verification: {
+    google: 'your-google-verification-code',
+    yandex: 'your-yandex-verification-code',
+    yahoo: 'your-yahoo-verification-code',
+  },
+  category: 'Technology',
+  classification: 'AI Content Creation Platform',
 };
 
 export default function RootLayout({
@@ -71,6 +96,14 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="manifest" href="/site.webmanifest" />
+        <meta name="theme-color" content="#6366f1" />
+        <meta name="msapplication-TileColor" content="#6366f1" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="VibeWave" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="format-detection" content="address=no" />
+        <meta name="format-detection" content="email=no" />
       </head>
       <body className="font-sans antialiased">
         <ThemeProvider>
@@ -82,7 +115,6 @@ export default function RootLayout({
             </PricingProvider>
           </AuthProvider>
         </ThemeProvider>
-        <InfoPopup />
         <Toaster />
       </body>
     </html>

@@ -15,63 +15,29 @@ class UserSafetyService:
         logger.info("UserSafetyService initialized")
 
     def ensure_user_exists(self, db: Session, user_id: str) -> User:
-        """Ensure a user exists, create if not found"""
+        """Ensure a user exists, return None if not found (no auto-creation)"""
         try:
             # Try to find existing user
             user = db.query(User).filter(User.id == user_id).first()
 
             if user:
-                logger.debug(f"User {user_id} already exists")
+                logger.debug(f"User {user_id} found")
                 return user
 
-            # Create new user if not found
-            logger.info(f"User {user_id} not found, creating new user")
-
-            # Generate a unique email and username
-            user_uuid = str(uuid.uuid4())[:8]
-            email = f"user_{user_uuid}@clipizi.com"
-            username = f"User_{user_uuid}"
-
-            new_user = User(
-                id=uuid.UUID(user_id),
-                email=email,
-                username=username,
-                hashed_password=auth_service.get_password_hash("default123"),
-                is_active=True,
-                is_verified=True,
-                plan="free"
-            )
-
-            db.add(new_user)
-            db.commit()
-            db.refresh(new_user)
-
-            logger.info(f"Created new user: {email} (ID: {user_id})")
-            return new_user
+            # User not found - return None instead of creating
+            logger.warning(f"User {user_id} not found")
+            return None
 
         except Exception as e:
-            logger.error(f"Error ensuring user exists: {str(e)}")
-            # Always return a mock user instead of failing to prevent 500 errors
-            logger.warning("Database error occurred, returning mock user to prevent failure")
-            from datetime import datetime
-            mock_user = User()
-            mock_user.id = uuid.UUID(user_id)
-            mock_user.email = "demo@clipizi.com"
-            mock_user.username = "Demo User"
-            mock_user.is_active = True
-            mock_user.is_verified = True
-            mock_user.plan = "free"
-            mock_user.created_at = datetime.utcnow()
-            mock_user.updated_at = datetime.utcnow()
-            mock_user.points_balance = 1000
-            return mock_user
+            logger.error(f"Error finding user: {str(e)}")
+            return None
 
     def ensure_project_folders_exist(self, user_id: str, project_type: str = "music-clip"):
         """Ensure project folders exist in S3 storage"""
         try:
             # Import S3Storage here to avoid circular imports
             from api.storage.s3 import S3Storage
-            from api.config import settings
+            from api.config.settings import settings
 
             # Initialize S3 storage
             s3_storage = S3Storage(

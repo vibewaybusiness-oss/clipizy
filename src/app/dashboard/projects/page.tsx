@@ -14,9 +14,9 @@ import {
   Film,
   Search
 } from 'lucide-react';
-import { useProjects } from '@/hooks/use-projects';
+import { useProjects } from '@/hooks/projects/use-projects';
 import { Project } from '@/lib/api/projects';
-import { ProjectCard } from '@/components/projects/project-card';
+import { ProjectCard } from '@/components/features/projects/project-card';
 
 const PROJECT_TYPES = [
   { value: 'all', label: 'All Projects', icon: null },

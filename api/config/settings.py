@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     """Application settings"""
 
     # Database settings
-    database_url: str = os.getenv("DATABASE_URL", "sqlite:///C:/temp/vibewave_working.db")
+    database_url: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/clipizy")
     database_echo: bool = os.getenv("DATABASE_ECHO", "false").lower() == "true"
 
     # JWT settings
@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
     # Storage settings
-    s3_bucket: str = os.getenv("S3_BUCKET", "clipizi")
+    s3_bucket: str = os.getenv("S3_BUCKET", "clipizy")
     s3_endpoint_url: str = os.getenv("S3_ENDPOINT_URL", "http://localhost:9000")
     s3_access_key: str = os.getenv("S3_ACCESS_KEY", "admin")
     s3_secret_key: str = os.getenv("S3_SECRET_KEY", "admin123")
@@ -35,8 +35,8 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3001",
         "http://172.31.247.43:3000",
         "http://172.31.240.1:3000",
-        "https://clipizi.com",
-        "https://www.clipizi.com"
+        "https://clipizy.com",
+        "https://www.clipizy.com"
     ]
 
     # Logging settings

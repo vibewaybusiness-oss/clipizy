@@ -8,9 +8,9 @@ export async function GET(
 ) {
   try {
     const { amount } = await params;
-    console.log('Points can-afford API route called for amount:', amount);
+    console.log('Credits can-afford API route called for amount:', amount);
     
-    const backendUrl = `${BACKEND_URL}/api/points/can-afford/${amount}`;
+    const backendUrl = `${BACKEND_URL}/api/credits/can-afford/${amount}`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();
@@ -43,7 +43,7 @@ export async function GET(
     
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Points can-afford API error:', error);
+    console.error('Credits can-afford API error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -14,11 +14,11 @@ import {
   CreditCard,
   Loader2
 } from "lucide-react";
-import { usePoints } from "@/hooks/use-points";
+import { useCredits } from "@/hooks/commerce/use-credits";
 import Link from "next/link";
 
-export default function PointsPage() {
-  const { balance, transactions, loading } = usePoints();
+export default function CreditsPage() {
+  const { balance, transactions, loading } = useCredits();
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTransactions, setFilteredTransactions] = useState(transactions);
 
@@ -51,9 +51,9 @@ export default function PointsPage() {
       {/* HEADER */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Points Management</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Credits Management</h1>
           <p className="text-muted-foreground text-lg">
-            Manage your points balance and purchase more credits
+            Manage your credits balance and purchase more credits
           </p>
         </div>
         <Button asChild>
@@ -77,7 +77,7 @@ export default function PointsPage() {
                 <div className="text-4xl font-bold text-primary mt-2">
                   {balance?.current_balance?.toLocaleString() || 0}
                 </div>
-                <div className="text-muted-foreground">Points Available</div>
+                <div className="text-muted-foreground">Credits Available</div>
               </div>
             </div>
 
@@ -103,7 +103,7 @@ export default function PointsPage() {
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold">Recent Transactions</h2>
             <Button variant="outline" asChild>
-              <Link href="/dashboard/points/history">
+              <Link href="/dashboard/credits/history">
                 <History className="w-4 h-4 mr-2" />
                 View All
               </Link>
@@ -155,7 +155,7 @@ export default function PointsPage() {
                             isPositive ? 'bg-green-500' : 'bg-red-500'
                           }`} />
                           <div>
-                            <div className="font-medium text-sm">{transaction.description || "Points Transaction"}</div>
+                            <div className="font-medium text-sm">{transaction.description || "Credits Transaction"}</div>
                             <div className="text-xs text-muted-foreground">
                               {new Date(transaction.created_at).toLocaleDateString()}
                             </div>
@@ -183,7 +183,7 @@ export default function PointsPage() {
         {/* PURCHASE POINTS */}
         <div className="space-y-8">
           <div>
-            <h2 className="text-2xl font-semibold mb-6">Purchase Points</h2>
+            <h2 className="text-2xl font-semibold mb-6">Purchase Credits</h2>
 
             {/* SINGLE PURCHASE BUTTON */}
             <Card className="bg-gradient-to-r from-primary/10 to-purple-500/10 border-primary/20">
@@ -192,22 +192,22 @@ export default function PointsPage() {
                   <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Coins className="w-8 h-8 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Need More Points?</h3>
+                  <h3 className="text-xl font-semibold mb-2">Need More Credits?</h3>
                   <p className="text-muted-foreground mb-6">
                     Choose from our point packages or purchase a custom amount.
-                    All purchases include bonus points and priority processing.
+                    All purchases include bonus credits and priority processing.
                   </p>
                 </div>
 
                 <Button size="lg" className="w-full" asChild>
-                  <Link href="/dashboard/points/purchase">
+                  <Link href="/dashboard/credits/purchase">
                     <Plus className="w-5 h-5 mr-2" />
-                    Purchase Points
+                    Purchase Credits
                   </Link>
                 </Button>
 
                 <div className="mt-4 text-sm text-muted-foreground">
-                  Starting from $10 • 100 points per $1
+                  Starting from $10 • 100 credits per $1
                 </div>
               </CardContent>
             </Card>
@@ -233,7 +233,7 @@ export default function PointsPage() {
                   </Link>
                 </Button>
                 <Button variant="ghost" className="w-full justify-start" asChild>
-                  <Link href="/dashboard/points/history">
+                  <Link href="/dashboard/credits/history">
                     <History className="w-4 h-4 mr-2" />
                     Transaction History
                   </Link>

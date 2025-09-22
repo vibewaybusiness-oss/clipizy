@@ -1,5 +1,5 @@
 """
-Integrated Music Analysis Service for clipizi API
+Integrated Music Analysis Service for clipizy API
 Combines all music analysis capabilities into a single FastAPI service
 """
 

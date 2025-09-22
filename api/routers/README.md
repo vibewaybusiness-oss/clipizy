@@ -1,6 +1,6 @@
 🧩 Routers:
 
-Defines REST endpoints (/projects, /tracks, /exports, etc.).
+Defines REST endcredits (/projects, /tracks, /exports, etc.).
 
 Calls services functions.
 

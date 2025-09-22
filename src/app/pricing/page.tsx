@@ -28,9 +28,9 @@ const subscriptionPlans = [
     name: "Free",
     price: 0,
     period: "forever",
-    description: "Perfect for trying out clipizi",
+    description: "Perfect for trying out clipizy",
     features: [
-      "100 points per month",
+      "100 credits per month",
       "Basic video generation",
       "Standard quality (720p)",
       "5 minutes max video length",
@@ -54,7 +54,7 @@ const subscriptionPlans = [
     period: "month",
     description: "Perfect for content creators and influencers",
     features: [
-      "2,000 points per month",
+      "2,000 credits per month",
       "High quality generation (1080p)",
       "10 minutes max video length",
       "Priority processing",
@@ -76,7 +76,7 @@ const subscriptionPlans = [
     period: "month",
     description: "For professional creators and agencies",
     features: [
-      "6,000 points per month",
+      "6,000 credits per month",
       "Ultra high quality (4K)",
       "30 minutes max video length",
       "Highest priority processing",
@@ -101,7 +101,7 @@ const subscriptionPlans = [
     period: "month",
     description: "For large teams and organizations",
     features: [
-      "Unlimited points",
+      "Unlimited credits",
       "Ultra high quality (4K+)",
       "Unlimited video length",
       "Instant processing",
@@ -122,18 +122,18 @@ const subscriptionPlans = [
   }
 ];
 
-const pointsPackages = [
+const creditsPackages = [
   {
     name: "Starter Pack",
-    points: 1000,
+    credits: 1000,
     price: 10,
     bonus: 0,
-    description: "Perfect for trying out clipizi",
+    description: "Perfect for trying out clipizy",
     popular: false
   },
   {
     name: "Creator Pack",
-    points: 5000,
+    credits: 5000,
     price: 40,
     bonus: 1000,
     description: "Most popular choice for creators",
@@ -141,7 +141,7 @@ const pointsPackages = [
   },
   {
     name: "Pro Pack",
-    points: 15000,
+    credits: 15000,
     price: 100,
     bonus: 5000,
     description: "For professional content creators",
@@ -305,16 +305,16 @@ export default function PricingPage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">
-              Or Buy Points as You Go
+              Or Buy Credits as You Go
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Need more points? Purchase them individually without a subscription.
+              Need more credits? Purchase them individually without a subscription.
               Perfect for occasional users or when you need extra credits.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {pointsPackages.map((pkg) => (
+            {creditsPackages.map((pkg) => (
               <Card key={pkg.name} className={`${pkg.popular ? 'ring-2 ring-primary' : ''} transition-all duration-200 hover:shadow-lg`}>
                 {pkg.popular && (
                   <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
@@ -330,7 +330,7 @@ export default function PricingPage() {
                   <div className="mt-4">
                     <div className="text-3xl font-bold">${pkg.price}</div>
                     <div className="text-sm text-muted-foreground">
-                      {(pkg.points + pkg.bonus).toLocaleString()} points
+                      {(pkg.credits + pkg.bonus).toLocaleString()} credits
                       {pkg.bonus > 0 && (
                         <span className="text-green-500 ml-1">
                           (+{pkg.bonus.toLocaleString()} bonus)
@@ -342,8 +342,8 @@ export default function PricingPage() {
 
                 <CardContent>
                   <Button className="w-full" asChild>
-                    <Link href="/dashboard/points">
-                      Purchase Points
+                    <Link href="/dashboard/credits">
+                      Purchase Credits
                     </Link>
                   </Button>
                 </CardContent>
@@ -435,12 +435,12 @@ export default function PricingPage() {
           <div className="max-w-3xl mx-auto space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">What are points and how do I use them?</CardTitle>
+                <CardTitle className="text-lg">What are credits and how do I use them?</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Points are credits used to generate videos. Each video generation costs a certain number of points
-                  based on length and quality. You can earn points through subscriptions or purchase them individually.
+                  Credits are credits used to generate videos. Each video generation costs a certain number of credits
+                  based on length and quality. You can earn credits through subscriptions or purchase them individually.
                 </p>
               </CardContent>
             </Card>
@@ -459,12 +459,12 @@ export default function PricingPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">What happens to unused points?</CardTitle>
+                <CardTitle className="text-lg">What happens to unused credits?</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Points from subscriptions expire at the end of each billing period.
-                  Purchased points never expire and can be used anytime.
+                  Credits from subscriptions expire at the end of each billing period.
+                  Purchased credits never expire and can be used anytime.
                 </p>
               </CardContent>
             </Card>
@@ -491,14 +491,14 @@ export default function PricingPage() {
             Ready to Start Creating?
           </h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Join thousands of creators who are already using clipizi to create
+            Join thousands of creators who are already using clipizy to create
             amazing AI-generated music videos.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" asChild>
-              <Link href="/dashboard/settings/pricing">
+              <Link href="/pricing">
                 <Coins className="w-5 h-5 mr-2" />
-                Buy Points Now
+                Buy Credits Now
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild>

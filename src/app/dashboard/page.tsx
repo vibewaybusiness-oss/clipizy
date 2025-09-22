@@ -18,7 +18,8 @@ import {
   Coins
 } from "lucide-react";
 import Link from "next/link";
-import { usePoints } from "@/hooks/use-points";
+import { useCredits } from "@/hooks/commerce/use-credits";
+import { ProtectedRoute } from "@/components/layout/protected-route";
 
 const stats = [
   {
@@ -106,10 +107,11 @@ const quickActions = [
 ];
 
 export default function DashboardPage() {
-  const { balance, loading } = usePoints();
+  const { balance, loading } = useCredits();
 
   return (
-    <div className="p-8 space-y-8">
+    <ProtectedRoute>
+      <div className="p-8 space-y-8">
       {/* WELCOME SECTION */}
       <div className="flex items-center justify-between">
         <div>
@@ -127,13 +129,13 @@ export default function DashboardPage() {
               <div className="flex items-center space-x-2">
                 <Coins className="w-4 h-4 text-yellow-500" />
                 <div>
-                  <div className="text-sm text-muted-foreground">Points</div>
+                  <div className="text-sm text-muted-foreground">Credits</div>
                   <div className="font-semibold">
                     {loading ? "..." : balance?.current_balance?.toLocaleString() || 0}
                   </div>
                 </div>
                 <Button variant="ghost" size="sm" asChild>
-                  <Link href="/dashboard/points">
+                  <Link href="/dashboard/credits">
                     <Plus className="w-3 h-3" />
                   </Link>
                 </Button>
@@ -312,6 +314,7 @@ export default function DashboardPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </ProtectedRoute>
   );
 }
