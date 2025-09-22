@@ -7,7 +7,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy import create_engine, text
-from api.config.settings import settings
+from config.settings import settings
 
 def run_migration():
     """Run the migration to add analysis column to projects table"""

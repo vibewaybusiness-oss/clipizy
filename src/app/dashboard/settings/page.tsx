@@ -1,110 +1,109 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { 
   User, 
   Bell, 
   Share2, 
   Settings, 
-  Shield, 
   CreditCard,
-  ArrowLeft
+  Menu
 } from "lucide-react";
-import Link from "next/link";
 import ProfileNotificationsTab from "./components/ProfileNotificationsTab";
 import SocialMediaTab from "./components/SocialMediaTab";
 import SettingsTab from "./components/SettingsTab";
-import PrivacySecurityTab from "./components/PrivacySecurityTab";
-import SubscriptionPointsTab from "./components/SubscriptionPointsTab";
+import SubscriptionCreditsTab from "./components/SubscriptionCreditsTab";
+
+const settingsTabs = [
+  { id: "profile", label: "Profile & Notifications", icon: User, component: ProfileNotificationsTab },
+  { id: "social", label: "Social Media", icon: Share2, component: SocialMediaTab },
+  { id: "settings", label: "Settings", icon: Settings, component: SettingsTab },
+  { id: "subscription", label: "Subscription & Credits", icon: CreditCard, component: SubscriptionCreditsTab },
+];
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("profile");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const currentTab = settingsTabs.find(tab => tab.id === activeTab);
+  const CurrentComponent = currentTab?.component || ProfileNotificationsTab;
 
   return (
-    <div className="p-8 space-y-6">
-      {/* HEADER */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/profile">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Profile
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-            <p className="text-muted-foreground">Manage your account settings and preferences</p>
-          </div>
+    <div className="flex h-screen">
+      {/* DESKTOP SIDEBAR */}
+      <div className="hidden lg:block w-64 flex-shrink-0 border-r border-border bg-muted/20">
+        <div className="p-4 border-b border-border">
+          <h1 className="text-xl font-bold text-foreground">Settings</h1>
+          <p className="text-sm text-muted-foreground">Manage your preferences</p>
         </div>
+        <nav className="p-4 space-y-1">
+          {settingsTabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <Button
+                key={tab.id}
+                variant={activeTab === tab.id ? "default" : "ghost"}
+                className="w-full justify-start h-10"
+                onClick={() => setActiveTab(tab.id)}
+              >
+                <Icon className="w-4 h-4 mr-3" />
+                {tab.label}
+              </Button>
+            );
+          })}
+        </nav>
       </div>
 
-      {/* VERTICAL TABS LAYOUT */}
-      <div className="flex gap-6">
-        {/* LEFT SIDEBAR - TABS */}
-        <div className="w-64 flex-shrink-0">
-          <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="w-full">
-            <TabsList className="flex flex-col h-auto w-full bg-transparent p-0 space-y-2">
-              <TabsTrigger 
-                value="profile" 
-                className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                <User className="w-4 h-4 mr-3" />
-                Profile & Notifications
-              </TabsTrigger>
-              <TabsTrigger 
-                value="social" 
-                className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                <Share2 className="w-4 h-4 mr-3" />
-                Social Media
-              </TabsTrigger>
-              <TabsTrigger 
-                value="settings" 
-                className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                <Settings className="w-4 h-4 mr-3" />
-                Settings
-              </TabsTrigger>
-              <TabsTrigger 
-                value="privacy" 
-                className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                <Shield className="w-4 h-4 mr-3" />
-                Privacy & Security
-              </TabsTrigger>
-              <TabsTrigger 
-                value="subscription" 
-                className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                <CreditCard className="w-4 h-4 mr-3" />
-                Subscription & Points
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+      {/* MAIN CONTENT AREA */}
+      <div className="flex-1 flex flex-col h-full">
+        {/* MOBILE HEADER */}
+        <div className="lg:hidden p-4 border-b border-border flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold text-foreground">Settings</h1>
+              <p className="text-sm text-muted-foreground">Manage your preferences</p>
+            </div>
+            
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Menu className="w-4 h-4 mr-2" />
+                  Menu
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-80">
+                <div className="space-y-4">
+                  <h2 className="text-lg font-semibold">Settings</h2>
+                  <nav className="space-y-2">
+                    {settingsTabs.map((tab) => {
+                      const Icon = tab.icon;
+                      return (
+                        <Button
+                          key={tab.id}
+                          variant={activeTab === tab.id ? "default" : "ghost"}
+                          className="w-full justify-start"
+                          onClick={() => {
+                            setActiveTab(tab.id);
+                            setIsMobileMenuOpen(false);
+                          }}
+                        >
+                          <Icon className="w-4 h-4 mr-3" />
+                          {tab.label}
+                        </Button>
+                      );
+                    })}
+                  </nav>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
 
-        {/* RIGHT CONTENT AREA */}
-        <div className="flex-1">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsContent value="profile" className="mt-0">
-              <ProfileNotificationsTab />
-            </TabsContent>
-            <TabsContent value="social" className="mt-0">
-              <SocialMediaTab />
-            </TabsContent>
-            <TabsContent value="settings" className="mt-0">
-              <SettingsTab />
-            </TabsContent>
-            <TabsContent value="privacy" className="mt-0">
-              <PrivacySecurityTab />
-            </TabsContent>
-            <TabsContent value="subscription" className="mt-0">
-              <SubscriptionPointsTab />
-            </TabsContent>
-          </Tabs>
+        {/* CONTENT */}
+        <div className="flex-1 overflow-auto p-4 lg:p-6">
+          <CurrentComponent />
         </div>
       </div>
     </div>

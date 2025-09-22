@@ -147,6 +147,30 @@ def debug_oauth_config():
         "github_client_secret": os.getenv("GITHUB_CLIENT_SECRET", "NOT_SET")[:10] + "..."
     }
 
+@router.post("/test-callback")
+async def test_oauth_callback(request: dict, db: Session = Depends(get_db)):
+    """Test OAuth callback with detailed error information"""
+    try:
+        code = request.get("code")
+        if not code:
+            return {"error": "No code provided in request"}
+            
+        logger.info(f"Test callback received code: {code[:10]}...")
+        
+        # Test the OAuth service directly
+        oauth_user_info = await oauth_service.get_google_user_info(code)
+        logger.info(f"OAuth user info result: {oauth_user_info}")
+        
+        if not oauth_user_info:
+            return {"error": "Failed to get user info from Google", "code_received": code[:10] + "..."}
+        
+        return {"success": True, "user_info": oauth_user_info}
+        
+    except Exception as e:
+        logger.error(f"Test callback error: {str(e)}")
+        import traceback
+        return {"error": str(e), "traceback": traceback.format_exc(), "code_received": code[:10] + "..." if code else "None"}
+
 @router.post("/test")
 def test_post():
     """Test POST endpoint"""
@@ -196,7 +220,9 @@ async def google_callback(token_data: OAuthTokenRequest, db: Session = Depends(g
     except Exception as e:
         logger.error(f"Google OAuth callback error: {str(e)}")
         print(f"DEBUG: Google OAuth callback error: {str(e)}")
-        raise HTTPException(status_code=400, detail="OAuth authentication failed")
+        import traceback
+        logger.error(f"Full traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=400, detail=f"OAuth authentication failed: {str(e)}")
 
 @router.post("/github/callback", response_model=OAuthResponse)
 async def github_callback(token_data: OAuthTokenRequest, db: Session = Depends(get_db)):

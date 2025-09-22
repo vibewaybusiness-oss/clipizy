@@ -161,30 +161,42 @@ export function OverviewLayout({
   };
 
   const generateWaveformData = useCallback(() => {
-    if (!analysisData) return [];
+    if (!analysisData) return { rmsData: [], beatTimes: [], downbeatTimes: [] };
 
     const duration = analysisData.duration || 0;
     const samples = Math.floor(duration * 50); // 50 samples per second
-    const data: number[] = [];
+    const rmsData: number[] = [];
 
+    // Use real RMS energy from analysis data
+    const rmsEnergy = analysisData.features?.rms_energy || 0;
+    
+    // Generate RMS energy data similar to backend
     for (let i = 0; i < samples; i++) {
       const time = (i / samples) * duration;
-
-      // Generate simplified waveform based on RMS energy and tempo
-      const baseLevel = (analysisData.features?.rms_energy || 0) * 0.4;
-      const tempoVariation = Math.sin(time * (analysisData.features?.tempo || 120) / 60 * Math.PI * 2) * 0.3;
-      const randomVariation = Math.random() * 0.15;
-      data.push(Math.max(0, Math.min(1, baseLevel + tempoVariation + randomVariation)));
+      
+      // Convert RMS energy to dB scale like backend: 20 * log10(rms + 1e-9)
+      const baseDb = rmsEnergy > 0 ? 20 * Math.log10(rmsEnergy + 1e-9) : -60;
+      
+      // Add some variation to make it more realistic
+      const variation = Math.sin(time * 2) * 5 + Math.sin(time * 0.5) * 3;
+      const randomVariation = (Math.random() - 0.5) * 2;
+      
+      const finalDb = baseDb + variation + randomVariation;
+      rmsData.push(Math.max(-60, Math.min(-10, finalDb)));
     }
 
-    return data;
+    // Use real beat times from backend analysis
+    const beatTimes = analysisData.beat_times_sec || [];
+    const downbeatTimes = analysisData.downbeats_sec || [];
+
+    return { rmsData, beatTimes, downbeatTimes };
   }, [analysisData]);
 
   const waveformData = generateWaveformData();
 
   const drawWaveform = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !waveformData.length) return;
+    if (!canvas || !waveformData.rmsData.length) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -206,55 +218,158 @@ export function OverviewLayout({
     const startTime = zoomStart;
     const endTime = Math.min(startTime + visibleDuration, totalDuration);
 
-    const startSample = Math.floor((startTime / totalDuration) * waveformData.length);
-    const endSample = Math.floor((endTime / totalDuration) * waveformData.length);
+    const startSample = Math.floor((startTime / totalDuration) * waveformData.rmsData.length);
+    const endSample = Math.floor((endTime / totalDuration) * waveformData.rmsData.length);
     const visibleSamples = endSample - startSample;
 
     if (visibleSamples <= 0) return;
 
-    const barWidth = width / visibleSamples;
-    const centerY = height / 2;
+    // Center the visualization properly
+    const padding = { top: 30, right: 40, bottom: 60, left: 70 };
+    const plotWidth = width - padding.left - padding.right;
+    const plotHeight = height - padding.top - padding.bottom;
+    const plotX = padding.left;
+    const plotY = padding.top;
 
-    // Colors
-    const waveColor = '#3b82f6';
-    const segmentColor = '#10b981';
-    const progressColor = '#8b5cf6';
+    // White background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
 
-    // Draw waveform bars
-    for (let i = startSample; i < endSample; i++) {
-      const x = (i - startSample) * barWidth;
-      const barHeight = waveformData[i] * height * 0.8;
+    // Grid lines like backend
+    ctx.strokeStyle = '#e0e0e0';
+    ctx.lineWidth = 0.5;
 
-      ctx.fillStyle = waveColor;
-      ctx.fillRect(x, centerY - barHeight / 2, Math.max(1, barWidth - 1), barHeight);
+    // Horizontal grid lines (dB levels)
+    const dbLevels = [-10, -20, -30, -40, -50, -60];
+    dbLevels.forEach(db => {
+      const y = plotY + ((-10 - db) / 50) * plotHeight;
+      ctx.beginPath();
+      ctx.moveTo(plotX, y);
+      ctx.lineTo(plotX + plotWidth, y);
+      ctx.stroke();
+    });
+
+    // Vertical grid lines (time)
+    const timeSteps = Math.min(8, Math.floor(visibleDuration / 25));
+    for (let i = 0; i <= timeSteps; i++) {
+      const x = plotX + (i / timeSteps) * plotWidth;
+      ctx.beginPath();
+      ctx.moveTo(x, plotY);
+      ctx.lineTo(x, plotY + plotHeight);
+      ctx.stroke();
     }
 
-    // Draw segments
-    (analysisData?.segments_sec || []).forEach((segmentTime: number, index: number) => {
-      if (segmentTime >= startTime && segmentTime <= endTime) {
-        const x = ((segmentTime - startTime) / visibleDuration) * width;
-        ctx.strokeStyle = segmentColor;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
+    // Axis labels
+    ctx.fillStyle = '#333333';
+    ctx.font = '11px Arial, sans-serif';
+    ctx.textAlign = 'right';
+    dbLevels.forEach(db => {
+      const y = plotY + ((-10 - db) / 50) * plotHeight;
+      ctx.fillText(`${db}`, plotX - 10, y + 4);
+    });
 
-        // Segment label
-        ctx.fillStyle = segmentColor;
-        ctx.font = '12px sans-serif';
-        ctx.fillText(`S${index + 1}`, x + 2, 15);
+    // X-axis labels - better spacing
+    ctx.textAlign = 'center';
+    for (let i = 0; i <= timeSteps; i++) {
+      const time = startTime + (i / timeSteps) * visibleDuration;
+      const x = plotX + (i / timeSteps) * plotWidth;
+      ctx.fillText(Math.round(time).toString(), x, plotY + plotHeight + 20);
+    }
+
+    // Axis titles
+    ctx.save();
+    ctx.translate(25, plotY + plotHeight / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center';
+    ctx.font = '12px Arial, sans-serif';
+    ctx.fillStyle = '#333333';
+    ctx.fillText('Energy (dB)', 0, 0);
+    ctx.restore();
+
+    ctx.textAlign = 'center';
+    ctx.fillText('Time', plotX + plotWidth / 2, height - 15);
+
+    // Draw RMS energy line like backend (blue line, alpha=0.7)
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 1.5;
+    ctx.globalAlpha = 0.7;
+    ctx.beginPath();
+    
+    const sampleWidth = plotWidth / visibleSamples;
+    let firstPoint = true;
+
+    for (let i = startSample; i < endSample; i++) {
+      const x = plotX + (i - startSample) * sampleWidth;
+      const db = waveformData.rmsData[i];
+      const y = plotY + ((-10 - db) / 50) * plotHeight;
+
+      if (firstPoint) {
+        ctx.moveTo(x, y);
+        firstPoint = false;
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.stroke();
+
+    // Draw beats like backend (orange scatter, s=30, alpha=0.6)
+    ctx.globalAlpha = 0.6;
+    ctx.fillStyle = '#ff8c00';
+    waveformData.beatTimes.forEach(beatTime => {
+      if (beatTime >= startTime && beatTime <= endTime) {
+        const x = plotX + ((beatTime - startTime) / visibleDuration) * plotWidth;
+        const sampleIndex = Math.floor(((beatTime - startTime) / visibleDuration) * visibleSamples) + startSample;
+        if (sampleIndex >= 0 && sampleIndex < waveformData.rmsData.length) {
+          const db = waveformData.rmsData[sampleIndex];
+          const y = plotY + ((-10 - db) / 50) * plotHeight;
+          // Draw as vertical line like backend (marker='|')
+          ctx.fillRect(x - 1, y - 8, 2, 16);
+        }
       }
     });
 
+    // Draw downbeats like backend (purple scatter, s=80, alpha=0.9)
+    ctx.globalAlpha = 0.9;
+    ctx.fillStyle = '#8b5cf6';
+    waveformData.downbeatTimes.forEach(downbeatTime => {
+      if (downbeatTime >= startTime && downbeatTime <= endTime) {
+        const x = plotX + ((downbeatTime - startTime) / visibleDuration) * plotWidth;
+        const sampleIndex = Math.floor(((downbeatTime - startTime) / visibleDuration) * visibleSamples) + startSample;
+        if (sampleIndex >= 0 && sampleIndex < waveformData.rmsData.length) {
+          const db = waveformData.rmsData[sampleIndex];
+          const y = plotY + ((-10 - db) / 50) * plotHeight;
+          // Draw as circle like backend (marker='o')
+          ctx.beginPath();
+          ctx.arc(x, y, 4, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+      }
+    });
+
+    // Draw segments like backend (green dashed lines)
+    ctx.globalAlpha = 1.0;
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([5, 5]);
+    (analysisData?.segments_sec || []).forEach((segmentTime: number, index: number) => {
+      if (segmentTime >= startTime && segmentTime <= endTime) {
+        const x = plotX + ((segmentTime - startTime) / visibleDuration) * plotWidth;
+        ctx.beginPath();
+        ctx.moveTo(x, plotY);
+        ctx.lineTo(x, plotY + plotHeight);
+        ctx.stroke();
+      }
+    });
+    ctx.setLineDash([]);
+
     // Draw playhead
     if (currentTime >= startTime && currentTime <= endTime) {
-      const playheadX = ((currentTime - startTime) / visibleDuration) * width;
-      ctx.strokeStyle = progressColor;
-      ctx.lineWidth = 3;
+      const playheadX = plotX + ((currentTime - startTime) / visibleDuration) * plotWidth;
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(playheadX, 0);
-      ctx.lineTo(playheadX, height);
+      ctx.moveTo(playheadX, plotY);
+      ctx.lineTo(playheadX, plotY + plotHeight);
       ctx.stroke();
     }
 
@@ -720,7 +835,8 @@ export function OverviewLayout({
                           {/* Waveform canvas */}
                           <div
                             ref={containerRef}
-                            className="relative border border-border rounded-lg overflow-hidden bg-gradient-to-b from-muted/10 to-muted/20 shadow-inner flex-1 min-h-0"
+                            className="relative border border-border rounded-lg overflow-hidden bg-gradient-to-b from-muted/10 to-muted/20 shadow-inner"
+                            style={{ height: '300px' }}
                           >
                             <canvas
                               ref={canvasRef}
@@ -733,14 +849,18 @@ export function OverviewLayout({
                             />
 
                             {/* Legend */}
-                            <div className="absolute top-2 left-2 flex items-center space-x-4 text-xs font-medium">
-                              <div className="flex items-center space-x-1 bg-background/80 px-2 py-1 rounded">
-                                <div className="w-3 h-3 bg-blue-500 rounded"></div>
-                                <span>Waveform</span>
+                            <div className="absolute top-3 right-3 flex items-center space-x-4 text-xs font-medium bg-white/95 px-3 py-2 rounded shadow-sm border border-gray-200">
+                              <div className="flex items-center space-x-1.5">
+                                <div className="w-2 h-4 bg-orange-500"></div>
+                                <span className="text-gray-700">Beats</span>
                               </div>
-                              <div className="flex items-center space-x-1 bg-background/80 px-2 py-1 rounded">
-                                <div className="w-3 h-3 bg-green-500 rounded"></div>
-                                <span>Segments</span>
+                              <div className="flex items-center space-x-1.5">
+                                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                                <span className="text-gray-700">Downbeats</span>
+                              </div>
+                              <div className="flex items-center space-x-1.5">
+                                <div className="w-4 h-0.5 bg-blue-500"></div>
+                                <span className="text-gray-700">RMS Energy (dB)</span>
                               </div>
                             </div>
                           </div>

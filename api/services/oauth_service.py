@@ -2,6 +2,7 @@
 OAuth service for Google and GitHub authentication
 """
 import os
+import json
 import httpx
 import logging
 from typing import Optional, Dict, Any
@@ -14,19 +15,30 @@ logger = logging.getLogger(__name__)
 
 class OAuthService:
     def __init__(self):
-        self.GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-        self.google_client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-        self.OATH_GITHUB_CLIENT_ID = os.getenv("OATH_GITHUB_CLIENT_ID")
+        # Load Google OAuth credentials from JSON file
+        try:
+            with open("api/config/client_secret_google_api.json", "r") as f:
+                google_creds = json.load(f)
+                self.GOOGLE_CLIENT_ID = google_creds["web"]["client_id"]
+                self.google_client_secret = google_creds["web"]["client_secret"]
+        except (FileNotFoundError, KeyError) as e:
+            logger.error(f"Failed to load Google OAuth credentials: {e}")
+            self.GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+            self.google_client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
+        
+        # GitHub OAuth credentials from environment variables
+        self.OAUTH_GITHUB_CLIENT_ID = os.getenv("OAUTH_GITHUB_CLIENT_ID")
         self.github_client_secret = os.getenv("GITHUB_CLIENT_SECRET")
-        self.redirect_uri = os.getenv("OAUTH_REDIRECT_URI", "http://localhost:3000/auth/callback")
+        # Use centralized frontend URL from settings
+        self.redirect_uri = os.getenv("OAUTH_REDIRECT_URI", f"{settings.frontend_url}/auth/callback")
 
     async def get_google_user_info(self, code: str) -> Optional[Dict[str, Any]]:
         """Get user info from Google OAuth"""
         try:
-            # Read environment variables dynamically
-            GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-            google_client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-            redirect_uri = os.getenv("OAUTH_REDIRECT_URI", "http://localhost:3000/auth/callback")
+            # Use instance variables instead of reading environment variables dynamically
+            GOOGLE_CLIENT_ID = self.GOOGLE_CLIENT_ID
+            google_client_secret = self.google_client_secret
+            redirect_uri = self.redirect_uri
             
             logger.info(f"Google OAuth - Client ID: {GOOGLE_CLIENT_ID[:10]}...")
             logger.info(f"Google OAuth - Client Secret: {google_client_secret[:10] if google_client_secret else 'None'}...")
@@ -49,6 +61,8 @@ class OAuthService:
                 if not token_response.is_success:
                     error_text = token_response.text
                     logger.error(f"Google token exchange failed: {error_text}")
+                    logger.error(f"Request data: {token_data}")
+                    raise Exception(f"Google token exchange failed: {error_text}")
                 token_response.raise_for_status()
                 token_info = token_response.json()
 
@@ -78,14 +92,14 @@ class OAuthService:
     async def get_github_user_info(self, code: str) -> Optional[Dict[str, Any]]:
         """Get user info from GitHub OAuth"""
         try:
-            # Read environment variables dynamically
-            OATH_GITHUB_CLIENT_ID = os.getenv("OATH_GITHUB_CLIENT_ID")
-            github_client_secret = os.getenv("GITHUB_CLIENT_SECRET")
+            # Use instance variables instead of reading environment variables dynamically
+            OAUTH_GITHUB_CLIENT_ID = self.OAUTH_GITHUB_CLIENT_ID
+            github_client_secret = self.github_client_secret
             
             # Exchange code for access token
             token_url = "https://github.com/login/oauth/access_token"
             token_data = {
-                "client_id": OATH_GITHUB_CLIENT_ID,
+                "client_id": OAUTH_GITHUB_CLIENT_ID,
                 "client_secret": github_client_secret,
                 "code": code,
             }
@@ -161,6 +175,7 @@ class OAuthService:
 
             # Create new user with complete setup
             from api.schemas import UserCreate
+            # Import here to avoid circular dependency
             from api.services.user_creation_service import user_creation_service
             
             user_data = UserCreate(
@@ -195,9 +210,9 @@ class OAuthService:
 
     def get_google_auth_url(self) -> str:
         """Generate Google OAuth URL"""
-        # Read environment variables dynamically
-        GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-        redirect_uri = os.getenv("OAUTH_REDIRECT_URI", "http://localhost:3000/auth/callback")
+        # Use instance variables instead of reading environment variables dynamically
+        GOOGLE_CLIENT_ID = self.GOOGLE_CLIENT_ID
+        redirect_uri = self.redirect_uri
         
         params = {
             "client_id": GOOGLE_CLIENT_ID,
@@ -212,12 +227,12 @@ class OAuthService:
 
     def get_github_auth_url(self) -> str:
         """Generate GitHub OAuth URL"""
-        # Read environment variables dynamically
-        OATH_GITHUB_CLIENT_ID = os.getenv("OATH_GITHUB_CLIENT_ID")
-        redirect_uri = os.getenv("OAUTH_REDIRECT_URI", "http://localhost:3000/auth/callback")
+        # Use instance variables instead of reading environment variables dynamically
+        OAUTH_GITHUB_CLIENT_ID = self.OAUTH_GITHUB_CLIENT_ID
+        redirect_uri = self.redirect_uri
         
         params = {
-            "client_id": OATH_GITHUB_CLIENT_ID,
+            "client_id": OAUTH_GITHUB_CLIENT_ID,
             "redirect_uri": redirect_uri,
             "scope": "user:email",
             "response_type": "code",

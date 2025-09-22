@@ -194,9 +194,9 @@ export default function PricingPage() {
     <div className="min-h-screen bg-background">
       {/* HERO SECTION */}
       <div className="bg-gradient-to-br from-primary/10 via-background to-background">
-        <div className="container mx-auto px-4 py-16">
+        <div className="container mx-auto px-4 py-8">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
+            <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
               Choose Your
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">
                 {" "}Creative
@@ -204,13 +204,13 @@ export default function PricingPage() {
               <br />
               Journey
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
               From free exploration to professional creation, find the perfect plan
               for your video generation needs.
             </p>
 
             {/* BILLING TOGGLE */}
-            <div className="flex items-center justify-center space-x-4 mb-12">
+            <div className="flex items-center justify-center space-x-4 mb-8">
               <span className={`text-sm font-medium ${billingPeriod === "monthly" ? "text-foreground" : "text-muted-foreground"}`}>
                 Monthly
               </span>
@@ -234,7 +234,7 @@ export default function PricingPage() {
       </div>
 
       {/* SUBSCRIPTION PLANS */}
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {subscriptionPlans.map((plan) => (
             <Card
@@ -300,8 +300,8 @@ export default function PricingPage() {
         </div>
       </div>
 
-      {/* POINTS PACKAGES */}
-      <div className="bg-muted/50 py-16">
+      {/* CREDITS PACKAGES */}
+      <div className="bg-muted/50 py-8">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">
@@ -354,7 +354,7 @@ export default function PricingPage() {
       </div>
 
       {/* FEATURE COMPARISON */}
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-foreground mb-4">
             Feature Comparison
@@ -423,69 +423,9 @@ export default function PricingPage() {
         </div>
       </div>
 
-      {/* FAQ SECTION */}
-      <div className="bg-muted/50 py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">
-              Frequently Asked Questions
-            </h2>
-          </div>
-
-          <div className="max-w-3xl mx-auto space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">What are credits and how do I use them?</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Credits are credits used to generate videos. Each video generation costs a certain number of credits
-                  based on length and quality. You can earn credits through subscriptions or purchase them individually.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Can I change my plan anytime?</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately,
-                  and we'll prorate any billing differences.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">What happens to unused credits?</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Credits from subscriptions expire at the end of each billing period.
-                  Purchased credits never expire and can be used anytime.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Do you offer refunds?</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  We offer a 30-day money-back guarantee for all subscription plans.
-                  For point purchases, refunds are handled on a case-by-case basis.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
 
       {/* CTA SECTION */}
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-foreground mb-4">
             Ready to Start Creating?

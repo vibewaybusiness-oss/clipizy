@@ -12,13 +12,15 @@ from api.config.logging import get_storage_logger
 logger = get_storage_logger()
 
 class StorageService:
-    def __init__(self, bucket: str = "clipizy", endpoint_url: str = "http://localhost:9000"):
-        logger.info(f"StorageService initialized with bucket: {bucket}, endpoint: {endpoint_url}")
-        self.bucket = bucket
-        self.endpoint_url = endpoint_url
+    def __init__(self, bucket: str = None, endpoint_url: str = None):
+        # Use centralized settings if not provided
+        from api.config.settings import settings
+        self.bucket = bucket or settings.s3_bucket
+        self.endpoint_url = endpoint_url or settings.s3_endpoint_url
+        logger.info(f"StorageService initialized with bucket: {self.bucket}, endpoint: {self.endpoint_url}")
         
         # Initialize S3 storage
-        self.storage = S3Storage(bucket, endpoint_url)
+        self.storage = S3Storage(self.bucket, self.endpoint_url)
         logger.info("✅ S3 storage initialized successfully")
 
     def ensure_bucket_exists(self, bucket_name: str = None):

@@ -126,13 +126,17 @@ export function useProjectManagement() {
       toast({
         variant: "destructive",
         title: "Project Load Failed",
-        description: "Failed to load existing project. Starting with a new project.",
+        description: "Failed to load existing project. Using local data instead.",
       });
 
-      // Reset to new project state on error
-      setCurrentProjectId(null);
-      setIsProjectCreated(false);
-      throw error;
+      // Don't reset the project state on error - keep the projectId
+      // This prevents the component from redirecting when backend is unavailable
+      console.log('Keeping project ID despite backend error:', projectId);
+      
+      return {
+        script: null,
+        tracks: { tracks: [] },
+      };
     } finally {
       setIsLoadingProject(false);
     }
@@ -143,7 +147,16 @@ export function useProjectManagement() {
     settings: z.infer<typeof SettingsSchema>
   ) => {
     try {
-      await projectsAPI.updateProjectSettings(projectId, settings);
+      const result = await projectsAPI.updateProjectSettings(projectId, settings);
+      if (result.success === false) {
+        console.warn('Settings save returned error response:', result);
+        toast({
+          variant: "destructive",
+          title: "Settings Save Failed",
+          description: "Failed to save settings to project. Continuing anyway.",
+        });
+        return; // Don't throw error, just return
+      }
       console.log('Settings synced to backend successfully');
     } catch (error) {
       console.error('Failed to save settings:', error);
@@ -152,7 +165,7 @@ export function useProjectManagement() {
         title: "Settings Save Failed",
         description: "Failed to save settings to project. Continuing anyway.",
       });
-      throw error;
+      // Don't throw error to prevent component unmounting
     }
   }, [toast]);
 

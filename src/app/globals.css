@@ -206,7 +206,7 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    zoom: 90%;
+    zoom: 100%;
   }
 
   /* Global scrollbar styling for dark/light mode */

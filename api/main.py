@@ -36,12 +36,17 @@ from api.routers import (
     automation_router
 )
 from api.routers.user_management_router import router as user_management_router
+from api.tests.examples.sanitizer_integration_examples import router as sanitizer_examples_router
 
 # Import services for initialization
 from api.services.comfyui_service import get_comfyui_manager
 from api.services.queues_service import get_queue_manager
 from api.db import create_tables
 from api.config.settings import settings
+
+# Import sanitizer middleware
+from api.middleware.sanitizer_middleware import SanitizerMiddleware
+from api.services.sanitizer_service import SanitizerConfig
 
 class LargeBodyMiddleware(BaseHTTPMiddleware):
     """Middleware to handle large request bodies"""
@@ -156,6 +161,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Sanitizer middleware
+sanitizer_config = SanitizerConfig(
+    max_length=10000,
+    allow_html=False,
+    allow_scripts=False,
+    allow_sql_keywords=False,
+    strip_whitespace=True,
+    normalize_unicode=True,
+    remove_control_chars=True,
+    allowed_tags=[],
+    allowed_attributes=[],
+    custom_patterns=[]
+)
+
+# Create and add sanitizer middleware
+app.add_middleware(
+    SanitizerMiddleware,
+    config=sanitizer_config,
+    skip_paths=['/health', '/docs', '/openapi.json', '/redoc', '/auth', '/auth/google', '/auth/github', '/auth/google/callback', '/auth/github/callback', '/auth/debug'],
+    skip_methods=['GET', 'HEAD', 'OPTIONS'],
+    log_violations=True
+)
+
 # Include routers
 app.include_router(auth_router, tags=["auth"])
 app.include_router(project_router, prefix="/projects", tags=["projects"])
@@ -176,6 +204,7 @@ app.include_router(payment_router, prefix="/api", tags=["payments"])
 app.include_router(social_media_router, tags=["social-media"])
 app.include_router(automation_router, tags=["automation"])
 app.include_router(user_management_router, tags=["user-management"])
+app.include_router(sanitizer_examples_router, tags=["sanitizer-examples"])
 
 # Root endpoint
 @app.get("/")

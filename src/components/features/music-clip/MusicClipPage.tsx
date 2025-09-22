@@ -20,6 +20,7 @@ import {
   useMusicAnalysis 
 } from "@/hooks";
 import { projectsAPI } from "@/lib/api/projects";
+import { musicClipAPI } from "@/lib/api/music-clip";
 import { musicService } from "@/lib/api/music";
 import { autoSaveService } from "@/lib/auto-save-service";
 import { formatDuration, getTotalDuration, fileToDataUri, isValidUUID } from "@/utils/music-clip-utils";
@@ -51,6 +52,112 @@ function MusicClipPage() {
   // If it's a new project, don't use persisted projectId
   const projectId = urlProjectId || (isNewProject ? null : projectManagement.state.currentProjectId);
 
+  // Debug logging for project ID handling
+  console.log('MusicClipPage render:', { 
+    urlProjectId, 
+    isNewProject, 
+    currentProjectId: projectManagement.state.currentProjectId, 
+    finalProjectId: projectId,
+    currentPath: typeof window !== 'undefined' ? window.location.pathname : 'SSR'
+  });
+
+  // Track URL changes to detect redirects and prevent them
+  useEffect(() => {
+    const handleUrlChange = () => {
+      const currentPath = window.location.pathname;
+      console.log('URL changed to:', currentPath);
+      if (!currentPath.includes('/music-clip') && currentPath.includes('/create')) {
+        console.error('REDIRECT DETECTED: Music clip page redirected to create page');
+        console.trace('Redirect stack trace');
+        
+        // Prevent the redirect by restoring the music-clip URL
+        if (urlProjectId) {
+          console.log('Preventing redirect - restoring music-clip URL with projectId:', urlProjectId);
+          const correctUrl = `/dashboard/create/music-clip?projectId=${urlProjectId}`;
+          window.history.replaceState({}, '', correctUrl);
+        }
+      }
+    };
+
+    // Listen for URL changes
+    window.addEventListener('popstate', handleUrlChange);
+    
+    // Also check periodically for URL changes and prevent redirects
+    const interval = setInterval(() => {
+      const currentPath = window.location.pathname;
+      if (!currentPath.includes('/music-clip') && currentPath.includes('/create')) {
+        console.error('REDIRECT DETECTED: Music clip page redirected to create page');
+        console.trace('Redirect stack trace');
+        
+        // Prevent the redirect by restoring the music-clip URL
+        if (urlProjectId) {
+          console.log('Preventing redirect - restoring music-clip URL with projectId:', urlProjectId);
+          const correctUrl = `/dashboard/create/music-clip?projectId=${urlProjectId}`;
+          window.history.replaceState({}, '', correctUrl);
+        }
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener('popstate', handleUrlChange);
+      clearInterval(interval);
+    };
+  }, [urlProjectId]);
+
+  // Ensure URL is preserved on page reload and prevent redirects
+  useEffect(() => {
+    if (typeof window !== 'undefined' && urlProjectId) {
+      const currentUrl = new URL(window.location.href);
+      const currentProjectId = currentUrl.searchParams.get('projectId');
+      
+      // If we have a projectId in the URL but it's not in the current URL, restore it
+      if (urlProjectId && currentProjectId !== urlProjectId) {
+        console.log('Restoring projectId in URL:', urlProjectId);
+        currentUrl.searchParams.set('projectId', urlProjectId);
+        window.history.replaceState({}, '', currentUrl.toString());
+      }
+      
+      // Prevent navigation away from music-clip page when we have a projectId
+      const currentPath = window.location.pathname;
+      if (!currentPath.includes('/music-clip') && currentPath.includes('/create')) {
+        console.log('Preventing navigation away from music-clip page');
+        const correctUrl = `/dashboard/create/music-clip?projectId=${urlProjectId}`;
+        window.history.replaceState({}, '', correctUrl);
+      }
+    }
+  }, [urlProjectId]);
+
+  // Additional safeguard: prevent any router navigation away from music-clip page
+  useEffect(() => {
+    if (urlProjectId) {
+      const originalPush = router.push;
+      const originalReplace = router.replace;
+      
+      // Override router methods to prevent navigation away from music-clip page
+      router.push = (href: string) => {
+        if (href === '/dashboard/create' || href === '/dashboard/create/') {
+          console.log('Preventing router.push to /dashboard/create, redirecting to music-clip page');
+          return originalPush(`/dashboard/create/music-clip?projectId=${urlProjectId}`);
+        }
+        return originalPush(href);
+      };
+      
+      router.replace = (href: string) => {
+        if (href === '/dashboard/create' || href === '/dashboard/create/') {
+          console.log('Preventing router.replace to /dashboard/create, redirecting to music-clip page');
+          return originalReplace(`/dashboard/create/music-clip?projectId=${urlProjectId}`);
+        }
+        return originalReplace(href);
+      };
+      
+      // Cleanup: restore original methods
+      return () => {
+        router.push = originalPush;
+        router.replace = originalReplace;
+      };
+    }
+  }, [urlProjectId, router]);
+
   const audioPlayback = useAudioPlayback();
   const musicTracks = useMusicTracks(projectId);
   const promptGeneration = usePromptGeneration();
@@ -71,6 +178,9 @@ function MusicClipPage() {
   const [musicAnalysisData, setMusicAnalysisData] = useState<any>(null);
   const [isLoadingAnalysisData, setIsLoadingAnalysisData] = useState(false);
 
+  // Track if we've already loaded the project to prevent loops
+  const hasLoadedProjectRef = useRef<Set<string>>(new Set());
+
   // Function to load analysis data from backend
   const loadAnalysisData = useCallback(async (projectId: string) => {
     try {
@@ -88,15 +198,8 @@ function MusicClipPage() {
       }
       
       setIsLoadingAnalysisData(true);
-      const response = await fetch(`/api/music-clip/projects/${projectId}/analysis`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-      },
-    });
-      console.log('Backend response status:', response.status);
-
-      if (response.ok) {
-        const data = await response.json();
+      try {
+        const data = await musicClipAPI.getProjectAnalysis(projectId);
         console.log('Loaded analysis data from backend:', data);
 
         // Extract the first track's analysis data
@@ -178,19 +281,17 @@ function MusicClipPage() {
         } else {
           console.log('No music data found in backend response');
         }
-      } else {
-        console.error('Backend response not OK:', response.status, response.statusText);
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
+      } catch (error: any) {
+        console.error('Error loading analysis data:', error);
         
         // Handle specific error cases
-        if (response.status === 404) {
+        if (error.status === 404) {
           toast({
             variant: "destructive",
             title: "Project Not Found",
             description: "The project was not found. Please create a new project.",
           });
-        } else if (response.status === 500) {
+        } else if (error.status === 500) {
           toast({
             variant: "destructive",
             title: "Server Error",
@@ -200,11 +301,13 @@ function MusicClipPage() {
           toast({
             variant: "destructive",
             title: "Error Loading Data",
-            description: `Failed to load analysis data: ${response.statusText}`,
+            description: `Failed to load analysis data: ${error.message || 'Unknown error'}`,
           });
         }
+      } finally {
+        setIsLoadingAnalysisData(false);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load analysis data:', error);
       toast({
         variant: "destructive",
@@ -520,26 +623,42 @@ function MusicClipPage() {
 
   // Load existing project data if projectId is provided
   useEffect(() => {
+    console.log('Project loading effect triggered:', { projectId, urlProjectId, isLoadingProject: projectManagement.state.isLoadingProject });
+    
     if (projectId && !projectManagement.state.isLoadingProject) {
+      // Check if we've already loaded this project to prevent loops
+      if (hasLoadedProjectRef.current.has(projectId)) {
+        console.log('Project already loaded, skipping:', projectId);
+        return;
+      }
+
       // Check if we have localStorage data for this project
       const hasLocalData = musicClipState.state.settings || musicTracks.musicTracks.length > 0;
 
       if (hasLocalData) {
         console.log('Using localStorage data for project:', projectId);
+        // Mark as loaded to prevent future loads
+        hasLoadedProjectRef.current.add(projectId);
         // localStorage data is already loaded by the hooks
       } else if (urlProjectId) {
         // Only load from backend if this is a URL projectId (not persisted)
         console.log('No localStorage data found, loading from backend for project:', projectId);
+        // Mark as loaded before calling to prevent loops
+        hasLoadedProjectRef.current.add(projectId);
         loadExistingProject(projectId);
       } else {
         console.log('Using persisted project with no localStorage data:', projectId);
+        // Mark as loaded to prevent future loads
+        hasLoadedProjectRef.current.add(projectId);
         // This is a persisted project with no localStorage data, which is fine
       }
     } else if (!projectId) {
       // Starting a new project - no localStorage loading, start fresh
       console.log('Starting new project - no data loading needed');
+      // Clear the loaded projects set for new projects
+      hasLoadedProjectRef.current.clear();
     }
-  }, [projectId, urlProjectId, projectManagement.state.isLoadingProject, musicClipState.state.settings, musicTracks.musicTracks.length]);
+  }, [projectId, urlProjectId, projectManagement.state.isLoadingProject]);
 
   // Music analysis is now only triggered manually on step 3 continue button
 
@@ -847,6 +966,7 @@ function MusicClipPage() {
       }
     } catch (error) {
       console.error('Failed to load existing project:', error);
+      console.log('Current URL before error handling:', window.location.href);
 
       // Show user-friendly error message
       if (error instanceof Error && error.message.includes('Project not found')) {
@@ -862,8 +982,11 @@ function MusicClipPage() {
           description: "Failed to load the existing project from server. Using local data instead.",
         });
       }
+      
+      console.log('Current URL after error handling:', window.location.href);
     } finally {
       musicClipState.actions.setIsLoadingExistingProject(false);
+      console.log('Current URL after finally block:', window.location.href);
     }
   };
 

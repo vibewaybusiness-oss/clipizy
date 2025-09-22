@@ -180,9 +180,15 @@ export class MusicService extends BaseApiClient {
           return this.generateMockAnalysis(track, 'mock_blob_url');
         }
 
-        const response = await fetch(track.url);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch audio from URL: ${response.statusText}`);
+        let response: Response;
+        try {
+          response = await fetch(track.url);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch audio from URL: ${response.statusText}`);
+          }
+        } catch (error) {
+          console.error('Network error fetching audio URL:', error);
+          throw new Error(`Network error fetching audio: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
 
         const blob = await response.blob();
@@ -194,12 +200,18 @@ export class MusicService extends BaseApiClient {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('/api/music-analysis/analyze/comprehensive', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-        keepalive: true,
-      });
+      let response: Response;
+      try {
+        response = await fetch('/api/music-analysis/analyze/comprehensive', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include',
+          keepalive: true,
+        });
+      } catch (error) {
+        console.error('Network error during music analysis:', error);
+        throw new Error(`Network error during analysis: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
 
       if (!response.ok) {
         let errorData;

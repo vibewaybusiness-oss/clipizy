@@ -162,7 +162,12 @@ class ProjectService:
     def update_project_settings(self, db: Session, project_id: str, user_id: str, settings: Dict[str, Any]):
         """Update project settings in script.json."""
         try:
-            script_data = self.json_store.load_json(f"{user_id}/music-clip/projects/{project_id}/script.json")
+            # Try to load existing script.json, create default if it doesn't exist
+            try:
+                script_data = self.json_store.load_json(f"{user_id}/music-clip/projects/{project_id}/script.json")
+            except Exception as load_error:
+                logger.info(f"Script.json not found for project {project_id}, creating default structure")
+                script_data = {"steps": {"music": {}, "analysis": {}, "visuals": {}, "export": {}}}
 
             # Ensure the settings structure exists
             if "steps" not in script_data:
@@ -182,7 +187,7 @@ class ProjectService:
             logger.info(f"Updated settings for project {project_id}")
             return {"message": "Settings updated successfully"}
         except Exception as e:
-            logger.warning(f"Failed to update settings: {e}")
+            logger.error(f"Failed to update settings: {e}")
             return {"message": "Settings updated but script.json not updated"}
 
     def get_project_script(self, db: Session, project_id: str, user_id: str):
@@ -191,8 +196,8 @@ class ProjectService:
             script_data = self.json_store.load_json(f"{user_id}/music-clip/projects/{project_id}/script.json")
             return script_data
         except Exception as e:
-            logger.warning(f"Failed to load script.json: {e}")
-            return {"error": "Script not found"}
+            logger.info(f"Script.json not found for project {project_id}, returning default structure")
+            return {"steps": {"music": {}, "analysis": {}, "visuals": {}, "export": {}}}
 
     def get_project_tracks(self, db: Session, project_id: str):
         """Get all tracks for a project."""

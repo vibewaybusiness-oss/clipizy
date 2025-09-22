@@ -80,19 +80,19 @@ export class ProjectsService extends BaseApiClient {
 
   // PROJECT MANAGEMENT
   async getProjects(): Promise<Project[]> {
-    return this.get<Project[]>(API_PATHS.API + '/projects');
+    return this.get<Project[]>(API_PATHS.MUSIC_CLIP + '/projects');
   }
 
   async getProject(projectId: string): Promise<Project> {
-    return this.get<Project>(API_PATHS.API + `/projects/${projectId}`);
+    return this.get<Project>(API_PATHS.MUSIC_CLIP + `/projects/${projectId}`);
   }
 
   async createProject(data: CreateProjectRequest): Promise<Project> {
-    return this.post<Project>(API_PATHS.API + '/projects', data);
+    return this.post<Project>(API_PATHS.MUSIC_CLIP + '/projects', data);
   }
 
   async updateProject(id: string, data: UpdateProjectRequest): Promise<Project> {
-    return this.put<Project>(API_PATHS.API + `/projects/${id}`, data);
+    return this.put<Project>(API_PATHS.MUSIC_CLIP + `/projects/${id}`, data);
   }
 
   async deleteProject(id: string): Promise<void> {
@@ -100,7 +100,7 @@ export class ProjectsService extends BaseApiClient {
   }
 
   async getProjectStats(projectId: string): Promise<any> {
-    return this.get<any>(API_PATHS.API + `/projects/${projectId}/stats`);
+    return this.get<any>(API_PATHS.MUSIC_CLIP + `/projects/${projectId}/stats`);
   }
 
   // MUSIC CLIP SPECIFIC METHODS
@@ -192,11 +192,23 @@ export class ProjectsService extends BaseApiClient {
   }
 
   async getProjectScript(projectId: string): Promise<ProjectScript> {
-    return this.get(API_PATHS.MUSIC_CLIP + `/projects/${projectId}/script`);
+    try {
+      return await this.get(API_PATHS.MUSIC_CLIP + `/projects/${projectId}/script`);
+    } catch (error) {
+      // Handle network errors gracefully - don't throw the error
+      console.warn('Failed to get project script due to network error:', error);
+      return { steps: { music: { settings: null } } } as ProjectScript;
+    }
   }
 
   async getProjectTracks(projectId: string): Promise<{ id: string; tracks: MusicTrack[] }> {
-    return this.get(API_PATHS.MUSIC_CLIP + `/projects/${projectId}/tracks`);
+    try {
+      return await this.get(API_PATHS.MUSIC_CLIP + `/projects/${projectId}/tracks`);
+    } catch (error) {
+      // Handle network errors gracefully - don't throw the error
+      console.warn('Failed to get project tracks due to network error:', error);
+      return { id: projectId, tracks: [] };
+    }
   }
 
   async updateTrack(
@@ -245,7 +257,13 @@ export class ProjectsService extends BaseApiClient {
   }
 
   async getTrackUrl(projectId: string, trackId: string): Promise<{ url: string }> {
-    return this.get(API_PATHS.MUSIC_CLIP + `/projects/${projectId}/tracks/${trackId}/url`);
+    try {
+      return await this.get(API_PATHS.MUSIC_CLIP + `/projects/${projectId}/tracks/${trackId}/url`);
+    } catch (error) {
+      // Handle network errors gracefully - don't throw the error
+      console.warn('Failed to get track URL due to network error:', error);
+      return { url: '' };
+    }
   }
 
   async updateProjectAnalysis(projectId: string, analysisData: any): Promise<{ message: string; id: string }> {

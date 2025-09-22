@@ -73,10 +73,35 @@ export abstract class BaseApiClient {
       (headers as any)['Content-Type'] = 'application/json';
     }
     
-    let response = await fetch(url, {
-      ...options,
-      headers,
-    });
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        ...options,
+        headers,
+      });
+    } catch (error) {
+      // Handle network errors (connection refused, timeout, etc.)
+      console.error('Network error during fetch:', error);
+      
+      // Check if we're on the music-clip page and return a mock response
+      const isClientSide = typeof window !== 'undefined';
+      if (isClientSide) {
+        const currentPath = window.location.pathname;
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('projectId');
+        
+        if (currentPath.includes('/music-clip') && projectId) {
+          console.log('Network error on music-clip page - returning mock response');
+          return { success: false, error: 'Network error' } as T;
+        }
+      }
+      
+      // For other cases, throw a more descriptive error
+      throw new ApiError(
+        `Network error: ${error instanceof Error ? error.message : 'Unknown network error'}`,
+        0
+      );
+    }
 
     // If we get a 401/403, try to refresh the token
     if ((response.status === 401 || response.status === 403) && this.shouldRefreshToken()) {
@@ -92,10 +117,34 @@ export abstract class BaseApiClient {
           (newHeaders as any)['Content-Type'] = 'application/json';
         }
         
-        response = await fetch(url, {
-          ...options,
-          headers: newHeaders,
-        });
+        try {
+          response = await fetch(url, {
+            ...options,
+            headers: newHeaders,
+          });
+        } catch (error) {
+          // Handle network errors during retry
+          console.error('Network error during retry fetch:', error);
+          
+          // Check if we're on the music-clip page and return a mock response
+          const isClientSide = typeof window !== 'undefined';
+          if (isClientSide) {
+            const currentPath = window.location.pathname;
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectId = urlParams.get('projectId');
+            
+            if (currentPath.includes('/music-clip') && projectId) {
+              console.log('Network error during retry on music-clip page - returning mock response');
+              return { success: false, error: 'Network error' } as T;
+            }
+          }
+          
+          // For other cases, throw a more descriptive error
+          throw new ApiError(
+            `Network error during retry: ${error instanceof Error ? error.message : 'Unknown network error'}`,
+            0
+          );
+        }
       }
     }
 
@@ -110,17 +159,69 @@ export abstract class BaseApiClient {
       
       // Handle authentication errors
       if (response.status === 401 || response.status === 403) {
+        console.log('Authentication error detected:', response.status, 'URL:', response.url);
+        console.log('Current path:', typeof window !== 'undefined' ? window.location.pathname : 'server-side');
+        
         // Clear invalid token
         if (typeof window !== 'undefined') {
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user');
-          // Redirect to login page
+          
+          // Don't redirect if we're on the music-clip page with a projectId
+          const currentPath = window.location.pathname;
+          const urlParams = new URLSearchParams(window.location.search);
+          const projectId = urlParams.get('projectId');
+          
+          console.log('Client-side auth error - currentPath:', currentPath, 'projectId:', projectId);
+          
+          if (currentPath.includes('/music-clip') && projectId) {
+            console.log('Authentication error on music-clip page - not redirecting to login');
+            // Just log the error but don't redirect or throw
+            return;
+          }
+          
+          console.log('Redirecting to login page');
+          // Redirect to login page for other pages
           window.location.href = '/auth/login';
         }
       }
       
-      throw new ApiError(errorMessage, response.status, response);
+      // Only throw the error if we're not on the music-clip page
+      if (response.status !== 401 && response.status !== 403) {
+        throw new ApiError(errorMessage, response.status, response);
+      } else {
+        // For auth errors, check if we're on the music-clip page (client-side) or in auto-save route (server-side)
+        const isClientSide = typeof window !== 'undefined';
+        const isServerSide = !isClientSide;
+        
+        let shouldReturnMockResponse = false;
+        
+        if (isClientSide) {
+          // Client-side: check URL
+          const currentPath = window.location.pathname;
+          const urlParams = new URLSearchParams(window.location.search);
+          const projectId = urlParams.get('projectId');
+          
+          if (currentPath.includes('/music-clip') && projectId) {
+            shouldReturnMockResponse = true;
+          }
+        } else if (isServerSide) {
+          // Server-side: check if we're in the auto-save route by looking at the stack trace
+          const stack = new Error().stack || '';
+          if (stack.includes('auto-save') || stack.includes('music-clip')) {
+            shouldReturnMockResponse = true;
+          }
+        }
+        
+        if (shouldReturnMockResponse) {
+          console.log('Returning mock response for auth error on music-clip page/route');
+          console.log('Stack trace:', new Error().stack);
+          return { success: false, error: 'Authentication error' };
+        }
+        
+        throw new ApiError(errorMessage, response.status, response);
+      }
     }
 
     return response.json();

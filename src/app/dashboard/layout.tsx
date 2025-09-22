@@ -30,7 +30,7 @@ import { useAuth } from "@/contexts/auth-context";
 const navigation = [
   { name: "Overview", href: "/dashboard", icon: Home },
   { name: "Projects", href: "/dashboard/projects", icon: FolderOpen },
-  { name: "Profile", href: "/dashboard/profile", icon: User },
+  { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
 export default function DashboardLayout({
@@ -113,73 +113,59 @@ export default function DashboardLayout({
               </ul>
             </nav>
 
+            {/* USER PROFILE SECTION */}
+            <div className="p-2 border-t border-white/10">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="w-12 h-12 rounded-lg p-0 hover:bg-white/10 transition-all duration-200">
+                    <Avatar className="w-10 h-10">
+                      <AvatarImage src={user?.avatar} alt={user?.name || "User"} />
+                      <AvatarFallback className="text-xs bg-white/10 text-white">
+                        {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 ml-2" align="start" side="right" sideOffset={8} forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user?.name || "User"}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user?.email || "user@example.com"}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/settings" className="flex items-center">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="text-red-600 focus:text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
           </div>
         </div>
 
         {/* MAIN CONTENT */}
         <div className="md:ml-16">
-          {/* TOP SIDEBAR */}
-          <div className="sticky top-0 z-30 bg-background border-b border-border">
-            <div className="flex items-center justify-between px-4 py-3">
-              {/* MOBILE MENU BUTTON */}
-              <div className="md:hidden">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSidebarOpen(true)}
-                  className="bg-gray-900/80 backdrop-blur border border-gray-700 text-white hover:bg-gray-800"
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </div>
-
-              {/* SPACER FOR MOBILE */}
-              <div className="md:hidden flex-1" />
-
-              {/* USER PROFILE DROPDOWN */}
-              <div className="flex items-center space-x-4">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={user?.avatar} alt={user?.name || "User"} />
-                        <AvatarFallback className="text-xs">
-                          {user?.name?.charAt(0)?.toUpperCase() || "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user?.name || "User"}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {user?.email || "user@example.com"}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard/profile" className="flex items-center">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard/settings" className="flex items-center">
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Settings</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout} className="text-red-600 focus:text-red-600">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
+          {/* MOBILE MENU BUTTON */}
+          <div className="md:hidden fixed top-4 left-4 z-40">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSidebarOpen(true)}
+              className="bg-gray-900/80 backdrop-blur border border-gray-700 text-white hover:bg-gray-800"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
           </div>
 
           {/* PAGE CONTENT */}

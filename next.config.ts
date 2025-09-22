@@ -31,10 +31,25 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
+    // Use backend URL from environment variable (centralized in settings.py)
+    // For WSL, use the Windows host IP that's accessible from WSL
+    let backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
+    
+    // If running in WSL and no BACKEND_URL is set, use the Windows host IP
+    if (process.env.WSL_DISTRO_NAME && !process.env.BACKEND_URL) {
+      backendUrl = 'http://172.31.240.1:8000';
+    }
+    
+    console.log('Next.js rewrites using backend URL:', backendUrl);
+    
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:8000/:path*',
+        destination: `${backendUrl}/:path*`,
+      },
+      {
+        source: '/user-management/:path*',
+        destination: `${backendUrl}/user-management/:path*`,
       },
       {
         source: '/backend/:path*',

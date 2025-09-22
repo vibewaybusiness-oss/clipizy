@@ -64,10 +64,8 @@ export function Navigation() {
     setIsMobileMenuOpen(false);
   };
 
-  // Use main navigation for non-authenticated users or when not in dashboard/admin
-  const navigation = isAuthenticated && (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) 
-    ? dashboardNavigation 
-    : mainNavigation;
+  // Always use main navigation for consistent header
+  const navigation = mainNavigation;
 
   return (
     <nav className="bg-background border-b border-border">
@@ -103,8 +101,8 @@ export function Navigation() {
               );
             })}
 
-            {/* Admin Navigation - only show in dashboard/admin areas */}
-            {isAuthenticated && isAdmin && (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) && adminNavigation.map((item) => {
+            {/* Admin Navigation - show for admin users */}
+            {isAuthenticated && isAdmin && adminNavigation.map((item) => {
               const Icon = item.icon;
               return (
                 <Link
@@ -157,12 +155,6 @@ export function Navigation() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard/profile" className="flex items-center">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
-                      </Link>
-                    </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/dashboard/settings" className="flex items-center">
                         <Settings className="mr-2 h-4 w-4" />

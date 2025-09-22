@@ -19,11 +19,27 @@ export async function POST(request: NextRequest) {
     if (musicClipData) {
       try {
         if (musicClipData.settings) {
-          await musicClipAPI.updateProjectSettings(projectId, musicClipData.settings);
+          try {
+            await musicClipAPI.updateProjectSettings(projectId, musicClipData.settings);
+          } catch (error: any) {
+            if (error.status === 403 || error.status === 401) {
+              console.warn('Authentication error saving music clip settings - skipping');
+            } else {
+              console.error('Failed to save music clip settings:', error);
+            }
+          }
         }
 
         if (musicClipData.script) {
-          await musicClipAPI.updateProjectScript(projectId, musicClipData.script);
+          try {
+            await musicClipAPI.updateProjectScript(projectId, musicClipData.script);
+          } catch (error: any) {
+            if (error.status === 403 || error.status === 401) {
+              console.warn('Authentication error saving music clip script - skipping');
+            } else {
+              console.error('Failed to save music clip script:', error);
+            }
+          }
         }
       } catch (error) {
         console.error('Failed to save music clip data:', error);
@@ -44,8 +60,12 @@ export async function POST(request: NextRequest) {
                 video_description: track.video_description
               });
               track.uploaded = true;
-            } catch (error) {
-              console.error(`Failed to upload track ${track.id}:`, error);
+            } catch (error: any) {
+              if (error.status === 403 || error.status === 401) {
+                console.warn(`Authentication error uploading track ${track.id} - skipping`);
+              } else {
+                console.error(`Failed to upload track ${track.id}:`, error);
+              }
             }
           }
         }
@@ -58,8 +78,12 @@ export async function POST(request: NextRequest) {
     if (analysisData) {
       try {
         await musicClipAPI.updateProjectAnalysis(projectId, analysisData);
-      } catch (error) {
-        console.error('Failed to save analysis data:', error);
+      } catch (error: any) {
+        if (error.status === 403 || error.status === 401) {
+          console.warn('Authentication error saving analysis data - skipping');
+        } else {
+          console.error('Failed to save analysis data:', error);
+        }
       }
     }
 

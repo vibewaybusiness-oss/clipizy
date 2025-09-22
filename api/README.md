@@ -157,7 +157,7 @@ users/
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `DATABASE_URL` | Database connection string | `sqlite:///./clipizy.db` |
-| `S3_ENDPOINT` | S3/MinIO endpoint | `http://127.0.0.1:9000` |
+| `S3_ENDPOINT` | S3/MinIO endpoint | `http://localhost:9000` |
 | `S3_ACCESS_KEY` | S3 access key | `admin` |
 | `S3_SECRET_KEY` | S3 secret key | `admin123` |
 | `S3_BUCKET` | S3 bucket name | `clipizy` |

@@ -22,7 +22,18 @@ export default function LoginPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      const redirectPath = sessionStorage.getItem("redirect_after_login") || "/dashboard/create";
+      // Check if we have a projectId in the URL and redirect to music-clip page
+      const urlParams = new URLSearchParams(window.location.search);
+      const projectId = urlParams.get('projectId');
+      
+      let redirectPath = sessionStorage.getItem("redirect_after_login") || "/dashboard/create";
+      
+      // If we have a projectId, redirect to the music-clip page instead
+      if (projectId) {
+        redirectPath = `/dashboard/create/music-clip?projectId=${projectId}`;
+        console.log('Redirecting to music-clip page with projectId:', projectId);
+      }
+      
       sessionStorage.removeItem("redirect_after_login");
       router.push(redirectPath);
     }

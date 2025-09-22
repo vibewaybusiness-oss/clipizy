@@ -12,82 +12,109 @@ import { Separator } from "@/components/ui/separator";
 import { 
   User, 
   Bell, 
-  Save,
   Upload,
   Mail,
   Smartphone
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/ui/use-toast";
+import { getBackendUrl } from "@/lib/config";
 
 interface ProfileSettings {
   name: string;
   email: string;
   bio: string;
   avatar: string;
-  publicProfile: boolean;
-  showEmail: boolean;
 }
 
 interface NotificationSettings {
   emailNotifications: boolean;
   pushNotifications: boolean;
   marketingEmails: boolean;
-  projectUpdates: boolean;
-  socialActivity: boolean;
-  systemAlerts: boolean;
 }
 
 export default function ProfileNotificationsTab() {
   const { user } = useAuth();
-  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
   
   const [profileSettings, setProfileSettings] = useState<ProfileSettings>({
     name: user?.name || "",
     email: user?.email || "",
     bio: "",
-    avatar: user?.avatar || "",
-    publicProfile: false,
-    showEmail: false
+    avatar: user?.avatar || ""
   });
 
   const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
     emailNotifications: true,
     pushNotifications: false,
-    marketingEmails: false,
-    projectUpdates: true,
-    socialActivity: true,
-    systemAlerts: true
+    marketingEmails: false
   });
 
   useEffect(() => {
     loadSettings();
-  }, [user]);
+
+    // Add beforeunload event to save to database
+    const handleBeforeUnload = () => {
+      saveToDatabase();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [user]); // Only depend on user, not the state variables
 
   const loadSettings = async () => {
     try {
-      const response = await fetch('/api/user-management/settings');
+      // Load from localStorage first
+      const savedProfileSettings = localStorage.getItem('profileSettings');
+      if (savedProfileSettings) {
+        setProfileSettings(JSON.parse(savedProfileSettings));
+      }
+
+      const savedNotificationSettings = localStorage.getItem('notificationSettings');
+      if (savedNotificationSettings) {
+        setNotificationSettings(JSON.parse(savedNotificationSettings));
+      }
+
+      // Load from backend for initial sync
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        console.error('No access token found');
+        return;
+      }
+
+      const response = await fetch(`${getBackendUrl()}/user-management/settings`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.settings) {
           const settings = data.settings;
-          setProfileSettings({
+          const profileSettings = {
             name: settings.profile?.name || user?.name || "",
             email: settings.profile?.email || user?.email || "",
             bio: settings.profile?.bio || "",
-            avatar: settings.profile?.avatar || user?.avatar || "",
-            publicProfile: settings.profile?.publicProfile || false,
-            showEmail: settings.profile?.showEmail || false
-          });
-          setNotificationSettings({
+            avatar: settings.profile?.avatar || user?.avatar || ""
+          };
+          const notificationSettings = {
             emailNotifications: settings.notifications?.emailNotifications || true,
             pushNotifications: settings.notifications?.pushNotifications || false,
-            marketingEmails: settings.notifications?.marketingEmails || false,
-            projectUpdates: settings.notifications?.projectUpdates || true,
-            socialActivity: settings.notifications?.socialActivity || true,
-            systemAlerts: settings.notifications?.systemAlerts || true
-          });
+            marketingEmails: settings.notifications?.marketingEmails || false
+          };
+          
+          setProfileSettings(profileSettings);
+          setNotificationSettings(notificationSettings);
+          localStorage.setItem('profileSettings', JSON.stringify(profileSettings));
+          localStorage.setItem('notificationSettings', JSON.stringify(notificationSettings));
         }
+      } else {
+        console.error('Failed to load settings:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error loading settings:', error);
@@ -95,46 +122,49 @@ export default function ProfileNotificationsTab() {
   };
 
   const handleProfileChange = (field: keyof ProfileSettings, value: string | boolean) => {
-    setProfileSettings(prev => ({
-      ...prev,
+    const newProfileSettings = {
+      ...profileSettings,
       [field]: value
-    }));
+    };
+    
+    setProfileSettings(newProfileSettings);
+    localStorage.setItem('profileSettings', JSON.stringify(newProfileSettings));
   };
 
   const handleNotificationChange = (field: keyof NotificationSettings, value: boolean) => {
-    setNotificationSettings(prev => ({
-      ...prev,
+    const newNotificationSettings = {
+      ...notificationSettings,
       [field]: value
-    }));
+    };
+    
+    setNotificationSettings(newNotificationSettings);
+    localStorage.setItem('notificationSettings', JSON.stringify(newNotificationSettings));
   };
 
-  const handleSave = async () => {
-    setIsSaving(true);
+  const saveToDatabase = async () => {
     try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        console.error('No access token found');
+        return;
+      }
+
       const settingsData = {
         profile: profileSettings,
         notifications: notificationSettings,
         updated_at: new Date().toISOString()
       };
 
-      const response = await fetch('/api/user-management/settings', {
+      await fetch(`${getBackendUrl()}/user-management/settings`, {
         method: 'PUT',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(settingsData),
       });
-
-      if (response.ok) {
-        toast.success('Settings saved successfully');
-      } else {
-        throw new Error('Failed to save settings');
-      }
     } catch (error) {
-      console.error('Error saving settings:', error);
-      toast.error('Failed to save settings');
-    } finally {
-      setIsSaving(false);
+      console.error('Error saving settings to database:', error);
     }
   };
 
@@ -143,229 +173,176 @@ export default function ProfileNotificationsTab() {
     if (!file) return;
 
     // Handle avatar upload logic here
-    toast.info('Avatar upload functionality coming soon');
+    toast({
+      title: "Info",
+      description: "Avatar upload functionality coming soon"
+    });
   };
 
   return (
-    <div className="space-y-6">
-      {/* PROFILE SECTION */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="w-5 h-5" />
-            Profile Information
-          </CardTitle>
-          <CardDescription>
-            Update your personal information and profile details
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* AVATAR SECTION */}
-          <div className="flex items-center space-x-4">
-            <Avatar className="w-20 h-20">
-              <AvatarImage src={profileSettings.avatar} alt={profileSettings.name} />
-              <AvatarFallback className="text-lg">
-                {profileSettings.name?.charAt(0)?.toUpperCase() || "U"}
-              </AvatarFallback>
-            </Avatar>
-            <div className="space-y-2">
-              <Button variant="outline" size="sm" asChild>
-                <label htmlFor="avatar-upload" className="cursor-pointer">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Change Avatar
-                </label>
-              </Button>
-              <input
-                id="avatar-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarUpload}
-                className="hidden"
-              />
-              <p className="text-sm text-muted-foreground">
-                JPG, PNG or GIF. Max size 2MB.
-              </p>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* PROFILE FIELDS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Display Name</Label>
-              <Input
-                id="name"
-                value={profileSettings.name}
-                onChange={(e) => handleProfileChange('name', e.target.value)}
-                placeholder="Enter your display name"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                value={profileSettings.email}
-                onChange={(e) => handleProfileChange('email', e.target.value)}
-                placeholder="Enter your email"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
-            <Textarea
-              id="bio"
-              value={profileSettings.bio}
-              onChange={(e) => handleProfileChange('bio', e.target.value)}
-              placeholder="Tell us about yourself"
-              rows={3}
-            />
-          </div>
-
-          {/* PROFILE VISIBILITY SETTINGS */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-medium">Profile Visibility</h4>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Public Profile</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Make your profile visible to other users
-                  </p>
-                </div>
-                <Switch
-                  checked={profileSettings.publicProfile}
-                  onCheckedChange={(checked) => handleProfileChange('publicProfile', checked)}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Show Email Address</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Display your email on your public profile
-                  </p>
-                </div>
-                <Switch
-                  checked={profileSettings.showEmail}
-                  onCheckedChange={(checked) => handleProfileChange('showEmail', checked)}
-                />
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* NOTIFICATIONS SECTION */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="w-5 h-5" />
-            Notification Preferences
-          </CardTitle>
-          <CardDescription>
-            Choose how you want to be notified about updates and activities
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Mail className="w-4 h-4 text-muted-foreground" />
-                <div className="space-y-0.5">
-                  <Label>Email Notifications</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Receive notifications via email
-                  </p>
-                </div>
-              </div>
-              <Switch
-                checked={notificationSettings.emailNotifications}
-                onCheckedChange={(checked) => handleNotificationChange('emailNotifications', checked)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Smartphone className="w-4 h-4 text-muted-foreground" />
-                <div className="space-y-0.5">
-                  <Label>Push Notifications</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Receive push notifications in your browser
-                  </p>
-                </div>
-              </div>
-              <Switch
-                checked={notificationSettings.pushNotifications}
-                onCheckedChange={(checked) => handleNotificationChange('pushNotifications', checked)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Marketing Emails</Label>
-                <p className="text-sm text-muted-foreground">
-                  Receive promotional content and updates
-                </p>
-              </div>
-              <Switch
-                checked={notificationSettings.marketingEmails}
-                onCheckedChange={(checked) => handleNotificationChange('marketingEmails', checked)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Project Updates</Label>
-                <p className="text-sm text-muted-foreground">
-                    Get notified when your projects are processed
-                </p>
-              </div>
-              <Switch
-                checked={notificationSettings.projectUpdates}
-                onCheckedChange={(checked) => handleNotificationChange('projectUpdates', checked)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Social Activity</Label>
-                <p className="text-sm text-muted-foreground">
-                  Notifications about likes, comments, and follows
-                </p>
-              </div>
-              <Switch
-                checked={notificationSettings.socialActivity}
-                onCheckedChange={(checked) => handleNotificationChange('socialActivity', checked)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>System Alerts</Label>
-                <p className="text-sm text-muted-foreground">
-                  Important system updates and maintenance notifications
-                </p>
-              </div>
-              <Switch
-                checked={notificationSettings.systemAlerts}
-                onCheckedChange={(checked) => handleNotificationChange('systemAlerts', checked)}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* SAVE BUTTON */}
-      <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={isSaving} className="gap-2">
-          <Save className="w-4 h-4" />
-          {isSaving ? "Saving..." : "Save Changes"}
-        </Button>
+    <div className="space-y-6 h-full flex flex-col">
+      {/* PROFILE TITLE */}
+      <div className="flex items-center gap-2">
+        <div className="p-1.5 rounded-md bg-primary/10">
+          <User className="w-4 h-4 text-primary" />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold">Profile & Notifications</h2>
+          <p className="text-xs text-muted-foreground">Manage your personal information and notification preferences</p>
+        </div>
       </div>
+
+      {/* ALL SETTINGS IN SINGLE DIV */}
+      <div className="space-y-5">
+        {/* AVATAR SECTION */}
+        <div className="bg-card border border-border rounded-lg p-4">
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <Avatar className="w-14 h-14 border border-border">
+                <AvatarImage src={profileSettings.avatar} alt={profileSettings.name} />
+                <AvatarFallback className="text-sm font-semibold">
+                  {profileSettings.name?.charAt(0)?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute -bottom-0.5 -right-0.5 p-0.5 bg-primary rounded-full">
+                <Upload className="w-2.5 h-2.5 text-primary-foreground" />
+              </div>
+            </div>
+            <div className="flex-1 space-y-2">
+              <div>
+                <h3 className="text-sm font-medium">Profile Picture</h3>
+                <p className="text-xs text-muted-foreground">Upload a new avatar to personalize your profile</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" asChild className="h-8">
+                  <label htmlFor="avatar-upload" className="cursor-pointer">
+                    <Upload className="w-3 h-3 mr-1" />
+                    Change Avatar
+                  </label>
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  JPG, PNG or GIF. Max size 2MB.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* PROFILE FIELDS */}
+        <div className="bg-card border border-border rounded-lg p-4">
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium">Personal Information</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="name" className="text-xs font-medium">Display Name</Label>
+                <Input
+                  id="name"
+                  value={profileSettings.name}
+                  onChange={(e) => handleProfileChange('name', e.target.value)}
+                  placeholder="Enter your display name"
+                  className="h-9"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-xs font-medium">Email Address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={profileSettings.email}
+                  onChange={(e) => handleProfileChange('email', e.target.value)}
+                  placeholder="Enter your email"
+                  className="h-9"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="bio" className="text-xs font-medium">Bio</Label>
+              <Textarea
+                id="bio"
+                value={profileSettings.bio}
+                onChange={(e) => handleProfileChange('bio', e.target.value)}
+                placeholder="Tell us about yourself"
+                rows={3}
+                className="resize-none"
+              />
+            </div>
+          </div>
+        </div>
+
+                {/* NOTIFICATION SETTINGS */}
+                <div className="bg-card border border-border rounded-lg p-4 flex-1 flex flex-col">
+                  <div className="space-y-4 flex-1 flex flex-col">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-md bg-blue-500/10">
+                        <Bell className="w-4 h-4 text-blue-500" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold">Notification Preferences</h3>
+                        <p className="text-xs text-muted-foreground">Choose how you want to be notified about updates and activities</p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3 flex-1">
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 rounded-md bg-green-500/10">
+                            <Mail className="w-4 h-4 text-green-500" />
+                          </div>
+                          <div className="space-y-0.5">
+                            <Label className="text-sm font-medium">Email Notifications</Label>
+                            <p className="text-xs text-muted-foreground">
+                              Receive notifications via email
+                            </p>
+                          </div>
+                        </div>
+                        <Switch
+                          checked={notificationSettings.emailNotifications}
+                          onCheckedChange={(checked) => handleNotificationChange('emailNotifications', checked)}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 rounded-md bg-purple-500/10">
+                            <Smartphone className="w-4 h-4 text-purple-500" />
+                          </div>
+                          <div className="space-y-0.5">
+                            <Label className="text-sm font-medium">Push Notifications</Label>
+                            <p className="text-xs text-muted-foreground">
+                              Receive push notifications in your browser
+                            </p>
+                          </div>
+                        </div>
+                        <Switch
+                          checked={notificationSettings.pushNotifications}
+                          onCheckedChange={(checked) => handleNotificationChange('pushNotifications', checked)}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 rounded-md bg-orange-500/10">
+                            <Mail className="w-4 h-4 text-orange-500" />
+                          </div>
+                          <div className="space-y-0.5">
+                            <Label className="text-sm font-medium">Marketing Emails</Label>
+                            <p className="text-xs text-muted-foreground">
+                              Receive promotional content and updates
+                            </p>
+                          </div>
+                        </div>
+                        <Switch
+                          checked={notificationSettings.marketingEmails}
+                          onCheckedChange={(checked) => handleNotificationChange('marketingEmails', checked)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+      </div>
+
     </div>
   );
 }

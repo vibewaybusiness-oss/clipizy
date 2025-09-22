@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Film } from "lucide-react";
+import { ChevronLeft, ChevronRight, Film, Loader2 } from "lucide-react";
 
 interface StepNavigationProps {
   currentStep: 1 | 2 | 3 | 4;
@@ -11,6 +11,7 @@ interface StepNavigationProps {
   settingsFormValid: boolean;
   promptFormValid: boolean;
   budget: number;
+  isNavigating: boolean;
   onBack: (e?: React.MouseEvent) => void;
   onContinue: () => void;
   onSettingsSubmit: () => void;
@@ -27,6 +28,7 @@ export function StepNavigation({
   settingsFormValid,
   promptFormValid,
   budget,
+  isNavigating,
   onBack,
   onContinue,
   onSettingsSubmit,
@@ -80,10 +82,19 @@ export function StepNavigation({
               className={`flex items-center space-x-2 text-white ${
                 musicTracksCount > 0 && selectedTrackId ? 'btn-ai-gradient' : 'bg-muted text-muted-foreground cursor-not-allowed'
               }`}
-              disabled={musicTracksCount === 0 || !selectedTrackId}
+              disabled={musicTracksCount === 0 || !selectedTrackId || isNavigating}
             >
-              <span>Continue</span>
-              <ChevronRight className="w-4 h-4" />
+              {isNavigating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Loading...</span>
+                </>
+              ) : (
+                <>
+                  <span>Continue</span>
+                  <ChevronRight className="w-4 h-4" />
+                </>
+              )}
             </Button>
           )}
 
@@ -93,10 +104,19 @@ export function StepNavigation({
               className={`flex items-center space-x-2 text-white ${
                 settingsFormValid ? 'btn-ai-gradient' : 'bg-muted text-muted-foreground cursor-not-allowed'
               }`}
-              disabled={!settingsFormValid}
+              disabled={!settingsFormValid || isNavigating}
             >
-              <span>Continue</span>
-              <ChevronRight className="w-4 h-4" />
+              {isNavigating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Loading...</span>
+                </>
+              ) : (
+                <>
+                  <span>Continue</span>
+                  <ChevronRight className="w-4 h-4" />
+                </>
+              )}
             </Button>
           )}
 
@@ -106,10 +126,19 @@ export function StepNavigation({
               className={`flex items-center space-x-2 text-white ${
                 promptFormValid ? 'btn-ai-gradient' : 'bg-muted text-muted-foreground cursor-not-allowed'
               }`}
-              disabled={!promptFormValid}
+              disabled={!promptFormValid || isNavigating}
             >
-              <Film className="w-4 h-4" />
-              <span>Generate Video ({budget} credits)</span>
+              {isNavigating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Loading...</span>
+                </>
+              ) : (
+                <>
+                  <Film className="w-4 h-4" />
+                  <span>Generate Video ({budget} credits)</span>
+                </>
+              )}
             </Button>
           )}
         </div>

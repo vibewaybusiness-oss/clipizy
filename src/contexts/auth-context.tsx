@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
 interface User {
   id: string;
@@ -33,11 +33,17 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 import { getBackendUrl } from '@/lib/config';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || getBackendUrl();
+// Use Next.js API routes instead of direct backend calls
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUserState] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Memoize setUser to ensure stable reference
+  const setUser = useCallback((user: User | null) => {
+    setUserState(user);
+  }, []);
 
   useEffect(() => {
     checkAuthState();
@@ -48,16 +54,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (typeof window !== 'undefined') {
         const token = localStorage.getItem('access_token');
         if (token) {
-          const response = await fetch(`${API_BASE_URL}/auth/me`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          });
+          let response: Response;
+          try {
+            response = await fetch(`${API_BASE_URL}/auth/me`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            });
+          } catch (error) {
+            console.error('Network error checking auth state:', error);
+            // Clear invalid token on network error
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user');
+            return;
+          }
           
           if (response.ok) {
             const userData = await response.json();
-            setUser(userData);
+            setUserState(userData);
             
             // Log user ID to console when user state is restored
             console.log('🔄 Auth State Restored');
@@ -80,13 +95,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string): Promise<boolean> => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      let response: Response;
+      try {
+        response = await fetch(`${API_BASE_URL}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+      } catch (error) {
+        console.error('Network error during sign in:', error);
+        throw new Error('Network error: Unable to connect to authentication server');
+      }
 
       if (response.ok) {
         const data = await response.json();
@@ -96,12 +117,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         
         // Get user data
-        const userResponse = await fetch(`${API_BASE_URL}/auth/me`, {
-          headers: {
-            'Authorization': `Bearer ${data.access_token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        let userResponse: Response;
+        try {
+          userResponse = await fetch(`${API_BASE_URL}/auth/me`, {
+            headers: {
+              'Authorization': `Bearer ${data.access_token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+        } catch (error) {
+          console.error('Network error fetching user data:', error);
+          return false;
+        }
         
         if (userResponse.ok) {
           const userData = await userResponse.json();
@@ -129,13 +156,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, name?: string): Promise<boolean> => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password, name }),
-      });
+      let response: Response;
+      try {
+        response = await fetch(`${API_BASE_URL}/auth/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password, name }),
+        });
+      } catch (error) {
+        console.error('Network error during sign up:', error);
+        throw new Error('Network error: Unable to connect to authentication server');
+      }
 
       if (response.ok) {
         const userData = await response.json();
@@ -183,7 +216,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('user');
-        setUser(null);
+        setUserState(null);
         return false;
       }
     } catch (error) {
@@ -215,7 +248,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const updatedUser = { ...user, ...updates };
-      setUser(updatedUser);
+      setUserState(updatedUser);
 
       // Update localStorage
       if (typeof window !== 'undefined') {
@@ -231,7 +264,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       
       // Get Google OAuth URL from backend
-      const response = await fetch(`${API_BASE_URL}/auth/google`);
+      let response: Response;
+      try {
+        response = await fetch(`${API_BASE_URL}/auth/google`);
+      } catch (error) {
+        console.error('Failed to fetch Google OAuth URL - network error or invalid URL');
+        throw new Error('Network error: Unable to connect to authentication server');
+      }
+      
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+      }
+      
       const data = await response.json();
       
       if (data.auth_url) {
@@ -254,7 +298,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       
       // Get GitHub OAuth URL from backend
-      const response = await fetch(`${API_BASE_URL}/auth/github`);
+      let response: Response;
+      try {
+        response = await fetch(`${API_BASE_URL}/auth/github`);
+      } catch (error) {
+        console.error('Failed to fetch GitHub OAuth URL - network error or invalid URL');
+        throw new Error('Network error: Unable to connect to authentication server');
+      }
+      
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+      }
+      
       const data = await response.json();
       
       if (data.auth_url) {

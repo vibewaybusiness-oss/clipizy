@@ -8,13 +8,13 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 // WSL Network Configuration
 // In WSL, we need to use the actual WSL IP address instead of localhost
-const WSL_IP = '172.31.240.1';
-const WINDOWS_HOST_IP = '172.31.240.1'; // Fallback Windows host IP
+const WSL_IP = 'localhost';
+const WINDOWS_HOST_IP = 'localhost'; // Fallback Windows host IP
 
 // Backend Configuration
 export const BACKEND_CONFIG = {
-  // Primary backend URL - use WSL IP for WSL environments
-  url: process.env.BACKEND_URL || `http://${WSL_IP}:8000`,
+  // Primary backend URL - use localhost for development
+  url: process.env.BACKEND_URL || "http://localhost:8000",
 
   // Fallback URLs for different environments
   fallbackUrls: {
@@ -60,8 +60,6 @@ export const API_CONFIG = {
   // CORS configuration
   cors: {
     allowedOrigins: [
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
       `http://${WSL_IP}:3000`,
       `http://${WINDOWS_HOST_IP}:3000`,
     ],
@@ -78,17 +76,7 @@ export const ENV_CONFIG = {
 
 // Helper function to get the correct backend URL
 export function getBackendUrl(): string {
-  // Check if we're in WSL - use WSL IP for better connectivity
-  if (ENV_CONFIG.isWSL) {
-    return BACKEND_CONFIG.fallbackUrls.wsl;
-  }
-
-  // For Windows, try localhost first, then fallback to WSL IP
-  if (ENV_CONFIG.isWindows) {
-    return BACKEND_CONFIG.fallbackUrls.localhost;
-  }
-
-  // Default to configured URL
+  // Use the centralized backend URL from environment variable
   return BACKEND_CONFIG.url;
 }
 

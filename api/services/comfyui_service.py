@@ -27,8 +27,7 @@ from api.schemas.comfyui import (
     PodHealthStatus
 )
 
-# Import queue manager and pod manager
-from api.services.queues_service import get_queue_manager
+# Import pod manager
 from api.services.runpod_manager import get_pod_manager
 
 # Import workflow implementations
@@ -220,6 +219,8 @@ class ComfyUIService:
 
 class ComfyUIManager:
     def __init__(self):
+        # Import here to avoid circular dependency
+        from api.services.queues_service import get_queue_manager
         self.queue_manager = get_queue_manager()
         self.active_services: Dict[str, ComfyUIService] = {}
         self.requests: Dict[str, WorkflowRequest] = {}

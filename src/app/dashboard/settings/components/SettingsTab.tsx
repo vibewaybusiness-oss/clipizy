@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { 
   Settings, 
   Palette, 
@@ -14,28 +12,29 @@ import {
   Monitor, 
   Moon, 
   Sun,
-  Save,
-  Volume2,
-  VolumeX,
-  Zap,
-  Shield
+  Eye,
+  User,
+  Mail,
+  Search,
+  Activity
 } from "lucide-react";
-import { toast } from "sonner";
+import { useAuth } from "@/contexts/auth-context";
+import { useToast } from "@/hooks/ui/use-toast";
+import { getBackendUrl } from "@/lib/config";
 
 interface AppSettings {
   theme: 'light' | 'dark' | 'system';
   language: string;
   timezone: string;
-  soundEnabled: boolean;
-  soundVolume: number;
-  animationsEnabled: boolean;
-  reducedMotion: boolean;
-  autoPlay: boolean;
-  quality: '720p' | '1080p' | '4k';
-  maxVideoLength: number;
-  moderateLyrics: boolean;
-  dataSaving: boolean;
-  developerMode: boolean;
+}
+
+interface PrivacySettings {
+  profileVisibility: "public" | "private";
+  showEmail: boolean;
+  marketingEmails: boolean;
+  activityVisibility: "public" | "followers" | "private";
+  searchable: boolean;
+  publicProfile: boolean;
 }
 
 const languages = [
@@ -56,52 +55,130 @@ const timezones = [
 ];
 
 export default function SettingsTab() {
-  const [isSaving, setIsSaving] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  
   const [settings, setSettings] = useState<AppSettings>({
     theme: 'system',
     language: 'en',
-    timezone: 'UTC',
-    soundEnabled: true,
-    soundVolume: 70,
-    animationsEnabled: true,
-    reducedMotion: false,
-    autoPlay: false,
-    quality: '1080p',
-    maxVideoLength: 10,
-    moderateLyrics: false,
-    dataSaving: false,
-    developerMode: false
+    timezone: 'UTC'
+  });
+
+  const [privacySettings, setPrivacySettings] = useState<PrivacySettings>({
+    profileVisibility: "private",
+    showEmail: false,
+    marketingEmails: false,
+    activityVisibility: "followers",
+    searchable: true,
+    publicProfile: false
   });
 
   useEffect(() => {
     loadSettings();
-  }, []);
+
+    // Add beforeunload event to save to database
+    const handleBeforeUnload = () => {
+      saveToDatabase();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []); // Empty dependency array to run only once
 
   const loadSettings = async () => {
+    setIsLoading(true);
     try {
-      const response = await fetch('/api/user-management/app-settings');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.settings) {
-          setSettings(data.settings);
+      // Load from localStorage first
+      const savedAppSettings = localStorage.getItem('appSettings');
+      if (savedAppSettings) {
+        setSettings(JSON.parse(savedAppSettings));
+      }
+
+      const savedPrivacySettings = localStorage.getItem('privacySettings');
+      if (savedPrivacySettings) {
+        setPrivacySettings(JSON.parse(savedPrivacySettings));
+      }
+
+      // Load from backend for initial sync
+      const appResponse = await fetch(`${getBackendUrl()}/user-management/app-settings`);
+      if (appResponse.ok) {
+        const appData = await appResponse.json();
+        if (appData.success && appData.settings) {
+          setSettings(appData.settings);
+          localStorage.setItem('appSettings', JSON.stringify(appData.settings));
+        }
+      }
+
+      const privacyResponse = await fetch(`${getBackendUrl()}/user-management/settings`);
+      if (privacyResponse.ok) {
+        const privacyData = await privacyResponse.json();
+        if (privacyData.success && privacyData.settings) {
+          const settings = privacyData.settings;
+          const privacySettings = {
+            profileVisibility: settings.privacy?.profileVisibility || "private",
+            showEmail: settings.privacy?.showEmail || false,
+            marketingEmails: settings.privacy?.marketingEmails || false,
+            activityVisibility: settings.privacy?.activityVisibility || "followers",
+            searchable: settings.privacy?.searchable || true,
+            publicProfile: settings.privacy?.publicProfile || false
+          };
+          setPrivacySettings(privacySettings);
+          localStorage.setItem('privacySettings', JSON.stringify(privacySettings));
         }
       }
     } catch (error) {
       console.error('Error loading settings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load settings",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSettingChange = (field: keyof AppSettings, value: string | number | boolean) => {
-    setSettings(prev => ({
-      ...prev,
+    const newSettings = {
+      ...settings,
       [field]: value
-    }));
+    };
+    
+    setSettings(newSettings);
+
+    // Save to localStorage immediately
+    localStorage.setItem('appSettings', JSON.stringify(newSettings));
+
+    // Apply theme changes immediately
+    if (field === 'theme') {
+      if (value !== 'system') {
+        document.documentElement.setAttribute('data-theme', value as string);
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+    }
   };
 
-  const handleSave = async () => {
-    setIsSaving(true);
+  const handlePrivacyChange = (field: keyof PrivacySettings, value: string | boolean) => {
+    const newPrivacySettings = {
+      ...privacySettings,
+      [field]: value
+    };
+    
+    setPrivacySettings(newPrivacySettings);
+
+    // Save to localStorage immediately
+    localStorage.setItem('privacySettings', JSON.stringify(newPrivacySettings));
+  };
+
+  const saveToDatabase = async () => {
     try {
-      const response = await fetch('/api/user-management/app-settings', {
+      // Save app settings
+      await fetch(`${getBackendUrl()}/user-management/app-settings`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -109,312 +186,261 @@ export default function SettingsTab() {
         body: JSON.stringify(settings),
       });
 
-      if (response.ok) {
-        toast.success('Settings saved successfully');
-        // Apply theme changes immediately
-        if (settings.theme !== 'system') {
-          document.documentElement.setAttribute('data-theme', settings.theme);
-        } else {
-          document.documentElement.removeAttribute('data-theme');
-        }
-      } else {
-        throw new Error('Failed to save settings');
-      }
+      // Save privacy settings
+      await fetch(`${getBackendUrl()}/user-management/settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          privacy: privacySettings,
+          updated_at: new Date().toISOString()
+        }),
+      });
     } catch (error) {
-      console.error('Error saving settings:', error);
-      toast.error('Failed to save settings');
-    } finally {
-      setIsSaving(false);
+      console.error('Error saving settings to database:', error);
     }
   };
 
-  const getThemeIcon = (theme: string) => {
-    switch (theme) {
-      case 'light':
-        return <Sun className="w-4 h-4" />;
-      case 'dark':
-        return <Moon className="w-4 h-4" />;
-      case 'system':
-        return <Monitor className="w-4 h-4" />;
-      default:
-        return <Monitor className="w-4 h-4" />;
-    }
-  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      {/* APPEARANCE SETTINGS */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Palette className="w-5 h-5" />
-            Appearance
-          </CardTitle>
-          <CardDescription>
-            Customize the look and feel of the application
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Theme</Label>
-            <Select value={settings.theme} onValueChange={(value: 'light' | 'dark' | 'system') => handleSettingChange('theme', value)}>
-              <SelectTrigger>
-                <div className="flex items-center gap-2">
-                  {getThemeIcon(settings.theme)}
-                  <SelectValue placeholder="Select theme" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="light">
-                  <div className="flex items-center gap-2">
-                    <Sun className="w-4 h-4" />
-                    Light
-                  </div>
-                </SelectItem>
-                <SelectItem value="dark">
-                  <div className="flex items-center gap-2">
-                    <Moon className="w-4 h-4" />
-                    Dark
-                  </div>
-                </SelectItem>
-                <SelectItem value="system">
-                  <div className="flex items-center gap-2">
-                    <Monitor className="w-4 h-4" />
-                    System
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Animations</Label>
-              <p className="text-sm text-muted-foreground">
-                Enable smooth animations and transitions
-              </p>
-            </div>
-            <Switch
-              checked={settings.animationsEnabled}
-              onCheckedChange={(checked) => handleSettingChange('animationsEnabled', checked)}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Reduced Motion</Label>
-              <p className="text-sm text-muted-foreground">
-                Minimize motion for accessibility
-              </p>
-            </div>
-            <Switch
-              checked={settings.reducedMotion}
-              onCheckedChange={(checked) => handleSettingChange('reducedMotion', checked)}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* LANGUAGE & REGION */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="w-5 h-5" />
-            Language & Region
-          </CardTitle>
-          <CardDescription>
-            Set your preferred language and timezone
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Language</Label>
-            <Select value={settings.language} onValueChange={(value) => handleSettingChange('language', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select language" />
-              </SelectTrigger>
-              <SelectContent>
-                {languages.map((lang) => (
-                  <SelectItem key={lang.value} value={lang.value}>
-                    {lang.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Timezone</Label>
-            <Select value={settings.timezone} onValueChange={(value) => handleSettingChange('timezone', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select timezone" />
-              </SelectTrigger>
-              <SelectContent>
-                {timezones.map((tz) => (
-                  <SelectItem key={tz.value} value={tz.value}>
-                    {tz.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* AUDIO SETTINGS */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            {settings.soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-            Audio
-          </CardTitle>
-          <CardDescription>
-            Configure audio preferences
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Sound Effects</Label>
-              <p className="text-sm text-muted-foreground">
-                Enable sound effects and notifications
-              </p>
-            </div>
-            <Switch
-              checked={settings.soundEnabled}
-              onCheckedChange={(checked) => handleSettingChange('soundEnabled', checked)}
-            />
-          </div>
-
-          {settings.soundEnabled && (
-            <div className="space-y-2">
-              <Label>Volume: {settings.soundVolume}%</Label>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={settings.soundVolume}
-                onChange={(e) => handleSettingChange('soundVolume', parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-              />
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* CONTENT SETTINGS */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5" />
-            Content & Quality
-          </CardTitle>
-          <CardDescription>
-            Configure content preferences and quality settings
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Moderate Lyrics</Label>
-              <p className="text-sm text-muted-foreground">
-                Generate clean lyrics only
-              </p>
-            </div>
-            <Switch
-              checked={settings.moderateLyrics}
-              onCheckedChange={(checked) => handleSettingChange('moderateLyrics', checked)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Default Video Quality</Label>
-            <Select value={settings.quality} onValueChange={(value: '720p' | '1080p' | '4k') => handleSettingChange('quality', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select quality" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="720p">720p HD</SelectItem>
-                <SelectItem value="1080p">1080p Full HD</SelectItem>
-                <SelectItem value="4k">4K Ultra HD</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Max Video Length: {settings.maxVideoLength} minutes</Label>
-            <input
-              type="range"
-              min="1"
-              max="30"
-              value={settings.maxVideoLength}
-              onChange={(e) => handleSettingChange('maxVideoLength', parseInt(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Auto-play Videos</Label>
-              <p className="text-sm text-muted-foreground">
-                Automatically play videos when they load
-              </p>
-            </div>
-            <Switch
-              checked={settings.autoPlay}
-              onCheckedChange={(checked) => handleSettingChange('autoPlay', checked)}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Data Saving Mode</Label>
-              <p className="text-sm text-muted-foreground">
-                Reduce data usage by lowering quality
-              </p>
-            </div>
-            <Switch
-              checked={settings.dataSaving}
-              onCheckedChange={(checked) => handleSettingChange('dataSaving', checked)}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ADVANCED SETTINGS */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Zap className="w-5 h-5" />
-            Advanced
-          </CardTitle>
-          <CardDescription>
-            Advanced settings for power users
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Developer Mode</Label>
-              <p className="text-sm text-muted-foreground">
-                Enable developer tools and debug information
-              </p>
-            </div>
-            <Switch
-              checked={settings.developerMode}
-              onCheckedChange={(checked) => handleSettingChange('developerMode', checked)}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* SAVE BUTTON */}
-      <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={isSaving} className="gap-2">
-          <Save className="w-4 h-4" />
-          {isSaving ? "Saving..." : "Save Changes"}
-        </Button>
+    <div className="space-y-6 h-full flex flex-col">
+      {/* SETTINGS TITLE */}
+      <div className="flex items-center gap-2">
+        <div className="p-1.5 rounded-md bg-primary/10">
+          <Settings className="w-4 h-4 text-primary" />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold">Settings</h2>
+          <p className="text-xs text-muted-foreground">Manage your application preferences and privacy settings</p>
+        </div>
       </div>
+
+      {/* ALL SETTINGS IN SINGLE DIV */}
+      <div className="space-y-6">
+        {/* APPLICATION SETTINGS */}
+        <div className="bg-card border border-border rounded-lg p-4">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-md bg-blue-500/10">
+                <Palette className="w-4 h-4 text-blue-500" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold">Application Settings</h3>
+                <p className="text-xs text-muted-foreground">Customize your app experience</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* THEME SETTING */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">Theme</Label>
+                <Select value={settings.theme} onValueChange={(value: 'light' | 'dark' | 'system') => handleSettingChange('theme', value)}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Select theme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="light">
+                      <div className="flex items-center gap-2">
+                        <Sun className="w-3 h-3" />
+                        Light
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="dark">
+                      <div className="flex items-center gap-2">
+                        <Moon className="w-3 h-3" />
+                        Dark
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="system">
+                      <div className="flex items-center gap-2">
+                        <Monitor className="w-3 h-3" />
+                        System
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* LANGUAGE SETTING */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">Language</Label>
+                <Select value={settings.language} onValueChange={(value) => handleSettingChange('language', value)}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Select language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {languages.map((lang) => (
+                      <SelectItem key={lang.value} value={lang.value}>
+                        {lang.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* TIMEZONE SETTING */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">Timezone</Label>
+                <Select value={settings.timezone} onValueChange={(value) => handleSettingChange('timezone', value)}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Select timezone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timezones.map((tz) => (
+                      <SelectItem key={tz.value} value={tz.value}>
+                        {tz.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* PRIVACY SETTINGS */}
+        <div className="bg-card border border-border rounded-lg p-4 flex-1 flex flex-col">
+          <div className="space-y-4 flex-1 flex flex-col">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-md bg-green-500/10">
+                <Eye className="w-4 h-4 text-green-500" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold">Privacy Settings</h3>
+                <p className="text-xs text-muted-foreground">Control your privacy and visibility preferences</p>
+              </div>
+            </div>
+
+            <div className="space-y-4 flex-1">
+              {/* PROFILE VISIBILITY SETTINGS */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-medium text-muted-foreground">Profile Visibility</h4>
+                
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-1.5 rounded-md bg-purple-500/10">
+                      <User className="w-4 h-4 text-purple-500" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium">Public Profile</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Make your profile visible to other users
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={privacySettings.publicProfile}
+                    onCheckedChange={(checked) => handlePrivacyChange('publicProfile', checked)}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-1.5 rounded-md bg-blue-500/10">
+                      <Mail className="w-4 h-4 text-blue-500" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <Label className="text-sm font-medium">Show Email Address</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Display your email on your public profile
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={privacySettings.showEmail}
+                    onCheckedChange={(checked) => handlePrivacyChange('showEmail', checked)}
+                  />
+                </div>
+              </div>
+
+              {/* CONTENT PROMOTION SETTING */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                <div className="space-y-0.5">
+                  <Label className="text-sm font-medium">Content Promotion</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Allow Clipizy to promote the content on the website (Hashtags clipizy has to be activated) - will push the best creations on the homepage.
+                  </p>
+                </div>
+                <Switch
+                  checked={privacySettings.profileVisibility === "public"}
+                  onCheckedChange={(checked) => handlePrivacyChange('profileVisibility', checked ? "public" : "private")}
+                />
+              </div>
+
+              {/* MARKETING EMAILS SETTING */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                <div className="space-y-0.5">
+                  <Label className="text-sm font-medium">Marketing Emails</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Receive promotional emails and updates
+                  </p>
+                </div>
+                <Switch
+                  checked={privacySettings.marketingEmails}
+                  onCheckedChange={(checked) => handlePrivacyChange('marketingEmails', checked)}
+                />
+              </div>
+
+              {/* ACTIVITY VISIBILITY SETTING */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                <div className="flex items-center space-x-3">
+                  <div className="p-1.5 rounded-md bg-orange-500/10">
+                    <Activity className="w-4 h-4 text-orange-500" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label className="text-sm font-medium">Activity Visibility</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Control who can see your activity
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <select
+                    value={privacySettings.activityVisibility}
+                    onChange={(e) => handlePrivacyChange('activityVisibility', e.target.value)}
+                    className="px-2 py-1.5 border border-input rounded-md bg-background text-xs focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                  >
+                    <option value="public">Public</option>
+                    <option value="followers">Followers Only</option>
+                    <option value="private">Private</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* SEARCHABLE SETTING */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                <div className="flex items-center space-x-3">
+                  <div className="p-1.5 rounded-md bg-cyan-500/10">
+                    <Search className="w-4 h-4 text-cyan-500" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label className="text-sm font-medium">Searchable Profile</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Allow others to find your profile through search
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  checked={privacySettings.searchable}
+                  onCheckedChange={(checked) => handlePrivacyChange('searchable', checked)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }

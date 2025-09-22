@@ -526,6 +526,7 @@ class UnifiedQueueManager:
                     return
 
             # Get ComfyUI manager to generate workflow data
+            # Import here to avoid circular dependency
             from api.services.comfyui_service import get_comfyui_manager
             comfyui_manager = get_comfyui_manager()
 
@@ -536,6 +537,7 @@ class UnifiedQueueManager:
             )
 
             # Create a temporary service instance for this pod
+            # Import here to avoid circular dependency
             from api.services.comfyui_service import ComfyUIService
             service = ComfyUIService(
                 pod_ip=pod_info.get("ip"),

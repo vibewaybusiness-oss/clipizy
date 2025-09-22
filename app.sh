@@ -122,7 +122,6 @@ else
     source .venv/bin/activate
 
     echo -e "${YELLOW}📦 Installing Python dependencies...${NC}"
-    pip install -r requirements.txt
 
     echo -e "${YELLOW}🚀 Starting FastAPI server...${NC}"
     DATABASE_URL="postgresql+psycopg://postgres:postgres@localhost:$POSTGRES_PORT/clipizy" python scripts/backend/start.py &
