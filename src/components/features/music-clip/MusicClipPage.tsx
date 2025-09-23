@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import {
   useDragAndDrop, 
   useMusicAnalysis 
 } from "@/hooks";
+import { useAuth } from "@/contexts/auth-context";
 import { projectsAPI } from "@/lib/api/projects";
 import { musicClipAPI } from "@/lib/api/music-clip";
 import { musicService } from "@/lib/api/music";
@@ -39,7 +41,7 @@ import { AIAnalysisOverlay } from "@/components/ui/ai-analysis-overlay";
 import { MusicAnalysisVisualizer } from "@/components/forms/MusicAnalysisVisualizer";
 import { OverviewLayout } from "@/components/forms/StepOverview";
 
-function MusicClipPage() {
+const MusicClipPage = React.memo(function MusicClipPage() {
   // Custom hooks for state management
   const { toast } = useToast();
   const router = useRouter();
@@ -47,6 +49,7 @@ function MusicClipPage() {
   const urlProjectId = searchParams.get('projectId');
   const isNewProject = searchParams.get('new') !== null;
   const projectManagement = useProjectManagement();
+  const { user, loading: authLoading } = useAuth();
 
   // Use URL projectId if available, otherwise use persisted projectId
   // If it's a new project, don't use persisted projectId
@@ -58,8 +61,35 @@ function MusicClipPage() {
     isNewProject, 
     currentProjectId: projectManagement.state.currentProjectId, 
     finalProjectId: projectId,
-    currentPath: typeof window !== 'undefined' ? window.location.pathname : 'SSR'
+    currentPath: typeof window !== 'undefined' ? window.location.pathname : 'SSR',
+    user: user ? { id: user.id, email: user.email } : null,
+    authLoading
   });
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      console.log('User not authenticated, redirecting to login');
+      router.push('/auth/login');
+    }
+  }, [user, authLoading, router]);
+
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render the main content if user is not authenticated
+  if (!user) {
+    return null;
+  }
 
   // Track URL changes to detect redirects and prevent them
   useEffect(() => {
@@ -167,6 +197,7 @@ function MusicClipPage() {
   const musicAnalysis = useMusicAnalysis(projectId);
   const waveformRef = useRef<WaveformVisualizerRef>(null);
   const lastProcessedDuration = useRef<number>(0);
+  const lastProcessedAudioFile = useRef<File | null>(null);
 
   // TRACK VALIDATION SNAPSHOT FOR LIVE UI
   const [trackValidity, setTrackValidity] = useState<Record<string, boolean>>({});
@@ -185,6 +216,32 @@ function MusicClipPage() {
   const loadAnalysisData = useCallback(async (projectId: string) => {
     try {
       console.log('Loading analysis data for project:', projectId);
+      
+      // Check if user is authenticated
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+      if (!token) {
+        console.log('User not authenticated, skipping analysis data load');
+        return;
+      }
+      
+      // Additional check: verify token is not expired
+      try {
+        if (token && typeof window !== 'undefined') {
+          const tokenData = JSON.parse(atob(token.split('.')[1]));
+          const currentTime = Math.floor(Date.now() / 1000);
+          if (tokenData.exp && tokenData.exp < currentTime) {
+            console.log('Token expired, skipping analysis data load');
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user');
+            return;
+          }
+        }
+      } catch (error) {
+        console.log('Invalid token format, skipping analysis data load');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+        return;
+      }
       
       // Validate project ID format (should be a valid UUID)
       if (!isValidUUID(projectId)) {
@@ -285,7 +342,11 @@ function MusicClipPage() {
         console.error('Error loading analysis data:', error);
         
         // Handle specific error cases
-        if (error.status === 404) {
+        if (error.status === 401 || error.status === 403) {
+          console.log('Authentication error, user needs to log in');
+          // Don't show error toast for auth errors, just log and skip
+          return;
+        } else if (error.status === 404) {
           toast({
             variant: "destructive",
             title: "Project Not Found",
@@ -396,12 +457,7 @@ function MusicClipPage() {
     musicTracks.musicTracks
   ]);
 
-  // Force validation refresh on page load and when tracks change
-  useEffect(() => {
-    console.log('Force validation refresh - tracks loaded or page reloaded');
-    // This will trigger the validation effect above by changing the dependency array
-    setTrackValidity(prev => ({ ...prev }));
-  }, [musicTracks.musicTracks.length, musicTracks.musicTracks.map(t => t.id).join(',')]);
+  // Removed unnecessary force validation refresh effect to prevent excessive re-renders
 
   // Load appropriate descriptions when navigating to step 4 (prompt step)
   useEffect(() => {
@@ -469,11 +525,20 @@ function MusicClipPage() {
   // Set audio duration when audio file changes
   useEffect(() => {
     if (musicClipState.state.audioFile && musicClipState.state.audioFile.size > 0) {
+      // Check if we've already processed this file
+      if (lastProcessedAudioFile.current === musicClipState.state.audioFile) {
+        console.log('[MUSIC CLIP] Audio file already processed, skipping duration detection');
+        return;
+      }
+
       // Validate that audioFile is actually a File or Blob object
       if (!(musicClipState.state.audioFile instanceof File) && !(musicClipState.state.audioFile instanceof Blob)) {
         console.warn('[MUSIC CLIP] audioFile is not a File or Blob object:', typeof musicClipState.state.audioFile);
         return;
       }
+
+      // Mark this file as being processed
+      lastProcessedAudioFile.current = musicClipState.state.audioFile;
 
       // Only try to get duration for files with actual content
       const tempUrl = URL.createObjectURL(musicClipState.state.audioFile);
@@ -541,6 +606,9 @@ function MusicClipPage() {
       // File is empty, set duration to 0
       console.log('[MUSIC CLIP] Empty file detected, setting duration to 0');
       musicClipState.actions.setAudioDuration(0);
+    } else if (!musicClipState.state.audioFile) {
+      // No audio file, reset the processed file ref
+      lastProcessedAudioFile.current = null;
     }
   }, [musicClipState.state.audioFile]);
 
@@ -2067,7 +2135,11 @@ function MusicClipPage() {
       </div>
     </>
   );
-}
+}, (prevProps, nextProps) => {
+  // Custom comparison function - since this component has no props, it should never re-render
+  // unless the component is actually unmounted and remounted
+  return true; // Always return true to prevent re-renders based on props
+});
 
 export default MusicClipPage;
 

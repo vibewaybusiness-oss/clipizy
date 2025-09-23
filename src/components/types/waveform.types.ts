@@ -1,4 +1,4 @@
-import { Scene } from './vibewave.types';
+import { Scene } from './clipizy.types';
 
 export interface WaveformVisualizerRef {
   generateWaveformImage: () => string | null;

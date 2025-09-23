@@ -163,7 +163,7 @@ else
     else
         echo -e "${RED}❌ Failed to start Next.js${NC}"
         echo -e "${YELLOW}💡 To fix this issue, run the following commands in WSL:${NC}"
-        echo -e "${YELLOW}   cd /home/unix/code/vibewave${NC}"
+        echo -e "${YELLOW}   cd /home/unix/code/clipizy${NC}"
         echo -e "${YELLOW}   rm -rf node_modules package-lock.json .next${NC}"
         echo -e "${YELLOW}   npm install${NC}"
         echo -e "${YELLOW}   npm run dev${NC}"

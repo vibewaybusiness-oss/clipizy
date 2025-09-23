@@ -130,6 +130,7 @@ export class ProjectsService extends BaseApiClient {
   }> {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('projectId', projectId); // Add projectId to form data
     formData.append('ai_generated', String(options.ai_generated || false));
     formData.append('instrumental', String(options.instrumental || false));
 
@@ -137,7 +138,7 @@ export class ProjectsService extends BaseApiClient {
     if (options.genre) formData.append('genre', options.genre);
     if (options.video_description) formData.append('video_description', options.video_description);
 
-    return this.request(API_PATHS.MUSIC_CLIP + `/projects/${projectId}/upload-track`, {
+    return this.request(API_PATHS.MUSIC_CLIP + '/upload-track', {
       method: 'POST',
       body: formData,
     });
@@ -172,13 +173,14 @@ export class ProjectsService extends BaseApiClient {
     const formData = new FormData();
     files.forEach(file => formData.append('files', file));
 
+    formData.append('projectId', projectId); // Add projectId to form data
     if (options.ai_generated !== undefined) formData.append('ai_generated', options.ai_generated.toString());
     if (options.prompt) formData.append('prompt', options.prompt);
     if (options.genre) formData.append('genre', options.genre);
     if (options.instrumental !== undefined) formData.append('instrumental', options.instrumental.toString());
     if (options.video_description) formData.append('video_description', options.video_description);
 
-    return this.request(API_PATHS.MUSIC_CLIP + `/projects/${projectId}/upload-tracks-batch`, {
+    return this.request(API_PATHS.MUSIC_CLIP + '/upload-tracks-batch', {
       method: 'POST',
       body: formData,
     });
@@ -188,7 +190,8 @@ export class ProjectsService extends BaseApiClient {
     projectId: string,
     settings: Partial<ProjectSettings>
   ): Promise<{ id: string; settings: ProjectSettings }> {
-    return this.post(API_PATHS.MUSIC_CLIP + `/projects/${projectId}/settings`, settings);
+    const requestBody = { projectId, ...settings };
+    return this.post(API_PATHS.MUSIC_CLIP + '/project-settings', requestBody);
   }
 
   async getProjectScript(projectId: string): Promise<ProjectScript> {
@@ -345,6 +348,32 @@ export class ProjectsService extends BaseApiClient {
       return;
     }
 
+    // Check if user is authenticated before saving
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    if (!token) {
+      console.log('User not authenticated, skipping auto-save');
+      return;
+    }
+
+    // Additional check: verify token is not expired
+    try {
+      if (token && typeof window !== 'undefined') {
+        const tokenData = JSON.parse(atob(token.split('.')[1]));
+        const currentTime = Math.floor(Date.now() / 1000);
+        if (tokenData.exp && tokenData.exp < currentTime) {
+          console.log('Token expired, skipping auto-save');
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('user');
+          return;
+        }
+      }
+    } catch (error) {
+      console.log('Invalid token format, skipping auto-save');
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user');
+      return;
+    }
+
     try {
       if (data.musicClipData) {
         await this.saveMusicClipData(projectId, data.musicClipData);
@@ -396,6 +425,32 @@ export class ProjectsService extends BaseApiClient {
   }
 
   private async saveAnalysisData(projectId: string, data: any) {
+    // Check if user is authenticated before saving analysis data
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    if (!token) {
+      console.log('User not authenticated, skipping analysis data save');
+      return;
+    }
+    
+    // Additional check: verify token is not expired
+    try {
+      if (token && typeof window !== 'undefined') {
+        const tokenData = JSON.parse(atob(token.split('.')[1]));
+        const currentTime = Math.floor(Date.now() / 1000);
+        if (tokenData.exp && tokenData.exp < currentTime) {
+          console.log('Token expired, skipping analysis data save');
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('user');
+          return;
+        }
+      }
+    } catch (error) {
+      console.log('Invalid token format, skipping analysis data save');
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user');
+      return;
+    }
+    
     if (data.music && Object.keys(data.music).length > 0) {
       await this.updateProjectAnalysis(projectId, data);
     }

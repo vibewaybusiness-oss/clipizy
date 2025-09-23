@@ -1,6 +1,6 @@
 # Scripts Directory
 
-This directory contains all startup, deployment, and utility scripts for the Vibewave project.
+This directory contains all startup, deployment, and utility scripts for the Clipizy project.
 
 ## Directory Structure
 

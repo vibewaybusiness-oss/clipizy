@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Heart, Github, Mail, Sparkles } from "lucide-react";
-import { ClipizyLogo } from "@/components/common/vibewave-logo";
+import { ClipizyLogo } from "@/components/common/clipizy-logo";
 
 const footerLinks = {
   product: [

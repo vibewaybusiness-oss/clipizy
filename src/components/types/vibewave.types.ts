@@ -44,7 +44,7 @@ export interface OverviewData {
   videoTransition?: string;
 }
 
-export interface VibewaveGeneratorState {
+export interface ClipizyGeneratorState {
   step: Step;
   generationMode: GenerationMode;
   audioFile: File | null;

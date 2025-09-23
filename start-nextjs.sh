@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Start Next.js development server
-cd /home/unix/code/vibewave
+cd /home/unix/code/clipizy
 
 # Set environment variables to avoid UNC path issues
 export NODE_OPTIONS="--max-old-space-size=4096"

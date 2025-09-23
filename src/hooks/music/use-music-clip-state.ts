@@ -316,7 +316,7 @@ export function useMusicClipState(projectId?: string | null) {
       if (settings) {
         localStorage.setItem(`musicClip_${projectId}_settings`, JSON.stringify(settings));
 
-        // Schedule auto-save to backend
+        // Schedule auto-save to backend only when settings actually change
         autoSaveService.scheduleSave(projectId, {
           musicClipData: {
             settings,
@@ -340,7 +340,7 @@ export function useMusicClipState(projectId?: string | null) {
       if (prompts) {
         localStorage.setItem(`musicClip_${projectId}_prompts`, JSON.stringify(prompts));
 
-        // Schedule auto-save to backend
+        // Schedule auto-save to backend only when prompts actually change
         autoSaveService.scheduleSave(projectId, {
           musicClipData: {
             settings,

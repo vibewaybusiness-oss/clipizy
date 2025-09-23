@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ClipizyLogo } from "@/components/common/vibewave-logo";
+import { ClipizyLogo } from "@/components/common/clipizy-logo";
 import { Home, ArrowLeft, Search } from "lucide-react";
 
 export default function NotFound() {

@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       params.append('instrumental', instrumental);
     }
 
-    const backendUrl = `${BACKEND_URL}/prompts/random?${params.toString()}`;
+    const backendUrl = `${BACKEND_URL}/api/prompts/random?${params.toString()}`;
     console.log('Calling backend URL:', backendUrl);
 
     // Add random delay between 1-1.5 seconds to simulate processing time

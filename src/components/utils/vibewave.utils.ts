@@ -1,4 +1,4 @@
-import { Scene, SettingsData } from '../types/vibewave.types';
+import { Scene, SettingsData } from '../types/clipizy.types';
 
 export const convertToCredits = (dollars: number, creditsRate: number): number => {
   const credits = dollars * creditsRate;

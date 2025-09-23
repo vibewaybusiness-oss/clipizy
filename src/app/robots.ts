@@ -14,6 +14,6 @@ export default function robots(): MetadataRoute.Robots {
         '/static/',
       ],
     },
-    sitemap: 'https://vibewave.ai/sitemap.xml',
+    sitemap: 'https://clipizy.ai/sitemap.xml',
   }
 }

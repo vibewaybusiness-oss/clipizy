@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/ui/use-toast";
-import { VibewaveGeneratorState, Step, GenerationMode, Scene, PromptData, SettingsData, OverviewData } from '../types/vibewave.types';
-import { fileToDataUri } from '../utils/vibewave.utils';
+import { ClipizyGeneratorState, Step, GenerationMode, Scene, PromptData, SettingsData, OverviewData } from '../types/clipizy.types';
+import { fileToDataUri } from '../utils/clipizy.utils';
 
 const SceneSchema = z.object({
   id: z.number(),
@@ -49,7 +49,7 @@ const OverviewSchema = z.object({
   videoTransition: z.string().optional(),
 });
 
-export const useVibewaveGenerator = () => {
+export const useClipizyGenerator = () => {
   const [step, setStep] = useState<Step>("UPLOAD");
   const [generationMode, setGenerationMode] = useState<GenerationMode>("upload");
   const [audioFile, setAudioFile] = useState<File | null>(null);

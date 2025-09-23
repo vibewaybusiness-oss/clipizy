@@ -21,25 +21,25 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://vibewave.ai'),
+  metadataBase: new URL('https://clipizy.ai'),
   alternates: {
-    canonical: 'https://vibewave.ai',
+    canonical: 'https://clipizy.ai',
   },
   openGraph: {
     title: 'VibeWave - AI-Powered Long-Form Media Content Creation Platform',
     description: 'Transform your audio into stunning music videos and automated social media content with advanced AI. Create professional long-form media content for social platforms in minutes.',
-    url: 'https://vibewave.ai',
+    url: 'https://clipizy.ai',
     siteName: 'VibeWave',
     images: [
       {
-        url: 'https://vibewave.ai/og-image.jpg',
+        url: 'https://clipizy.ai/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'VibeWave - AI-Powered Long-Form Media Content Creation',
         type: 'image/jpeg',
       },
       {
-        url: 'https://vibewave.ai/og-image-square.jpg',
+        url: 'https://clipizy.ai/og-image-square.jpg',
         width: 1200,
         height: 1200,
         alt: 'VibeWave - AI Content Creation Platform',
@@ -54,9 +54,9 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'VibeWave - AI-Powered Long-Form Media Content Creation',
     description: 'Transform your audio into stunning music videos and automated social media content with advanced AI. Create professional content in minutes.',
-    images: ['https://vibewave.ai/og-image.jpg'],
-    creator: '@vibewave',
-    site: '@vibewave',
+    images: ['https://clipizy.ai/og-image.jpg'],
+    creator: '@clipizy',
+    site: '@clipizy',
   },
   robots: {
     index: true,

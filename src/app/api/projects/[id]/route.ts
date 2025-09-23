@@ -9,7 +9,7 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const response = await fetch(`${BACKEND_URL}/projects/${id}`, {
+    const response = await fetch(`${BACKEND_URL}/api/projects/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    const response = await fetch(`${BACKEND_URL}/projects/${id}`, {
+    const response = await fetch(`${BACKEND_URL}/api/projects/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    const response = await fetch(`${BACKEND_URL}/projects/${id}`, {
+    const response = await fetch(`${BACKEND_URL}/api/projects/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

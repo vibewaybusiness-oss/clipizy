@@ -1,163 +1,76 @@
-from .user import UserCreate, UserRead, UserUpdate, UserLogin, Token
-from .oauth import OAuthTokenRequest, OAuthUserInfo, OAuthResponse
-from .social_account import SocialAccountCreate, SocialAccountRead
-from .project import ProjectCreate, ProjectRead, ProjectUpdate
-from .track import TrackCreate, TrackRead
-from .video import VideoCreate, VideoRead
-from .image import ImageCreate, ImageRead
-from .audio import AudioCreate, AudioRead
-from .export import ExportCreate, ExportRead
-from .stats import StatsRead
-from .job import JobCreate, JobResponse
-from .analysis import AnalysisResponse
-from .pricing import (
-    CreditsTransactionCreate,
-    CreditsTransactionRead,
-    CreditsBalance,
-    CreditsPurchaseRequest,
-    CreditsSpendRequest,
-    PaymentCreate,
-    PaymentRead,
-    PaymentIntentCreate,
-    PaymentIntentResponse,
-    PaymentWebhookData
+# Import from organized subdirectories
+from .auth import (
+    UserCreate, UserRead, UserUpdate, UserLogin, Token,
+    OAuthTokenRequest, OAuthUserInfo, OAuthResponse,
+    SocialAccountCreate, SocialAccountRead
 )
-from .comfyui import (
-    WorkflowType,
-    BaseWorkflowInput,
-    QwenImageInput,
-    FluxImageInput,
-    WanVideoInput,
-    MMAudioInput,
-    VoicemakerInput,
-    UpscalingInput,
-    InterpolationInput,
-    WorkflowResult,
-    WorkflowRequest,
-    ComfyUIHealthStatus,
-    PodHealthStatus,
-    WorkflowConfig,
-    ComfyUIConfig
+from .media import (
+    TrackCreate, TrackRead,
+    VideoCreate, VideoRead,
+    ImageCreate, ImageRead,
+    AudioCreate, AudioRead,
+    AnalysisResponse,
+    ExportCreate, ExportRead
 )
-from .runpod import (
-    RunPodApiResponse,
-    RunPodUser,
-    RunPodPod,
-    RestPodConfig,
-    PodUpdateRequest,
-    NetworkVolume,
-    NetworkVolumeCreate,
-    GpuType,
-    CloudType,
-    WorkflowInput,
-    WorkflowResult as RunPodWorkflowResult,
-    ComfyUIRequest,
-    QueueStatus,
-    Template,
-    TemplateCreate,
-    PodHealthStatus as RunPodPodHealthStatus,
-    ServiceHealthStatus
+from .ai import (
+    # ComfyUI
+    WorkflowType, BaseWorkflowInput, QwenImageInput, FluxImageInput,
+    WanVideoInput, MMAudioInput, VoicemakerInput, UpscalingInput,
+    InterpolationInput, WorkflowResult, WorkflowRequest,
+    ComfyUIHealthStatus, PodHealthStatus, WorkflowConfig, ComfyUIConfig,
+    # RunPod
+    RunPodApiResponse, RunPodUser, RunPodPod, RestPodConfig,
+    PodUpdateRequest, NetworkVolume, NetworkVolumeCreate, GpuType,
+    CloudType, WorkflowInput, WorkflowResult as RunPodWorkflowResult,
+    ComfyUIRequest, QueueStatus, Template, TemplateCreate,
+    PodHealthStatus as RunPodPodHealthStatus, ServiceHealthStatus
 )
+from .business import (
+    # Pricing & Payments
+    CreditsTransactionCreate, CreditsTransactionRead, CreditsBalance,
+    CreditsPurchaseRequest, CreditsSpendRequest, PaymentCreate,
+    PaymentRead, PaymentIntentCreate, PaymentIntentResponse, PaymentWebhookData,
+    # Projects & Jobs
+    ProjectCreate, ProjectRead, ProjectUpdate,
+    JobCreate, JobResponse,
+    # Settings
+    DefaultSettings, UserSettingsUpdate, UserSettingsResponse
+)
+from .analytics import StatsRead
 
 __all__ = [
-    # Users
-    "UserCreate",
-    "UserRead",
-    "UserUpdate",
-    "UserLogin",
-    "Token",
-
-    # OAuth
-    "OAuthTokenRequest",
-    "OAuthUserInfo",
-    "OAuthResponse",
-
-    # Social Accounts
-    "SocialAccountCreate",
-    "SocialAccountRead",
-
-    # Projects
-    "ProjectCreate",
-    "ProjectRead",
-    "ProjectUpdate",
-
-    # Tracks
-    "TrackCreate",
-    "TrackRead",
-
-    # Videos
-    "VideoCreate",
-    "VideoRead",
-
-    # Images
-    "ImageCreate",
-    "ImageRead",
-
-    # Audio
-    "AudioCreate",
-    "AudioRead",
-
-    # Exports
-    "ExportCreate",
-    "ExportRead",
-
-    # Stats
-    "StatsRead",
-
-    # Jobs
-    "JobCreate",
-    "JobResponse",
-
-    # Analysis
+    # Auth & Users
+    "UserCreate", "UserRead", "UserUpdate", "UserLogin", "Token",
+    "OAuthTokenRequest", "OAuthUserInfo", "OAuthResponse",
+    "SocialAccountCreate", "SocialAccountRead",
+    
+    # Media
+    "TrackCreate", "TrackRead",
+    "VideoCreate", "VideoRead",
+    "ImageCreate", "ImageRead",
+    "AudioCreate", "AudioRead",
     "AnalysisResponse",
-
-    # Credits
-    "CreditsTransactionCreate",
-    "CreditsTransactionRead",
-    "CreditsBalance",
-    "CreditsPurchaseRequest",
-    "CreditsSpendRequest",
-
-    # Payments
-    "PaymentCreate",
-    "PaymentRead",
-    "PaymentIntentCreate",
-    "PaymentIntentResponse",
-    "PaymentWebhookData",
-
-    # ComfyUI
-    "WorkflowType",
-    "BaseWorkflowInput",
-    "QwenImageInput",
-    "FluxImageInput",
-    "WanVideoInput",
-    "MMAudioInput",
-    "VoicemakerInput",
-    "UpscalingInput",
-    "InterpolationInput",
-    "WorkflowResult",
-    "WorkflowRequest",
-    "ComfyUIHealthStatus",
-    "PodHealthStatus",
-    "WorkflowConfig",
-    "ComfyUIConfig",
-
-    # RunPod
-    "RunPodApiResponse",
-    "RunPodUser",
-    "RunPodPod",
-    "RestPodConfig",
-    "PodUpdateRequest",
-    "NetworkVolume",
-    "NetworkVolumeCreate",
-    "GpuType",
-    "CloudType",
-    "WorkflowInput",
-    "RunPodWorkflowResult",
-    "ComfyUIRequest",
-    "QueueStatus",
-    "Template",
-    "TemplateCreate",
-    "RunPodPodHealthStatus",
-    "ServiceHealthStatus",
+    "ExportCreate", "ExportRead",
+    
+    # AI & ML
+    "WorkflowType", "BaseWorkflowInput", "QwenImageInput", "FluxImageInput",
+    "WanVideoInput", "MMAudioInput", "VoicemakerInput", "UpscalingInput",
+    "InterpolationInput", "WorkflowResult", "WorkflowRequest",
+    "ComfyUIHealthStatus", "PodHealthStatus", "WorkflowConfig", "ComfyUIConfig",
+    "RunPodApiResponse", "RunPodUser", "RunPodPod", "RestPodConfig",
+    "PodUpdateRequest", "NetworkVolume", "NetworkVolumeCreate", "GpuType",
+    "CloudType", "WorkflowInput", "RunPodWorkflowResult",
+    "ComfyUIRequest", "QueueStatus", "Template", "TemplateCreate",
+    "RunPodPodHealthStatus", "ServiceHealthStatus",
+    
+    # Business
+    "CreditsTransactionCreate", "CreditsTransactionRead", "CreditsBalance",
+    "CreditsPurchaseRequest", "CreditsSpendRequest", "PaymentCreate",
+    "PaymentRead", "PaymentIntentCreate", "PaymentIntentResponse", "PaymentWebhookData",
+    "ProjectCreate", "ProjectRead", "ProjectUpdate",
+    "JobCreate", "JobResponse",
+    "DefaultSettings", "UserSettingsUpdate", "UserSettingsResponse",
+    
+    # Analytics
+    "StatsRead"
 ]

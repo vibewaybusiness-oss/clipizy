@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://vibewave.ai'
+  const baseUrl = 'https://clipizy.ai'
   
   return [
     {

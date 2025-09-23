@@ -24,10 +24,10 @@ from api.routers import (
     social_media_router,
     automation_router
 )
-from api.routers.points_router import router as points_router
+from api.routers.business.points_router import router as points_router
 
 # Import services for initialization
-from api.services.vercel_compatibility import check_ml_availability
+from api.services.utils.vercel_compatibility import check_ml_availability
 from api.db import create_tables
 from api.config.settings import settings
 

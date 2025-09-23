@@ -57,16 +57,18 @@ export function useMusicTracks(projectId?: string | null) {
 
       localStorage.setItem(`musicClip_${projectId}_musicTracks`, JSON.stringify(serializableTracks));
 
-      // Schedule auto-save to backend with original tracks (including File objects)
-      autoSaveService.scheduleSave(projectId, {
-        tracksData: {
-          musicTracks,
-          selectedTrackId,
-          selectedTrackIds,
-          trackDescriptions,
-          trackGenres
-        }
-      });
+      // Only schedule auto-save if tracks actually changed (not just on mount)
+      if (musicTracks.length > 0) {
+        autoSaveService.scheduleSave(projectId, {
+          tracksData: {
+            musicTracks,
+            selectedTrackId,
+            selectedTrackIds,
+            trackDescriptions,
+            trackGenres
+          }
+        });
+      }
     }
   }, [musicTracks, projectId, selectedTrackId, selectedTrackIds, trackDescriptions, trackGenres]);
 
@@ -77,70 +79,26 @@ export function useMusicTracks(projectId?: string | null) {
       } else {
         localStorage.removeItem(`musicClip_${projectId}_selectedTrackId`);
       }
-
-      // Schedule auto-save for selected track changes
-      autoSaveService.scheduleSave(projectId, {
-        tracksData: {
-          musicTracks,
-          selectedTrackId,
-          selectedTrackIds,
-          trackDescriptions,
-          trackGenres
-        }
-      });
     }
-  }, [selectedTrackId, projectId, musicTracks, selectedTrackIds, trackDescriptions, trackGenres]);
+  }, [selectedTrackId, projectId]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && projectId) {
       localStorage.setItem(`musicClip_${projectId}_selectedTrackIds`, JSON.stringify(selectedTrackIds));
-
-      // Schedule auto-save for selected track IDs changes
-      autoSaveService.scheduleSave(projectId, {
-        tracksData: {
-          musicTracks,
-          selectedTrackId,
-          selectedTrackIds,
-          trackDescriptions,
-          trackGenres
-        }
-      });
     }
-  }, [selectedTrackIds, projectId, musicTracks, selectedTrackId, trackDescriptions, trackGenres]);
+  }, [selectedTrackIds, projectId]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && projectId) {
       localStorage.setItem(`musicClip_${projectId}_trackDescriptions`, JSON.stringify(trackDescriptions));
-
-      // Schedule auto-save for track descriptions changes
-      autoSaveService.scheduleSave(projectId, {
-        tracksData: {
-          musicTracks,
-          selectedTrackId,
-          selectedTrackIds,
-          trackDescriptions,
-          trackGenres
-        }
-      });
     }
-  }, [trackDescriptions, projectId, musicTracks, selectedTrackId, selectedTrackIds, trackGenres]);
+  }, [trackDescriptions, projectId]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && projectId) {
       localStorage.setItem(`musicClip_${projectId}_trackGenres`, JSON.stringify(trackGenres));
-
-      // Schedule auto-save for track genres changes
-      autoSaveService.scheduleSave(projectId, {
-        tracksData: {
-          musicTracks,
-          selectedTrackId,
-          selectedTrackIds,
-          trackDescriptions,
-          trackGenres
-        }
-      });
     }
-  }, [trackGenres, projectId, musicTracks, selectedTrackId, selectedTrackIds, trackDescriptions]);
+  }, [trackGenres, projectId]);
 
   const addTracks = useCallback((newTracks: MusicTrack[]) => {
     setMusicTracks(prev => [...prev, ...newTracks]);

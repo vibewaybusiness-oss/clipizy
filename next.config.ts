@@ -44,8 +44,72 @@ const nextConfig: NextConfig = {
     
     return [
       {
-        source: '/api/:path*',
-        destination: `${backendUrl}/:path*`,
+        source: '/api/auth/:path*',
+        destination: `${backendUrl}/api/auth/:path*`,
+      },
+      {
+        source: '/api/projects/:path*',
+        destination: `${backendUrl}/api/projects/:path*`,
+      },
+      {
+        source: '/api/tracks/:path*',
+        destination: `${backendUrl}/api/tracks/:path*`,
+      },
+      {
+        source: '/api/exports/:path*',
+        destination: `${backendUrl}/api/exports/:path*`,
+      },
+      {
+        source: '/api/stats/:path*',
+        destination: `${backendUrl}/api/stats/:path*`,
+      },
+      {
+        source: '/api/jobs/:path*',
+        destination: `${backendUrl}/api/jobs/:path*`,
+      },
+      {
+        source: '/api/prompts/:path*',
+        destination: `${backendUrl}/api/prompts/:path*`,
+      },
+      {
+        source: '/api/analysis/:path*',
+        destination: `${backendUrl}/api/analysis/:path*`,
+      },
+      {
+        source: '/api/music-analysis/:path*',
+        destination: `${backendUrl}/api/music-analysis/:path*`,
+      },
+      {
+        source: '/api/particles/:path*',
+        destination: `${backendUrl}/api/particles/:path*`,
+      },
+      {
+        source: '/api/visualizers/:path*',
+        destination: `${backendUrl}/api/visualizers/:path*`,
+      },
+      {
+        source: '/api/comfyui/:path*',
+        destination: `${backendUrl}/api/comfyui/:path*`,
+      },
+      {
+        source: '/api/runpod/:path*',
+        destination: `${backendUrl}/api/runpod/:path*`,
+      },
+      {
+        source: '/api/credits/:path*',
+        destination: `${backendUrl}/api/credits/:path*`,
+      },
+      {
+        source: '/api/payments/:path*',
+        destination: `${backendUrl}/api/payments/:path*`,
+      },
+      {
+        source: '/api/social-media/:path*',
+        destination: `${backendUrl}/api/social-media/:path*`,
+      },
+      {
+        source: '/api/automation/:path*',
+        destination: `${backendUrl}/api/automation/:path*`,
       },
       {
         source: '/user-management/:path*',

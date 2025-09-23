@@ -6,7 +6,7 @@ export async function DELETE(request: NextRequest) {
   try {
     console.log('Music-clip reset projects API route called');
 
-    const backendUrl = `${BACKEND_URL}/music-clip/projects/reset`;
+    const backendUrl = `${BACKEND_URL}/api/music-clip/projects/reset`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();

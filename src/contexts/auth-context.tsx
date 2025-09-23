@@ -53,6 +53,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       if (typeof window !== 'undefined') {
         const token = localStorage.getItem('access_token');
+        const storedUser = localStorage.getItem('user');
+        
+        // First, try to restore user from localStorage for immediate UI update
+        if (token && storedUser) {
+          try {
+            const userData = JSON.parse(storedUser);
+            setUserState(userData);
+            
+            // Log user ID to console when user state is restored from localStorage
+            console.log('🔄 Auth State Restored (from localStorage)');
+            console.log('👤 User ID:', userData.id);
+            console.log('📧 User Email:', userData.email);
+            console.log('👨‍💼 User Name:', userData.name);
+          } catch (error) {
+            console.error('Error parsing stored user data:', error);
+            localStorage.removeItem('user');
+          }
+        }
+        
+        // Then verify with the server
         if (token) {
           let response: Response;
           try {
@@ -67,21 +87,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Clear invalid token on network error
             localStorage.removeItem('access_token');
             localStorage.removeItem('user');
+            setUserState(null);
             return;
           }
           
           if (response.ok) {
             const userData = await response.json();
             setUserState(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
             
-            // Log user ID to console when user state is restored
-            console.log('🔄 Auth State Restored');
+            // Log user ID to console when user state is verified with server
+            console.log('🔄 Auth State Verified (from server)');
             console.log('👤 User ID:', userData.id);
             console.log('📧 User Email:', userData.email);
             console.log('👨‍💼 User Name:', userData.name);
           } else {
             localStorage.removeItem('access_token');
             localStorage.removeItem('user');
+            setUserState(null);
           }
         }
       }
@@ -153,7 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, name?: string): Promise<boolean> => {
+  const signUp = async (email: string, password: string, name?: string): Promise<{ success: boolean; error?: string }> => {
     setLoading(true);
     try {
       let response: Response;
@@ -167,7 +190,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       } catch (error) {
         console.error('Network error during sign up:', error);
-        throw new Error('Network error: Unable to connect to authentication server');
+        return { success: false, error: 'Network error: Unable to connect to authentication server' };
       }
 
       if (response.ok) {
@@ -181,12 +204,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('📧 User Email:', userData.email);
         console.log('👨‍💼 User Name:', userData.name);
         
-        return true;
+        return { success: true };
+      } else {
+        // Handle error response
+        const errorData = await response.json().catch(() => ({ detail: 'Registration failed' }));
+        return { success: false, error: errorData.detail || 'Registration failed' };
       }
-      return false;
     } catch (error) {
       console.error('Sign up error:', error);
-      return false;
+      return { success: false, error: 'An unexpected error occurred during registration' };
     } finally {
       setLoading(false);
     }

@@ -13,7 +13,7 @@ export async function POST(
     const body = await request.json();
     console.log('Request body:', body);
 
-    const backendUrl = `${BACKEND_URL}/music-clip/projects/${projectId}/settings`;
+    const backendUrl = `${BACKEND_URL}/api/music-clip/projects/${projectId}/settings`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();

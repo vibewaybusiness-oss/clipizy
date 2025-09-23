@@ -20,6 +20,8 @@ import {
 import Link from "next/link";
 import { useCredits } from "@/hooks/commerce/use-credits";
 import { ProtectedRoute } from "@/components/layout/protected-route";
+import { useLoading } from "@/contexts/loading-context";
+import { useEffect } from "react";
 
 const stats = [
   {
@@ -108,6 +110,15 @@ const quickActions = [
 
 export default function DashboardPage() {
   const { balance, loading } = useCredits();
+  const { setLoading } = useLoading();
+
+  useEffect(() => {
+    if (loading) {
+      setLoading(true, "Loading dashboard...");
+    } else {
+      setLoading(false);
+    }
+  }, [loading, setLoading]);
 
   return (
     <ProtectedRoute>

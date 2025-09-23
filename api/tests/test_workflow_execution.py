@@ -12,8 +12,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from api.services.queues_service import get_queue_manager
-from api.schemas.comfyui import WorkflowType, WorkflowRequest
+from api.services.ai.queues_service import get_queue_manager
+from api.schemas.ai.comfyui import WorkflowType, WorkflowRequest
 
 async def test_workflow_execution():
     """Test workflow execution with improved error logging"""

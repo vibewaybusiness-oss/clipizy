@@ -1,3 +1,3 @@
 // CUSTOM HOOKS
-export { useVibewaveGenerator } from './useVibewaveGenerator';
+export { useClipizyGenerator } from './useClipizyGenerator';
 export { useWaveformVisualizer } from './useWaveformVisualizer';

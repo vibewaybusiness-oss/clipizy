@@ -30,9 +30,16 @@ export abstract class BaseApiClient {
     
     const headers: HeadersInit = {};
 
+    console.log('Auth headers check:', {
+      hasToken: !!token,
+      tokenLength: token ? token.length : 0,
+      isExpired: token ? this.isTokenExpired(token) : false
+    });
+
     if (token) {
       // Check if token is expired
       if (this.isTokenExpired(token)) {
+        console.log('Token is expired, redirecting to login');
         if (typeof window !== 'undefined') {
           localStorage.removeItem('access_token');
           localStorage.removeItem('user');
@@ -41,6 +48,9 @@ export abstract class BaseApiClient {
         return headers;
       }
       headers['Authorization'] = `Bearer ${token}`;
+      console.log('Authorization header set');
+    } else {
+      console.log('No token found in localStorage');
     }
 
     return headers;
@@ -48,9 +58,18 @@ export abstract class BaseApiClient {
 
   private isTokenExpired(token: string): boolean {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const exp = payload.exp * 1000; // Convert to milliseconds
-      return Date.now() >= exp;
+      // Check if it's a JWT token (has 3 parts separated by dots)
+      if (token.split('.').length === 3) {
+        // JWT token - decode the payload (second part)
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const exp = payload.exp * 1000; // Convert to milliseconds
+        return Date.now() >= exp;
+      } else {
+        // Legacy simple base64-encoded JSON object
+        const payload = JSON.parse(atob(token));
+        const exp = payload.exp * 1000; // Convert to milliseconds
+        return Date.now() >= exp;
+      }
     } catch {
       return true; // If we can't parse the token, consider it expired
     }
@@ -73,6 +92,20 @@ export abstract class BaseApiClient {
       (headers as any)['Content-Type'] = 'application/json';
     }
     
+    // Debug logging
+    console.log('API Request:', {
+      url,
+      method: options.method || 'GET',
+      headers,
+      body: options.body
+    });
+    
+    // Check if this is a music-clip endpoint and user is not authenticated
+    if (endpoint.includes('/music-clip/') && !headers['Authorization']) {
+      console.log('Music-clip endpoint called without authentication, returning mock response');
+      return { success: false, error: 'Authentication required' } as T;
+    }
+    
     let response: Response;
     try {
       response = await fetch(url, {
@@ -82,6 +115,8 @@ export abstract class BaseApiClient {
     } catch (error) {
       // Handle network errors (connection refused, timeout, etc.)
       console.error('Network error during fetch:', error);
+      console.error('Request URL:', url);
+      console.error('Request options:', { ...options, headers });
       
       // Check if we're on the music-clip page and return a mock response
       const isClientSide = typeof window !== 'undefined';
@@ -125,6 +160,8 @@ export abstract class BaseApiClient {
         } catch (error) {
           // Handle network errors during retry
           console.error('Network error during retry fetch:', error);
+          console.error('Retry request URL:', url);
+          console.error('Retry request options:', { ...options, headers: newHeaders });
           
           // Check if we're on the music-clip page and return a mock response
           const isClientSide = typeof window !== 'undefined';

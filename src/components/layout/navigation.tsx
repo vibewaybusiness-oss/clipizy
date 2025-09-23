@@ -5,15 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
@@ -24,8 +15,6 @@ import {
   X, 
   Home, 
   User, 
-  Settings, 
-  LogOut, 
   Shield,
   Video,
   BarChart3,
@@ -34,9 +23,10 @@ import {
   DollarSign
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import { ClipizyLogo } from "@/components/common/clipizy-logo";
 
 export function Navigation() {
-  const { user, isAuthenticated, isAdmin, signOut } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -59,11 +49,6 @@ export function Navigation() {
 
   const isActive = (href: string) => pathname === href;
 
-  const handleSignOut = async () => {
-    await signOut();
-    setIsMobileMenuOpen(false);
-  };
-
   // Always use main navigation for consistent header
   const navigation = mainNavigation;
 
@@ -74,10 +59,8 @@ export function Navigation() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href={isAuthenticated ? "/dashboard" : "/"} className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <Video className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold gradient-text">Vibewave</span>
+              <ClipizyLogo className="w-8 h-8" />
+              <span className="text-xl font-bold gradient-text">Clipizy</span>
             </Link>
           </div>
 
@@ -122,75 +105,20 @@ export function Navigation() {
             })}
           </div>
 
-          {/* Right side - Auth buttons or User menu */}
+          {/* Right side - Auth buttons */}
           <div className="flex items-center space-x-4">
-            {isAuthenticated ? (
-              <>
-                {/* User Menu */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={user?.avatar} />
-                        <AvatarFallback>
-                          {user?.name?.charAt(0) || user?.email?.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {user?.name || "User"}
-                        </p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {user?.email}
-                        </p>
-                        {isAdmin && (
-                          <Badge variant="destructive" className="w-fit text-xs">
-                            Admin
-                          </Badge>
-                        )}
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard/settings" className="flex items-center">
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Settings</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    {isAdmin && (
-                      <DropdownMenuItem asChild>
-                        <Link href="/admin" className="flex items-center">
-                          <Shield className="mr-2 h-4 w-4" />
-                          <span>Admin Panel</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Sign out</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            ) : (
-              /* Auth buttons for non-authenticated users */
-              <div className="flex items-center space-x-2">
-                <Button variant="ghost" asChild>
-                  <Link href="/auth/login">Sign In</Link>
-                </Button>
-                <Button className="btn-gradient" asChild>
-                  <Link href="/auth/register">
-                    <Play className="w-4 h-4 mr-2" />
-                    Get Started
-                  </Link>
-                </Button>
-              </div>
-            )}
+            {/* Always show Sign In and Get Started buttons */}
+            <div className="flex items-center space-x-2">
+              <Button variant="ghost" asChild>
+                <Link href="/auth/login">Sign In</Link>
+              </Button>
+              <Button className="btn-gradient" asChild>
+                <Link href="/auth/register">
+                  <Play className="w-4 h-4 mr-2" />
+                  Get Started
+                </Link>
+              </Button>
+            </div>
 
             {/* Mobile menu button */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -261,32 +189,19 @@ export function Navigation() {
                     )}
                   </div>
 
-                  {isAuthenticated ? (
-                    <div className="border-t pt-4">
-                      <Button
-                        variant="ghost"
-                        onClick={handleSignOut}
-                        className="w-full justify-start text-red-600"
-                      >
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Sign out</span>
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="border-t pt-4 space-y-2">
-                      <Button variant="outline" className="w-full" asChild>
-                        <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
-                          Sign In
-                        </Link>
-                      </Button>
-                      <Button className="btn-gradient w-full" asChild>
-                        <Link href="/auth/register" onClick={() => setIsMobileMenuOpen(false)}>
-                          <Play className="w-4 h-4 mr-2" />
-                          Get Started
-                        </Link>
-                      </Button>
-                    </div>
-                  )}
+                  <div className="border-t pt-4 space-y-2">
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
+                        Sign In
+                      </Link>
+                    </Button>
+                    <Button className="btn-gradient w-full" asChild>
+                      <Link href="/auth/register" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Play className="w-4 h-4 mr-2" />
+                        Get Started
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>

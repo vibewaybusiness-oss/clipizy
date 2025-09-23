@@ -16,8 +16,8 @@ export function SEOHead({
   title = "VibeWave - AI-Powered Long-Form Media Content Creation",
   description = "Transform your audio into stunning music videos and automated social media content with advanced AI. Create professional long-form media content for social platforms in minutes.",
   keywords = "AI music video generator, automated social media content, long-form media creation, AI video generation, social media automation, content creation platform, music video maker, AI content creator, video automation, social media posts generator",
-  canonicalUrl = "https://vibewave.ai",
-  ogImage = "https://vibewave.ai/og-image.jpg",
+  canonicalUrl = "https://clipizy.ai",
+  ogImage = "https://clipizy.ai/og-image.jpg",
   ogType = "website",
   twitterCard = "summary_large_image",
   noindex = false,
@@ -59,8 +59,8 @@ export function SEOHead({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
       <meta name="twitter:image:alt" content={title} />
-      <meta name="twitter:site" content="@vibewave" />
-      <meta name="twitter:creator" content="@vibewave" />
+      <meta name="twitter:site" content="@clipizy" />
+      <meta name="twitter:creator" content="@clipizy" />
       
       {/* Additional SEO Meta Tags */}
       <meta name="theme-color" content="#6366f1" />

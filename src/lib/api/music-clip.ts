@@ -68,10 +68,20 @@ class MusicClipAPI extends BaseApiClient {
 
   async updateProjectSettings(projectId: string, settings: any): Promise<any> {
     try {
-      return await this.post<any>(`${API_PATHS.MUSIC_CLIP}/projects/${projectId}/settings`, settings);
+      const requestBody = { projectId, ...settings };
+      console.log('Updating project settings:', { projectId, settings, requestBody });
+      const result = await this.post<any>(`${API_PATHS.MUSIC_CLIP}/project-settings`, requestBody);
+      console.log('Project settings update result:', result);
+      return result;
     } catch (error) {
       // Handle network errors gracefully - don't throw the error
       console.warn('Failed to update project settings due to network error:', error);
+      console.warn('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        projectId,
+        settings
+      });
       // Return a mock response to prevent the error from propagating
       return { success: false, error: 'Network error' };
     }
@@ -90,7 +100,8 @@ class MusicClipAPI extends BaseApiClient {
   }
 
   async uploadTrack(projectId: string, file: File, additionalData?: Record<string, any>): Promise<any> {
-    return this.uploadFile<any>(`${API_PATHS.MUSIC_CLIP}/projects/${projectId}/upload-track`, file, additionalData);
+    const data = { projectId, ...additionalData };
+    return this.uploadFile<any>(`${API_PATHS.MUSIC_CLIP}/upload-track`, file, data);
   }
 
   async getProjectAnalysis(projectId: string): Promise<any> {

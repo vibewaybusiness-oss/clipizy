@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ClipizyLogo } from "@/components/common/vibewave-logo";
+import { ClipizyLogo } from "@/components/common/clipizy-logo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";

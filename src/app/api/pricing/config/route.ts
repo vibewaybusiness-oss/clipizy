@@ -4,7 +4,7 @@ export async function GET() {
   try {
     // Fetch pricing configuration from the backend API
     const backendUrl = process.env.BACKEND_URL;
-    const response = await fetch(`${backendUrl}/pricing/config`);
+    const response = await fetch(`${backendUrl}/api/payments/pricing/config`);
 
     if (!response.ok) {
       throw new Error(`Backend API responded with status: ${response.status}`);

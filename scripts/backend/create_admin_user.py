@@ -14,8 +14,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from api.db import get_database_url
 from api.models.user import User
-from api.services.auth_service import auth_service
-from api.schemas.user import UserCreate
+from api.services.auth.auth_service import auth_service
+from api.schemas.auth.user import UserCreate
 
 def create_admin_user():
     """Create an admin user"""
@@ -87,7 +87,7 @@ def create_admin_user():
         return False
 
 if __name__ == "__main__":
-    print("🔐 Vibewave Admin User Creator")
+    print("🔐 Clipizy Admin User Creator")
     print("=" * 40)
     
     success = create_admin_user()

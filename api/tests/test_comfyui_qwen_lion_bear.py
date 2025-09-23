@@ -14,8 +14,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from api.services.comfyui_service import get_comfyui_manager, WorkflowType, WorkflowRequest, QwenImageInput
-from api.services.runpod_manager import get_pod_manager
+from api.services.ai.comfyui_service import get_comfyui_manager, WorkflowType, WorkflowRequest, QwenImageInput
+from api.services.ai.runpod_manager import get_pod_manager
 
 class ComfyUIQwenLionBearTest:
     """Test class for ComfyUI Qwen image generation with lion and bear prompt"""

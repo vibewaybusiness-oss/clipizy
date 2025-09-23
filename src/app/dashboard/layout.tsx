@@ -4,51 +4,45 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Home,
   Plus,
   FolderOpen,
   Settings,
-  LogOut,
-  User,
   Menu,
   X,
-  ChevronDown
+  TestTube
 } from "lucide-react";
 import { ProtectedRoute } from "@/components/layout/protected-route";
-import { useAuth } from "@/contexts/auth-context";
+import { LoadingProvider, useLoading } from "@/contexts/loading-context";
+import { ClipizyLoadingOverlay } from "@/components/ui/clipizy-loading";
+import { useNavigationLoading } from "@/hooks/use-navigation-loading";
 
 const navigation = [
   { name: "Overview", href: "/dashboard", icon: Home },
   { name: "Projects", href: "/dashboard/projects", icon: FolderOpen },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
+  { name: "Test Loading", href: "/dashboard/testpage", icon: TestTube },
 ];
 
-export default function DashboardLayout({
+function DashboardLayoutContent({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
-  const { user, signOut } = useAuth();
-
-  const logout = async () => {
-    await signOut();
-  };
+  const { isLoading, loadingMessage } = useLoading();
+  
+  // Automatically handle loading states for navigation
+  useNavigationLoading();
 
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
+        {isLoading && (
+          <ClipizyLoadingOverlay message={loadingMessage} />
+        )}
         {/* MOBILE SIDEBAR OVERLAY */}
         {sidebarOpen && (
           <div
@@ -113,43 +107,6 @@ export default function DashboardLayout({
               </ul>
             </nav>
 
-            {/* USER PROFILE SECTION */}
-            <div className="p-2 border-t border-white/10">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="w-12 h-12 rounded-lg p-0 hover:bg-white/10 transition-all duration-200">
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage src={user?.avatar} alt={user?.name || "User"} />
-                      <AvatarFallback className="text-xs bg-white/10 text-white">
-                        {user?.name?.charAt(0)?.toUpperCase() || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 ml-2" align="start" side="right" sideOffset={8} forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user?.name || "User"}</p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user?.email || "user@example.com"}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard/settings" className="flex items-center">
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Settings</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} className="text-red-600 focus:text-red-600">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
 
           </div>
         </div>
@@ -175,5 +132,19 @@ export default function DashboardLayout({
         </div>
       </div>
     </ProtectedRoute>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <LoadingProvider>
+      <DashboardLayoutContent>
+        {children}
+      </DashboardLayoutContent>
+    </LoadingProvider>
   );
 }

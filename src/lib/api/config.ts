@@ -1,13 +1,11 @@
 // API Configuration
 import { getBackendUrl } from '@/lib/config';
 
-// Use Next.js API routes for development, production API for production
-export const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://api.vibewave.com' 
-  : '/api';
+// ALWAYS use Next.js API routes to ensure proper routing
+export const API_BASE_URL = '/api';
 
 export const API_PATHS = {
   AUTH: '/auth',
   API: '/api',
-  MUSIC_CLIP: '/api/music-clip',
+  MUSIC_CLIP: '/music-clip',
 } as const;

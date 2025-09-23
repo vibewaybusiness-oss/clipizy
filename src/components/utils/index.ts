@@ -1,3 +1,3 @@
 // UTILITY FUNCTIONS
-export * from './vibewave.utils';
+export * from './clipizy.utils';
 export * from './waveform.utils';

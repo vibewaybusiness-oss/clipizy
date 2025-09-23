@@ -16,7 +16,7 @@ src/components/
 ├── common/                      # Shared/common components
 │   ├── info-popup.tsx
 │   ├── music-logo.tsx
-│   ├── vibewave-logo.tsx
+│   ├── clipizy-logo.tsx
 │   ├── video-theater.tsx
 │   ├── timeline-header.tsx
 │   └── user-profile.tsx
@@ -32,16 +32,16 @@ src/components/
 │   ├── StepNavigation.tsx
 │   ├── generators/
 │   │   ├── ClipizyGenerator.tsx
-│   │   └── VibewaveGenerator.tsx
+│   │   └── ClipizyGenerator.tsx
 │   └── [step components]
 ├── types/                       # TypeScript type definitions
-│   ├── vibewave.types.ts
+│   ├── clipizy.types.ts
 │   └── waveform.types.ts
 ├── hooks/                       # Custom React hooks
-│   ├── useVibewaveGenerator.ts
+│   ├── useClipizyGenerator.ts
 │   └── useWaveformVisualizer.ts
 ├── utils/                       # Utility functions
-│   ├── vibewave.utils.ts
+│   ├── clipizy.utils.ts
 │   └── waveform.utils.ts
 └── index.ts                     # Main barrel export
 ```
@@ -49,9 +49,9 @@ src/components/
 ## Naming Conventions
 
 - **Component files**: PascalCase (e.g., `BudgetSlider.tsx`)
-- **Hook files**: camelCase with `use` prefix (e.g., `useVibewaveGenerator.ts`)
+- **Hook files**: camelCase with `use` prefix (e.g., `useClipizyGenerator.ts`)
 - **Utility files**: camelCase with `.utils.ts` suffix (e.g., `pricing.utils.ts`)
-- **Type files**: camelCase with `.types.ts` suffix (e.g., `vibewave.types.ts`)
+- **Type files**: camelCase with `.types.ts` suffix (e.g., `clipizy.types.ts`)
 
 ## Component Organization
 

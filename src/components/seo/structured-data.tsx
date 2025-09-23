@@ -14,17 +14,17 @@ export function StructuredData({ type, data }: StructuredDataProps) {
           "@type": "WebSite",
           "name": "VibeWave - AI-Powered Long-Form Media Content Creation",
           "alternateName": "VibeWave",
-          "url": "https://vibewave.ai",
+          "url": "https://clipizy.ai",
           "description": "Transform your audio into stunning music videos and automated social media content with advanced AI. Create professional long-form media content for social platforms in minutes.",
           "potentialAction": {
             "@type": "SearchAction",
-            "target": "https://vibewave.ai/search?q={search_term_string}",
+            "target": "https://clipizy.ai/search?q={search_term_string}",
             "query-input": "required name=search_term_string"
           },
           "publisher": {
             "@type": "Organization",
             "name": "VibeWave",
-            "url": "https://vibewave.ai"
+            "url": "https://clipizy.ai"
           }
         };
       
@@ -33,14 +33,14 @@ export function StructuredData({ type, data }: StructuredDataProps) {
           "@context": "https://schema.org",
           "@type": "Organization",
           "name": "VibeWave",
-          "url": "https://vibewave.ai",
-          "logo": "https://vibewave.ai/logo.png",
+          "url": "https://clipizy.ai",
+          "logo": "https://clipizy.ai/logo.png",
           "description": "Leading AI-powered platform for creating long-form media content, music videos, and automated social media posts for content creators and businesses.",
           "foundingDate": "2024",
           "sameAs": [
-            "https://twitter.com/vibewave",
-            "https://linkedin.com/company/vibewave",
-            "https://youtube.com/@vibewave"
+            "https://twitter.com/clipizy",
+            "https://linkedin.com/company/clipizy",
+            "https://youtube.com/@clipizy"
           ],
           "contactPoint": {
             "@type": "ContactPoint",
@@ -62,8 +62,8 @@ export function StructuredData({ type, data }: StructuredDataProps) {
           "applicationCategory": "MultimediaApplication",
           "operatingSystem": "Web Browser",
           "description": "AI-powered platform for creating music videos, long-form media content, and automated social media posts. Transform audio into stunning visual content with advanced artificial intelligence.",
-          "url": "https://vibewave.ai",
-          "screenshot": "https://vibewave.ai/screenshot.jpg",
+          "url": "https://clipizy.ai",
+          "screenshot": "https://clipizy.ai/screenshot.jpg",
           "softwareVersion": "2.0",
           "datePublished": "2024-01-01",
           "dateModified": "2024-12-01",
@@ -108,7 +108,7 @@ export function StructuredData({ type, data }: StructuredDataProps) {
             "name": "VibeWave"
           },
           "category": "Software",
-          "image": "https://vibewave.ai/product-image.jpg",
+          "image": "https://clipizy.ai/product-image.jpg",
           "offers": [
             {
               "@type": "Offer",

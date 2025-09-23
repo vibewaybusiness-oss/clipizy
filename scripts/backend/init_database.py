@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Database initialization script for Vibewave
+Database initialization script for Clipizy
 Creates tables and default user
 """
 import os
@@ -19,7 +19,7 @@ from api.models import *
 
 def init_database():
     """Initialize the database with tables"""
-    print("🔄 Initializing Vibewave database...")
+    print("🔄 Initializing Clipizy database...")
     
     try:
         # Create database engine

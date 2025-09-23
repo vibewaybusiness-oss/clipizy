@@ -17,6 +17,7 @@ import {
 import { useProjects } from '@/hooks/projects/use-projects';
 import { Project } from '@/lib/api/projects';
 import { ProjectCard } from '@/components/features/projects/project-card';
+import { useLoading } from '@/contexts/loading-context';
 
 const PROJECT_TYPES = [
   { value: 'all', label: 'All Projects', icon: null },
@@ -41,6 +42,7 @@ const STATUS_COLORS = {
 export default function ProjectsPage() {
   const router = useRouter();
   const { projects, loading, error, deleteProject } = useProjects();
+  const { setLoading } = useLoading();
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('all');
@@ -48,6 +50,14 @@ export default function ProjectsPage() {
   useEffect(() => {
     filterProjects();
   }, [projects, searchQuery, selectedType]);
+
+  useEffect(() => {
+    if (loading) {
+      setLoading(true, "Loading projects...");
+    } else {
+      setLoading(false);
+    }
+  }, [loading, setLoading]);
 
   const filterProjects = () => {
     let filtered = projects;

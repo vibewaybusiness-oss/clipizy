@@ -15,7 +15,7 @@ export async function PATCH(
     const body = await request.json();
     console.log('Request body:', body);
 
-    const backendUrl = `${BACKEND_URL}/music-clip/projects/${projectId}/tracks/${trackId}`;
+    const backendUrl = `${BACKEND_URL}/api/music-clip/projects/${projectId}/tracks/${trackId}`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();

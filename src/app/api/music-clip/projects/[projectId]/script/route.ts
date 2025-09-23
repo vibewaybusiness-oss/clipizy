@@ -10,7 +10,7 @@ export async function GET(
     const { projectId } = await params;
     console.log('Music-clip project script API route called for project:', projectId);
 
-    const backendUrl = `${BACKEND_URL}/music-clip/projects/${projectId}/script`;
+    const backendUrl = `${BACKEND_URL}/api/music-clip/projects/${projectId}/script`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();

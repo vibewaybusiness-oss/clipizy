@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { Loader2 } from "lucide-react";
@@ -16,9 +16,11 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    // Only redirect after we've completed the initial auth check
+    if (!isLoading && hasCheckedAuth && !isAuthenticated) {
       // Store the intended destination
       const currentPath = window.location.pathname;
       if (currentPath !== redirectTo) {
@@ -26,9 +28,17 @@ export function ProtectedRoute({
       }
       router.push(redirectTo);
     }
-  }, [isAuthenticated, isLoading, router, redirectTo]);
+  }, [isAuthenticated, isLoading, hasCheckedAuth, router, redirectTo]);
 
-  if (isLoading) {
+  useEffect(() => {
+    // Mark that we've completed the initial auth check
+    if (!isLoading) {
+      setHasCheckedAuth(true);
+    }
+  }, [isLoading]);
+
+  // Show loading while checking authentication or before first auth check
+  if (isLoading || !hasCheckedAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background">
         <div className="text-center">

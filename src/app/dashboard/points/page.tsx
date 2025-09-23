@@ -16,9 +16,11 @@ import {
 } from "lucide-react";
 import { useCredits } from "@/hooks/commerce/use-credits";
 import Link from "next/link";
+import { useLoading } from "@/contexts/loading-context";
 
 export default function CreditsPage() {
   const { balance, transactions, loading } = useCredits();
+  const { setLoading } = useLoading();
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTransactions, setFilteredTransactions] = useState(transactions);
 
@@ -34,6 +36,14 @@ export default function CreditsPage() {
 
     setFilteredTransactions(filtered);
   }, [transactions, searchTerm]);
+
+  useEffect(() => {
+    if (loading) {
+      setLoading(true, "Loading credits...");
+    } else {
+      setLoading(false);
+    }
+  }, [loading, setLoading]);
 
 
   if (loading) {

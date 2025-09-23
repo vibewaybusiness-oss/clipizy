@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getBackendUrl, getTimeout } from '@/lib/config';
+
+const BACKEND_URL = process.env.BACKEND_URL;
 
 export async function PUT(
   request: NextRequest,
@@ -12,11 +13,11 @@ export async function PUT(
     const analysisData = await request.json();
     console.log('Analysis data:', analysisData);
     
-    const backendUrl = `${getBackendUrl()}/music-clip/projects/${projectId}/analysis`;
+    const backendUrl = `${BACKEND_URL}/api/music-clip/projects/${projectId}/analysis`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), getTimeout('default'));
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
     
     const response = await fetch(backendUrl, {
       method: 'PUT',
@@ -78,11 +79,11 @@ export async function GET(
     const { projectId } = await params;
     console.log('Music-clip get analysis API route called for project:', projectId);
     
-    const backendUrl = `${getBackendUrl()}/music-clip/projects/${projectId}/analysis`;
+    const backendUrl = `${BACKEND_URL}/api/music-clip/projects/${projectId}/analysis`;
     console.log('Calling backend URL:', backendUrl);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), getTimeout('default'));
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
     
     const response = await fetch(backendUrl, {
       method: 'GET',

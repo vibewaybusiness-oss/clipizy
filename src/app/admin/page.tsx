@@ -29,7 +29,7 @@ export default function AdminDashboard() {
               <div>
                 <h1 className="text-3xl font-bold gradient-text">Admin Dashboard</h1>
                 <p className="text-muted-foreground mt-2">
-                  Manage your Vibewave application
+                  Manage your Clipizy application
                 </p>
               </div>
               <div className="flex items-center gap-2">

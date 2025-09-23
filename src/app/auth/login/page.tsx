@@ -10,6 +10,7 @@ import { Sparkles, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
+import { ClipizyLogo } from "@/components/common/clipizy-logo";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -83,20 +84,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background p-4 relative overflow-hidden">
+      {/* Background Logo */}
+      <div className="absolute pointer-events-none" style={{ top: '53%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+        <ClipizyLogo className="w-[800px] h-[800px] opacity-50" />
+      </div>
+      
+      <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-block">
-            <Badge className="px-6 py-3 text-lg font-bold gradient-primary text-white mb-4">
-              <Sparkles className="w-6 h-6 mr-2" />
-              clipizy
-            </Badge>
-          </Link>
           <h1 className="text-3xl font-bold gradient-text mb-2">Welcome Back</h1>
           <p className="text-muted-foreground">Sign in to your account to continue creating</p>
         </div>
 
-        <Card className="card-modern">
+        <Card className="card-modern bg-background/80 backdrop-blur-sm">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">Sign In</CardTitle>
             <CardDescription>

@@ -44,7 +44,17 @@ export function useProjectManagement() {
         await projectsAPI.getProjectScript(currentProjectId);
         console.log('Project verified successfully:', currentProjectId);
         return currentProjectId;
-      } catch (error) {
+      } catch (error: any) {
+        // Handle authentication errors
+        if (error?.status === 401 || error?.status === 403) {
+          console.log('Authentication error - redirecting to login');
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('user');
+          window.location.href = '/auth/login';
+          return null;
+        }
+        
         console.log('Project not found on backend, creating new one:', error);
         // Project doesn't exist, reset state and create new one
         setCurrentProjectId(null);
@@ -69,8 +79,19 @@ export function useProjectManagement() {
       });
 
       return project.id;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create project:', error);
+      
+      // Handle authentication errors
+      if (error?.status === 401 || error?.status === 403) {
+        console.log('Authentication error - redirecting to login');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/auth/login';
+        return null;
+      }
+      
       toast({
         variant: "destructive",
         title: "Project Creation Failed",
@@ -86,8 +107,19 @@ export function useProjectManagement() {
       const response = await projectsAPI.getAllProjects();
       setExistingProjects(response.projects);
       console.log('Loaded projects:', response.projects);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load existing projects:', error);
+      
+      // Handle authentication errors
+      if (error?.status === 401 || error?.status === 403) {
+        console.log('Authentication error - redirecting to login');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/auth/login';
+        return;
+      }
+      
       toast({
         variant: "destructive",
         title: "Failed to Load Projects",
@@ -121,8 +153,19 @@ export function useProjectManagement() {
         script: projectScript,
         tracks: projectTracks,
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load existing project:', error);
+      
+      // Handle authentication errors
+      if (error?.status === 401 || error?.status === 403) {
+        console.log('Authentication error - redirecting to login');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/auth/login';
+        return;
+      }
+      
       toast({
         variant: "destructive",
         title: "Project Load Failed",
@@ -147,23 +190,42 @@ export function useProjectManagement() {
     settings: z.infer<typeof SettingsSchema>
   ) => {
     try {
+      console.log('useProjectManagement: Updating project settings for:', projectId, settings);
       const result = await projectsAPI.updateProjectSettings(projectId, settings);
+      console.log('useProjectManagement: Settings update result:', result);
+      
       if (result.success === false) {
         console.warn('Settings save returned error response:', result);
         toast({
           variant: "destructive",
           title: "Settings Save Failed",
-          description: "Failed to save settings to project. Continuing anyway.",
+          description: result.error || "Failed to save settings to project. Continuing anyway.",
         });
         return; // Don't throw error, just return
       }
       console.log('Settings synced to backend successfully');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save settings:', error);
+      console.error('Error details:', {
+        message: error?.message,
+        status: error?.status,
+        stack: error?.stack
+      });
+      
+      // Handle authentication errors
+      if (error?.status === 401 || error?.status === 403) {
+        console.log('Authentication error - redirecting to login');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/auth/login';
+        return;
+      }
+      
       toast({
         variant: "destructive",
         title: "Settings Save Failed",
-        description: "Failed to save settings to project. Continuing anyway.",
+        description: `Failed to save settings: ${error?.message || 'Unknown error'}. Continuing anyway.`,
       });
       // Don't throw error to prevent component unmounting
     }

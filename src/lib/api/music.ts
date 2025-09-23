@@ -85,6 +85,7 @@ export class MusicService extends BaseApiClient {
   ): Promise<MusicTrack> {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('projectId', projectId); // Add projectId to form data
     formData.append('ai_generated', String(options.ai_generated || false));
     formData.append('instrumental', String(options.instrumental || false));
 
@@ -92,7 +93,7 @@ export class MusicService extends BaseApiClient {
     if (options.genre) formData.append('genre', options.genre);
     if (options.video_description) formData.append('video_description', options.video_description);
 
-    return this.request<MusicTrack>(`/music-clip/projects/${projectId}/upload-track`, {
+    return this.request<MusicTrack>('/music-clip/upload-track', {
       method: 'POST',
       body: formData,
     });
@@ -112,13 +113,14 @@ export class MusicService extends BaseApiClient {
     const formData = new FormData();
     files.forEach(file => formData.append('files', file));
 
+    formData.append('projectId', projectId); // Add projectId to form data
     if (options.ai_generated !== undefined) formData.append('ai_generated', options.ai_generated.toString());
     if (options.prompt) formData.append('prompt', options.prompt);
     if (options.genre) formData.append('genre', options.genre);
     if (options.instrumental !== undefined) formData.append('instrumental', options.instrumental.toString());
     if (options.video_description) formData.append('video_description', options.video_description);
 
-    return this.request<MusicTrack[]>(`/music-clip/projects/${projectId}/upload-tracks-batch`, {
+    return this.request<MusicTrack[]>('/music-clip/upload-tracks-batch', {
       method: 'POST',
       body: formData,
     });

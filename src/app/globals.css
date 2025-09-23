@@ -293,7 +293,7 @@
 
   .gradient-ai {
     background: linear-gradient(135deg,
-      rgb(34 211 238 / 0.8),
+      rgb(#22d3ee / 0.8),
       rgb(168 85 247 / 0.8),
       rgb(236 72 153 / 0.8)
     );

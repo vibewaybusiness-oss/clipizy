@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Scene } from '../types/vibewave.types';
+import { Scene } from '../types/clipizy.types';
 import { generateWaveformData, drawWaveform } from '../utils/waveform.utils';
 
 export const useWaveformVisualizer = (audioFile: File | null, scenes: Scene[], onScenesUpdate: (scenes: Scene[]) => void) => {

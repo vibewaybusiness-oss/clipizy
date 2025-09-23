@@ -10,7 +10,7 @@ export async function GET(
     const { projectId, trackId } = await params;
     console.log('Music-clip get track URL API route called for project:', projectId, 'track:', trackId);
 
-    const backendUrl = `${BACKEND_URL}/music-clip/projects/${projectId}/tracks/${trackId}/url`;
+    const backendUrl = `${BACKEND_URL}/api/music-clip/projects/${projectId}/tracks/${trackId}/url`;
     console.log('Calling backend URL:', backendUrl);
 
     const response = await fetch(backendUrl, {

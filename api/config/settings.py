@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     # CORS settings
     cors_origins: list = [
         "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://[::1]:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+        "http://[::1]:3001",
         "https://clipizy.com",
         "https://www.clipizy.com"
     ]

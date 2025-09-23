@@ -35,18 +35,18 @@ from api.routers import (
     social_media_router,
     automation_router
 )
-from api.routers.user_management_router import router as user_management_router
+from api.routers.auth.user_management_router import router as user_management_router
 from api.tests.examples.sanitizer_integration_examples import router as sanitizer_examples_router
 
 # Import services for initialization
-from api.services.comfyui_service import get_comfyui_manager
-from api.services.queues_service import get_queue_manager
+from api.services.ai.comfyui_service import get_comfyui_manager
+from api.services.ai.queues_service import get_queue_manager
 from api.db import create_tables
 from api.config.settings import settings
 
 # Import sanitizer middleware
 from api.middleware.sanitizer_middleware import SanitizerMiddleware
-from api.services.sanitizer_service import SanitizerConfig
+from api.services.media.sanitizer_service import SanitizerConfig
 
 class LargeBodyMiddleware(BaseHTTPMiddleware):
     """Middleware to handle large request bodies"""
@@ -98,7 +98,7 @@ async def lifespan(app: FastAPI):
 
     # Initialize storage buckets
     try:
-        from api.services.storage_service import storage_service
+        from api.services.storage.storage_service import storage_service
         storage_service.ensure_bucket_exists("clipizy")
         print("✅ Storage bucket 'clipizy' ensured")
     except Exception as storage_error:
@@ -179,31 +179,31 @@ sanitizer_config = SanitizerConfig(
 app.add_middleware(
     SanitizerMiddleware,
     config=sanitizer_config,
-    skip_paths=['/health', '/docs', '/openapi.json', '/redoc', '/auth', '/auth/google', '/auth/github', '/auth/google/callback', '/auth/github/callback', '/auth/debug'],
+    skip_paths=['/health', '/docs', '/openapi.json', '/redoc', '/api/auth', '/api/auth/google', '/api/auth/github', '/api/auth/google/callback', '/api/auth/github/callback', '/api/auth/debug'],
     skip_methods=['GET', 'HEAD', 'OPTIONS'],
     log_violations=True
 )
 
 # Include routers
-app.include_router(auth_router, tags=["auth"])
+app.include_router(auth_router, prefix="/api", tags=["auth"])
 app.include_router(project_router, prefix="/projects", tags=["projects"])
 app.include_router(track_router, prefix="/tracks", tags=["tracks"])
-app.include_router(export_router, prefix="/exports", tags=["exports"])
+app.include_router(export_router, prefix="/api/exports", tags=["exports"])
 app.include_router(stats_router, prefix="/stats", tags=["stats"])
 app.include_router(job_router, prefix="/jobs", tags=["jobs"])
-app.include_router(prompt_router, prefix="/prompts", tags=["prompts"])
+app.include_router(prompt_router, prefix="/api/prompts", tags=["prompts"])
 app.include_router(analysis_router, prefix="/analysis", tags=["analysis"])
 app.include_router(music_analysis_router)
 app.include_router(music_clip_router, prefix="/api")
 app.include_router(particle_router, prefix="/particles", tags=["particles"])
-app.include_router(visualizer_router, prefix="/visualizers", tags=["visualizers"])
-app.include_router(comfyui_router, prefix="/comfyui", tags=["comfyui"])
-app.include_router(runpod_router, prefix="/runpod", tags=["runpod"])
+app.include_router(visualizer_router, prefix="/api/visualizers", tags=["visualizers"])
+app.include_router(comfyui_router, prefix="/api/comfyui", tags=["comfyui"])
+app.include_router(runpod_router, prefix="/api/runpod", tags=["runpod"])
 app.include_router(credits_router, prefix="/api", tags=["credits"])
 app.include_router(payment_router, prefix="/api", tags=["payments"])
-app.include_router(social_media_router, tags=["social-media"])
-app.include_router(automation_router, tags=["automation"])
-app.include_router(user_management_router, tags=["user-management"])
+app.include_router(social_media_router, prefix="/api", tags=["social-media"])
+app.include_router(automation_router, prefix="/api", tags=["automation"])
+app.include_router(user_management_router, prefix="/api", tags=["user-management"])
 app.include_router(sanitizer_examples_router, tags=["sanitizer-examples"])
 
 # Root endpoint

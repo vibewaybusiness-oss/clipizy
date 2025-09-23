@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Music, Calendar, Clock, Plus, ArrowRight, Trash2, AlertTriangle } from "lucide-react";
 import { projectsAPI } from "@/lib/api/projects";
 import { useToast } from "@/hooks/ui/use-toast";
+import { useAuth } from "@/contexts/auth-context";
 
 interface Project {
   id: string;
@@ -37,6 +38,7 @@ export function ProjectSelectionPopup({
   onContinueProject,
 }: ProjectSelectionPopupProps) {
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -46,27 +48,25 @@ export function ProjectSelectionPopup({
 
   // Reset and fetch projects when popup opens
   useEffect(() => {
-    if (isOpen) {
-      // Log user ID when create-music popup opens
-      const userData = localStorage.getItem('user');
-      if (userData) {
-        try {
-          const user = JSON.parse(userData);
-          console.log('🎵 Create-Music Popup Opened!');
-          console.log('👤 User ID:', user.id);
-          console.log('📧 User Email:', user.email);
-          console.log('👨‍💼 User Name:', user.name);
-        } catch (error) {
-          console.error('Error parsing user data:', error);
-        }
-      } else {
+    if (isOpen && !authLoading) {
+      // Check if user is authenticated before fetching projects
+      if (!user) {
         console.log('🎵 Create-Music Popup Opened!');
-        console.log('⚠️ No user data found in localStorage');
+        console.log('⚠️ User not authenticated - redirecting to login');
+        // Redirect to login if not authenticated
+        window.location.href = '/auth/login';
+        return;
       }
+
+      // Log user ID when create-music popup opens
+      console.log('🎵 Create-Music Popup Opened!');
+      console.log('👤 User ID:', user.id);
+      console.log('📧 User Email:', user.email);
+      console.log('👨‍💼 User Name:', user.name);
       
       resetAndFetchProjects();
     }
-  }, [isOpen]);
+  }, [isOpen, user, authLoading]);
 
   const resetAndFetchProjects = async () => {
     setLoading(true);
@@ -75,10 +75,26 @@ export function ProjectSelectionPopup({
       const response = await projectsAPI.getAllProjects();
       setProjects(response.projects);
       console.log('Fetched projects:', response.projects);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch projects:', error);
-      // If API fails, show empty state instead of mock data
+      
+      // Handle authentication errors
+      if (error?.status === 401 || error?.status === 403) {
+        console.log('Authentication error - redirecting to login');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/auth/login';
+        return;
+      }
+      
+      // For other errors, show empty state
       setProjects([]);
+      toast({
+        variant: "destructive",
+        title: "Failed to Load Projects",
+        description: "Unable to fetch your projects. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -89,10 +105,26 @@ export function ProjectSelectionPopup({
     try {
       const response = await projectsAPI.getAllProjects();
       setProjects(response.projects);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch projects:', error);
-      // If API fails, show empty state instead of mock data
+      
+      // Handle authentication errors
+      if (error?.status === 401 || error?.status === 403) {
+        console.log('Authentication error - redirecting to login');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/auth/login';
+        return;
+      }
+      
+      // For other errors, show empty state
       setProjects([]);
+      toast({
+        variant: "destructive",
+        title: "Failed to Load Projects",
+        description: "Unable to fetch your projects. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -215,10 +247,12 @@ export function ProjectSelectionPopup({
               <span>Continue Existing Project</span>
             </h3>
 
-            {loading ? (
+            {authLoading || loading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                <span className="ml-2 text-muted-foreground">Loading projects...</span>
+                <span className="ml-2 text-muted-foreground">
+                  {authLoading ? 'Checking authentication...' : 'Loading projects...'}
+                </span>
               </div>
             ) : projects.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">

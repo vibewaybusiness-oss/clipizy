@@ -6,7 +6,7 @@ Examples of how to integrate sanitizer into FastAPI endpoints
 from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel, Field
 from typing import Any, Dict, List, Optional
-from api.services.sanitizer_service import sanitize_input, SanitizerConfig, get_sanitizer
+from api.services.media.sanitizer_service import sanitize_input, SanitizerConfig, get_sanitizer
 from api.middleware.sanitizer_middleware import SanitizerMiddleware
 
 router = APIRouter(prefix="/examples", tags=["sanitizer-examples"])

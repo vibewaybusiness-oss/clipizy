@@ -1,3 +1,3 @@
 // TYPES
-export * from './vibewave.types';
+export * from './clipizy.types';
 export * from './waveform.types';

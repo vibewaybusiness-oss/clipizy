@@ -9,7 +9,7 @@ from typing import Dict, Any, Optional, List, Set
 from fastapi import Request, Response, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
-from api.services.sanitizer_service import sanitize_input, SanitizerConfig, SanitizerResult
+from api.services.media.sanitizer_service import sanitize_input, SanitizerConfig, SanitizerResult
 
 logger = logging.getLogger(__name__)
 
@@ -161,10 +161,10 @@ class SanitizerMiddleware(BaseHTTPMiddleware):
             # Parse JSON
             try:
                 data = json.loads(body.decode('utf-8'))
-            except json.JSONDecodeError:
-                # If not JSON, treat as string
-                result = sanitize_input(body.decode('utf-8'), "string")
-                return {"raw": result.sanitized} if not result.is_valid or result.warnings else None
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                # If not JSON or not valid UTF-8 (binary data), skip sanitization
+                # This is likely a file upload or binary data
+                return None
             
             # Sanitize JSON data
             result = sanitize_input(data, "json")

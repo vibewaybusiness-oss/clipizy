@@ -4,7 +4,7 @@ export { StepNavigation } from './StepNavigation';
 
 // FORM GENERATORS
 export { default as ClipizyGenerator } from './generators/ClipizyGenerator';
-export { default as VibewaveGenerator } from './generators/VibewaveGenerator';
+export { default as ClipizyGenerator } from './generators/ClipizyGenerator';
 
 // FORM STEPS
 export { StepSettings } from './StepSettings';

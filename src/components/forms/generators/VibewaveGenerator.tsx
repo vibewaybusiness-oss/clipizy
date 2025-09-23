@@ -1,13 +1,13 @@
 "use client";
 
-import { useVibewaveGenerator } from '../../hooks/useVibewaveGenerator';
+import { useClipizyGenerator } from '../../hooks/useClipizyGenerator';
 import { StepSettings } from '../StepSettings';
 import { StepPrompt } from '../StepPrompt';
 import { StepOverview } from '../StepVideo';
 import { StepGenerating } from '../StepGenerating';
 import { StepPreview } from '../StepPreview';
 
-export default function VibewaveGenerator() {
+export default function ClipizyGenerator() {
   const {
     step,
     audioFile,
@@ -26,7 +26,7 @@ export default function VibewaveGenerator() {
     onOverviewSubmit,
     handleReset,
     fileToDataUri,
-  } = useVibewaveGenerator();
+  } = useClipizyGenerator();
 
   const renderStep = () => {
     switch (step) {

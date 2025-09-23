@@ -1,0 +1,38 @@
+{
+  "user_id": "929b139c-9235-5425-96d4-fe8f1689a15c",
+  "email": "thedemoniacbotanist@gmail.com",
+  "username": "William Abhamon",
+  "created_at": "abb633c9-21b0-4223-8267-75ee4d1e4494",
+  "profile": {
+    "display_name": "William Abhamon",
+    "bio": "",
+    "avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocLqjEncU3FrpYWSYXmrYUvUESicJ4BM-jj0Sh7URP2OPnWVpw8=s96-c",
+    "website": "",
+    "location": "",
+    "timezone": "UTC"
+  },
+  "preferences": {
+    "theme": "system",
+    "language": "en",
+    "notifications": {
+      "email": true,
+      "push": true,
+      "marketing": false
+    },
+    "privacy": {
+      "profile_public": false,
+      "show_activity": true
+    }
+  },
+  "billing": {
+    "plan": "free",
+    "payment_method": null,
+    "billing_address": null,
+    "invoices": []
+  },
+  "security": {
+    "two_factor_enabled": false,
+    "login_history": [],
+    "api_keys": []
+  }
+}

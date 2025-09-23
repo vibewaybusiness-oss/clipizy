@@ -1,24 +1,18 @@
-from .auth_router import router as auth_router
-from .project_router import router as project_router
-from .job_router import router as job_router
-from .track_router import router as track_router
-from .export_router import router as export_router
-from .stats_router import router as stats_router
-from .prompt_router import router as prompt_router
-from .music_clip_router import router as music_clip_router
-from .runpod_router import runpod_router
-from .comfyui_router import router as comfyui_router
-from .music_analysis_router import router as music_analysis_router
-from .visualizer_router import router as visualizer_router
-from .analysis_router import router as analysis_router
-from .particle_router import router as particle_router
-from .points_router import router as credits_router
-from .payment_router import router as payment_router
-from .social_media_router import router as social_media_router
-from .automation_router import router as automation_router
+# Import from organized subdirectories
+from .auth import auth_router, user_management_router
+from .media import music_analysis_router, music_clip_router, analysis_router, track_router
+from .ai import comfyui_router, runpod_router, prompt_router, job_router
+from .business import payment_router, points_router, project_router
+from .social import social_media_router, automation_router
+from .content import visualizer_router, particle_router, export_router
+from .analytics import stats_router
+
+# Alias for backward compatibility
+credits_router = points_router
 
 all_routers = [
     auth_router,
+    user_management_router,
     project_router,
     job_router,
     track_router,

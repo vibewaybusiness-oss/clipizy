@@ -4,7 +4,7 @@ import React, { useImperativeHandle, forwardRef } from 'react';
 import { Play, Pause, Plus, Trash2, MapPin, Loader2, RotateCcw } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
-import { Scene } from '../../types/vibewave.types';
+import { Scene } from '../../types/clipizy.types';
 import { WaveformVisualizerRef, WaveformVisualizerProps } from '../../types/waveform.types';
 import { useWaveformVisualizer } from '../../hooks/useWaveformVisualizer';
 import { formatTime } from '../../utils/waveform.utils';

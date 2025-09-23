@@ -68,7 +68,7 @@ def setup_fallback_database():
         from sqlalchemy import create_engine
         from api.db import Base
         
-        fallback_url = "sqlite:///./vibewave_fallback.db"
+        fallback_url = "sqlite:///./clipizy_fallback.db"
         engine = create_engine(fallback_url, echo=False)
         Base.metadata.create_all(bind=engine)
         print("✅ SQLite fallback database setup successful")
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     print(f"🗄️  Using database URL: {os.environ.get('DATABASE_URL', 'Not set')}")
 
     # Check if we're using SQLite (default) or PostgreSQL
-    db_url = os.environ.get('DATABASE_URL', 'sqlite:///./vibewave_fresh.db')
+    db_url = os.environ.get('DATABASE_URL', 'sqlite:///./clipizy_fresh.db')
     if db_url.startswith('sqlite://'):
         print("✅ Using SQLite database (no health check needed)")
         if not setup_fallback_database():

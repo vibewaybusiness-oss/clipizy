@@ -16,7 +16,7 @@ sys.path.insert(0, str(project_root))
 
 # Import only what we need
 import httpx
-from api.schemas.runpod import RunPodPod, RunPodApiResponse
+from api.schemas.ai.runpod import RunPodPod, RunPodApiResponse
 
 async def test_pod_readiness_logic():
     """Test the updated readiness logic for pod 42yt2ouvxp4pdl"""

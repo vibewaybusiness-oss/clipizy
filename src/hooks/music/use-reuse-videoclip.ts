@@ -256,10 +256,14 @@ export function useReuseVideoclip({
     }
   }, [projectId]);
 
-  // Auto-save to localStorage when state changes
+  // Auto-save to localStorage when state changes (debounced)
   useEffect(() => {
-    saveToLocalStorage();
-  }, [saveToLocalStorage]);
+    const timeoutId = setTimeout(() => {
+      saveToLocalStorage();
+    }, 100); // Debounce saves to prevent excessive calls
+
+    return () => clearTimeout(timeoutId);
+  }, [isReuseEnabled, sharedDescription, individualDescriptions, projectId]);
 
   // Validate description length
   const isValidDescription = useCallback((description: string): boolean => {
