@@ -12,12 +12,17 @@ import {
   Music,
   Video,
   Film,
-  Search
+  Search,
+  CheckSquare,
+  Square,
+  Trash2,
+  FolderOpen
 } from 'lucide-react';
 import { useProjects } from '@/hooks/projects/use-projects';
 import { Project } from '@/lib/api/projects';
-import { ProjectCard } from '@/components/features/projects/project-card';
-import { useLoading } from '@/contexts/loading-context';
+import { ProjectCard } from '@/components/projects/project-card';
+import { ProjectFileExplorer } from '@/components/projects/project-file-explorer';
+import { ClipizyLoading } from '@/components/ui/clipizy-loading';
 
 const PROJECT_TYPES = [
   { value: 'all', label: 'All Projects', icon: null },
@@ -42,25 +47,30 @@ const STATUS_COLORS = {
 export default function ProjectsPage() {
   const router = useRouter();
   const { projects, loading, error, deleteProject } = useProjects();
-  const { setLoading } = useLoading();
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('all');
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedProjects, setSelectedProjects] = useState<Set<string>>(new Set());
+  const [lastSelectedIndex, setLastSelectedIndex] = useState<number>(-1);
+  const [showFileExplorer, setShowFileExplorer] = useState(false);
+  const [selectedProjectForExplorer, setSelectedProjectForExplorer] = useState<Project | null>(null);
 
   useEffect(() => {
     filterProjects();
   }, [projects, searchQuery, selectedType]);
 
-  useEffect(() => {
-    if (loading) {
-      setLoading(true, "Loading projects...");
-    } else {
-      setLoading(false);
-    }
-  }, [loading, setLoading]);
 
   const filterProjects = () => {
-    let filtered = projects;
+    console.log('filterProjects called with projects:', projects, 'type:', typeof projects, 'isArray:', Array.isArray(projects));
+    
+    let filtered = Array.isArray(projects) ? projects : [];
+    
+    // Handle case where projects might be an object with a projects property
+    if (!Array.isArray(projects) && projects && typeof projects === 'object' && 'projects' in projects) {
+      console.log('Projects is an object with projects property:', projects);
+      filtered = Array.isArray((projects as any).projects) ? (projects as any).projects : [];
+    }
 
     if (searchQuery) {
       filtered = filtered.filter(project =>
@@ -73,6 +83,7 @@ export default function ProjectsPage() {
       filtered = filtered.filter(project => project.type === selectedType);
     }
 
+    console.log('Final filtered projects:', filtered);
     setFilteredProjects(filtered);
   };
 
@@ -92,18 +103,93 @@ export default function ProjectsPage() {
     // Navigate to the appropriate project page based on project type
     if (project.type === 'music-clip') {
       router.push(`/dashboard/create/music-clip?projectId=${project.id}`);
-    } else if (project.type === 'video-clip') {
-      router.push(`/dashboard/videomaking?projectId=${project.id}`);
+    } else if (project.type === 'video-clip' || project.type === 'short-clip') {
+      router.push(`/dashboard/create?projectId=${project.id}`);
     } else {
       console.log('Unsupported project type:', project.type);
     }
   };
 
+  const handleOpenInExplorer = (project: Project) => {
+    setSelectedProjectForExplorer(project);
+    setShowFileExplorer(true);
+  };
+
+  const handleCloseFileExplorer = () => {
+    setShowFileExplorer(false);
+    setSelectedProjectForExplorer(null);
+  };
+
+  const handleOpenProjectFromExplorer = (project: Project) => {
+    setShowFileExplorer(false);
+    setSelectedProjectForExplorer(null);
+    handlePlayProject(project);
+  };
+
+  const handleSelectProject = (projectId: string, selected: boolean) => {
+    if (!selectionMode) return;
+
+    const projectIndex = filteredProjects.findIndex((p: Project) => p.id === projectId);
+    
+    // For now, we'll handle Ctrl/Shift logic in the ProjectCard component
+    // and pass the event through the onSelect callback
+    setSelectedProjects((prev: Set<string>) => {
+      const newSet = new Set(prev);
+      if (selected) {
+        newSet.add(projectId);
+      } else {
+        newSet.delete(projectId);
+      }
+      return newSet;
+    });
+    setLastSelectedIndex(projectIndex);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedProjects.size === filteredProjects.length) {
+      setSelectedProjects(new Set());
+    } else {
+      setSelectedProjects(new Set(filteredProjects.map((p: Project) => p.id)));
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedProjects.size === 0) return;
+    
+    const confirmed = confirm(`Are you sure you want to delete ${selectedProjects.size} project(s)?`);
+    if (!confirmed) return;
+
+    try {
+      for (const projectId of selectedProjects) {
+        await deleteProject(projectId);
+      }
+      setSelectedProjects(new Set());
+    } catch (error) {
+      console.error('Error deleting projects:', error);
+    }
+  };
+
+  const toggleSelectionMode = () => {
+    setSelectionMode(!selectionMode);
+    setSelectedProjects(new Set());
+    setLastSelectedIndex(-1);
+  };
+
+  if (showFileExplorer && selectedProjectForExplorer) {
+    return (
+      <ProjectFileExplorer
+        project={selectedProjectForExplorer}
+        onClose={handleCloseFileExplorer}
+        onOpenProject={handleOpenProjectFromExplorer}
+      />
+    );
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto p-6">
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <ClipizyLoading message="Loading projects..." size="lg" />
         </div>
       </div>
     );
@@ -133,10 +219,31 @@ export default function ProjectsPage() {
           <h1 className="text-3xl font-bold">Projects</h1>
           <p className="text-gray-600">Manage your video and music projects</p>
         </div>
-        <Button>
-          <Music className="w-4 h-4 mr-2" />
-          New Project
-        </Button>
+        <div className="flex items-center gap-2">
+          {selectionMode && selectedProjects.size > 0 && (
+            <Button variant="destructive" onClick={handleDeleteSelected}>
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete ({selectedProjects.size})
+            </Button>
+          )}
+          <Button variant={selectionMode ? "default" : "outline"} onClick={toggleSelectionMode}>
+            {selectionMode ? (
+              <>
+                <CheckSquare className="w-4 h-4 mr-2" />
+                Exit Selection
+              </>
+            ) : (
+              <>
+                <Square className="w-4 h-4 mr-2" />
+                Select
+              </>
+            )}
+          </Button>
+          <Button>
+            <Music className="w-4 h-4 mr-2" />
+            New Project
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
@@ -145,7 +252,7 @@ export default function ProjectsPage() {
           <Input
             placeholder="Search projects..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
             className="pl-10"
           />
         </div>
@@ -169,6 +276,25 @@ export default function ProjectsPage() {
         </Select>
       </div>
 
+      {selectionMode && filteredProjects.length > 0 && (
+        <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+          <button
+            onClick={handleSelectAll}
+            className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+          >
+            {selectedProjects.size === filteredProjects.length ? (
+              <CheckSquare className="w-4 h-4" />
+            ) : (
+              <Square className="w-4 h-4" />
+            )}
+            {selectedProjects.size === filteredProjects.length ? 'Deselect All' : 'Select All'}
+          </button>
+          <div className="text-sm text-gray-600">
+            {selectedProjects.size} of {filteredProjects.length} selected
+          </div>
+        </div>
+      )}
+
       <Tabs defaultValue="grid" className="w-full">
         <TabsList>
           <TabsTrigger value="grid">Grid View</TabsTrigger>
@@ -176,7 +302,7 @@ export default function ProjectsPage() {
         </TabsList>
 
         <TabsContent value="grid" className="space-y-4">
-          {filteredProjects.length === 0 ? (
+          {!Array.isArray(filteredProjects) || filteredProjects.length === 0 ? (
             <div className="text-center py-12">
               <Music className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
@@ -193,14 +319,18 @@ export default function ProjectsPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map((project) => (
+              {Array.isArray(filteredProjects) && filteredProjects.map((project) => (
                 <ProjectCard
                   key={project.id}
                   project={project}
                   onDelete={handleDeleteProject}
                   onEdit={handleEditProject}
                   onPlay={handlePlayProject}
+                  onOpenInExplorer={handleOpenInExplorer}
+                  onSelect={handleSelectProject}
                   viewMode="grid"
+                  isSelected={selectedProjects.has(project.id)}
+                  selectionMode={selectionMode}
                 />
               ))}
             </div>
@@ -209,14 +339,18 @@ export default function ProjectsPage() {
 
         <TabsContent value="list" className="space-y-4">
           <div className="space-y-2">
-            {filteredProjects.map((project) => (
+            {Array.isArray(filteredProjects) && filteredProjects.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}
                 onDelete={handleDeleteProject}
                 onEdit={handleEditProject}
                 onPlay={handlePlayProject}
+                onOpenInExplorer={handleOpenInExplorer}
+                onSelect={handleSelectProject}
                 viewMode="list"
+                isSelected={selectedProjects.has(project.id)}
+                selectionMode={selectionMode}
               />
             ))}
           </div>

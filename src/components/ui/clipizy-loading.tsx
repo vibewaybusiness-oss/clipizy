@@ -69,7 +69,7 @@ export function ClipizyLoading({
             fill="none"
           />
 
-          {/* ECG-style animated waveform with fadeout trail */}
+          {/* ECG-style animated waveform */}
           <motion.path
             d="M120 260 L160 260 Q180 200 200 260 L220 360 L250 140 L280 360 L310 200 L330 260 L390 260"
             stroke="url(#waveGradient)"
@@ -82,11 +82,8 @@ export function ClipizyLoading({
             transition={{
               duration: 2,
               repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            style={{
-              strokeDasharray: "1000",
-              strokeDashoffset: "1000"
+              ease: "easeInOut",
+              repeatType: "reverse"
             }}
           />
           
@@ -97,34 +94,13 @@ export function ClipizyLoading({
             r="8"
             fill="#66b4f6"
             animate={{
-              x: [0, 270],
-              opacity: [1, 0.8]
+              x: [0, 270, 0],
+              opacity: [1, 0.3, 1]
             }}
             transition={{
               duration: 2,
               repeat: Infinity,
               ease: "easeInOut"
-            }}
-          />
-          
-          {/* Fadeout trail effect */}
-          <motion.path
-            d="M120 260 L160 260 Q180 200 200 260 L220 360 L250 140 L280 360 L310 200 L330 260 L390 260"
-            stroke="url(#waveGradient)"
-            strokeWidth="30"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            opacity="0.3"
-            animate={{
-              pathLength: [0, 1, 0],
-              opacity: [0, 0.3, 0]
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 0.3
             }}
           />
         </svg>

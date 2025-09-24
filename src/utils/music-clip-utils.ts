@@ -53,6 +53,52 @@ export const getTotalDuration = (tracks: MusicTrack[]): number => {
   return tracks.reduce((total, track) => total + track.duration, 0);
 };
 
+// Extract audio duration from file using HTML5 Audio API
+export const getAudioDuration = (file: File): Promise<number> => {
+  return new Promise((resolve, reject) => {
+    const audio = new Audio();
+    const url = URL.createObjectURL(file);
+    
+    const cleanup = () => {
+      URL.revokeObjectURL(url);
+      audio.removeEventListener('loadedmetadata', onLoadedMetadata);
+      audio.removeEventListener('error', onError);
+    };
+    
+    const onLoadedMetadata = () => {
+      const duration = audio.duration;
+      cleanup();
+      if (isNaN(duration) || duration === Infinity) {
+        reject(new Error('Invalid audio duration'));
+      } else {
+        resolve(duration);
+      }
+    };
+    
+    const onError = (error: Event) => {
+      cleanup();
+      reject(new Error('Failed to load audio file'));
+    };
+    
+    audio.addEventListener('loadedmetadata', onLoadedMetadata);
+    audio.addEventListener('error', onError);
+    
+    // Set a timeout to prevent hanging
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error('Audio duration extraction timeout'));
+    }, 10000); // 10 second timeout
+    
+    audio.src = url;
+    audio.load();
+    
+    // Clear timeout when metadata is loaded
+    audio.addEventListener('loadedmetadata', () => {
+      clearTimeout(timeout);
+    });
+  });
+};
+
 // Storage keys constants
 export const STORAGE_KEYS = {
   CURRENT_STEP: 'clipizy_current_step',

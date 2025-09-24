@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { BlogPostPageClient } from './client';
-import { blogPostMetadata } from '@/components/features/blog/blog-metadata';
+import { blogPostMetadata } from '@/components/blog/blog-metadata';
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;

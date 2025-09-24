@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from api.models import User, Payment
 from api.models.pricing import PaymentStatus, PaymentMethod
 from api.schemas import PaymentIntentCreate, PaymentIntentResponse, PaymentWebhookData
+from pydantic import BaseModel
 from api.services.business.pricing_service import credits_service
 from api.config.logging import get_project_logger
 from typing import Optional, Dict, Any
@@ -19,11 +20,193 @@ logger = get_project_logger()
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
+class CheckoutSessionRequest(BaseModel):
+    plan_id: str
+    plan_type: str  # "subscription" or "credits"
+    custom_amount: float = None
+
 class StripeService:
     def __init__(self):
         logger.info("StripeService initialized")
         if not stripe.api_key:
             logger.warning("STRIPE_SECRET_KEY not found in environment variables")
+    
+    def create_checkout_session(self, db: Session, user_id: str, 
+                               request: CheckoutSessionRequest) -> Dict[str, str]:
+        """Create a Stripe checkout session for subscription or credits purchase"""
+        try:
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user:
+                raise ValueError(f"User {user_id} not found")
+            
+            # Create or get Stripe customer
+            stripe_customer_id = user.billing_id
+            if not stripe_customer_id:
+                customer = stripe.Customer.create(
+                    email=user.email,
+                    name=user.username or user.email,
+                    metadata={"user_id": str(user_id)}
+                )
+                stripe_customer_id = customer.id
+                user.billing_id = stripe_customer_id
+                db.commit()
+            
+            # Get pricing information
+            from api.services.business.pricing_service import PRICES
+            
+            if request.plan_type == "subscription":
+                plan_info = PRICES["subscription_plans"].get(request.plan_id)
+                if not plan_info:
+                    raise ValueError(f"Subscription plan {request.plan_id} not found")
+                
+                if plan_info["price"] == 0:
+                    raise ValueError("Free plan does not require payment")
+                
+                stripe_price_id = plan_info["stripe_price_id"]
+                if not stripe_price_id:
+                    # Use custom pricing when Stripe price ID is not configured
+                    amount_cents = int(plan_info["price"] * 100)
+                    session = stripe.checkout.Session.create(
+                        customer=stripe_customer_id,
+                        payment_method_types=['card'],
+                        line_items=[{
+                            'price_data': {
+                                'currency': 'usd',
+                                'product_data': {
+                                    'name': f'{plan_info["name"]} Plan',
+                                    'description': f'Monthly subscription to {plan_info["name"]} plan',
+                                },
+                                'unit_amount': amount_cents,
+                                'recurring': {
+                                    'interval': 'month',
+                                },
+                            },
+                            'quantity': 1,
+                        }],
+                        mode='subscription',
+                        success_url=f"{os.getenv('FRONTEND_URL', 'http://localhost:3000')}/dashboard/settings?tab=subscription&success=true",
+                        cancel_url=f"{os.getenv('FRONTEND_URL', 'http://localhost:3000')}/dashboard/settings/subscription?cancelled=true",
+                        metadata={
+                            'user_id': str(user_id),
+                            'plan_id': request.plan_id,
+                            'plan_type': 'subscription'
+                        }
+                    )
+                else:
+                    # Use configured Stripe price ID
+                    session = stripe.checkout.Session.create(
+                        customer=stripe_customer_id,
+                        payment_method_types=['card'],
+                        line_items=[{
+                            'price': stripe_price_id,
+                            'quantity': 1,
+                        }],
+                        mode='subscription',
+                        success_url=f"{os.getenv('FRONTEND_URL', 'http://localhost:3000')}/dashboard/settings?tab=subscription&success=true",
+                        cancel_url=f"{os.getenv('FRONTEND_URL', 'http://localhost:3000')}/dashboard/settings/subscription?cancelled=true",
+                        metadata={
+                            'user_id': str(user_id),
+                            'plan_id': request.plan_id,
+                            'plan_type': 'subscription'
+                        }
+                    )
+                
+            elif request.plan_type == "credits":
+                if request.custom_amount:
+                    # Custom amount purchase
+                    amount_cents = int(request.custom_amount * 100)
+                    credits_purchased = int(request.custom_amount * 20)  # 20 credits per dollar
+                    
+                    session = stripe.checkout.Session.create(
+                        customer=stripe_customer_id,
+                        payment_method_types=['card'],
+                        line_items=[{
+                            'price_data': {
+                                'currency': 'usd',
+                                'product_data': {
+                                    'name': f'Custom Credits - {credits_purchased} credits',
+                                    'description': f'Purchase {credits_purchased} credits for ${request.custom_amount}',
+                                },
+                                'unit_amount': amount_cents,
+                            },
+                            'quantity': 1,
+                        }],
+                        mode='payment',
+                        success_url=f"{os.getenv('FRONTEND_URL', 'http://localhost:3000')}/dashboard/credits?success=true",
+                        cancel_url=f"{os.getenv('FRONTEND_URL', 'http://localhost:3000')}/dashboard/credits/purchase?cancelled=true",
+                        metadata={
+                            'user_id': str(user_id),
+                            'plan_type': 'credits',
+                            'custom_amount': str(request.custom_amount),
+                            'credits_purchased': str(credits_purchased)
+                        }
+                    )
+                else:
+                    # Predefined credits package
+                    package_info = PRICES["credits_packages"].get(request.plan_id)
+                    if not package_info:
+                        raise ValueError(f"Credits package {request.plan_id} not found")
+                    
+                    stripe_price_id = package_info["stripe_price_id"]
+                    if not stripe_price_id:
+                        # Use custom pricing when Stripe price ID is not configured
+                        amount_cents = int(package_info["price"] * 100)
+                        total_credits = package_info["credits"] + package_info.get("bonus", 0)
+                        session = stripe.checkout.Session.create(
+                            customer=stripe_customer_id,
+                            payment_method_types=['card'],
+                            line_items=[{
+                                'price_data': {
+                                    'currency': 'usd',
+                                    'product_data': {
+                                        'name': package_info["name"],
+                                        'description': f'Purchase {total_credits} credits ({package_info["credits"]} + {package_info.get("bonus", 0)} bonus)',
+                                    },
+                                    'unit_amount': amount_cents,
+                                },
+                                'quantity': 1,
+                            }],
+                            mode='payment',
+                            success_url=f"{os.getenv('FRONTEND_URL', 'http://localhost:3000')}/dashboard/credits?success=true",
+                            cancel_url=f"{os.getenv('FRONTEND_URL', 'http://localhost:3000')}/dashboard/credits/purchase?cancelled=true",
+                            metadata={
+                                'user_id': str(user_id),
+                                'plan_id': request.plan_id,
+                                'plan_type': 'credits',
+                                'credits_purchased': str(total_credits)
+                            }
+                        )
+                    else:
+                        # Use configured Stripe price ID
+                        session = stripe.checkout.Session.create(
+                            customer=stripe_customer_id,
+                            payment_method_types=['card'],
+                            line_items=[{
+                                'price': stripe_price_id,
+                                'quantity': 1,
+                            }],
+                            mode='payment',
+                            success_url=f"{os.getenv('FRONTEND_URL', 'http://localhost:3000')}/dashboard/credits?success=true",
+                            cancel_url=f"{os.getenv('FRONTEND_URL', 'http://localhost:3000')}/dashboard/credits/purchase?cancelled=true",
+                            metadata={
+                                'user_id': str(user_id),
+                                'plan_id': request.plan_id,
+                                'plan_type': 'credits'
+                            }
+                        )
+            else:
+                raise ValueError(f"Invalid plan type: {request.plan_type}")
+            
+            logger.info(f"Created checkout session {session.id} for user {user_id}")
+            
+            return {
+                "checkout_url": session.url,
+                "session_id": session.id
+            }
+            
+        except Exception as e:
+            logger.error(f"Error creating checkout session for user {user_id}: {str(e)}")
+            raise
     
     def create_payment_intent(self, db: Session, user_id: str, 
                             payment_data: PaymentIntentCreate) -> PaymentIntentResponse:

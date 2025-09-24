@@ -34,9 +34,9 @@ export function usePromptGeneration() {
       }
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('Making API call to:', `/prompts/random?${params.toString()}`);
+        console.log('Making API call to:', `/api/prompts/random?${params.toString()}`);
       }
-      const data = await APIClient.get(`/prompts/random?${params.toString()}`) as { prompt: string };
+      const data = await APIClient.get(`/api/prompts/random?${params.toString()}`) as { prompt: string };
       if (process.env.NODE_ENV === 'development') {
         console.log('API response received:', data);
       }

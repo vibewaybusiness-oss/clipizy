@@ -56,6 +56,59 @@ PRICES = {
             "max": None,
             "description": "Generate a video based on the description."
         }
+    },
+    "subscription_plans": {
+        "free": {
+            "name": "Free",
+            "price": 0,
+            "stripe_price_id": None,
+            "credits": 100,
+            "features": ["Basic video generation", "Standard quality", "Community support"]
+        },
+        "creator": {
+            "name": "Creator",
+            "price": 19.00,
+            "stripe_price_id": "price_1SAfyCRpPDjqChm1bjiivK16",
+            "credits": 2000,
+            "features": ["High quality generation", "Priority processing", "Advanced templates", "No watermarks", "Email support"]
+        },
+        "pro": {
+            "name": "Pro",
+            "price": 49.00,
+            "stripe_price_id": "price_1SAfyHRpPDjqChm1oYM7RnnU",
+            "credits": 6000,
+            "features": ["Ultra high quality", "Highest priority processing", "All templates", "No watermarks", "Priority support", "API access", "Team collaboration"]
+        },
+        "enterprise": {
+            "name": "Enterprise",
+            "price": 199.00,
+            "stripe_price_id": None,  # TODO: Replace with actual Stripe price ID
+            "credits": 20000,
+            "features": ["Custom solutions", "Unlimited generation", "Dedicated support", "Custom integrations", "SLA guarantee"]
+        }
+    },
+    "credits_packages": {
+        "starter": {
+            "name": "Starter Pack",
+            "credits": 1000,
+            "price": 10,
+            "stripe_price_id": None,  # TODO: Replace with actual Stripe price ID
+            "bonus": 0
+        },
+        "creator": {
+            "name": "Creator Pack",
+            "credits": 5000,
+            "price": 40,
+            "stripe_price_id": None,  # TODO: Replace with actual Stripe price ID
+            "bonus": 1000
+        },
+        "pro": {
+            "name": "Pro Pack",
+            "credits": 15000,
+            "price": 100,
+            "stripe_price_id": None,  # TODO: Replace with actual Stripe price ID
+            "bonus": 5000
+        }
     }
 }
 
@@ -275,6 +328,22 @@ class CreditsService:
     def get_pricing_info(self) -> Dict:
         """Get current pricing configuration"""
         return PRICES.copy()
+
+    def get_subscription_plans(self) -> Dict:
+        """Get subscription plans with Stripe price IDs"""
+        return PRICES["subscription_plans"].copy()
+
+    def get_credits_packages(self) -> Dict:
+        """Get credits packages with Stripe price IDs"""
+        return PRICES["credits_packages"].copy()
+
+    def get_stripe_price_id(self, plan_type: str, plan_id: str) -> str:
+        """Get Stripe price ID for a specific plan"""
+        if plan_type == "subscription":
+            return PRICES["subscription_plans"].get(plan_id, {}).get("stripe_price_id")
+        elif plan_type == "credits":
+            return PRICES["credits_packages"].get(plan_id, {}).get("stripe_price_id")
+        return None
 
 # Create a default instance
 credits_service = CreditsService()

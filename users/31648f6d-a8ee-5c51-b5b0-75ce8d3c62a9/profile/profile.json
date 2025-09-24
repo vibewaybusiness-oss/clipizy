@@ -1,0 +1,38 @@
+{
+  "user_id": "31648f6d-a8ee-5c51-b5b0-75ce8d3c62a9",
+  "email": "interimed.company@gmail.com",
+  "username": "William Abhamon",
+  "created_at": "efb70448-d622-4581-a6d6-43dd000215f7",
+  "profile": {
+    "display_name": "William Abhamon",
+    "bio": "",
+    "avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocJBOe6KBkeE4E93V-xVrlddIgd3q1v-3BePa6Db1rGiGs_k4iI=s96-c",
+    "website": "",
+    "location": "",
+    "timezone": "UTC"
+  },
+  "preferences": {
+    "theme": "system",
+    "language": "en",
+    "notifications": {
+      "email": true,
+      "push": true,
+      "marketing": false
+    },
+    "privacy": {
+      "profile_public": false,
+      "show_activity": true
+    }
+  },
+  "billing": {
+    "plan": "free",
+    "payment_method": null,
+    "billing_address": null,
+    "invoices": []
+  },
+  "security": {
+    "two_factor_enabled": false,
+    "login_history": [],
+    "api_keys": []
+  }
+}

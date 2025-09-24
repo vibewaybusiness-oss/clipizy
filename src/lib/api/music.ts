@@ -113,14 +113,14 @@ export class MusicService extends BaseApiClient {
     const formData = new FormData();
     files.forEach(file => formData.append('files', file));
 
-    formData.append('projectId', projectId); // Add projectId to form data
+    // Don't append projectId to form data since it's in the URL path
     if (options.ai_generated !== undefined) formData.append('ai_generated', options.ai_generated.toString());
     if (options.prompt) formData.append('prompt', options.prompt);
     if (options.genre) formData.append('genre', options.genre);
     if (options.instrumental !== undefined) formData.append('instrumental', options.instrumental.toString());
     if (options.video_description) formData.append('video_description', options.video_description);
 
-    return this.request<MusicTrack[]>('/music-clip/upload-tracks-batch', {
+    return this.request<MusicTrack[]>(`/music-clip/projects/${projectId}/upload-tracks-batch`, {
       method: 'POST',
       body: formData,
     });
@@ -171,6 +171,39 @@ export class MusicService extends BaseApiClient {
   // MUSIC ANALYSIS
   async analyzeTrack(track: MusicTrack): Promise<MusicAnalysisResult> {
     try {
+      // If we have a track ID, use the backend analysis endpoint directly
+      if (track.id) {
+        console.log(`Analyzing track by ID: ${track.id}`);
+        return this.analyzeTrackById(track.id);
+      }
+
+      // Check if this is a local file path (from backend) but not a mock path
+      // Only treat as local path if it's an actual local path, not an S3 URL
+      if (track.url && track.url.startsWith('/') && !track.url.includes('/mock/') && !track.url.includes('localhost:9000')) {
+        console.log(`Analyzing local file path: ${track.url}`);
+        return this.analyzeTrackByPath(track);
+      }
+
+      // If this is an S3 URL, we need to extract the file path and use the backend
+      if (track.url && (track.url.includes('localhost:9000') || track.url.includes('X-Amz-Algorithm'))) {
+        console.log(`Analyzing S3 URL: ${track.url}`);
+        // Extract the file path from the S3 URL
+        const urlParts = track.url.split('?')[0]; // Remove query parameters
+        // Extract just the filename from the URL
+        const filename = urlParts.split('/').pop();
+        if (filename && filename.endsWith('.wav')) {
+          // Use the original path structure that was passed in
+          const originalPath = track.url.includes('/tracks/') ? `/tracks/${filename}` : `/music/${filename}`;
+          console.log(`Extracted file path: ${originalPath}`);
+          const trackWithPath = { ...track, url: originalPath };
+          return this.analyzeTrackByPath(trackWithPath);
+        } else {
+          console.warn(`Could not extract filename from S3 URL: ${track.url}`);
+          // Fall back to mock analysis
+          return this.generateMockAnalysis(track, 's3_url_parse_error');
+        }
+      }
+
       let file: File;
 
       if (!track.file || !(track.file instanceof Blob)) {
@@ -180,6 +213,10 @@ export class MusicService extends BaseApiClient {
 
         if (track.url.startsWith('blob:')) {
           return this.generateMockAnalysis(track, 'mock_blob_url');
+        }
+
+        if (track.url.includes('/mock/')) {
+          return this.generateMockAnalysis(track, 'mock_file_path');
         }
 
         let response: Response;
@@ -206,6 +243,7 @@ export class MusicService extends BaseApiClient {
       try {
         response = await fetch('/api/music-analysis/analyze/comprehensive', {
           method: 'POST',
+          headers: this.getAuthHeaders(),
           body: formData,
           credentials: 'include',
           keepalive: true,
@@ -233,6 +271,81 @@ export class MusicService extends BaseApiClient {
     }
   }
 
+  // Analyze track by track ID
+  async analyzeTrackById(trackId: string): Promise<MusicAnalysisResult> {
+    try {
+      console.log(`Analyzing track by ID: ${trackId}`);
+      
+      const response = await fetch(`/api/analysis/music/${trackId}`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        credentials: 'include',
+        keepalive: true,
+      });
+
+      if (!response.ok) {
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { error: 'Unknown error' };
+        }
+        
+        // If track not found, return a mock analysis instead of throwing
+        if (response.status === 404) {
+          console.warn(`Track ${trackId} not found, using mock analysis:`, errorData);
+          return this.generateMockAnalysis({ id: trackId } as MusicTrack, 'track_not_found');
+        }
+        
+        throw new Error(`Analysis failed: ${errorData.error || response.statusText}`);
+      }
+
+      const result = await response.json();
+      return this.transformAnalysisResult({ id: trackId } as MusicTrack, result.analysis);
+    } catch (error) {
+      console.error(`Failed to analyze track ${trackId}:`, error);
+      return this.generateMockAnalysis({ id: trackId } as MusicTrack, 'track_id_analysis_error');
+    }
+  }
+
+  // Analyze track by server file path
+  async analyzeTrackByPath(track: MusicTrack): Promise<MusicAnalysisResult> {
+    try {
+      console.log(`Analyzing track by path: ${track.url}`);
+      
+      const response = await fetch(`/api/music-analysis/analyze/file-path?file_path=${encodeURIComponent(track.url)}&analysis_type=comprehensive`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        credentials: 'include',
+        keepalive: true,
+      });
+
+      if (!response.ok) {
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { error: 'Unknown error' };
+        }
+        
+        // If file not found, return a mock analysis instead of throwing
+        if (response.status === 404) {
+          console.warn(`File not found for track ${track.id}, using mock analysis:`, errorData);
+          return this.generateMockAnalysis(track, 'file_not_found');
+        }
+        
+        throw new Error(`Analysis failed: ${errorData.error || response.statusText}`);
+      }
+
+      const analysis = await response.json();
+      return this.transformAnalysisResult(track, analysis);
+    } catch (error) {
+      console.error(`Failed to analyze track by path ${track.id}:`, error);
+      // Return mock analysis instead of throwing to prevent the entire process from failing
+      return this.generateMockAnalysis(track, 'analysis_error');
+    }
+  }
+
   async analyzeTrackComprehensive(projectId: string, trackId: string): Promise<MusicAnalysisResult> {
     return this.post<MusicAnalysisResult>(
       '/music-analysis/analyze/comprehensive',
@@ -241,10 +354,14 @@ export class MusicService extends BaseApiClient {
   }
 
   async analyzeTracksInParallel(tracks: MusicTrack[]): Promise<MusicAnalysisResult[]> {
+    console.log('=== MUSIC SERVICE: analyzeTracksInParallel ===');
+    console.log('Analyzing tracks:', tracks.map(t => ({ id: t.id, name: t.name, hasFile: !!t.file, hasUrl: !!t.url })));
+    
     const analysisPromises = tracks.map((track, index) => {
       const delay = index * 100;
       return new Promise<MusicAnalysisResult>((resolve, reject) => {
         setTimeout(() => {
+          console.log(`Starting analysis for track ${track.id} (${track.name})`);
           this.analyzeTrack(track)
             .then(resolve)
             .catch(reject);

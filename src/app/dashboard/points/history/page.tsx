@@ -20,6 +20,7 @@ import {
   Clock
 } from "lucide-react";
 import { useCredits } from "@/hooks/commerce/use-credits";
+import { ClipizyLoading } from "@/components/ui/clipizy-loading";
 import Link from "next/link";
 
 const transactionTypes = {
@@ -84,7 +85,7 @@ export default function TransactionHistoryPage() {
     return (
       <div className="p-8 space-y-6">
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <ClipizyLoading message="Loading transaction history..." size="lg" />
         </div>
       </div>
     );

@@ -82,12 +82,22 @@ export default function SettingsTab() {
       saveToDatabase();
     };
 
+    // Add media query listener for system theme changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemThemeChange = () => {
+      if (settings.theme === 'system') {
+        applyTheme('system');
+      }
+    };
+
     window.addEventListener('beforeunload', handleBeforeUnload);
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      mediaQuery.removeEventListener('change', handleSystemThemeChange);
     };
-  }, []); // Empty dependency array to run only once
+  }, [settings.theme]); // Include settings.theme in dependency array
 
   const loadSettings = async () => {
     setIsLoading(true);
@@ -95,7 +105,15 @@ export default function SettingsTab() {
       // Load from localStorage first
       const savedAppSettings = localStorage.getItem('appSettings');
       if (savedAppSettings) {
-        setSettings(JSON.parse(savedAppSettings));
+        const parsedSettings = JSON.parse(savedAppSettings);
+        setSettings(parsedSettings);
+        // Apply theme immediately when loading settings
+        if (parsedSettings.theme) {
+          applyTheme(parsedSettings.theme);
+        }
+      } else {
+        // If no saved settings, apply default theme
+        applyTheme('system');
       }
 
       const savedPrivacySettings = localStorage.getItem('privacySettings');
@@ -104,41 +122,73 @@ export default function SettingsTab() {
       }
 
       // Load from backend for initial sync
-      const appResponse = await fetch(`${getBackendUrl()}/user-management/app-settings`);
-      if (appResponse.ok) {
-        const appData = await appResponse.json();
-        if (appData.success && appData.settings) {
-          setSettings(appData.settings);
-          localStorage.setItem('appSettings', JSON.stringify(appData.settings));
+      try {
+        const appResponse = await fetch(`${getBackendUrl()}/user-management/app-settings`);
+        if (appResponse.ok) {
+          const appData = await appResponse.json();
+          if (appData.success && appData.settings) {
+            setSettings(appData.settings);
+            localStorage.setItem('appSettings', JSON.stringify(appData.settings));
+            // Apply theme from backend settings
+            if (appData.settings.theme) {
+              applyTheme(appData.settings.theme);
+            }
+          }
+        } else {
+          console.warn('App settings endpoint not available, using local storage only:', appResponse.status);
         }
+      } catch (error) {
+        console.warn('Failed to load app settings from backend:', error);
       }
 
-      const privacyResponse = await fetch(`${getBackendUrl()}/user-management/settings`);
-      if (privacyResponse.ok) {
-        const privacyData = await privacyResponse.json();
-        if (privacyData.success && privacyData.settings) {
-          const settings = privacyData.settings;
-          const privacySettings = {
-            profileVisibility: settings.privacy?.profileVisibility || "private",
-            showEmail: settings.privacy?.showEmail || false,
-            marketingEmails: settings.privacy?.marketingEmails || false,
-            activityVisibility: settings.privacy?.activityVisibility || "followers",
-            searchable: settings.privacy?.searchable || true,
-            publicProfile: settings.privacy?.publicProfile || false
-          };
-          setPrivacySettings(privacySettings);
-          localStorage.setItem('privacySettings', JSON.stringify(privacySettings));
+      try {
+        const privacyResponse = await fetch(`${getBackendUrl()}/user-management/settings`);
+        if (privacyResponse.ok) {
+          const privacyData = await privacyResponse.json();
+          if (privacyData.success && privacyData.settings) {
+            const settings = privacyData.settings;
+            const privacySettings = {
+              profileVisibility: settings.privacy?.profileVisibility || "private",
+              showEmail: settings.privacy?.showEmail || false,
+              marketingEmails: settings.privacy?.marketingEmails || false,
+              activityVisibility: settings.privacy?.activityVisibility || "followers",
+              searchable: settings.privacy?.searchable || true,
+              publicProfile: settings.privacy?.publicProfile || false
+            };
+            setPrivacySettings(privacySettings);
+            localStorage.setItem('privacySettings', JSON.stringify(privacySettings));
+          }
+        } else {
+          console.warn('Privacy settings endpoint not available, using local storage only:', privacyResponse.status);
         }
+      } catch (error) {
+        console.warn('Failed to load privacy settings from backend:', error);
       }
     } catch (error) {
       console.error('Error loading settings:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load settings",
-        variant: "destructive"
-      });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const applyTheme = (theme: 'light' | 'dark' | 'system') => {
+    const root = document.documentElement;
+    
+    if (theme === 'system') {
+      // Remove any existing theme classes
+      root.classList.remove('dark', 'light');
+      // Check system preference
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (systemPrefersDark) {
+        root.classList.add('dark');
+      } else {
+        root.classList.add('light');
+      }
+    } else {
+      // Remove existing theme classes
+      root.classList.remove('dark', 'light');
+      // Add the selected theme class
+      root.classList.add(theme);
     }
   };
 
@@ -155,11 +205,7 @@ export default function SettingsTab() {
 
     // Apply theme changes immediately
     if (field === 'theme') {
-      if (value !== 'system') {
-        document.documentElement.setAttribute('data-theme', value as string);
-      } else {
-        document.documentElement.removeAttribute('data-theme');
-      }
+      applyTheme(value as 'light' | 'dark' | 'system');
     }
   };
 
@@ -216,18 +262,18 @@ export default function SettingsTab() {
   return (
     <div className="space-y-6 h-full flex flex-col">
       {/* SETTINGS TITLE */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 p-4 bg-muted/20 rounded-lg border border-border">
         <div className="p-1.5 rounded-md bg-primary/10">
           <Settings className="w-4 h-4 text-primary" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold">Settings</h2>
-          <p className="text-xs text-muted-foreground">Manage your application preferences and privacy settings</p>
+          <h2 className="text-xl font-semibold">Settings</h2>
+          <p className="text-sm text-muted-foreground">Manage your application preferences and privacy settings</p>
         </div>
       </div>
 
       {/* ALL SETTINGS IN SINGLE DIV */}
-      <div className="space-y-6">
+      <div className="space-y-6 flex-1 overflow-auto">
         {/* APPLICATION SETTINGS */}
         <div className="bg-card border border-border rounded-lg p-4">
           <div className="space-y-4">
@@ -236,16 +282,16 @@ export default function SettingsTab() {
                 <Palette className="w-4 h-4 text-blue-500" />
               </div>
               <div>
-                <h3 className="text-base font-semibold">Application Settings</h3>
-                <p className="text-xs text-muted-foreground">Customize your app experience</p>
+                <h3 className="text-lg font-semibold">Application Settings</h3>
+                <p className="text-sm text-muted-foreground">Customize your app experience</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* THEME SETTING */}
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">Theme</Label>
-                <Select value={settings.theme} onValueChange={(value: 'light' | 'dark' | 'system') => handleSettingChange('theme', value)}>
+                <Label className="text-sm font-medium">Theme</Label>
+                <Select value={settings.theme} onValueChange={(value: string) => handleSettingChange('theme', value as 'light' | 'dark' | 'system')}>
                   <SelectTrigger className="h-9">
                     <SelectValue placeholder="Select theme" />
                   </SelectTrigger>
@@ -274,8 +320,8 @@ export default function SettingsTab() {
 
               {/* LANGUAGE SETTING */}
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">Language</Label>
-                <Select value={settings.language} onValueChange={(value) => handleSettingChange('language', value)}>
+                <Label className="text-sm font-medium">Language</Label>
+                <Select value={settings.language} onValueChange={(value: string) => handleSettingChange('language', value)}>
                   <SelectTrigger className="h-9">
                     <SelectValue placeholder="Select language" />
                   </SelectTrigger>
@@ -291,8 +337,8 @@ export default function SettingsTab() {
 
               {/* TIMEZONE SETTING */}
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">Timezone</Label>
-                <Select value={settings.timezone} onValueChange={(value) => handleSettingChange('timezone', value)}>
+                <Label className="text-sm font-medium">Timezone</Label>
+                <Select value={settings.timezone} onValueChange={(value: string) => handleSettingChange('timezone', value)}>
                   <SelectTrigger className="h-9">
                     <SelectValue placeholder="Select timezone" />
                   </SelectTrigger>
@@ -317,15 +363,15 @@ export default function SettingsTab() {
                 <Eye className="w-4 h-4 text-green-500" />
               </div>
               <div>
-                <h3 className="text-base font-semibold">Privacy Settings</h3>
-                <p className="text-xs text-muted-foreground">Control your privacy and visibility preferences</p>
+                <h3 className="text-lg font-semibold">Privacy Settings</h3>
+                <p className="text-sm text-muted-foreground">Control your privacy and visibility preferences</p>
               </div>
             </div>
 
             <div className="space-y-4 flex-1">
               {/* PROFILE VISIBILITY SETTINGS */}
               <div className="space-y-3">
-                <h4 className="text-xs font-medium text-muted-foreground">Profile Visibility</h4>
+                <h4 className="text-sm font-medium text-muted-foreground">Profile Visibility</h4>
                 
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                   <div className="flex items-center space-x-3">
@@ -333,15 +379,15 @@ export default function SettingsTab() {
                       <User className="w-4 h-4 text-purple-500" />
                     </div>
                     <div className="space-y-0.5">
-                      <Label className="text-sm font-medium">Public Profile</Label>
-                      <p className="text-xs text-muted-foreground">
+                      <Label className="text-base font-medium">Public Profile</Label>
+                      <p className="text-sm text-muted-foreground">
                         Make your profile visible to other users
                       </p>
                     </div>
                   </div>
                   <Switch
                     checked={privacySettings.publicProfile}
-                    onCheckedChange={(checked) => handlePrivacyChange('publicProfile', checked)}
+                    onCheckedChange={(checked: boolean) => handlePrivacyChange('publicProfile', checked)}
                   />
                 </div>
 
@@ -351,91 +397,39 @@ export default function SettingsTab() {
                       <Mail className="w-4 h-4 text-blue-500" />
                     </div>
                     <div className="space-y-0.5">
-                      <Label className="text-sm font-medium">Show Email Address</Label>
-                      <p className="text-xs text-muted-foreground">
+                      <Label className="text-base font-medium">Show Email Address</Label>
+                      <p className="text-sm text-muted-foreground">
                         Display your email on your public profile
                       </p>
                     </div>
                   </div>
                   <Switch
                     checked={privacySettings.showEmail}
-                    onCheckedChange={(checked) => handlePrivacyChange('showEmail', checked)}
+                    onCheckedChange={(checked: boolean) => handlePrivacyChange('showEmail', checked)}
                   />
                 </div>
               </div>
 
               {/* CONTENT PROMOTION SETTING */}
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                <div className="space-y-0.5">
-                  <Label className="text-sm font-medium">Content Promotion</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Allow Clipizy to promote the content on the website (Hashtags clipizy has to be activated) - will push the best creations on the homepage.
-                  </p>
-                </div>
-                <Switch
-                  checked={privacySettings.profileVisibility === "public"}
-                  onCheckedChange={(checked) => handlePrivacyChange('profileVisibility', checked ? "public" : "private")}
-                />
-              </div>
-
-              {/* MARKETING EMAILS SETTING */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                <div className="space-y-0.5">
-                  <Label className="text-sm font-medium">Marketing Emails</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Receive promotional emails and updates
-                  </p>
-                </div>
-                <Switch
-                  checked={privacySettings.marketingEmails}
-                  onCheckedChange={(checked) => handlePrivacyChange('marketingEmails', checked)}
-                />
-              </div>
-
-              {/* ACTIVITY VISIBILITY SETTING */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                 <div className="flex items-center space-x-3">
                   <div className="p-1.5 rounded-md bg-orange-500/10">
                     <Activity className="w-4 h-4 text-orange-500" />
                   </div>
                   <div className="space-y-0.5">
-                    <Label className="text-sm font-medium">Activity Visibility</Label>
-                    <p className="text-xs text-muted-foreground">
-                      Control who can see your activity
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <select
-                    value={privacySettings.activityVisibility}
-                    onChange={(e) => handlePrivacyChange('activityVisibility', e.target.value)}
-                    className="px-2 py-1.5 border border-input rounded-md bg-background text-xs focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-                  >
-                    <option value="public">Public</option>
-                    <option value="followers">Followers Only</option>
-                    <option value="private">Private</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* SEARCHABLE SETTING */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                <div className="flex items-center space-x-3">
-                  <div className="p-1.5 rounded-md bg-cyan-500/10">
-                    <Search className="w-4 h-4 text-cyan-500" />
-                  </div>
-                  <div className="space-y-0.5">
-                    <Label className="text-sm font-medium">Searchable Profile</Label>
-                    <p className="text-xs text-muted-foreground">
-                      Allow others to find your profile through search
+                    <Label className="text-base font-medium">Content Promotion</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Allow Clipizy to promote the content on the website (Hashtags clipizy has to be activated) - will push the best creations on the homepage.
                     </p>
                   </div>
                 </div>
                 <Switch
-                  checked={privacySettings.searchable}
-                  onCheckedChange={(checked) => handlePrivacyChange('searchable', checked)}
+                  checked={privacySettings.profileVisibility === "public"}
+                  onCheckedChange={(checked: boolean) => handlePrivacyChange('profileVisibility', checked ? "public" : "private")}
                 />
               </div>
+
+
             </div>
           </div>
         </div>

@@ -47,32 +47,6 @@ const supportTopics = [
   }
 ];
 
-const faqs = [
-  {
-    question: "How long does it take to generate a music video?",
-    answer: "Most videos are generated within 2-5 minutes, depending on the length and complexity of your audio file."
-  },
-  {
-    question: "What audio formats do you support?",
-    answer: "We support all major audio formats including MP3, WAV, FLAC, AAC, and M4A files up to 100MB."
-  },
-  {
-    question: "Can I use the generated videos commercially?",
-    answer: "Yes! All our plans include commercial usage rights. You can use your generated videos for any commercial purpose."
-  },
-  {
-    question: "Do you offer refunds?",
-    answer: "We offer a 30-day money-back guarantee for all new subscriptions. Contact us if you're not satisfied."
-  },
-  {
-    question: "Is there an API available?",
-    answer: "Yes! Our Pro and Enterprise plans include API access for developers who want to integrate our technology."
-  },
-  {
-    question: "How do I cancel my subscription?",
-    answer: "You can cancel your subscription anytime from your account settings, or contact our support team for assistance."
-  }
-];
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -88,34 +62,58 @@ export default function Contact() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev: typeof formData) => ({ ...prev, [name]: value }));
   };
 
   const handleSelectChange = (value: string) => {
-    setFormData(prev => ({ ...prev, topic: value }));
+    setFormData((prev: typeof formData) => ({ ...prev, topic: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      // Create mailto link with form data
+      const subject = encodeURIComponent(`[${formData.topic}] ${formData.subject}`);
+      const body = encodeURIComponent(`
+Name: ${formData.name}
+Email: ${formData.email}
+Company: ${formData.company || 'N/A'}
+Topic: ${formData.topic}
+Subject: ${formData.subject}
 
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for contacting us. We'll get back to you within 24 hours.",
-    });
+Message:
+${formData.message}
+      `);
+      
+      const mailtoLink = `mailto:contact@clipizy.com?subject=${subject}&body=${body}`;
+      
+      // Open email client
+      window.location.href = mailtoLink;
 
-    setFormData({
-      name: "",
-      email: "",
-      company: "",
-      subject: "",
-      topic: "",
-      message: ""
-    });
-    setIsSubmitting(false);
+      toast({
+        title: "Email Client Opened!",
+        description: "Your email client should open with the message pre-filled. Send it to contact@clipizy.com",
+      });
+
+      setFormData({
+        name: "",
+        email: "",
+        company: "",
+        subject: "",
+        topic: "",
+        message: ""
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Please email us directly at contact@clipizy.com",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -289,9 +287,6 @@ export default function Contact() {
                   <CheckCircle className="w-5 h-5 text-primary mr-2" />
                   Quick Response
                 </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  We typically respond to all inquiries within 24 hours during business days.
-                </p>
                 <Button variant="outline" size="sm" asChild>
                   <Link href="/#features">
                     Explore Features
@@ -304,32 +299,6 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* FAQ SECTION */}
-      <section className="section-padding">
-        <div className="container-custom">
-          <div className="text-center mb-16">
-            <h2 className="heading-responsive font-bold mb-4">
-              Frequently Asked <span className="gradient-text">Questions</span>
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Find answers to common questions about clipizy
-            </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <div className="space-y-6">
-              {faqs.map((faq, index) => (
-                <Card key={index} className="p-6 fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">{faq.question}</h3>
-                    <p className="text-muted-foreground">{faq.answer}</p>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* CTA SECTION */}
       <section className="section-padding bg-gradient-primary text-white">
@@ -343,7 +312,7 @@ export default function Contact() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" className="text-lg px-8 py-4" asChild>
-              <Link href="mailto:hello@clipizy.ai">
+              <Link href="mailto:contact@clipizy.com">
                 <Mail className="w-5 h-5 mr-2" />
                 Email Support
               </Link>

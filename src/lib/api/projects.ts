@@ -62,7 +62,7 @@ export class ProjectsService extends BaseApiClient {
   private isOnline: boolean = typeof window !== 'undefined' ? navigator.onLine : true;
   private retryAttempts: Map<string, number> = new Map();
   private maxRetries = 3;
-  private saveDelay = 2000;
+  private saveDelay = 5000; // Increased from 2000ms to 5000ms to reduce API calls
 
   constructor() {
     super(API_BASE_URL);
@@ -108,6 +108,43 @@ export class ProjectsService extends BaseApiClient {
     return this.post(API_PATHS.MUSIC_CLIP + '/projects', { name, description });
   }
 
+  async uploadTrackSimple(
+    file: File,
+    options: {
+      projectId?: string;
+      ai_generated?: boolean;
+      prompt?: string;
+      genre?: string;
+      instrumental?: boolean;
+      video_description?: string;
+    } = {}
+  ): Promise<{
+    track_id: string;
+    project_id: string;
+    file_path: string;
+    metadata: any;
+    ai_generated: boolean;
+    prompt?: string;
+    genre?: string;
+    instrumental: boolean;
+    video_description?: string;
+  }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('ai_generated', String(options.ai_generated || false));
+    formData.append('instrumental', String(options.instrumental || false));
+
+    if (options.projectId) formData.append('project_id', options.projectId);
+    if (options.prompt) formData.append('prompt', options.prompt);
+    if (options.genre) formData.append('genre', options.genre);
+    if (options.video_description) formData.append('video_description', options.video_description);
+
+    return this.request(API_PATHS.MUSIC_CLIP + '/upload-track', {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
   async uploadTrack(
     projectId: string,
     file: File,
@@ -130,7 +167,6 @@ export class ProjectsService extends BaseApiClient {
   }> {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('projectId', projectId); // Add projectId to form data
     formData.append('ai_generated', String(options.ai_generated || false));
     formData.append('instrumental', String(options.instrumental || false));
 
@@ -138,7 +174,7 @@ export class ProjectsService extends BaseApiClient {
     if (options.genre) formData.append('genre', options.genre);
     if (options.video_description) formData.append('video_description', options.video_description);
 
-    return this.request(API_PATHS.MUSIC_CLIP + '/upload-track', {
+    return this.request(API_PATHS.MUSIC_CLIP + `/projects/${projectId}/upload-track`, {
       method: 'POST',
       body: formData,
     });
@@ -173,14 +209,14 @@ export class ProjectsService extends BaseApiClient {
     const formData = new FormData();
     files.forEach(file => formData.append('files', file));
 
-    formData.append('projectId', projectId); // Add projectId to form data
+    // Don't append projectId to form data since it's in the URL path
     if (options.ai_generated !== undefined) formData.append('ai_generated', options.ai_generated.toString());
     if (options.prompt) formData.append('prompt', options.prompt);
     if (options.genre) formData.append('genre', options.genre);
     if (options.instrumental !== undefined) formData.append('instrumental', options.instrumental.toString());
     if (options.video_description) formData.append('video_description', options.video_description);
 
-    return this.request(API_PATHS.MUSIC_CLIP + '/upload-tracks-batch', {
+    return this.request(API_PATHS.MUSIC_CLIP + `/projects/${projectId}/upload-tracks-batch`, {
       method: 'POST',
       body: formData,
     });
@@ -302,7 +338,7 @@ export class ProjectsService extends BaseApiClient {
 
     setInterval(() => {
       this.flushAllSaves();
-    }, 30000);
+    }, 60000); // Increased from 30s to 60s to reduce API calls
   }
 
   public scheduleSave(projectId: string, data: Partial<AutoSaveData>) {

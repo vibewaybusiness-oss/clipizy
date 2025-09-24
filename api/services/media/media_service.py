@@ -62,7 +62,7 @@ class MediaService:
 
         # 4. Update script.json
         self.json_store.append_item(
-            f"users/{user_id}/music-clip/projects/{project_id}/script.json",
+            f"users/{user_id}/projects/music-clip/{project_id}/script.json",
             "audio",
             {
                 "id": audio_id,
@@ -119,7 +119,7 @@ class MediaService:
 
         # Update script.json
         self.json_store.append_item(
-            f"users/{user_id}/music-clip/projects/{project_id}/script.json",
+            f"users/{user_id}/projects/music-clip/{project_id}/script.json",
             "visuals.videos",
             {
                 "id": video_id,
@@ -166,7 +166,7 @@ class MediaService:
 
         # Update script.json
         self.json_store.append_item(
-            f"users/{user_id}/music-clip/projects/{project_id}/script.json",
+            f"users/{user_id}/projects/music-clip/{project_id}/script.json",
             "visuals.images",
             {
                 "id": image_id,
@@ -223,7 +223,7 @@ class MediaService:
 
         # 4. Update script.json
         self.json_store.append_item(
-            f"users/{user_id}/music-clip/projects/{project_id}/script.json",
+            f"users/{user_id}/projects/music-clip/{project_id}/script.json",
             "music",
             {
                 "id": track_id,
@@ -368,7 +368,7 @@ class MediaService:
 
         # Update script.json
         self.json_store.append_item(
-            f"users/{user_id}/music-clip/projects/{project_id}/script.json",
+            f"users/{user_id}/projects/music-clip/{project_id}/script.json",
             "export",
             {
                 "id": export_id,
@@ -396,7 +396,7 @@ class MediaService:
     
     def generate_music_clip_path(self, user_id: str, project_id: str, file_type: str, filename: str) -> str:
         """Generate a music-clip specific path for S3 storage"""
-        path = f"users/{user_id}/music-clip/projects/{project_id}/{file_type}/{filename}"
+        path = f"users/{user_id}/projects/music-clip/{project_id}/{file_type}/{filename}"
         logger.debug(f"Generated music-clip path: {path}")
         return path
     

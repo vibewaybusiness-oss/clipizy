@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
+import { ClipizyLoading } from "@/components/ui/clipizy-loading";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Shield, ArrowLeft } from "lucide-react";
@@ -36,7 +37,7 @@ export function AdminRoute({
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+        <ClipizyLoading message="Loading..." size="lg" />
       </div>
     );
   }

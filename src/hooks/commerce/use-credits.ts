@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { pricingService, CreditsBalance, CreditsTransaction, CreditsSpendRequest, CreditsPurchaseRequest, PaymentIntentResponse } from '@/lib/api/pricing';
+import { mockCreditsService } from '@/services/mock-credits-service';
 import { useToast } from '@/hooks/ui/use-toast';
 
 export function useCredits() {
@@ -13,8 +14,26 @@ export function useCredits() {
     try {
       setLoading(true);
       setError(null);
-      const data = await pricingService.getBalance();
-      setBalance(data);
+      
+      // Try real API first
+      try {
+        const data = await pricingService.getBalance();
+        setBalance(data);
+        return;
+      } catch (apiError: any) {
+        console.warn('API unavailable, using mock data:', apiError.message);
+        
+        // If API fails, use mock data
+        const mockData = await mockCreditsService.getBalance();
+        setBalance(mockData);
+        
+        // Show a subtle notice that we're using demo data
+        toast({
+          title: "Demo Mode",
+          description: "Using demo data - backend unavailable",
+          variant: "default"
+        });
+      }
     } catch (err: any) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch credits balance';
       setError(errorMessage);
@@ -32,13 +51,24 @@ export function useCredits() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   const fetchTransactions = useCallback(async (limit: number = 50) => {
     try {
       setError(null);
-      const data = await pricingService.getTransactions(limit);
-      setTransactions(data);
+      
+      // Try real API first
+      try {
+        const data = await pricingService.getTransactions(limit);
+        setTransactions(data);
+        return;
+      } catch (apiError: any) {
+        console.warn('API unavailable, using mock transactions:', apiError.message);
+        
+        // If API fails, use mock data
+        const mockData = await mockCreditsService.getTransactions();
+        setTransactions(mockData);
+      }
     } catch (err: any) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch transactions';
       setError(errorMessage);

@@ -68,9 +68,16 @@ class MusicClipAPI extends BaseApiClient {
 
   async updateProjectSettings(projectId: string, settings: any): Promise<any> {
     try {
+      // Check if user is authenticated before making API call
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+      if (!token) {
+        console.log('User not authenticated, returning mock response for project settings update');
+        return { success: false, error: 'Authentication required' };
+      }
+
       const requestBody = { projectId, ...settings };
       console.log('Updating project settings:', { projectId, settings, requestBody });
-      const result = await this.post<any>(`${API_PATHS.MUSIC_CLIP}/project-settings`, requestBody);
+      const result = await this.post<any>(`${API_PATHS.MUSIC_CLIP}/projects/${projectId}/settings`, requestBody);
       console.log('Project settings update result:', result);
       return result;
     } catch (error) {

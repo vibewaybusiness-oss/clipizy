@@ -5,11 +5,30 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Music, Sparkles, ArrowLeft, Film, Zap, Mail } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function AutomatePage() {
   const [showAutomationTypePopup, setShowAutomationTypePopup] = useState(true);
   const [automationType, setAutomationType] = useState<"music" | "video" | null>(null);
+
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showAutomationTypePopup) {
+        setShowAutomationTypePopup(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [showAutomationTypePopup]);
+
+  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
+      setShowAutomationTypePopup(false);
+    }
+  };
 
 
   return (
@@ -38,8 +57,14 @@ export default function AutomatePage() {
 
       {/* AUTOMATION TYPE SELECTION POPUP */}
       {showAutomationTypePopup && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md mx-4 bg-card border border-border shadow-lg">
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={handleBackdropClick}
+        >
+          <Card 
+            className="w-full max-w-md mx-4 bg-card border border-border shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
             <CardHeader className="text-center pb-4">
               <div className="flex items-center justify-center space-x-2 mb-3">
                 <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">

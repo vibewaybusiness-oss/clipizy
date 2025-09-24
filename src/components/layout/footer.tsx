@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Heart, Github, Mail, Sparkles } from "lucide-react";
 import { ClipizyLogo } from "@/components/common/clipizy-logo";
+import { EmailSubscription } from "@/components/common/email-subscription";
 
 const footerLinks = {
   product: [
@@ -115,16 +116,14 @@ export function Footer() {
                 Stay updated with the latest features
               </span>
             </div>
-            <div className="flex w-full md:w-auto gap-3">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 md:w-64 px-4 py-2 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              />
-              <button className="btn-primary whitespace-nowrap">
-                Subscribe
-              </button>
-            </div>
+            <EmailSubscription
+              placeholder="Enter your email"
+              buttonText="Subscribe"
+              source="footer"
+              variant="inline"
+              size="md"
+              className="w-full md:w-auto"
+            />
           </div>
         </div>
 

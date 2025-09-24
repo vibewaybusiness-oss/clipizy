@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 import { 
   CreditCard, 
   Zap, 
@@ -14,7 +15,15 @@ import {
   ExternalLink,
   Calendar,
   Users,
-  Settings
+  Settings,
+  TrendingUp,
+  Clock,
+  DollarSign,
+  Shield,
+  Sparkles,
+  ArrowRight,
+  Check,
+  X
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/hooks/ui/use-toast";
@@ -27,6 +36,11 @@ interface SubscriptionInfo {
   billingCycle: 'monthly' | 'yearly' | null;
   price: number;
   currency: string;
+  creditsUsed: number;
+  creditsTotal: number;
+  videosGenerated: number;
+  lastBillingDate: string | null;
+  nextBillingDate: string | null;
 }
 
 
@@ -36,25 +50,37 @@ const subscriptionTiers = {
     name: 'Free',
     icon: Star,
     color: 'bg-gray-500',
-    description: 'Basic features with limited usage'
+    description: 'Basic features with limited usage',
+    credits: 10,
+    features: ['10 credits/month', 'Basic templates', 'Standard quality', 'Community support'],
+    price: 0
   },
   plus: {
     name: 'Plus',
     icon: Zap,
     color: 'bg-blue-500',
-    description: 'Enhanced features with more credits'
+    description: 'Enhanced features with more credits',
+    credits: 100,
+    features: ['100 credits/month', 'Premium templates', 'HD quality', 'Priority support', 'Custom branding'],
+    price: 19
   },
   pro: {
     name: 'Pro',
     icon: Crown,
     color: 'bg-purple-500',
-    description: 'Professional features and priority support'
+    description: 'Professional features and priority support',
+    credits: 500,
+    features: ['500 credits/month', 'All templates', '4K quality', '24/7 support', 'Advanced analytics', 'API access'],
+    price: 49
   },
   enterprise: {
     name: 'Enterprise',
     icon: Settings,
-    color: 'bg-gold-500',
-    description: 'Custom solutions for large teams'
+    color: 'bg-amber-500',
+    description: 'Custom solutions for large teams',
+    credits: 'Unlimited',
+    features: ['Unlimited credits', 'Custom templates', 'White-label solution', 'Dedicated support', 'Custom integrations', 'SLA guarantee'],
+    price: 'Custom'
   }
 };
 
@@ -69,7 +95,12 @@ export default function SubscriptionCreditsTab() {
     renewsAt: null,
     billingCycle: null,
     price: 0,
-    currency: 'USD'
+    currency: 'USD',
+    creditsUsed: 3,
+    creditsTotal: 10,
+    videosGenerated: 2,
+    lastBillingDate: null,
+    nextBillingDate: null
   });
 
   useEffect(() => {
@@ -95,14 +126,42 @@ export default function SubscriptionCreditsTab() {
         setSubscriptionInfo(JSON.parse(savedSubscriptionInfo));
       }
 
-      // Load subscription info from backend
-      const subscriptionResponse = await fetch(`${getBackendUrl()}/user-management/subscription`);
-      if (subscriptionResponse.ok) {
-        const subscriptionData = await subscriptionResponse.json();
-        if (subscriptionData.success) {
-          setSubscriptionInfo(subscriptionData.subscription);
-          localStorage.setItem('subscriptionInfo', JSON.stringify(subscriptionData.subscription));
+      // Try to load subscription info from backend
+      try {
+        const subscriptionResponse = await fetch(`${getBackendUrl()}/user-management/subscription`);
+        if (subscriptionResponse.ok) {
+          const subscriptionData = await subscriptionResponse.json();
+          if (subscriptionData.success) {
+            setSubscriptionInfo(subscriptionData.subscription);
+            localStorage.setItem('subscriptionInfo', JSON.stringify(subscriptionData.subscription));
+          }
         }
+      } catch (apiError) {
+        console.warn('Backend unavailable, using default subscription data:', apiError);
+        
+        // Use default subscription data when backend is unavailable
+        const defaultSubscription = {
+          tier: 'free',
+          status: 'active',
+          renewsAt: null,
+          billingCycle: null,
+          price: 0,
+          currency: 'USD',
+          creditsUsed: 3,
+          creditsTotal: 10,
+          videosGenerated: 2,
+          lastBillingDate: null,
+          nextBillingDate: null
+        };
+        
+        setSubscriptionInfo(defaultSubscription);
+        localStorage.setItem('subscriptionInfo', JSON.stringify(defaultSubscription));
+        
+        toast({
+          title: "Demo Mode",
+          description: "Using demo subscription data - backend unavailable",
+          variant: "default"
+        });
       }
     } catch (error) {
       console.error('Error loading subscription data:', error);
@@ -124,7 +183,8 @@ export default function SubscriptionCreditsTab() {
         body: JSON.stringify(subscriptionInfo),
       });
     } catch (error) {
-      console.error('Error saving subscription info to database:', error);
+      console.warn('Backend unavailable, subscription data saved locally only:', error);
+      // Data is already saved in localStorage, so this is not critical
     }
   };
 
@@ -142,7 +202,7 @@ export default function SubscriptionCreditsTab() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Active</Badge>;
+        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
       case 'cancelled':
         return <Badge variant="secondary">Cancelled</Badge>;
       case 'past_due':
@@ -164,139 +224,251 @@ export default function SubscriptionCreditsTab() {
     );
   }
 
-  const currentTier = subscriptionTiers[subscriptionInfo.tier];
+  const currentTier = subscriptionTiers[subscriptionInfo.tier as keyof typeof subscriptionTiers];
   const TierIcon = currentTier.icon;
+
+  const creditsPercentage = (subscriptionInfo.creditsUsed / subscriptionInfo.creditsTotal) * 100;
 
   return (
     <div className="space-y-6 h-full flex flex-col">
-      {/* SUBSCRIPTION OVERVIEW */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Crown className="w-5 h-5" />
-            Current Subscription
-          </CardTitle>
-          <CardDescription>
-            Manage your subscription and billing information
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${currentTier.color}`}>
-                <TierIcon className="w-6 h-6 text-white" />
+      {/* HEADER SECTION */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 sm:p-6 bg-gradient-to-r from-primary/5 to-purple-500/5 rounded-xl border border-primary/10">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="p-3 rounded-xl bg-primary/10">
+            <CreditCard className="w-6 h-6 text-primary" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Subscription & Credits</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">Manage your subscription, billing, and usage</p>
+          </div>
+        </div>
+        <div className="text-center sm:text-right w-full sm:w-auto">
+          <div className="text-2xl sm:text-3xl font-bold text-primary">
+            {subscriptionInfo.creditsTotal - subscriptionInfo.creditsUsed}
+          </div>
+          <div className="text-sm text-muted-foreground">Credits Remaining</div>
+        </div>
+      </div>
+
+      {/* MAIN CONTENT GRID */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 flex-1">
+        {/* LEFT COLUMN - SUBSCRIPTION INFO */}
+        <div className="xl:col-span-2 space-y-4 sm:space-y-6">
+          {/* CURRENT PLAN CARD */}
+          <Card className="border-2 border-primary/20">
+            <CardHeader className="pb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${currentTier.color}`}>
+                    <TierIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg sm:text-xl">{currentTier.name} Plan</CardTitle>
+                    <CardDescription className="text-sm sm:text-base">{currentTier.description}</CardDescription>
+                  </div>
+                </div>
+                <div className="text-left sm:text-right">
+                  {getStatusBadge(subscriptionInfo.status)}
+                  {subscriptionInfo.price > 0 && (
+                    <div className="mt-2">
+                      <div className="text-xl sm:text-2xl font-bold text-foreground">
+                        ${subscriptionInfo.price}
+                        <span className="text-sm font-normal text-muted-foreground">
+                          /{subscriptionInfo.billingCycle === 'yearly' ? 'year' : 'month'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* PLAN FEATURES */}
               <div>
-                <h3 className="text-lg font-semibold">{currentTier.name} Plan</h3>
-                <p className="text-sm text-muted-foreground">{currentTier.description}</p>
-              </div>
-            </div>
-            <div className="text-right">
-              {getStatusBadge(subscriptionInfo.status)}
-              {subscriptionInfo.price > 0 && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  ${subscriptionInfo.price}/{subscriptionInfo.billingCycle === 'yearly' ? 'year' : 'month'}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {subscriptionInfo.renewsAt && (
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <Calendar className="w-4 h-4" />
-              <span>Renews: {formatDate(subscriptionInfo.renewsAt)}</span>
-            </div>
-          )}
-
-          <Separator />
-
-        </CardContent>
-      </Card>
-
-
-      {/* SUBSCRIPTION MANAGEMENT */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Crown className="w-5 h-5" />
-            Subscription Management
-          </CardTitle>
-          <CardDescription>
-            Manage your subscription and upgrade your plan
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {/* CURRENT PLAN DISPLAY */}
-          <div className="mb-6 p-4 bg-muted/30 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${currentTier.color}`}>
-                  <TierIcon className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold">{currentTier.name} Plan</h3>
-                  <p className="text-sm text-muted-foreground">{currentTier.description}</p>
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  Plan Features
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {currentTier.features.map((feature: string, index: number) => (
+                    <div key={index} className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <span className="break-words">{feature}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="text-right">
-                <Badge variant={subscriptionInfo.tier === 'free' ? 'secondary' : 'default'}>
-                  {subscriptionInfo.tier === 'free' ? 'Free' : 'Active'}
-                </Badge>
-                {subscriptionInfo.price > 0 && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    ${subscriptionInfo.price}/{subscriptionInfo.billingCycle === 'yearly' ? 'year' : 'month'}
-                  </p>
+
+              {/* ACTION BUTTONS */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button 
+                  className="flex-1 h-11 sm:h-12 text-sm sm:text-base font-medium bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white"
+                  onClick={() => window.location.href = '/dashboard/pricing'}
+                >
+                  <Crown className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                  Upgrade Plan
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1 h-11 sm:h-12 text-sm sm:text-base font-medium border-primary/20 hover:bg-primary/5"
+                  onClick={() => window.location.href = '/dashboard/credits'}
+                >
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                  Buy Credits
+                  <ExternalLink className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* USAGE STATISTICS */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Usage Statistics
+              </CardTitle>
+              <CardDescription>
+                Track your credits usage and activity this month
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* CREDITS USAGE */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">Credits Used</span>
+                  <span className="text-sm text-muted-foreground">
+                    {subscriptionInfo.creditsUsed} / {subscriptionInfo.creditsTotal}
+                  </span>
+                </div>
+                <Progress value={creditsPercentage} className="h-3" />
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>{Math.round(creditsPercentage)}% used</span>
+                  <span>{subscriptionInfo.creditsTotal - subscriptionInfo.creditsUsed} remaining</span>
+                </div>
+              </div>
+
+              {/* STATS GRID */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="p-3 sm:p-4 bg-muted/30 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm font-medium">Videos Generated</span>
+                  </div>
+                  <div className="text-xl sm:text-2xl font-bold">{subscriptionInfo.videosGenerated}</div>
+                  <div className="text-xs text-muted-foreground">This month</div>
+                </div>
+                <div className="p-3 sm:p-4 bg-muted/30 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="w-4 h-4 text-green-500" />
+                    <span className="text-sm font-medium">Avg. per Video</span>
+                  </div>
+                  <div className="text-xl sm:text-2xl font-bold">
+                    {subscriptionInfo.videosGenerated > 0 
+                      ? Math.round(subscriptionInfo.creditsUsed / subscriptionInfo.videosGenerated)
+                      : 0
+                    }
+                  </div>
+                  <div className="text-xs text-muted-foreground">Credits</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* RIGHT COLUMN - BILLING & QUICK ACTIONS */}
+        <div className="space-y-4 sm:space-y-6">
+          {/* BILLING INFORMATION */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="w-5 h-5" />
+                Billing Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Status</span>
+                  {getStatusBadge(subscriptionInfo.status)}
+                </div>
+                {subscriptionInfo.nextBillingDate && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Next Billing</span>
+                    <span className="text-sm font-medium">{formatDate(subscriptionInfo.nextBillingDate)}</span>
+                  </div>
                 )}
+                {subscriptionInfo.lastBillingDate && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Last Billing</span>
+                    <span className="text-sm font-medium">{formatDate(subscriptionInfo.lastBillingDate)}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Billing Cycle</span>
+                  <span className="text-sm font-medium">
+                    {subscriptionInfo.billingCycle ? 
+                      subscriptionInfo.billingCycle.charAt(0).toUpperCase() + subscriptionInfo.billingCycle.slice(1) 
+                      : 'N/A'
+                    }
+                  </span>
+                </div>
               </div>
-            </div>
-          </div>
+              <Separator />
+              <Button variant="outline" className="w-full" size="sm">
+                <CreditCard className="w-4 h-4 mr-2" />
+                Manage Billing
+              </Button>
+            </CardContent>
+          </Card>
 
-          {/* ACTION BUTTONS */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button 
-              className="flex-1 h-12 text-base font-medium gradient-primary text-white"
-              asChild
-            >
-              <a href="/dashboard/settings/subscription" target="_blank" rel="noopener noreferrer">
-                <Crown className="w-5 h-5 mr-2" />
-                Upgrade Plan
-                <ExternalLink className="w-4 h-4 ml-2" />
-              </a>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex-1 h-12 text-base font-medium"
-              asChild
-            >
-              <a href="/dashboard/settings/subscription" target="_blank" rel="noopener noreferrer">
-                <Settings className="w-5 h-5 mr-2" />
-                Manage Subscription
-                <ExternalLink className="w-4 h-4 ml-2" />
-              </a>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          {/* QUICK ACTIONS */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                Quick Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button variant="outline" className="w-full justify-start" size="sm">
+                <Shield className="w-4 h-4 mr-2" />
+                Download Invoices
+              </Button>
+              <Button variant="outline" className="w-full justify-start" size="sm">
+                <Calendar className="w-4 h-4 mr-2" />
+                Billing History
+              </Button>
+              <Button variant="outline" className="w-full justify-start" size="sm">
+                <Users className="w-4 h-4 mr-2" />
+                Team Management
+              </Button>
+            </CardContent>
+          </Card>
 
-      {/* USAGE STATISTICS */}
-      <Card className="flex-1 flex flex-col">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="w-5 h-5" />
-            Usage Statistics
-          </CardTitle>
-          <CardDescription>
-            Track your credits usage and activity
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex-1 flex items-center justify-center">
-          <div className="text-center py-8 text-muted-foreground">
-            <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p>Usage statistics coming soon</p>
-            <p className="text-sm">Track your credits usage and get insights into your activity</p>
-          </div>
-        </CardContent>
-      </Card>
+          {/* UPGRADE SUGGESTION */}
+          {subscriptionInfo.tier === 'free' && (
+            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-purple-500/5">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                  <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                  Ready to Upgrade?
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Unlock more credits, premium features, and priority support.
+                </p>
+                <Button className="w-full h-10 sm:h-11 text-sm sm:text-base bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90">
+                  View Plans
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

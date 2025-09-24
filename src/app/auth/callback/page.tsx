@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { AnimatedClipizyLogo } from '@/components/common/animated-clipizy-logo';
 
 function OAuthCallbackContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -107,38 +108,39 @@ function OAuthCallbackContent() {
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center">
-          {status === 'loading' && (
-            <div className="space-y-2">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+          <div className="space-y-4">
+            <AnimatedClipizyLogo 
+              state={status} 
+              size="large"
+              className="mx-auto"
+            />
+            
+            {status === 'loading' && (
               <p className="text-sm text-muted-foreground">
                 Please wait while we complete your authentication...
               </p>
-            </div>
-          )}
-          
-          {status === 'success' && (
-            <div className="space-y-2">
-              <CheckCircle className="h-8 w-8 text-green-500 mx-auto" />
+            )}
+            
+            {status === 'success' && (
               <p className="text-sm text-green-600">
                 You will be redirected to the dashboard shortly.
               </p>
-            </div>
-          )}
-          
-          {status === 'error' && (
-            <div className="space-y-4">
-              <XCircle className="h-8 w-8 text-red-500 mx-auto" />
-              <p className="text-sm text-red-600">
-                {message}
-              </p>
-              <button
-                onClick={() => router.push('/auth/login')}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-              >
-                Back to Login
-              </button>
-            </div>
-          )}
+            )}
+            
+            {status === 'error' && (
+              <div className="space-y-4">
+                <p className="text-sm text-red-600">
+                  {message}
+                </p>
+                <button
+                  onClick={() => router.push('/auth/login')}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  Back to Login
+                </button>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -152,7 +154,7 @@ export default function OAuthCallbackPage() {
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <CardTitle className="flex items-center justify-center gap-2">
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <AnimatedClipizyLogo state="loading" size="small" />
               OAuth Authentication
             </CardTitle>
             <CardDescription>
@@ -160,8 +162,8 @@ export default function OAuthCallbackPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <div className="space-y-2">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+            <div className="space-y-4">
+              <AnimatedClipizyLogo state="loading" size="large" className="mx-auto" />
               <p className="text-sm text-muted-foreground">
                 Please wait while we load the authentication page...
               </p>

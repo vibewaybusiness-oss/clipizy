@@ -116,7 +116,7 @@ export class UserManagementAPI {
    */
   async getDirectoryStructure(): Promise<DirectoryStructure> {
     try {
-      return await APIClient.get<DirectoryStructure>('/user-management/directory-structure');
+      return await APIClient.get<DirectoryStructure>('/api/user-management/directory-structure');
     } catch (error) {
       console.error('Error fetching directory structure:', error);
       throw error;
@@ -140,7 +140,7 @@ export class UserManagementAPI {
    */
   async getProfileInfo(): Promise<{ success: boolean; profile: UserProfile | null; message?: string }> {
     try {
-      return await APIClient.get<{ success: boolean; profile: UserProfile | null; message?: string }>('/user-management/profile-info');
+      return await APIClient.get<{ success: boolean; profile: UserProfile | null; message?: string }>('/api/user-management/profile-info');
     } catch (error) {
       console.error('Error fetching profile info:', error);
       throw error;
@@ -164,7 +164,7 @@ export class UserManagementAPI {
    */
   async getSettings(): Promise<{ success: boolean; settings: UserSettings | null; message?: string }> {
     try {
-      return await APIClient.get<{ success: boolean; settings: UserSettings | null; message?: string }>('/user-management/settings');
+      return await APIClient.get<{ success: boolean; settings: UserSettings | null; message?: string }>('/api/user-management/settings');
     } catch (error) {
       console.error('Error fetching settings:', error);
       throw error;
@@ -188,7 +188,7 @@ export class UserManagementAPI {
    */
   async getBillingInfo(): Promise<{ success: boolean; billing: UserBilling | null; message?: string }> {
     try {
-      return await APIClient.get<{ success: boolean; billing: UserBilling | null; message?: string }>('/user-management/billing-info');
+      return await APIClient.get<{ success: boolean; billing: UserBilling | null; message?: string }>('/api/user-management/billing-info');
     } catch (error) {
       console.error('Error fetching billing info:', error);
       throw error;
@@ -212,7 +212,7 @@ export class UserManagementAPI {
    */
   async getStorageUsage(): Promise<{ success: boolean; usage: StorageUsage | null; message?: string }> {
     try {
-      return await APIClient.get<{ success: boolean; usage: StorageUsage | null; message?: string }>('/user-management/storage-usage');
+      return await APIClient.get<{ success: boolean; usage: StorageUsage | null; message?: string }>('/api/user-management/storage-usage');
     } catch (error) {
       console.error('Error fetching storage usage:', error);
       throw error;

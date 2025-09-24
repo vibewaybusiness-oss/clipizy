@@ -4,7 +4,8 @@ clipizy FastAPI Main Application
 """
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 import uvicorn
 import os
@@ -35,6 +36,8 @@ from api.routers import (
     social_media_router,
     automation_router
 )
+# from api.routers.admin import stripe_admin_router
+# Test router removed
 from api.routers.auth.user_management_router import router as user_management_router
 from api.tests.examples.sanitizer_integration_examples import router as sanitizer_examples_router
 
@@ -179,7 +182,7 @@ sanitizer_config = SanitizerConfig(
 app.add_middleware(
     SanitizerMiddleware,
     config=sanitizer_config,
-    skip_paths=['/health', '/docs', '/openapi.json', '/redoc', '/api/auth', '/api/auth/google', '/api/auth/github', '/api/auth/google/callback', '/api/auth/github/callback', '/api/auth/debug'],
+    skip_paths=['/health', '/docs', '/openapi.json', '/redoc', '/api/auth', '/api/auth/google', '/api/auth/github', '/api/auth/google/callback', '/api/auth/github/callback', '/api/auth/debug', '/api/analysis', '/api/music-analysis', '/api/music-clip'],
     skip_methods=['GET', 'HEAD', 'OPTIONS'],
     log_violations=True
 )
@@ -192,7 +195,7 @@ app.include_router(export_router, prefix="/api/exports", tags=["exports"])
 app.include_router(stats_router, prefix="/stats", tags=["stats"])
 app.include_router(job_router, prefix="/jobs", tags=["jobs"])
 app.include_router(prompt_router, prefix="/api/prompts", tags=["prompts"])
-app.include_router(analysis_router, prefix="/analysis", tags=["analysis"])
+app.include_router(analysis_router, prefix="/api/analysis", tags=["analysis"])
 app.include_router(music_analysis_router)
 app.include_router(music_clip_router, prefix="/api")
 app.include_router(particle_router, prefix="/particles", tags=["particles"])
@@ -201,10 +204,18 @@ app.include_router(comfyui_router, prefix="/api/comfyui", tags=["comfyui"])
 app.include_router(runpod_router, prefix="/api/runpod", tags=["runpod"])
 app.include_router(credits_router, prefix="/api", tags=["credits"])
 app.include_router(payment_router, prefix="/api", tags=["payments"])
+# Add admin router directly
+from api.routers.admin.stripe_admin_router import router as stripe_admin_router
+app.include_router(stripe_admin_router, prefix="/api", tags=["admin-stripe"])
 app.include_router(social_media_router, prefix="/api", tags=["social-media"])
 app.include_router(automation_router, prefix="/api", tags=["automation"])
 app.include_router(user_management_router, prefix="/api", tags=["user-management"])
 app.include_router(sanitizer_examples_router, tags=["sanitizer-examples"])
+
+# Mount static files for serving uploaded audio files
+storage_path = os.path.join(os.path.dirname(__file__), "..", "storage")
+if os.path.exists(storage_path):
+    app.mount("/storage", StaticFiles(directory=storage_path), name="storage")
 
 # Root endpoint
 @app.get("/")

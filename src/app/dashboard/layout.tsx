@@ -11,18 +11,28 @@ import {
   Settings,
   Menu,
   X,
-  TestTube
+  LogOut,
+  User
 } from "lucide-react";
 import { ProtectedRoute } from "@/components/layout/protected-route";
 import { LoadingProvider, useLoading } from "@/contexts/loading-context";
 import { ClipizyLoadingOverlay } from "@/components/ui/clipizy-loading";
 import { useNavigationLoading } from "@/hooks/use-navigation-loading";
+import { useAuth } from "@/contexts/auth-context";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ClipizyLogo } from "@/components/common/clipizy-logo";
 
 const navigation = [
   { name: "Overview", href: "/dashboard", icon: Home },
   { name: "Projects", href: "/dashboard/projects", icon: FolderOpen },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
-  { name: "Test Loading", href: "/dashboard/testpage", icon: TestTube },
 ];
 
 function DashboardLayoutContent({
@@ -33,6 +43,7 @@ function DashboardLayoutContent({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const { isLoading, loadingMessage } = useLoading();
+  const { user, signOut } = useAuth();
   
   // Automatically handle loading states for navigation
   useNavigationLoading();
@@ -57,7 +68,14 @@ function DashboardLayoutContent({
         }`}>
           <div className="flex flex-col h-full">
             {/* SIDEBAR HEADER */}
-            <div className="flex items-center justify-center p-4">
+            <div className="flex items-center justify-center p-4 relative">
+              <Link 
+                href="/" 
+                className="flex items-center justify-center hover:opacity-80 transition-opacity"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <ClipizyLogo className="w-8 h-8 text-white" />
+              </Link>
               <Button
                 variant="ghost"
                 size="sm"
@@ -107,6 +125,56 @@ function DashboardLayoutContent({
               </ul>
             </nav>
 
+            {/* PROFILE SECTION */}
+            <div className="px-2 pb-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-12 h-12 rounded-lg hover:bg-white/10 transition-all duration-200 p-0"
+                  >
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage src={user?.avatar} />
+                      <AvatarFallback className="bg-white/20 text-white text-sm">
+                        {user?.name?.charAt(0) || user?.email?.charAt(0) || <User className="w-4 h-4" />}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent 
+                  align="end" 
+                  side="top" 
+                  className="w-56 z-[70] md:ml-16"
+                  sideOffset={8}
+                >
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      {user?.name && (
+                        <p className="font-medium">{user.name}</p>
+                      )}
+                      <p className="w-[200px] truncate text-sm text-muted-foreground">
+                        {user?.email}
+                      </p>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/settings" className="flex items-center">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => signOut()}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
 
           </div>
         </div>

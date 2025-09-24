@@ -44,7 +44,7 @@ class StatsService:
 
         # 3. Update stats.json in S3
         self.json_store.append_item(
-            f"users/{user_id}/music-clip/projects/{project_id}/stats.json",
+            f"users/{user_id}/projects/music-clip/{project_id}/stats.json",
             "stats",
             {
                 "id": stats_id,

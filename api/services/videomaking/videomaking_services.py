@@ -517,7 +517,7 @@ class VideoMakingService:
             }
             
             self.json_store.append_item(
-                f"users/{user_id}/music-clip/projects/{project_id}/compositions.json",
+                f"users/{user_id}/projects/music-clip/{project_id}/compositions.json",
                 "compositions",
                 composition_record
             )

@@ -95,12 +95,22 @@ class ProjectService:
 
         try:
             self.json_store.save_json(
-                f"users/{user_id}/music-clip/projects/{project_id}/script.json",
+                f"users/{user_id}/projects/music-clip/{project_id}/script.json",
                 script_data
             )
             logger.info(f"Created script.json for project {project_id}")
         except Exception as e:
-            logger.warning(f"Failed to create script.json: {e}")
+            logger.error(f"Failed to create script.json for project {project_id}: {e}")
+            # Try to create the directory structure manually and save locally
+            try:
+                script_path = f"storage/users/{user_id}/projects/music-clip/{project_id}/script.json"
+                os.makedirs(os.path.dirname(script_path), exist_ok=True)
+                with open(script_path, 'w') as f:
+                    import json
+                    json.dump(script_data, f, indent=2)
+                logger.info(f"Created script.json locally for project {project_id}")
+            except Exception as local_error:
+                logger.error(f"Failed to create script.json locally for project {project_id}: {local_error}")
 
         return project
 
@@ -131,7 +141,7 @@ class ProjectService:
 
         # Update script.json with track information
         try:
-            script_data = self.json_store.load_json(f"{user_id}/music-clip/projects/{project_id}/script.json")
+            script_data = self.json_store.load_json(f"users/{user_id}/projects/music-clip/{project_id}/script.json")
 
             track_info = {
                 "id": str(track.id),
@@ -149,7 +159,7 @@ class ProjectService:
             script_data["steps"]["music"]["tracks"].append(track_info)
 
             self.json_store.save_json(
-                f"{user_id}/music-clip/projects/{project_id}/script.json",
+                f"users/{user_id}/projects/music-clip/{project_id}/script.json",
                 script_data
             )
             logger.info(f"Updated script.json with track {track_id}")
@@ -164,7 +174,7 @@ class ProjectService:
         try:
             # Try to load existing script.json, create default if it doesn't exist
             try:
-                script_data = self.json_store.load_json(f"{user_id}/music-clip/projects/{project_id}/script.json")
+                script_data = self.json_store.load_json(f"users/{user_id}/projects/music-clip/{project_id}/script.json")
             except Exception as load_error:
                 logger.info(f"Script.json not found for project {project_id}, creating default structure")
                 script_data = {"steps": {"music": {}, "analysis": {}, "visuals": {}, "export": {}}}
@@ -181,7 +191,7 @@ class ProjectService:
             script_data["steps"]["music"]["settings"].update(settings)
 
             self.json_store.save_json(
-                f"{user_id}/music-clip/projects/{project_id}/script.json",
+                f"users/{user_id}/projects/music-clip/{project_id}/script.json",
                 script_data
             )
             logger.info(f"Updated settings for project {project_id}")
@@ -192,12 +202,48 @@ class ProjectService:
 
     def get_project_script(self, db: Session, project_id: str, user_id: str):
         """Get the project's script.json."""
+        script_path = f"users/{user_id}/projects/music-clip/{project_id}/script.json"
         try:
-            script_data = self.json_store.load_json(f"{user_id}/music-clip/projects/{project_id}/script.json")
+            logger.info(f"Attempting to load script.json from path: {script_path}")
+            script_data = self.json_store.load_json(script_path)
+            logger.info(f"Successfully loaded script.json for project {project_id}")
             return script_data
         except Exception as e:
-            logger.info(f"Script.json not found for project {project_id}, returning default structure")
-            return {"steps": {"music": {}, "analysis": {}, "visuals": {}, "export": {}}}
+            logger.info(f"Script.json not found for project {project_id} at path {script_path}, trying local fallback. Error: {str(e)}")
+            
+            # Try local fallback
+            local_path = f"storage/users/{user_id}/projects/music-clip/{project_id}/script.json"
+            try:
+                if os.path.exists(local_path):
+                    with open(local_path, 'r') as f:
+                        import json
+                        script_data = json.load(f)
+                    logger.info(f"Successfully loaded script.json from local storage for project {project_id}")
+                    return script_data
+            except Exception as local_error:
+                logger.warning(f"Failed to load script.json from local storage for project {project_id}: {local_error}")
+            
+            # Return default structure and try to create it
+            default_structure = {"steps": {"music": {}, "analysis": {}, "visuals": {}, "export": {}}}
+            
+            # Try to create the default script.json file
+            try:
+                logger.info(f"Creating default script.json for project {project_id}")
+                self.json_store.save_json(script_path, default_structure)
+                logger.info(f"Successfully created default script.json for project {project_id}")
+            except Exception as create_error:
+                logger.warning(f"Failed to create default script.json for project {project_id}: {str(create_error)}")
+                # Try local creation as last resort
+                try:
+                    os.makedirs(os.path.dirname(local_path), exist_ok=True)
+                    with open(local_path, 'w') as f:
+                        import json
+                        json.dump(default_structure, f, indent=2)
+                    logger.info(f"Created default script.json locally for project {project_id}")
+                except Exception as local_create_error:
+                    logger.error(f"Failed to create default script.json locally for project {project_id}: {local_create_error}")
+            
+            return default_structure
 
     def get_project_tracks(self, db: Session, project_id: str):
         """Get all tracks for a project."""

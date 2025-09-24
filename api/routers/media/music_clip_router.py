@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from api.db import get_db
 from api.models import Project, Track, User
@@ -162,6 +163,139 @@ def create_music_clip_project(
         logger.error(f"Failed to create music-clip project: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to create project: {str(e)}")
 
+@router.post("/upload-track")
+def upload_music_track_simple(
+    file: UploadFile = File(...),
+    project_id: Optional[str] = Form(None),
+    ai_generated: bool = Form(False),
+    prompt: Optional[str] = Form(None),
+    genre: Optional[str] = Form(None),
+    instrumental: bool = Form(False),
+    video_description: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Upload a music track - creates project if needed."""
+    try:
+        logger.info(f"Starting simple upload for file: {file.filename}, size: {file.size if hasattr(file, 'size') else 'unknown'}")
+
+        user_id = str(current_user.id)
+
+        # Ensure project folders exist
+        user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
+
+        # If no project_id provided, create a new project
+        if not project_id:
+            project = project_service.create_music_clip_project(
+                db=db,
+                user_id=user_id,
+                name=f"Track Upload - {file.filename}",
+                description="Auto-created project for track upload"
+            )
+            project_id = str(project.id)
+            logger.info(f"Created new project {project_id} for track upload")
+        else:
+            # Verify project exists and belongs to user
+            project = db.query(Project).filter(
+                Project.id == project_id,
+                Project.user_id == user_id,
+                Project.type == "music-clip"
+            ).first()
+
+            if not project:
+                raise HTTPException(status_code=404, detail="Project not found")
+
+        # Validate file type
+        ext = os.path.splitext(file.filename)[1].lower()
+        if ext not in [".mp3", ".wav", ".flac", ".aac", ".m4a"]:
+            raise HTTPException(status_code=400, detail="Invalid file type. Only audio files are allowed.")
+
+        # Upload to S3 using the music-clip structure
+        filename = f"{uuid.uuid4()}{ext}"
+        
+        # Reset file pointer and upload to S3
+        file.file.seek(0)
+        try:
+            file_url = storage_service.upload_music_track(
+                file=file,
+                user_id=user_id,
+                project_id=project_id,
+                filename=filename
+            )
+            logger.info(f"Uploaded track to S3: {file_url}")
+        except Exception as e:
+            logger.warning(f"S3 upload failed for {file.filename}, falling back to local storage: {e}")
+            # Fallback to local storage for development - use proper user structure
+            local_storage_dir = f"storage/users/{user_id}/projects/music-clip/{project_id}/tracks"
+            os.makedirs(local_storage_dir, exist_ok=True)
+            local_file_path = os.path.join(local_storage_dir, filename)
+
+            file.file.seek(0)
+            content = file.file.read()
+            with open(local_file_path, "wb") as f:
+                f.write(content)
+            # Store the relative path that matches the S3 structure
+            file_url = f"file://users/{user_id}/projects/music-clip/{project_id}/tracks/{filename}"
+            logger.info(f"Uploaded track to local storage: {file_url}")
+
+        # Extract metadata from the uploaded file
+        try:
+            # For S3 files, we need to download temporarily for metadata extraction
+            if file_url.startswith("file://"):
+                local_file_path = file_url.replace("file://", "")
+                file_metadata = extract_metadata(local_file_path, "audio")
+            else:
+                # For S3 files, create a temporary local copy for metadata extraction
+                temp_file = tempfile.NamedTemporaryFile(suffix=ext, delete=False)
+                file.file.seek(0)
+                temp_file.write(file.file.read())
+                temp_file.close()
+                file_metadata = extract_metadata(temp_file.name, "audio")
+                os.unlink(temp_file.name)
+            logger.info(f"Extracted metadata: duration={file_metadata.get('duration', 0)}s, format={file_metadata.get('format', 'unknown')}")
+        except Exception as e:
+            logger.warning(f"Failed to extract metadata for {file.filename}: {e}")
+            file_metadata = {
+                "duration": 0,
+                "format": ext.lstrip("."),
+                "size_mb": round(file.size / (1024 * 1024), 2) if hasattr(file, 'size') else 0
+            }
+
+        # Add track to project
+        track = project_service.add_music_track(
+            db=db,
+            project_id=project_id,
+            user_id=user_id,
+            file_path=file_url,
+            file_metadata=file_metadata,
+            ai_generated=ai_generated,
+            prompt=prompt,
+            genre=genre,
+            instrumental=instrumental,
+            video_description=video_description,
+            title=file.filename
+        )
+
+        logger.info(f"Uploaded track {track.id} to project {project_id}")
+
+        return {
+            "track_id": str(track.id),
+            "project_id": project_id,
+            "file_path": file_url,
+            "metadata": file_metadata,
+            "ai_generated": ai_generated,
+            "prompt": prompt,
+            "genre": genre,
+            "instrumental": instrumental,
+            "video_description": video_description
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to upload track: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
 @router.post("/projects/{project_id}/upload-track")
 def upload_music_track(
     project_id: str,
@@ -180,8 +314,12 @@ def upload_music_track(
 
         user_id = str(current_user.id)
 
-        # Ensure project folders exist
-        user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
+        # Ensure project folders exist (with retry logic)
+        try:
+            user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
+        except Exception as folder_error:
+            logger.warning(f"S3 folder creation failed, continuing with upload: {folder_error}")
+            # Continue with upload - folders will be created during file upload if needed
 
         # Verify project exists and belongs to user
         project = db.query(Project).filter(
@@ -198,26 +336,56 @@ def upload_music_track(
         if ext not in [".mp3", ".wav", ".flac", ".aac", ".m4a"]:
             raise HTTPException(status_code=400, detail="Invalid file type. Only audio files are allowed.")
 
-        # Use local storage for development
+        # Upload to S3 using the music-clip structure
         filename = f"{uuid.uuid4()}{ext}"
-        local_storage_dir = f"storage/projects/{project_id}/music"
-        os.makedirs(local_storage_dir, exist_ok=True)
-        local_file_path = os.path.join(local_storage_dir, filename)
-
+        
+        # Reset file pointer and upload to S3
         file.file.seek(0)
-        content = file.file.read()
-        with open(local_file_path, "wb") as f:
-            f.write(content)
-        file_url = f"file://{os.path.abspath(local_file_path)}"
-        logger.info(f"Uploaded track to local storage: {file_url}")
+        try:
+            file_url = storage_service.upload_music_track(
+                file=file,
+                user_id=user_id,
+                project_id=project_id,
+                filename=filename
+            )
+            logger.info(f"Uploaded track to S3: {file_url}")
+        except Exception as e:
+            logger.warning(f"S3 upload failed for {file.filename}, falling back to local storage: {e}")
+            # Fallback to local storage for development - use proper user structure
+            local_storage_dir = f"storage/users/{user_id}/projects/music-clip/{project_id}/tracks"
+            os.makedirs(local_storage_dir, exist_ok=True)
+            local_file_path = os.path.join(local_storage_dir, filename)
 
-        # Skip metadata extraction to avoid timeout issues with ffprobe
-        file_metadata = {
-            "duration": 0,
-            "format": ext.lstrip("."),
-            "size_mb": round(file.size / (1024 * 1024), 2) if hasattr(file, 'size') else 0
-        }
-        logger.info(f"Skipped metadata extraction, estimated size: {file_metadata['size_mb']}MB")
+            file.file.seek(0)
+            content = file.file.read()
+            with open(local_file_path, "wb") as f:
+                f.write(content)
+            # Store the relative path that matches the S3 structure
+            file_url = f"file://users/{user_id}/projects/music-clip/{project_id}/tracks/{filename}"
+            logger.info(f"Uploaded track to local storage: {file_url}")
+
+        # Extract metadata from the uploaded file
+        try:
+            # For S3 files, we need to download temporarily for metadata extraction
+            if file_url.startswith("file://"):
+                local_file_path = file_url.replace("file://", "")
+                file_metadata = extract_metadata(local_file_path, "audio")
+            else:
+                # For S3 files, create a temporary local copy for metadata extraction
+                temp_file = tempfile.NamedTemporaryFile(suffix=ext, delete=False)
+                file.file.seek(0)
+                temp_file.write(file.file.read())
+                temp_file.close()
+                file_metadata = extract_metadata(temp_file.name, "audio")
+                os.unlink(temp_file.name)
+            logger.info(f"Extracted metadata: duration={file_metadata.get('duration', 0)}s, format={file_metadata.get('format', 'unknown')}")
+        except Exception as e:
+            logger.warning(f"Failed to extract metadata for {file.filename}: {e}")
+            file_metadata = {
+                "duration": 0,
+                "format": ext.lstrip("."),
+                "size_mb": round(file.size / (1024 * 1024), 2) if hasattr(file, 'size') else 0
+            }
 
         # Add track to project
         track = project_service.add_music_track(
@@ -286,8 +454,8 @@ def process_single_file(file: UploadFile, project_id: str, user_id: str,
             logger.info(f"Uploaded track to S3: {file_url}")
         except Exception as e:
             logger.warning(f"S3 upload failed for {file.filename}, falling back to local storage: {e}")
-            # Fallback to local storage for development
-            local_storage_dir = f"storage/projects/{project_id}/music"
+            # Fallback to local storage for development - use proper user structure
+            local_storage_dir = f"storage/users/{user_id}/projects/music-clip/{project_id}/tracks"
             os.makedirs(local_storage_dir, exist_ok=True)
             local_file_path = os.path.join(local_storage_dir, filename)
 
@@ -295,7 +463,8 @@ def process_single_file(file: UploadFile, project_id: str, user_id: str,
             content = file.file.read()
             with open(local_file_path, "wb") as f:
                 f.write(content)
-            file_url = f"file://{os.path.abspath(local_file_path)}"
+            # Store the relative path that matches the S3 structure
+            file_url = f"file://users/{user_id}/projects/music-clip/{project_id}/tracks/{filename}"
 
         # Extract metadata
         try:
@@ -452,6 +621,67 @@ def upload_music_tracks_batch(
     except Exception as e:
         logger.error(f"Failed to upload tracks batch: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to upload tracks batch: {str(e)}")
+
+@router.post("/project-settings")
+def update_project_settings_simple(
+    request_data: Dict[str, Any],
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Update music-clip project settings - simplified endpoint."""
+    try:
+        # Extract project_id from request body
+        project_id = request_data.get('projectId')
+        if not project_id:
+            raise HTTPException(status_code=400, detail="Project ID is required")
+
+        # Validate project_id is a valid UUID
+        try:
+            uuid.UUID(project_id)
+        except ValueError:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
+            )
+
+        user_id = str(current_user.id)
+
+        # Ensure project folders exist
+        user_safety_service.ensure_project_folders_exist(user_id, "music-clip")
+
+        # Verify project exists and belongs to user
+        project = db.query(Project).filter(
+            Project.id == project_id,
+            Project.user_id == user_id,
+            Project.type == "music-clip"
+        ).first()
+
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        # Extract settings from request data (exclude projectId)
+        settings = {k: v for k, v in request_data.items() if k != 'projectId'}
+
+        # Update settings in script.json
+        updated_settings = project_service.update_project_settings(
+            db=db,
+            project_id=project_id,
+            user_id=user_id,
+            settings=settings
+        )
+
+        logger.info(f"Updated settings for project {project_id}")
+
+        return {
+            "id": project_id,
+            "settings": updated_settings
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to update project settings: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update settings")
 
 @router.post("/projects/{project_id}/settings")
 def update_project_settings(
@@ -731,8 +961,12 @@ def get_track_url(
         try:
             # Extract the S3 key from the file path
             if track.file_path.startswith("file://"):
-                # For local files, return the file path directly
-                url = track.file_path.replace("file://", "")
+                # For local files, convert to HTTP URL for serving
+                local_path = track.file_path.replace("file://", "")
+                # Get backend URL from environment or default to localhost
+                backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
+                # The local_path is already relative to storage directory, so just prepend the base URL
+                url = f"{backend_url}/storage/{local_path}"
             elif track.file_path.startswith("http://") or track.file_path.startswith("https://"):
                 # For files that already have URLs, return them directly
                 url = track.file_path
@@ -756,6 +990,82 @@ def get_track_url(
     except Exception as e:
         logger.error(f"Failed to get track URL: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get track URL")
+
+@router.get("/projects/{project_id}/tracks/{track_id}/file")
+def serve_track_file(
+    project_id: str,
+    track_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Serve the actual track file with proper CORS headers."""
+    try:
+        # Validate project_id is a valid UUID
+        try:
+            uuid.UUID(project_id)
+        except ValueError:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid project ID format: '{project_id}'. Project ID must be a valid UUID."
+            )
+        user_id = str(current_user.id)
+
+        # Verify project exists and belongs to user
+        project = db.query(Project).filter(
+            Project.id == project_id,
+            Project.user_id == user_id,
+            Project.type == "music-clip"
+        ).first()
+
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        # Get the track
+        track = db.query(Track).filter(
+            Track.id == track_id,
+            Track.project_id == project_id
+        ).first()
+
+        if not track:
+            raise HTTPException(status_code=404, detail="Track not found")
+
+        # Serve the file
+        if track.file_path.startswith("file://"):
+            local_path = track.file_path.replace("file://", "")
+            full_path = os.path.join("storage", local_path)
+            
+            if not os.path.exists(full_path):
+                raise HTTPException(status_code=404, detail="Track file not found")
+            
+            # Determine content type based on file extension
+            ext = os.path.splitext(full_path)[1].lower()
+            media_type = {
+                '.wav': 'audio/wav',
+                '.mp3': 'audio/mpeg',
+                '.ogg': 'audio/ogg',
+                '.m4a': 'audio/mp4',
+                '.aac': 'audio/aac',
+                '.flac': 'audio/flac'
+            }.get(ext, 'audio/wav')
+            
+            return FileResponse(
+                path=full_path,
+                media_type=media_type,
+                headers={
+                    "Accept-Ranges": "bytes",
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+                    "Access-Control-Allow-Headers": "Range, Content-Range, Content-Length, Content-Type"
+                }
+            )
+        else:
+            raise HTTPException(status_code=400, detail="Only local files can be served directly")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to serve track file {track_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to serve track file")
 
 @router.delete("/projects/{project_id}")
 def delete_project(
@@ -1108,3 +1418,70 @@ def get_analysis_progress(
     except Exception as e:
         logger.error(f"Failed to get analysis progress for project {project_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to get analysis progress: {str(e)}")
+
+@router.post("/projects/{project_id}/tracks/{track_id}/re-extract-metadata")
+def re_extract_track_metadata(
+    project_id: str,
+    track_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Re-extract metadata for a specific track."""
+    try:
+        user_id = str(current_user.id)
+
+        # Verify project exists and belongs to user
+        project = db.query(Project).filter(
+            Project.id == project_id,
+            Project.user_id == user_id,
+            Project.type == "music-clip"
+        ).first()
+
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        # Get the track
+        track = db.query(Track).filter(
+            Track.id == track_id,
+            Track.project_id == project_id
+        ).first()
+
+        if not track:
+            raise HTTPException(status_code=404, detail="Track not found")
+
+        # Extract metadata from the track file
+        try:
+            # Handle different file path formats
+            if track.file_path.startswith("file://"):
+                local_file_path = track.file_path.replace("file://", "")
+            else:
+                local_file_path = track.file_path
+
+            # Check if file exists
+            if not os.path.exists(local_file_path):
+                raise HTTPException(status_code=404, detail="Track file not found on disk")
+
+            # Extract metadata
+            file_metadata = extract_metadata(local_file_path, "audio")
+            logger.info(f"Re-extracted metadata for track {track_id}: duration={file_metadata.get('duration', 0)}s")
+
+            # Update track metadata in database
+            track.track_metadata = file_metadata
+            db.commit()
+            db.refresh(track)
+
+            return {
+                "track_id": track_id,
+                "metadata": file_metadata,
+                "message": "Metadata re-extracted successfully"
+            }
+
+        except Exception as e:
+            logger.error(f"Failed to re-extract metadata for track {track_id}: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Failed to re-extract metadata: {str(e)}")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to re-extract metadata for track {track_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to re-extract metadata: {str(e)}")

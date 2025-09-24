@@ -12,7 +12,7 @@ export default function BlogLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       {children}
     </div>
   );

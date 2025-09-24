@@ -4,7 +4,7 @@
 export * from './ui';
 
 // Music hooks
-export * from './music';
+export * from './music-clip';
 
 // Project hooks
 export * from './projects';

@@ -241,8 +241,13 @@ class LightweightMusicAnalyzer:
 
 def get_analysis_service():
     """Get appropriate analysis service based on environment"""
-    if all(check_ml_availability().values()):
-        # Full ML capabilities available
+    # Check for core ML libraries (librosa, numpy, scipy, soundfile)
+    ml_available = check_ml_availability()
+    core_libraries = ['librosa', 'numpy', 'scipy', 'soundfile']
+    core_available = all(ml_available.get(lib, False) for lib in core_libraries)
+    
+    if core_available:
+        # Core ML capabilities available
         try:
             from api.services.media.analysis_service import AnalysisService
             return AnalysisService()
@@ -254,8 +259,13 @@ def get_analysis_service():
 
 def get_music_analyzer_service():
     """Get appropriate music analyzer service based on environment"""
-    if all(check_ml_availability().values()):
-        # Full ML capabilities available
+    # Check for core ML libraries (librosa, numpy, scipy, soundfile)
+    ml_available = check_ml_availability()
+    core_libraries = ['librosa', 'numpy', 'scipy', 'soundfile']
+    core_available = all(ml_available.get(lib, False) for lib in core_libraries)
+    
+    if core_available:
+        # Core ML capabilities available
         try:
             from api.services.media.music_analyzer_service import MusicAnalyzerService
             return MusicAnalyzerService()

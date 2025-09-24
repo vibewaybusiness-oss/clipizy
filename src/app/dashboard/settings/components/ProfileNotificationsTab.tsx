@@ -20,6 +20,24 @@ import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/hooks/ui/use-toast";
 import { getBackendUrl } from "@/lib/config";
 
+// Helper function to convert avatar URL to display URL
+const getAvatarDisplayUrl = (avatarUrl: string): string => {
+  if (!avatarUrl) return "";
+  
+  // If it's already a full URL, return as is
+  if (avatarUrl.startsWith('http')) {
+    return avatarUrl;
+  }
+  
+  // If it's a relative path starting with /users/, convert to backend URL
+  if (avatarUrl.startsWith('/users/')) {
+    return `${getBackendUrl()}/user-management/avatar${avatarUrl.replace('/users/', '/')}`;
+  }
+  
+  // For other cases, return as is
+  return avatarUrl;
+};
+
 interface ProfileSettings {
   name: string;
   email: string;
@@ -114,7 +132,7 @@ export default function ProfileNotificationsTab() {
           localStorage.setItem('notificationSettings', JSON.stringify(notificationSettings));
         }
       } else {
-        console.error('Failed to load settings:', response.status, response.statusText);
+        console.warn('Settings endpoint not available, using local storage only:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error loading settings:', error);
@@ -172,34 +190,113 @@ export default function ProfileNotificationsTab() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Handle avatar upload logic here
-    toast({
-      title: "Info",
-      description: "Avatar upload functionality coming soon"
-    });
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload a JPG, PNG, or GIF image",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate file size (2MB limit)
+    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+    if (file.size > maxSize) {
+      toast({
+        title: "File Too Large",
+        description: "Please upload an image smaller than 2MB",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        toast({
+          title: "Authentication Error",
+          description: "Please log in again",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Upload the file
+      const response = await fetch(`${getBackendUrl()}/user-management/upload-avatar`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.avatar_url) {
+          // Update the profile settings with the new avatar URL
+          const newProfileSettings = {
+            ...profileSettings,
+            avatar: data.avatar_url
+          };
+          setProfileSettings(newProfileSettings);
+          localStorage.setItem('profileSettings', JSON.stringify(newProfileSettings));
+          
+          // Also update the user context if available
+          if (user) {
+            user.avatar = data.avatar_url;
+          }
+
+          toast({
+            title: "Success",
+            description: "Profile picture updated successfully"
+          });
+        } else {
+          throw new Error(data.message || 'Failed to upload avatar');
+        }
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to upload avatar');
+      }
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      toast({
+        title: "Upload Failed",
+        description: error instanceof Error ? error.message : "Failed to upload avatar",
+        variant: "destructive"
+      });
+    }
+
+    // Reset the input value so the same file can be selected again
+    event.target.value = '';
   };
 
   return (
     <div className="space-y-6 h-full flex flex-col">
       {/* PROFILE TITLE */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 p-4 bg-muted/20 rounded-lg border border-border">
         <div className="p-1.5 rounded-md bg-primary/10">
           <User className="w-4 h-4 text-primary" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold">Profile & Notifications</h2>
-          <p className="text-xs text-muted-foreground">Manage your personal information and notification preferences</p>
+          <h2 className="text-xl font-semibold">Profile & Notifications</h2>
+          <p className="text-sm text-muted-foreground">Manage your personal information and notification preferences</p>
         </div>
       </div>
 
       {/* ALL SETTINGS IN SINGLE DIV */}
-      <div className="space-y-5">
+      <div className="space-y-5 flex-1 overflow-auto">
         {/* AVATAR SECTION */}
         <div className="bg-card border border-border rounded-lg p-4">
           <div className="flex items-center space-x-4">
             <div className="relative">
               <Avatar className="w-14 h-14 border border-border">
-                <AvatarImage src={profileSettings.avatar} alt={profileSettings.name} />
+                <AvatarImage src={getAvatarDisplayUrl(profileSettings.avatar)} alt={profileSettings.name} />
                 <AvatarFallback className="text-sm font-semibold">
                   {profileSettings.name?.charAt(0)?.toUpperCase() || "U"}
                 </AvatarFallback>
@@ -210,8 +307,8 @@ export default function ProfileNotificationsTab() {
             </div>
             <div className="flex-1 space-y-2">
               <div>
-                <h3 className="text-sm font-medium">Profile Picture</h3>
-                <p className="text-xs text-muted-foreground">Upload a new avatar to personalize your profile</p>
+                <h3 className="text-base font-medium">Profile Picture</h3>
+                <p className="text-sm text-muted-foreground">Upload a new avatar to personalize your profile</p>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" asChild className="h-8">
@@ -220,7 +317,7 @@ export default function ProfileNotificationsTab() {
                     Change Avatar
                   </label>
                 </Button>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   JPG, PNG or GIF. Max size 2MB.
                 </p>
               </div>
@@ -228,13 +325,22 @@ export default function ProfileNotificationsTab() {
           </div>
         </div>
 
+        {/* HIDDEN FILE INPUT */}
+        <input
+          id="avatar-upload"
+          type="file"
+          accept="image/jpeg,image/jpg,image/png,image/gif"
+          onChange={handleAvatarUpload}
+          className="hidden"
+        />
+
         {/* PROFILE FIELDS */}
         <div className="bg-card border border-border rounded-lg p-4">
           <div className="space-y-4">
-            <h3 className="text-sm font-medium">Personal Information</h3>
+            <h3 className="text-base font-medium">Personal Information</h3>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="name" className="text-xs font-medium">Display Name</Label>
+                <Label htmlFor="name" className="text-sm font-medium">Display Name</Label>
                 <Input
                   id="name"
                   value={profileSettings.name}
@@ -245,7 +351,7 @@ export default function ProfileNotificationsTab() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-xs font-medium">Email Address</Label>
+                <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
                 <Input
                   id="email"
                   type="email"
@@ -258,7 +364,7 @@ export default function ProfileNotificationsTab() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="bio" className="text-xs font-medium">Bio</Label>
+              <Label htmlFor="bio" className="text-sm font-medium">Bio</Label>
               <Textarea
                 id="bio"
                 value={profileSettings.bio}
@@ -279,8 +385,8 @@ export default function ProfileNotificationsTab() {
                         <Bell className="w-4 h-4 text-blue-500" />
                       </div>
                       <div>
-                        <h3 className="text-sm font-semibold">Notification Preferences</h3>
-                        <p className="text-xs text-muted-foreground">Choose how you want to be notified about updates and activities</p>
+                        <h3 className="text-base font-semibold">Notification Preferences</h3>
+                        <p className="text-sm text-muted-foreground">Choose how you want to be notified about updates and activities</p>
                       </div>
                     </div>
                     
@@ -291,8 +397,8 @@ export default function ProfileNotificationsTab() {
                             <Mail className="w-4 h-4 text-green-500" />
                           </div>
                           <div className="space-y-0.5">
-                            <Label className="text-sm font-medium">Email Notifications</Label>
-                            <p className="text-xs text-muted-foreground">
+                            <Label className="text-base font-medium">Email Notifications</Label>
+                            <p className="text-sm text-muted-foreground">
                               Receive notifications via email
                             </p>
                           </div>
@@ -309,8 +415,8 @@ export default function ProfileNotificationsTab() {
                             <Smartphone className="w-4 h-4 text-purple-500" />
                           </div>
                           <div className="space-y-0.5">
-                            <Label className="text-sm font-medium">Push Notifications</Label>
-                            <p className="text-xs text-muted-foreground">
+                            <Label className="text-base font-medium">Push Notifications</Label>
+                            <p className="text-sm text-muted-foreground">
                               Receive push notifications in your browser
                             </p>
                           </div>
@@ -327,8 +433,8 @@ export default function ProfileNotificationsTab() {
                             <Mail className="w-4 h-4 text-orange-500" />
                           </div>
                           <div className="space-y-0.5">
-                            <Label className="text-sm font-medium">Marketing Emails</Label>
-                            <p className="text-xs text-muted-foreground">
+                            <Label className="text-base font-medium">Marketing Emails</Label>
+                            <p className="text-sm text-muted-foreground">
                               Receive promotional content and updates
                             </p>
                           </div>

@@ -7,13 +7,37 @@ from api.schemas import (
     PaymentRead,
     PaymentWebhookData
 )
+from pydantic import BaseModel
 from api.services import stripe_service, credits_service, PRICES
+from api.services.business.stripe_service import CheckoutSessionRequest
 from ..auth.auth_router import get_current_user
 from api.models import User
 from typing import List
 import json
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
+
+# CheckoutSessionRequest is imported from stripe_service
+
+@router.post("/create-checkout-session")
+def create_checkout_session(
+    request: CheckoutSessionRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Create a Stripe checkout session for subscription or credits purchase"""
+    try:
+        return stripe_service.create_checkout_session(db, str(current_user.id), request)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error creating checkout session: {str(e)}"
+        )
+
+@router.post("/test-endpoint")
+def test_endpoint():
+    """Test endpoint to verify router is working"""
+    return {"message": "Test endpoint working"}
 
 @router.post("/create-intent", response_model=PaymentIntentResponse)
 def create_payment_intent(
@@ -138,6 +162,47 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             detail=f"Error processing webhook: {str(e)}"
         )
 
+# PRICING ENDPOINTS
+@router.get("/pricing/config")
+def get_pricing_config():
+    """Get the complete pricing configuration"""
+    return PRICES
+
+@router.get("/pricing/music")
+def price_music(num_tracks: int = 1):
+    """Calculate price for music generation"""
+    return credits_service.calculate_music_price(num_tracks)
+
+@router.get("/pricing/image")
+def price_image(num_units: int, total_minutes: float):
+    """Calculate price for image generation"""
+    return credits_service.calculate_image_price(num_units, total_minutes)
+
+@router.get("/pricing/looped-animation")
+def price_looped(num_units: int, total_minutes: float):
+    """Calculate price for looped animation generation"""
+    return credits_service.calculate_looped_animation_price(num_units, total_minutes)
+
+@router.get("/pricing/video")
+def price_video(duration_minutes: float):
+    """Calculate price for video generation"""
+    return credits_service.calculate_video_price(duration_minutes)
+
+@router.post("/simple-checkout")
+def simple_checkout(
+    request: CheckoutSessionRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Simple checkout endpoint for testing"""
+    return {
+        "message": "Simple checkout working",
+        "plan_id": request.plan_id,
+        "plan_type": request.plan_type,
+        "user_id": str(current_user.id),
+        "checkout_url": "https://checkout.stripe.com/test-session"
+    }
+
 @router.get("/{payment_id}", response_model=PaymentRead)
 def get_payment(
     payment_id: str,
@@ -166,29 +231,3 @@ def get_payment(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error retrieving payment: {str(e)}"
         )
-
-# PRICING ENDPOINTS
-@router.get("/pricing/config")
-def get_pricing_config():
-    """Get the complete pricing configuration"""
-    return PRICES
-
-@router.get("/pricing/music")
-def price_music(num_tracks: int = 1):
-    """Calculate price for music generation"""
-    return credits_service.calculate_music_price(num_tracks)
-
-@router.get("/pricing/image")
-def price_image(num_units: int, total_minutes: float):
-    """Calculate price for image generation"""
-    return credits_service.calculate_image_price(num_units, total_minutes)
-
-@router.get("/pricing/looped-animation")
-def price_looped(num_units: int, total_minutes: float):
-    """Calculate price for looped animation generation"""
-    return credits_service.calculate_looped_animation_price(num_units, total_minutes)
-
-@router.get("/pricing/video")
-def price_video(duration_minutes: float):
-    """Calculate price for video generation"""
-    return credits_service.calculate_video_price(duration_minutes)

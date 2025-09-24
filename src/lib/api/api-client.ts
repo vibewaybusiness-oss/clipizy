@@ -6,8 +6,8 @@ import { BaseApiClient } from './base';
 
 import { getBackendUrl } from '@/lib/config';
 
-// Use Next.js API routes instead of direct backend calls
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+// Use backend URL directly to bypass Next.js API route issues
+const API_BASE_URL = getBackendUrl();
 
 export class APIClient extends BaseApiClient {
   constructor() {

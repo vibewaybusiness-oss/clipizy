@@ -126,7 +126,7 @@ export abstract class BaseApiClient {
         const projectId = urlParams.get('projectId');
         
         if (currentPath.includes('/music-clip') && projectId) {
-          console.log('Network error on music-clip page - returning mock response');
+          console.log('Network error on music-clip page - using fallback data for visualization');
           return { success: false, error: 'Network error' } as T;
         }
       }

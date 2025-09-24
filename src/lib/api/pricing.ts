@@ -1,6 +1,7 @@
 import { BaseApiClient } from './base';
 import { z } from "zod";
 import { PricingConfig } from "@/contexts/pricing-context";
+import { getBackendUrl } from '@/lib/config';
 
 export interface PriceResult {
   usd: number;
@@ -52,7 +53,7 @@ export class PricingService extends BaseApiClient {
   private configPromise: Promise<PricingConfig> | null = null;
 
   constructor() {
-    super('/api');
+    super(getBackendUrl());
   }
 
   public static getInstance(): PricingService {

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { PostCard, PostsFilters, Pagination } from '@/components/features/admin';
+import { PostCard, PostsFilters, Pagination } from '@/components/admin';
 import { usePosts } from '@/hooks/admin';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';

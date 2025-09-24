@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useCredits } from "@/hooks/commerce/use-credits";
 import { useToast } from "@/hooks/ui/use-toast";
+import { getBackendUrl } from "@/lib/config";
 import Link from "next/link";
 
 const creditsPackages = [
@@ -72,17 +73,39 @@ export default function PurchasePage() {
       setIsProcessing(true);
       setSelectedPackage(packageId);
 
-      const result = await purchaseCredits({
-        amount_dollars: pkg.price
+      // Create Stripe checkout session for credits purchase
+      const response = await fetch(`${getBackendUrl()}/api/payments/create-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+        body: JSON.stringify({ 
+          plan_id: packageId,
+          plan_type: 'credits'
+        }),
       });
 
-      toast({
-        title: "Payment Intent Created",
-        description: `Please complete payment to add ${pkg.credits + pkg.bonus} credits to your account`,
-      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.checkout_url) {
+          // Redirect to Stripe checkout
+          window.location.href = data.checkout_url;
+        } else {
+          throw new Error('No checkout URL received');
+        }
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create checkout session');
+      }
 
     } catch (error) {
       console.error('Purchase error:', error);
+      toast({
+        title: "Purchase Failed",
+        description: error instanceof Error ? error.message : "Failed to create checkout session",
+        variant: "destructive"
+      });
     } finally {
       setIsProcessing(false);
       setSelectedPackage(null);
@@ -103,18 +126,40 @@ export default function PurchasePage() {
     try {
       setIsProcessing(true);
 
-      const result = await purchaseCredits({
-        amount_dollars: amount
+      // Create Stripe checkout session for custom credits purchase
+      const response = await fetch(`${getBackendUrl()}/api/payments/create-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+        body: JSON.stringify({ 
+          plan_type: 'credits',
+          custom_amount: amount
+        }),
       });
 
-      toast({
-        title: "Payment Intent Created",
-        description: `Please complete payment to add ${Math.floor(amount * 100)} credits to your account`,
-      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.checkout_url) {
+          // Redirect to Stripe checkout
+          window.location.href = data.checkout_url;
+        } else {
+          throw new Error('No checkout URL received');
+        }
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create checkout session');
+      }
 
       setCustomAmount("");
     } catch (error) {
       console.error('Custom purchase error:', error);
+      toast({
+        title: "Purchase Failed",
+        description: error instanceof Error ? error.message : "Failed to create checkout session",
+        variant: "destructive"
+      });
     } finally {
       setIsProcessing(false);
     }

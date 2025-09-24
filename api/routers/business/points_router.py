@@ -11,6 +11,7 @@ from api.services import credits_service, stripe_service
 from api.models import User
 from typing import List
 from ..auth.auth_router import get_current_user
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/credits", tags=["Credits"])
 
@@ -128,4 +129,37 @@ def check_affordability(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Error checking affordability: {str(e)}"
+        )
+
+class CheckoutRequest(BaseModel):
+    plan_id: str
+    plan_type: str
+
+@router.post("/checkout")
+def create_checkout_session(
+    request: CheckoutRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Create a checkout session for subscription or credits purchase"""
+    try:
+        # Import stripe service
+        from api.services.business.stripe_service import stripe_service
+        from api.services.business.stripe_service import CheckoutSessionRequest
+        
+        # Create checkout session request
+        checkout_request = CheckoutSessionRequest(
+            plan_id=request.plan_id,
+            plan_type=request.plan_type
+        )
+        
+        # Create actual Stripe checkout session
+        result = stripe_service.create_checkout_session(db, str(current_user.id), checkout_request)
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error creating checkout session: {str(e)}"
         )

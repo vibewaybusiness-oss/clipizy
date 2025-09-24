@@ -13,6 +13,8 @@ logger = get_project_logger()
 class UserSafetyService:
     def __init__(self):
         logger.info("UserSafetyService initialized")
+        # Track which users have had their folders created to avoid duplicate calls
+        self._folders_created = set()
 
     def ensure_user_exists(self, db: Session, user_id: str) -> User:
         """Ensure a user exists, return None if not found (no auto-creation)"""
@@ -34,6 +36,14 @@ class UserSafetyService:
 
     def ensure_project_folders_exist(self, user_id: str, project_type: str = "music-clip"):
         """Ensure project folders exist in S3 storage"""
+        # Create a unique key for this user and project type
+        folder_key = f"{user_id}:{project_type}"
+        
+        # Check if we've already created folders for this user/project type
+        if folder_key in self._folders_created:
+            logger.debug(f"S3 folders already created for user {user_id} and project type {project_type}")
+            return
+            
         try:
             # Import S3Storage here to avoid circular imports
             from api.storage.s3 import S3Storage
@@ -58,6 +68,7 @@ class UserSafetyService:
                 f"{base_path}/exports/"
             ]
 
+            folders_created_count = 0
             for folder in folders_to_create:
                 # Create empty object to represent folder in S3
                 try:
@@ -67,11 +78,15 @@ class UserSafetyService:
                         Body=b''
                     )
                     logger.info(f"Created S3 folder: {folder}")
+                    folders_created_count += 1
                 except Exception as folder_error:
                     # Folder might already exist, which is fine
                     logger.debug(f"S3 folder {folder} already exists or creation failed: {folder_error}")
 
-            logger.info(f"Ensured S3 project folders exist for user {user_id}")
+            # Mark as created if we successfully created at least one folder or if all folders already existed
+            if folders_created_count > 0 or len(folders_to_create) == 0:
+                self._folders_created.add(folder_key)
+                logger.info(f"Ensured S3 project folders exist for user {user_id} (created {folders_created_count} new folders)")
 
         except Exception as e:
             logger.error(f"Error creating S3 project folders: {str(e)}")

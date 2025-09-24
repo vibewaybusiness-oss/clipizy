@@ -18,6 +18,7 @@ import {
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { AdminRoute } from "@/components/layout/admin-route";
 
 const adminNavigation = [
   { name: "Dashboard", href: "/admin", icon: Home },
@@ -33,13 +34,12 @@ export default function AdminLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const router = useRouter();
 
-  // Admin access is now open to all users for content calendar management
-
   return (
-    <div className="min-h-screen bg-background">
+    <AdminRoute>
+      <div className="min-h-screen bg-background">
       {/* MOBILE SIDEBAR OVERLAY */}
       {sidebarOpen && (
         <div
@@ -110,7 +110,7 @@ export default function AdminLayout({
             <Button
               variant="ghost"
               className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10"
-              onClick={logout}
+              onClick={signOut}
             >
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out
@@ -139,5 +139,6 @@ export default function AdminLayout({
         </main>
       </div>
     </div>
+    </AdminRoute>
   );
 }

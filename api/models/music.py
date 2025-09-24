@@ -26,6 +26,7 @@ class Track(Base):
 
     # 📊 Metadata (stored as JSON for flexibility)
     track_metadata = Column(JSON, nullable=True)     # Flexible metadata storage
+    analysis = Column(JSON, nullable=True)           # Analysis results
 
     created_at = Column(DateTime, default=datetime.utcnow)
 

@@ -11,16 +11,14 @@ import {
   History,
   ArrowRight,
   Search,
-  CreditCard,
-  Loader2
+  CreditCard
 } from "lucide-react";
 import { useCredits } from "@/hooks/commerce/use-credits";
 import Link from "next/link";
-import { useLoading } from "@/contexts/loading-context";
+import { ClipizyLoading } from "@/components/ui/clipizy-loading";
 
 export default function CreditsPage() {
   const { balance, transactions, loading } = useCredits();
-  const { setLoading } = useLoading();
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTransactions, setFilteredTransactions] = useState(transactions);
 
@@ -37,20 +35,13 @@ export default function CreditsPage() {
     setFilteredTransactions(filtered);
   }, [transactions, searchTerm]);
 
-  useEffect(() => {
-    if (loading) {
-      setLoading(true, "Loading credits...");
-    } else {
-      setLoading(false);
-    }
-  }, [loading, setLoading]);
 
 
   if (loading) {
     return (
       <div className="p-8 space-y-6">
         <div className="flex items-center justify-center h-64">
-          <Loader2 className="w-8 h-8 animate-spin" />
+          <ClipizyLoading message="Loading credits..." size="lg" />
         </div>
       </div>
     );

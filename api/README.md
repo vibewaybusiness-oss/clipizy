@@ -76,9 +76,31 @@ api/
 S3
 users/ 
 └── user-id 
-├── music-clip/ 
-│ ├── project_123/ 
-│ │ ├── script.json 
+├── projects/
+│ ├── music-clip/ 
+│ │ ├── project_123/ 
+│ │ │ ├── script.json 
+│ │ │ │ ├── music/ 
+│ │ │ │ │ └── track1.wav 
+│ │ │ │ ├── final_video/ 
+│ │ │ │ │ └── final_video1.mp4 
+│ │ │ │ ├── video/ 
+│ │ │ │ │ ├── video1.mp4 
+│ │ │ │ │ ├── video2.mp4 
+│ │ │ │ │ └── ... 
+│ │ │ │ ├── image/ 
+│ │ │ │ │ ├── image1.png 
+│ │ │ │ │ ├── image2.png 
+│ │ │ │ │ └── ... 
+│ │ │ │ ├── thumbnail/ 
+│ │ │ │ │ ├── thumbnail1.png 
+│ │ │ │ │ ├── thumbnail2.png 
+│ │ │ │ │ └── ... 
+│ │ │ └── stats.json 
+│ │ └── project_456/ ... 
+│ ├── video-clip/ 
+│ │ ├── project_123/ 
+│ │ │ ├── script.json 
 │ │ │ ├── music/ 
 │ │ │ │ └── track1.wav 
 │ │ │ ├── final_video/ 
@@ -95,58 +117,37 @@ users/
 │ │ │ │ ├── thumbnail1.png 
 │ │ │ │ ├── thumbnail2.png 
 │ │ │ │ └── ... 
-│ │ └── stats.json 
-│ └── project_456/ ... 
-├── video-clip/ 
-│ ├── project_123/ 
-│ │ ├── script.json 
-│ │ ├── music/ 
-│ │ │ └── track1.wav 
-│ │ ├── final_video/ 
-│ │ │ └── final_video1.mp4 
-│ │ ├── video/ 
-│ │ │ ├── video1.mp4 
-│ │ │ ├── video2.mp4 
-│ │ │ └── ... 
-│ │ ├── image/ 
-│ │ │ ├── image1.png 
-│ │ │ ├── image2.png 
-│ │ │ └── ... 
-│ │ ├── thumbnail/ 
-│ │ │ ├── thumbnail1.png 
-│ │ │ ├── thumbnail2.png 
-│ │ │ └── ... 
 │ │ │ ├── audio/ 
 │ │ │ │ ├── audio1.wav 
 │ │ │ │ ├── audio2.wav 
 │ │ │ │ └── ... 
-│ │ └── stats.json 
-│ └── project_456/ ... 
-├── short-clip/ 
-│ ├── project_123/ 
-│ │ ├── script.json 
-│ │ ├── music/ 
-│ │ │ └── track1.wav 
-│ │ ├── final_video/ 
-│ │ │ └── final_video1.mp4 
-│ │ ├── video/ 
-│ │ │ ├── video1.mp4 
-│ │ │ ├── video2.mp4 
-│ │ │ └── ... 
-│ │ ├── image/ 
-│ │ │ ├── image1.png 
-│ │ │ ├── image2.png 
-│ │ │ └── ... 
-│ │ ├── thumbnail/ 
-│ │ │ ├── thumbnail1.png 
-│ │ │ ├── thumbnail2.png 
-│ │ │ └── ... 
-│ │ │ ├── audio/ 
-│ │ │ │ ├── audio1.wav 
-│ │ │ │ ├── audio2.wav 
-│ │ │ │ └── ... 
-│ │ └── stats.json 
-│ └── project_456/ ...
+│ │ │ └── stats.json 
+│ │ └── project_456/ ... 
+│ └── short-clip/ 
+│   ├── project_123/ 
+│   │ ├── script.json 
+│   │ ├── music/ 
+│   │ │ └── track1.wav 
+│   │ ├── final_video/ 
+│   │ │ └── final_video1.mp4 
+│   │ ├── video/ 
+│   │ │ ├── video1.mp4 
+│   │ │ ├── video2.mp4 
+│   │ │ └── ... 
+│   │ ├── image/ 
+│   │ │ ├── image1.png 
+│   │ │ ├── image2.png 
+│   │ │ └── ... 
+│   │ ├── thumbnail/ 
+│   │ │ ├── thumbnail1.png 
+│   │ │ ├── thumbnail2.png 
+│   │ │ └── ... 
+│   │ ├── audio/ 
+│   │ │ ├── audio1.wav 
+│   │ │ ├── audio2.wav 
+│   │ │ └── ... 
+│   │ └── stats.json 
+│   └── project_456/ ...
 ```
 
 ```

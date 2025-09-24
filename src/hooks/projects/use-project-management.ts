@@ -139,8 +139,10 @@ export function useProjectManagement() {
       setIsLoadingProject(true);
 
       // Set the project ID
+      console.log('🔧 Setting currentProjectId to:', projectId);
       setCurrentProjectId(projectId);
       setIsProjectCreated(true);
+      console.log('🔧 Project state updated - currentProjectId:', projectId, 'isProjectCreated: true');
 
       // Load project data from backend
       const projectScript = await projectsAPI.getProjectScript(projectId);
@@ -190,6 +192,18 @@ export function useProjectManagement() {
     settings: z.infer<typeof SettingsSchema>
   ) => {
     try {
+      // Check if user is authenticated before making API call
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+      if (!token) {
+        console.log('User not authenticated, skipping project settings update');
+        toast({
+          variant: "destructive",
+          title: "Authentication Required",
+          description: "Please log in to save project settings.",
+        });
+        return;
+      }
+
       console.log('useProjectManagement: Updating project settings for:', projectId, settings);
       const result = await projectsAPI.updateProjectSettings(projectId, settings);
       console.log('useProjectManagement: Settings update result:', result);

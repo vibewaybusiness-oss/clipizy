@@ -11,7 +11,18 @@ export function useProjects() {
       setLoading(true);
       setError(null);
       const data = await projectsAPI.getProjects();
-      setProjects(data);
+      console.log('Raw API response:', data, 'type:', typeof data, 'isArray:', Array.isArray(data));
+      
+      // Handle different response structures
+      let projectsArray: Project[] = [];
+      if (Array.isArray(data)) {
+        projectsArray = data;
+      } else if (data && typeof data === 'object' && 'projects' in data) {
+        projectsArray = Array.isArray((data as any).projects) ? (data as any).projects : [];
+      }
+      
+      console.log('Processed projects array:', projectsArray);
+      setProjects(projectsArray);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch projects');
       console.error('Error fetching projects:', err);

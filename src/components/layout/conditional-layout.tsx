@@ -17,7 +17,7 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navigation />
-      <main className="min-h-screen">
+      <main>
         {children}
       </main>
       <Footer />

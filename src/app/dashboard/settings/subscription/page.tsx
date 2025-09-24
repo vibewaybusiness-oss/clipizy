@@ -18,6 +18,8 @@ import {
 import { useAuth } from "@/contexts/auth-context";
 import Link from "next/link";
 import { useToast } from "@/hooks/ui/use-toast";
+import { getBackendUrl } from "@/lib/config";
+import { ClipizyLoading } from "@/components/ui/clipizy-loading";
 
 interface SubscriptionPlan {
   id: string;
@@ -72,30 +74,36 @@ export default function SubscriptionPage() {
 
   const handleSubscribe = async (planId: string) => {
     try {
-      const response = await fetch('/api/subscription/subscribe', {
+      // Get the Stripe price ID for the selected plan
+      const response = await fetch(`${getBackendUrl()}/api/payments/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
         },
-        body: JSON.stringify({ plan_id: planId }),
+        body: JSON.stringify({ 
+          plan_id: planId,
+          plan_type: 'subscription'
+        }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        // Handle Stripe checkout or payment flow
-        toast({
-          title: "Success",
-          description: "Redirecting to checkout..."
-        });
-        // Redirect to Stripe checkout or handle payment
+        if (data.checkout_url) {
+          // Redirect to Stripe checkout
+          window.location.href = data.checkout_url;
+        } else {
+          throw new Error('No checkout URL received');
+        }
       } else {
-        throw new Error('Failed to subscribe to plan');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create checkout session');
       }
     } catch (error) {
       console.error('Error subscribing to plan:', error);
       toast({
         title: "Error",
-        description: "Failed to subscribe to plan",
+        description: error instanceof Error ? error.message : "Failed to subscribe to plan",
         variant: "destructive"
       });
     }
@@ -159,7 +167,7 @@ export default function SubscriptionPage() {
     return (
       <div className="p-8 space-y-6">
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <ClipizyLoading message="Loading subscription..." size="lg" />
         </div>
       </div>
     );

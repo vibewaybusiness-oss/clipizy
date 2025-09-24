@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { 
@@ -24,11 +25,26 @@ const settingsTabs = [
 ];
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("profile");
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const activeTab = searchParams.get("tab") || "profile";
   const currentTab = settingsTabs.find(tab => tab.id === activeTab);
   const CurrentComponent = currentTab?.component || ProfileNotificationsTab;
+
+  const handleTabChange = (tabId: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("tab", tabId);
+    router.push(`/dashboard/settings?${params.toString()}`);
+  };
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && !settingsTabs.find(t => t.id === tab)) {
+      router.replace("/dashboard/settings?tab=profile");
+    }
+  }, [searchParams, router]);
 
   return (
     <div className="flex h-screen">
@@ -46,7 +62,7 @@ export default function SettingsPage() {
                 key={tab.id}
                 variant={activeTab === tab.id ? "default" : "ghost"}
                 className="w-full justify-start h-10"
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
               >
                 <Icon className="w-4 h-4 mr-3" />
                 {tab.label}
@@ -85,7 +101,7 @@ export default function SettingsPage() {
                           variant={activeTab === tab.id ? "default" : "ghost"}
                           className="w-full justify-start"
                           onClick={() => {
-                            setActiveTab(tab.id);
+                            handleTabChange(tab.id);
                             setIsMobileMenuOpen(false);
                           }}
                         >
@@ -103,7 +119,9 @@ export default function SettingsPage() {
 
         {/* CONTENT */}
         <div className="flex-1 overflow-auto p-4 lg:p-6">
-          <CurrentComponent />
+          <div className="max-w-5xl mx-auto h-full">
+            <CurrentComponent />
+          </div>
         </div>
       </div>
     </div>

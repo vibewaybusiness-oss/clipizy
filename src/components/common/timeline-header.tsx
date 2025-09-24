@@ -19,8 +19,7 @@ interface TimelineHeaderProps {
 const steps: TimelineStep[] = [
   { id: 1, title: "Music", description: "Get your music" },
   { id: 2, title: "Video", description: "Configure options" },
-  { id: 3, title: "Settings", description: "Final settings" },
-  { id: 4, title: "Overview", description: "Review details" }
+  { id: 3, title: "Overview", description: "Review details" }
 ];
 
 export function TimelineHeader({ currentStep, maxReachedStep, totalSteps, onStepClick }: TimelineHeaderProps) {
@@ -47,7 +46,7 @@ export function TimelineHeader({ currentStep, maxReachedStep, totalSteps, onStep
               }}
             >
               <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
+                  className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${
                     isCompleted
                       ? "bg-primary text-primary-foreground hover:bg-primary/80"
                       : isCurrent
@@ -58,7 +57,7 @@ export function TimelineHeader({ currentStep, maxReachedStep, totalSteps, onStep
                   }`}
               >
                 {isCompleted ? (
-                  <Check className="w-4 h-4" />
+                  <Check className="w-3 h-3" />
                 ) : (
                   <span className="text-xs font-semibold">{step.id}</span>
                 )}
@@ -83,7 +82,7 @@ export function TimelineHeader({ currentStep, maxReachedStep, totalSteps, onStep
             {/* Connector Line */}
             {index < totalSteps - 1 && (
               <div
-                className={`h-0.5 w-8 transition-colors duration-300 ${
+                className={`h-0.5 w-6 transition-colors duration-300 ${
                   step.id <= maxReachedStep ? "bg-primary" : "bg-border"
                 }`}
               />

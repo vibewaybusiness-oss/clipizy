@@ -45,7 +45,10 @@ class StorageService:
 
     def generate_music_clip_path(self, user_id: str, project_id: str, file_type: str, filename: str) -> str:
         """Generate a music-clip specific path for S3 storage"""
-        path = f"users/{user_id}/music-clip/projects/{project_id}/{file_type}/{filename}"
+        # Map music to tracks for consistency
+        if file_type == "music":
+            file_type = "tracks"
+        path = f"users/{user_id}/projects/music-clip/{project_id}/{file_type}/{filename}"
         logger.debug(f"Generated music-clip path: {path}")
         return path
 
@@ -59,7 +62,7 @@ class StorageService:
 
     def upload_music_track(self, file: UploadFile, user_id: str, project_id: str, filename: str) -> str:
         """Upload a music track to the music-clip project structure"""
-        key = self.generate_music_clip_path(user_id, project_id, "music", filename)
+        key = self.generate_music_clip_path(user_id, project_id, "tracks", filename)
         logger.info(f"Uploading music track: {file.filename} to key: {key}")
         try:
             self.storage.upload_file(file, key)

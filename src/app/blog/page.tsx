@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { BlogPost, BlogCategory, BlogTag, BlogStats } from '@/types';
-import { BlogList } from '@/components/features/blog/BlogList';
-import { BlogSidebarNew } from '@/components/features/blog/BlogSidebarNew';
-import { BlogHero } from '@/components/features/blog/BlogHero';
+import { BlogList } from '@/components/blog/BlogList';
+import { BlogSidebarNew } from '@/components/blog/BlogSidebarNew';
+import { BlogHero } from '@/components/blog/BlogHero';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, Users, Calendar } from 'lucide-react';
 
@@ -69,20 +69,20 @@ export default function BlogPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
+      <div className="bg-background">
+        <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="animate-pulse space-y-8">
             <div className="h-8 bg-muted rounded w-1/3"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-              <div className="lg:col-span-3 space-y-6">
+            <div className="flex flex-col lg:flex-row gap-8">
+              <div className="flex-1 max-w-4xl mx-auto lg:mx-0 space-y-6">
                 <div className="h-10 bg-muted rounded"></div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                   {Array.from({ length: 6 }).map((_, i) => (
                     <div key={i} className="h-64 bg-muted rounded"></div>
                   ))}
                 </div>
               </div>
-              <div className="space-y-6">
+              <div className="lg:w-80 space-y-6">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="h-48 bg-muted rounded"></div>
                 ))}
@@ -96,7 +96,7 @@ export default function BlogPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="bg-background flex items-center justify-center min-h-[50vh]">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6">
             <div className="text-center">
@@ -123,18 +123,18 @@ export default function BlogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       {/* HERO SECTION */}
       <BlogHero />
 
       {/* MAIN CONTENT */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
-          {/* BLOG POSTS */}
-          <div className="lg:col-span-3">
-            <div className="mb-12">
-              <h2 id="tutorials" className="text-4xl font-bold mb-4 text-foreground">Latest Tutorials & Guides</h2>
-              <p className="text-lg text-muted-foreground max-w-2xl">
+      <div className="max-w-7xl mx-auto px-4 py-8 pb-16">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* BLOG POSTS - CENTERED CONTENT */}
+          <div className="flex-1 max-w-4xl mx-auto lg:mx-0">
+            <div className="mb-8">
+              <h2 id="tutorials" className="text-3xl font-bold mb-3 text-foreground">Latest Tutorials & Guides</h2>
+              <p className="text-base text-muted-foreground max-w-2xl">
                 Learn how to create amazing music videos with AI-powered tools
               </p>
             </div>
@@ -148,9 +148,9 @@ export default function BlogPage() {
             />
           </div>
 
-          {/* SIDEBAR */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto scrollbar-hide">
+          {/* SIDEBAR - FIXED WIDTH ON THE SIDE */}
+          <div className="lg:w-80 flex-shrink-0">
+            <div className="lg:sticky lg:top-4">
               <BlogSidebarNew
                 popularPosts={data.stats.popularPosts}
                 recentPosts={data.stats.recentPosts}

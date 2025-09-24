@@ -1,19 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from api.db import get_db
-from api.models import Track, Video, Image, User
+from api.models import Track, Video, Image, User, Project
 from api.schemas import AnalysisResponse
 from api.services import analysis_service, storage_service
 from ..auth.auth_router import get_current_user
 import os, uuid, datetime
 
-router = APIRouter(prefix="/analysis", tags=["Analysis"])
+router = APIRouter(tags=["Analysis"])
 
 
 @router.post("/music/{track_id}", response_model=AnalysisResponse)
 async def analyze_music(track_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Analyze an uploaded or generated music track."""
-    track = db.query(Track).filter(Track.id == track_id, Track.user_id == str(current_user.id)).first()
+    track = db.query(Track).join(Track.project).filter(Track.id == track_id, Project.user_id == str(current_user.id)).first()
     if not track:
         raise HTTPException(status_code=404, detail="Track not found")
 
@@ -40,7 +40,7 @@ async def analyze_music(track_id: str, db: Session = Depends(get_db), current_us
 @router.post("/video/{video_id}", response_model=AnalysisResponse)
 async def analyze_video(video_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Analyze a video for scenes, objects, or metadata."""
-    video = db.query(Video).filter(Video.id == video_id, Video.user_id == str(current_user.id)).first()
+    video = db.query(Video).join(Video.project).filter(Video.id == video_id, Project.user_id == str(current_user.id)).first()
     if not video:
         raise HTTPException(status_code=404, detail="Video not found")
 
@@ -65,7 +65,7 @@ async def analyze_video(video_id: str, db: Session = Depends(get_db), current_us
 @router.post("/image/{image_id}", response_model=AnalysisResponse)
 async def analyze_image(image_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Analyze an image for objects, faces, or style."""
-    image = db.query(Image).filter(Image.id == image_id, Image.user_id == str(current_user.id)).first()
+    image = db.query(Image).join(Image.project).filter(Image.id == image_id, Project.user_id == str(current_user.id)).first()
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
 

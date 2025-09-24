@@ -1,8 +1,8 @@
 """
 User Management Router - Handle user directory and profile operations
 """
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import Response
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi.responses import Response, FileResponse
 from sqlalchemy.orm import Session
 from api.db import get_db
 from api.models import User
@@ -11,6 +11,7 @@ from api.services.auth.user_creation_service import user_creation_service
 from typing import Dict, Any
 from datetime import datetime
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -155,14 +156,22 @@ def get_user_settings(
             with open(settings_file, 'r') as f:
                 file_settings = json.load(f)
         
+        # Get profile data from file if available
+        profile_file_data = {}
+        profile_file = user_dir / "profile" / "profile.json"
+        if profile_file.exists():
+            with open(profile_file, 'r') as f:
+                profile_file_data = json.load(f)
+        
         # Merge database and file settings
         merged_settings = {
             "profile": {
                 "name": current_user.username or "",
                 "email": current_user.email,
                 "bio": current_user.bio or "",
-                "website": "",
-                "location": ""
+                "avatar": profile_file_data.get("profile", {}).get("avatar_url", current_user.avatar_url or ""),
+                "website": profile_file_data.get("profile", {}).get("website", ""),
+                "location": profile_file_data.get("profile", {}).get("location", "")
             },
             "notifications": {
                 "emailNotifications": db_settings.get("notifications", {}).get("email", True),
@@ -669,6 +678,134 @@ def get_user_subscription(
             status_code=500, 
             detail="Failed to get subscription information"
         )
+
+@router.post("/upload-avatar")
+async def upload_avatar(
+    avatar: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Upload user avatar and store in profile directory"""
+    try:
+        from pathlib import Path
+        import shutil
+        import uuid
+        
+        # Validate file type
+        allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+        if avatar.content_type not in allowed_types:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid file type. Please upload a JPG, PNG, GIF, or WebP image."
+            )
+        
+        # Validate file size (2MB limit)
+        max_size = 2 * 1024 * 1024  # 2MB
+        file_content = await avatar.read()
+        if len(file_content) > max_size:
+            raise HTTPException(
+                status_code=400,
+                detail="File too large. Please upload an image smaller than 2MB."
+            )
+        
+        # Create user profile directory if it doesn't exist
+        user_id = str(current_user.id)
+        user_dir = Path("users") / user_id
+        profile_dir = user_dir / "profile"
+        avatar_dir = profile_dir / "avatars"
+        
+        # Ensure directories exist
+        avatar_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Generate unique filename
+        file_extension = avatar.filename.split('.')[-1] if '.' in avatar.filename else 'jpg'
+        avatar_filename = f"avatar_{uuid.uuid4().hex[:8]}.{file_extension}"
+        avatar_path = avatar_dir / avatar_filename
+        
+        # Save the file
+        with open(avatar_path, 'wb') as buffer:
+            buffer.write(file_content)
+        
+        # Update profile.json with avatar info
+        profile_file = profile_dir / "profile.json"
+        profile_data = {}
+        
+        if profile_file.exists():
+            with open(profile_file, 'r') as f:
+                profile_data = json.load(f)
+        else:
+            profile_data = {"user_id": user_id}
+        
+        # Update avatar information
+        if "profile" not in profile_data:
+            profile_data["profile"] = {}
+        
+        profile_data["profile"]["avatar_url"] = f"/users/{user_id}/profile/avatars/{avatar_filename}"
+        profile_data["profile"]["avatar_filename"] = avatar_filename
+        profile_data["profile"]["avatar_uploaded_at"] = datetime.utcnow().isoformat()
+        
+        # Save updated profile
+        with open(profile_file, 'w') as f:
+            json.dump(profile_data, f, indent=2)
+        
+        # Update database user record
+        current_user.avatar_url = profile_data["profile"]["avatar_url"]
+        current_user.updated_at = datetime.utcnow()
+        db.commit()
+        
+        logger.info(f"Avatar uploaded successfully for user {user_id}: {avatar_filename}")
+        
+        return {
+            "success": True,
+            "message": "Avatar uploaded successfully",
+            "avatar_url": profile_data["profile"]["avatar_url"],
+            "filename": avatar_filename
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error uploading avatar: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to upload avatar"
+        )
+
+@router.get("/avatar/{user_id}/{filename}")
+async def get_user_avatar(user_id: str, filename: str):
+    """Serve user avatar files"""
+    try:
+        from pathlib import Path
+        
+        # Validate filename to prevent directory traversal
+        if ".." in filename or "/" in filename or "\\" in filename:
+            raise HTTPException(status_code=400, detail="Invalid filename")
+        
+        avatar_path = Path("users") / user_id / "profile" / "avatars" / filename
+        
+        if not avatar_path.exists():
+            raise HTTPException(status_code=404, detail="Avatar not found")
+        
+        # Determine media type based on file extension
+        media_type = "image/jpeg"  # default
+        if filename.lower().endswith('.png'):
+            media_type = "image/png"
+        elif filename.lower().endswith('.gif'):
+            media_type = "image/gif"
+        elif filename.lower().endswith('.webp'):
+            media_type = "image/webp"
+        
+        return FileResponse(
+            path=str(avatar_path),
+            media_type=media_type,
+            filename=filename
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error serving avatar: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to serve avatar")
 
 @router.get("/export-data")
 def export_user_data(

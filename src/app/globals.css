@@ -370,6 +370,62 @@
     @apply bg-muted/50;
   }
 
+  /* GLOBAL HOVER COLORS */
+  .hover-white-alpha {
+    @apply transition-colors duration-200;
+  }
+
+  .hover-white-alpha:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .dark .hover-white-alpha:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .hover-black-alpha {
+    @apply transition-colors duration-200;
+  }
+
+  .hover-black-alpha:hover {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .dark .hover-black-alpha:hover {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* OVERRIDE EXISTING HOVER COLORS */
+  .hover-white-alpha:hover,
+  .hover-white-alpha:hover * {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .hover-black-alpha:hover,
+  .hover-black-alpha:hover * {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* OVERRIDE TAILWIND HOVER CLASSES */
+  .hover-white-alpha.hover\:bg-muted\/50:hover,
+  .hover-white-alpha.hover\:bg-muted\/50:hover * {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .hover-black-alpha.hover\:bg-muted\/50:hover,
+  .hover-black-alpha.hover\:bg-muted\/50:hover * {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* GLOBAL OVERRIDE FOR ALL ELEMENTS WITH OUR HOVER CLASSES */
+  *[class*="hover-white-alpha"]:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  *[class*="hover-black-alpha"]:hover {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+  }
+
   /* BUTTONS */
   .btn-primary {
     @apply bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105;

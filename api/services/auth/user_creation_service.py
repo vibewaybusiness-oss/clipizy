@@ -151,7 +151,8 @@ class UserCreationService:
                 "billing",
                 "security",
                 "preferences",
-                "notifications"
+                "notifications",
+                "avatars"
             ]
             
             # Create main directories

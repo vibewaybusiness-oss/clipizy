@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
-import { Loader2 } from "lucide-react";
+import { ClipizyLoading } from "@/components/ui/clipizy-loading";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -14,13 +14,13 @@ export function ProtectedRoute({
   children,
   redirectTo = "/auth/login"
 }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
   useEffect(() => {
     // Only redirect after we've completed the initial auth check
-    if (!isLoading && hasCheckedAuth && !isAuthenticated) {
+    if (!loading && hasCheckedAuth && !isAuthenticated) {
       // Store the intended destination
       const currentPath = window.location.pathname;
       if (currentPath !== redirectTo) {
@@ -28,23 +28,20 @@ export function ProtectedRoute({
       }
       router.push(redirectTo);
     }
-  }, [isAuthenticated, isLoading, hasCheckedAuth, router, redirectTo]);
+  }, [isAuthenticated, loading, hasCheckedAuth, router, redirectTo]);
 
   useEffect(() => {
     // Mark that we've completed the initial auth check
-    if (!isLoading) {
+    if (!loading) {
       setHasCheckedAuth(true);
     }
-  }, [isLoading]);
+  }, [loading]);
 
   // Show loading while checking authentication or before first auth check
-  if (isLoading || !hasCheckedAuth) {
+  if (loading || !hasCheckedAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
+        <ClipizyLoading message="Loading..." size="lg" />
       </div>
     );
   }
