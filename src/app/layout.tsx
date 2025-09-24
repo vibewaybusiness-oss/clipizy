@@ -86,8 +86,39 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" data-scroll-behavior="smooth">
+    <html lang="en" data-scroll-behavior="smooth">
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const savedAppSettings = localStorage.getItem('appSettings');
+                  let theme = 'system';
+                  
+                  if (savedAppSettings) {
+                    const parsedSettings = JSON.parse(savedAppSettings);
+                    if (parsedSettings.theme && ['light', 'dark', 'system'].includes(parsedSettings.theme)) {
+                      theme = parsedSettings.theme;
+                    }
+                  }
+                  
+                  let resolvedTheme = 'light';
+                  if (theme === 'system') {
+                    resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                  } else {
+                    resolvedTheme = theme;
+                  }
+                  
+                  document.documentElement.classList.add(resolvedTheme);
+                } catch (e) {
+                  // Fallback to light theme if there's an error
+                  document.documentElement.classList.add('light');
+                }
+              })();
+            `,
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />

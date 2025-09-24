@@ -20,3 +20,6 @@ export * from './admin';
 
 // Domain hooks
 export * from './domains';
+
+// User hooks
+export { useUserOnboarding } from './use-user-onboarding';

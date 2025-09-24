@@ -16,6 +16,7 @@ import {
 } from "@/hooks";
 import { useUrlManagement } from "./use-url-management";
 import { useDataPersistence } from "./use-data-persistence";
+import { useUserOnboarding } from "../use-user-onboarding";
 import { projectsAPI } from "@/lib/api/projects";
 import { musicClipAPI } from "@/lib/api/music-clip";
 import { formatDuration, getTotalDuration, isValidUUID, getAudioDuration } from "@/utils/music-clip-utils";
@@ -45,6 +46,8 @@ interface UseMusicClipOrchestratorReturn {
   musicAnalysisData: any;
   isLoadingAnalysisData: boolean;
   musicGenerationPrice: number;
+  userOnboarding: any;
+  showOnboardingLoading: boolean;
   
   // Actions
   handleGenerateMusic: (options?: { duration: number; model: string }, isInstrumental?: boolean) => Promise<void>;
@@ -89,6 +92,7 @@ export function useMusicClipOrchestrator({
   const promptGeneration = usePromptGeneration();
   const pricingService = usePricingService();
   const dragAndDrop = useDragAndDrop();
+  const userOnboarding = useUserOnboarding();
   
   // Use URL projectId if available, otherwise use persisted projectId
   const projectId = urlProjectId || (isNewProject ? null : projectManagement.state.currentProjectId);
@@ -104,6 +108,7 @@ export function useMusicClipOrchestrator({
   const [musicAnalysisData, setMusicAnalysisData] = useState<any>(null);
   const [isLoadingAnalysisData, setIsLoadingAnalysisData] = useState(false);
   const [musicGenerationPrice, setMusicGenerationPrice] = useState(0);
+  const [showOnboardingLoading, setShowOnboardingLoading] = useState(false);
   
   // Refs
   const hasLoadedProjectRef = useRef<Set<string>>(new Set());
@@ -709,8 +714,19 @@ export function useMusicClipOrchestrator({
       
       if (!currentProjectId) {
         console.log('🎵 No existing project found, creating new one...');
+        
+        // Show onboarding loading for new users
+        if (userOnboarding.state.isNewUser && !userOnboarding.state.isLoading) {
+          console.log('🆕 New user detected - showing onboarding loading for music generation');
+          setShowOnboardingLoading(true);
+        }
+        
         currentProjectId = await projectManagement.actions.createProject();
         console.log('🎵 New project created with ID:', currentProjectId);
+        
+        // Hide onboarding loading and mark user as returning
+        setShowOnboardingLoading(false);
+        userOnboarding.actions.markAsReturningUser();
       } else {
         console.log('🎵 Using existing project ID for music generation:', currentProjectId);
       }
@@ -788,6 +804,8 @@ export function useMusicClipOrchestrator({
       });
     } finally {
       musicClipState.actions.setIsUploadingTracks(false);
+      // Always hide onboarding loading on error
+      setShowOnboardingLoading(false);
     }
   }, [musicClipState, musicTracks, projectManagement, toast]);
   
@@ -872,8 +890,19 @@ export function useMusicClipOrchestrator({
       
       if (!currentProjectId) {
         console.log('🎵 Creating new project...');
+        
+        // Show onboarding loading for new users
+        if (userOnboarding.state.isNewUser && !userOnboarding.state.isLoading) {
+          console.log('🆕 New user detected - showing onboarding loading');
+          setShowOnboardingLoading(true);
+        }
+        
         currentProjectId = await projectManagement.actions.createProject();
         console.log('🎵 Project created with ID:', currentProjectId);
+        
+        // Hide onboarding loading and mark user as returning
+        setShowOnboardingLoading(false);
+        userOnboarding.actions.markAsReturningUser();
       } else {
         console.log('🎵 Using existing project ID:', currentProjectId);
       }
@@ -1154,6 +1183,8 @@ export function useMusicClipOrchestrator({
       });
     } finally {
       musicClipState.actions.setIsUploadingTracks(false);
+      // Always hide onboarding loading on error
+      setShowOnboardingLoading(false);
     }
   }, [musicClipState, musicTracks, projectManagement, toast]);
   
@@ -1560,7 +1591,7 @@ export function useMusicClipOrchestrator({
   
   // Computed values
   const canContinue = areAllTracksValid();
-  const continueText = `Checkout with ${musicClipState.state.settings?.user_price || musicClipState.state.settings?.budget?.[0] || 0} credits`;
+  const continueText = `Checkout with ${musicClipState.state.settings?.user_price || musicClipState.state.settings?.budget?.[0] || 0} credits`; // Updated
   
   return {
     // State
@@ -1579,6 +1610,8 @@ export function useMusicClipOrchestrator({
     musicAnalysisData,
     isLoadingAnalysisData,
     musicGenerationPrice,
+    userOnboarding,
+    showOnboardingLoading,
     
     // Actions
     handleGenerateMusic,

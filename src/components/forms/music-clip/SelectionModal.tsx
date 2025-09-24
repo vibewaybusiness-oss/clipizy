@@ -77,10 +77,10 @@ export function SelectionModal({
                 {options.map((option) => (
                   <div
                     key={option.id}
-                    className={`p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-105 ${
+                    className={`p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
                       selectedValue === option.id
                         ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/50 hover:bg-muted/50"
+                        : "border-border hover:border-primary/50"
                     }`}
                     onClick={() => {
                       onSelect(option.id);

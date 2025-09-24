@@ -16,11 +16,19 @@ export async function POST(
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout for analysis
 
+    // Forward authorization headers from the request
+    const authHeader = request.headers.get('authorization');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (authHeader) {
+      headers['authorization'] = authHeader;
+    }
+
     const response = await fetch(backendUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       signal: controller.signal,
     });
 
@@ -39,6 +47,7 @@ export async function POST(
 
     const data = await response.json();
     console.log('Backend response data:', data);
+    console.log('Analysis data being returned:', data.analysis);
 
     return NextResponse.json(data);
   } catch (error) {

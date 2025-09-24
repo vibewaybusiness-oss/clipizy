@@ -1177,10 +1177,12 @@ def update_project_analysis(
         db.refresh(project)
 
         logger.info(f"Updated analysis data for project {project_id}")
+        logger.info(f"Analysis data: {analysis_data}")
 
         return {
             "message": "Analysis data updated successfully",
-            "id": project_id
+            "id": project_id,
+            "analysis": analysis_data
         }
 
     except HTTPException:

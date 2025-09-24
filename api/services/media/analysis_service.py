@@ -13,11 +13,13 @@ try:
     import librosa
     from mutagen import File as MutagenFile
     ML_AVAILABLE = True
-except ImportError:
+    print(f"✅ ML libraries loaded successfully: numpy={np.__version__}, librosa={librosa.__version__}")
+except ImportError as e:
     np = None
     librosa = None
     MutagenFile = None
     ML_AVAILABLE = False
+    print(f"❌ ML libraries import failed: {e}")
 
 # Add the workflows/analyzer directory to the path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -27,17 +29,24 @@ sys.path.insert(0, analyzer_dir)
 # Try to import music analyzer with fallback
 analyze_audio_bytes = None
 if ML_AVAILABLE:
+    print(f"🔍 Trying to import music_analyzer from: {analyzer_dir}")
     try:
         from music_analyzer import analyze_audio_bytes
-    except ImportError:
+        print("✅ Successfully imported analyze_audio_bytes from music_analyzer")
+    except ImportError as e:
+        print(f"❌ Failed to import from music_analyzer: {e}")
         # Fallback: try direct import
         try:
             import importlib.util
-            spec = importlib.util.spec_from_file_location("music_analyzer", os.path.join(analyzer_dir, "music_analyzer.py"))
+            music_analyzer_path = os.path.join(analyzer_dir, "music_analyzer.py")
+            print(f"🔍 Trying direct import from: {music_analyzer_path}")
+            spec = importlib.util.spec_from_file_location("music_analyzer", music_analyzer_path)
             music_analyzer = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(music_analyzer)
             analyze_audio_bytes = music_analyzer.analyze_audio_bytes
-        except ImportError:
+            print("✅ Successfully imported analyze_audio_bytes via direct import")
+        except ImportError as e2:
+            print(f"❌ Failed direct import: {e2}")
             analyze_audio_bytes = None
 
 class AnalysisService:
@@ -222,7 +231,9 @@ class AnalysisService:
             title = self.extract_title(file_path)
 
             # Check if ML libraries are available
-            if not ML_AVAILABLE or analyze_audio_bytes is None:
+            print(f"🔍 Analysis check: ML_AVAILABLE={ML_AVAILABLE}, analyze_audio_bytes={analyze_audio_bytes is not None}")
+            if not ML_AVAILABLE:
+                print("⚠️ Using fallback analysis - ML libraries not available")
                 # Use fallback analysis
                 from api.services.utils.vercel_compatibility import get_analysis_service
                 fallback_service = get_analysis_service()
@@ -236,6 +247,33 @@ class AnalysisService:
                         'title': title,
                         'analysis_type': 'basic_fallback',
                         'message': 'ML libraries not available, using basic analysis',
+                        'audio_features': {
+                            'duration': 0,
+                            'tempo': 120.0,
+                            'spectral_centroid': 0.0,
+                            'rms_energy': 0.0,
+                            'harmonic_ratio': 0.5
+                        }
+                    }
+            
+            # If analyze_audio_bytes is not available, try to import it directly
+            if analyze_audio_bytes is None:
+                print("🔧 analyze_audio_bytes not available, trying direct import...")
+                try:
+                    import sys
+                    import os
+                    current_dir = os.path.dirname(os.path.abspath(__file__))
+                    analyzer_dir = os.path.join(current_dir, '..', '..', 'workflows', 'analyzer')
+                    sys.path.insert(0, analyzer_dir)
+                    from music_analyzer import analyze_audio_bytes
+                    print("✅ Successfully imported analyze_audio_bytes directly")
+                except ImportError as e:
+                    print(f"❌ Failed to import analyze_audio_bytes: {e}")
+                    # Fall back to basic analysis
+                    return {
+                        'title': title,
+                        'analysis_type': 'basic_fallback',
+                        'message': f'Music analyzer not available: {e}',
                         'audio_features': {
                             'duration': 0,
                             'tempo': 120.0,

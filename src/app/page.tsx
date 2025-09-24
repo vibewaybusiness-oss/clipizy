@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { VideoTheater } from "@/components/common/video-theater";
 import { StructuredData } from "@/components/seo/structured-data";
 import { EmailSubscription } from "@/components/common/email-subscription";
+import { useTheme } from "@/contexts/ThemeContext";
 import {
   Sparkles,
   Zap,
@@ -173,6 +174,7 @@ const stats = [
 ];
 
 export default function Home() {
+  const { theme, resolvedTheme } = useTheme();
   const [theaterVideo, setTheaterVideo] = useState<{
     src: string;
     title: string;
@@ -246,16 +248,16 @@ export default function Home() {
             </div>
 
             {/* PRIMARY CTA */}
-            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16 fade-in-up">
-              <Button size="lg" className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white text-lg px-14 py-5 h-auto rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300" asChild>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 fade-in-up">
+              <Button size="lg" className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white text-base px-10 py-3 h-auto rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300" asChild>
                 <Link href="/dashboard/create">
-                  <Play className="w-5 h-5 mr-3" />
+                  <Play className="w-4 h-4 mr-2" />
                   Start Creating Free
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="text-lg px-14 py-5 h-auto border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5 rounded-full font-semibold transition-all duration-300" asChild>
+              <Button size="lg" variant="outline" className="text-base px-10 py-3 h-auto border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5 rounded-full font-semibold transition-all duration-300" asChild>
                 <Link href="/#features">
-                  <Eye className="w-5 h-5 mr-3" />
+                  <Eye className="w-4 h-4 mr-2" />
                   See Examples
                 </Link>
               </Button>
@@ -273,6 +275,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+
 
       {/* MEDIA SHOWCASE SECTION */}
       <section className="section-padding bg-muted/20">
@@ -590,25 +593,25 @@ export default function Home() {
           </div>
 
           {/* Call to Action */}
-          <div className="text-center mt-16">
+          <div className="text-center mt-8">
             <div className="max-w-2xl mx-auto">
-              <h3 className="text-2xl font-bold mb-4">
+              <h3 className="text-xl font-bold mb-3">
                 Ready to Create Your Own <span className="gradient-text">AI Music Video?</span>
               </h3>
-              <p className="text-muted-foreground mb-8">
+              <p className="text-muted-foreground mb-6">
                 Join thousands of creators who are already using VibeWave to generate professional music videos in minutes
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="btn-gradient text-lg px-8 py-4" asChild>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button size="lg" className="btn-gradient text-base px-6 py-3" asChild>
                   <Link href="/dashboard/create">
-                    <Play className="w-5 h-5 mr-2" />
+                    <Play className="w-4 h-4 mr-2" />
                     Start Creating Now
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    <ArrowRight className="w-4 h-4 ml-2" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="text-lg px-8 py-4" asChild>
+                <Button size="lg" variant="outline" className="text-base px-6 py-3" asChild>
                   <Link href="/#features">
-                    <Eye className="w-5 h-5 mr-2" />
+                    <Eye className="w-4 h-4 mr-2" />
                     Learn More
                   </Link>
                 </Button>
@@ -859,19 +862,19 @@ export default function Home() {
       </section>
 
       {/* CTA SECTION */}
-      <section className="section-padding bg-gradient-primary text-white bg-muted/20">
+      <section className="py-12 bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10 dark:from-primary/20 dark:via-accent/10 dark:to-primary/20">
         <div className="container-custom text-center">
-          <h2 className="heading-responsive font-bold mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold mb-3 text-gray-900 dark:text-white">
             Ready to Create Your First
-            <span className="block">AI-Powered Long-Form Media Content?</span>
+            <span className="block gradient-text">AI-Powered Long-Form Media Content?</span>
           </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
+          <p className="text-lg mb-6 max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
             Join thousands of content creators and social media professionals who are already using VibeWave to scale their content production and automate their social media presence
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="btn-gradient text-lg px-8 py-4" asChild>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button size="lg" className="btn-gradient text-base px-6 py-3" asChild>
               <Link href="/dashboard/create">
-                <Play className="w-5 h-5 mr-2" />
+                <Play className="w-4 h-4 mr-2" />
                 Start Creating Now
               </Link>
             </Button>

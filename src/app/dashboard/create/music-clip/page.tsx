@@ -15,9 +15,11 @@ import { OverviewLayout } from "@/components/forms/music-clip/StepOverview";
 import { GenreSelector } from "@/components/forms/music-clip/GenreSelector";
 import { TimelineHeader } from "@/components/common/timeline-header";
 import { TrackCard } from "@/components/forms/music-clip/TrackCard";
+import { MusicAnalysisVisualizer } from "@/components/forms/music-clip/MusicAnalysisVisualizer";
 import { formatDuration, getTotalDuration, fileToDataUri } from "@/utils/music-clip-utils";
 import { useToast } from "@/hooks/ui/use-toast";
 import { ClipizyLoading } from "@/components/ui/clipizy-loading";
+import { OnboardingLoading } from "@/components/ui/onboarding-loading";
 import type { MusicTrack } from "@/types/domains/music";
 
 const MusicClipPage = React.memo(function MusicClipPage() {
@@ -44,6 +46,8 @@ const MusicClipPage = React.memo(function MusicClipPage() {
     musicAnalysisData,
     isLoadingAnalysisData,
     musicGenerationPrice,
+    userOnboarding,
+    showOnboardingLoading,
     
     // Actions
     handleGenerateMusic,
@@ -93,6 +97,11 @@ const MusicClipPage = React.memo(function MusicClipPage() {
 
   return (
     <>
+      {/* Onboarding Loading Animation */}
+      <OnboardingLoading 
+        isVisible={showOnboardingLoading}
+        message="Setting up your workspace for the first time..."
+      />
 
       <div className="h-screen bg-background flex flex-col">
         {/* HEADER */}
@@ -135,13 +144,9 @@ const MusicClipPage = React.memo(function MusicClipPage() {
           <div className={`flex-1 flex flex-col space-y-4 min-h-0 mx-auto px-8 py-4 w-full ${
             musicClipState.state.currentStep === 3 ? '' : 'max-w-7xl'
           }`}>
-            <div className={`flex-1 grid gap-6 min-h-0 w-full items-stretch ${
-              musicClipState.state.currentStep === 3 ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-4'
-            }`}>
+            <div className="flex-1 grid gap-6 min-h-0 w-full items-stretch grid-cols-1 lg:grid-cols-4">
               {/* LEFT SIDE - STEP CONTENT */}
-              <div className={`flex flex-col h-full min-h-0 ${
-                musicClipState.state.currentStep === 3 ? 'col-span-1' : 'col-span-1 lg:col-span-3'
-              }`}>
+              <div className="flex flex-col h-full min-h-0 col-span-1 lg:col-span-3">
                 {musicClipState.state.currentStep === 1 && (
                   <div className="flex flex-col h-full">
                     <Card className="bg-card border border-border flex-1 flex flex-col">
@@ -189,19 +194,16 @@ const MusicClipPage = React.memo(function MusicClipPage() {
                   <div className="flex flex-col h-full w-full">
                     <OverviewLayout
                       form={musicClipState.forms.overviewForm}
-                      audioFile={musicClipState.state.audioFile}
-                      audioDuration={musicClipState.state.audioDuration}
-                      musicTracks={musicTracks.musicTracks}
-                      selectedTrackId={musicClipState.state.selectedTrackId}
-                      onTrackSelect={(track: MusicTrack) => musicClipState.actions.setSelectedTrackId(track.id)}
                       settings={musicClipState.state.settings}
                       onSubmit={onOverviewSubmit}
                       onBack={() => musicClipState.actions.setCurrentStep(2)}
                       fileToDataUri={fileToDataUri}
                       toast={toast}
-                      canContinue={true}
-                      onContinue={() => musicClipState.actions.setCurrentStep(4)}
-                      continueText="Continue"
+                      onTrackDescriptionsUpdate={handleTrackDescriptionsUpdate}
+                      onSharedDescriptionUpdate={handleSharedDescriptionUpdate}
+                      onPromptsUpdate={onPromptSubmitForm}
+                      trackDescriptions={musicClipState.state.trackDescriptions}
+                      analysisData={musicAnalysisData}
                       fullWidth={true}
                     />
                   </div>
@@ -211,8 +213,8 @@ const MusicClipPage = React.memo(function MusicClipPage() {
               {/* RIGHT SIDE - TRACKS PANEL */}
               <div
                 className={`hidden lg:flex flex-col h-full lg:col-span-1 min-h-0 transition-all duration-300 ${
-                  musicClipState.state.currentStep === 3 ? 'hidden' : ''
-                } ${dragAndDrop.state.isDragOver ? 'scale-[1.02]' : ''}`}
+                  dragAndDrop.state.isDragOver ? 'scale-[1.02]' : ''
+                }`}
                 onDragEnter={(e) => dragAndDrop.actions.handleDragEnter(e, dragAndDrop.state.isTrackReordering)}
                 onDragOver={(e) => dragAndDrop.actions.handleDragOver(e, dragAndDrop.state.isTrackReordering)}
                 onDragLeave={(e) => dragAndDrop.actions.handleDragLeave(e, dragAndDrop.state.isTrackReordering)}
@@ -236,29 +238,6 @@ const MusicClipPage = React.memo(function MusicClipPage() {
                     : 'border-border'
                 }`}>
                   <CardContent className="flex-1 flex flex-col min-h-0 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                          <Music className="w-4 h-4 text-primary" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-foreground">
-                            Music Tracks
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            {musicTracks.musicTracks.length} track{musicTracks.musicTracks.length !== 1 ? 's' : ''} loaded
-                          </p>
-                        </div>
-                      </div>
-                      {musicTracks.musicTracks.length > 0 && (
-                        <div className="text-right">
-                          <div className="text-xs text-muted-foreground">Total Duration</div>
-                          <div className="text-sm font-semibold text-primary">
-                            {formatDuration(getTotalDuration(musicTracks.musicTracks))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
 
                     <div className="flex-1 min-h-0">
                       {musicTracks.musicTracks.length === 0 ? (
@@ -312,6 +291,16 @@ const MusicClipPage = React.memo(function MusicClipPage() {
                 </Card>
               </div>
             </div>
+
+            {/* AUDIO ANALYSIS VISUALIZER - FOR STEP 3 ONLY */}
+            {musicClipState.state.currentStep === 3 && (
+              <div className="w-full mt-6">
+                <MusicAnalysisVisualizer
+                  analysisData={musicAnalysisData}
+                  audioFile={musicClipState.state.audioFile}
+                />
+              </div>
+            )}
 
           </div>
         </div>

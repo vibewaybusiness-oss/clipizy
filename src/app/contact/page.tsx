@@ -301,23 +301,23 @@ ${formData.message}
 
 
       {/* CTA SECTION */}
-      <section className="section-padding bg-gradient-primary text-white">
+      <section className="section-padding bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10 dark:from-primary/20 dark:via-accent/10 dark:to-primary/20">
         <div className="container-custom text-center">
-          <h2 className="heading-responsive font-bold mb-4">
+          <h2 className="heading-responsive font-bold mb-4 text-gray-900 dark:text-white">
             Still Have Questions?
-            <span className="block">We're Here to Help</span>
+            <span className="block gradient-text">We're Here to Help</span>
           </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
+          <p className="text-xl mb-8 max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
             Can't find what you're looking for? Our support team is ready to assist you.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-4" asChild>
+            <Button size="lg" className="btn-gradient text-lg px-8 py-4" asChild>
               <Link href="mailto:contact@clipizy.com">
                 <Mail className="w-5 h-5 mr-2" />
                 Email Support
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-primary" asChild>
+            <Button size="lg" variant="outline" className="text-lg px-8 py-4" asChild>
               <Link href="/dashboard/create">
                 <Sparkles className="w-5 h-5 mr-2" />
                 Try clipizy

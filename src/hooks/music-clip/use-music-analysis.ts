@@ -116,6 +116,7 @@ export function useMusicAnalysis(projectId?: string | null) {
           ...(analysisData?.music || {}),
           ...analysisResults.reduce((acc, result) => {
             if (!result.error) {
+              console.log(`Storing analysis for track ${result.trackId}:`, result.analysis);
               acc[result.trackId] = result.analysis;
             }
             return acc;
@@ -127,6 +128,7 @@ export function useMusicAnalysis(projectId?: string | null) {
         failed_analyses: (analysisData?.failed_analyses || 0) + analysisResults.filter(r => r.error).length
       };
 
+      console.log('New analysis data being set:', newAnalysisData);
       setAnalysisData(newAnalysisData);
 
       const successCount = analysisResults.filter(r => !r.error).length;

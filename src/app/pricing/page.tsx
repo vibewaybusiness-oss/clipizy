@@ -576,15 +576,20 @@ const CheckoutForm = () => {
               onClick={toggleTheme}
               className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-all text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted border border-border"
             >
-              {theme === 'dark' ? (
-                <>
-                  <Sun className="w-3 h-3" />
-                  Light
-                </>
-              ) : (
+              {theme === 'light' ? (
                 <>
                   <Moon className="w-3 h-3" />
                   Dark
+                </>
+              ) : theme === 'dark' ? (
+                <>
+                  <Sun className="w-3 h-3" />
+                  System
+                </>
+              ) : (
+                <>
+                  <Sun className="w-3 h-3" />
+                  Light
                 </>
               )}
             </button>

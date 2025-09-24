@@ -117,8 +117,66 @@ class StorageService:
             self.storage.download_file(key, local_path)
             logger.info(f"File downloaded successfully: {key} -> {local_path}")
         except Exception as e:
-            logger.error(f"File download failed for {key}: {str(e)}")
+            logger.error(f"File download failed for key '{key}': {str(e)}")
+            logger.error(f"Key type: {type(key)}, Key length: {len(key) if key else 'None'}")
             raise
+
+    def download_file_from_path(self, file_path: str, local_path: str):
+        """Download a file from various path formats (S3 URL, local file, S3 key)"""
+        import shutil
+        
+        if file_path.startswith("file://"):
+            # Local file path - copy directly
+            source_path = file_path.replace("file://", "")
+            if not os.path.exists(source_path):
+                raise FileNotFoundError(f"File not found on disk: {source_path}")
+            shutil.copy2(source_path, local_path)
+            logger.info(f"Copied local file: {source_path} -> {local_path}")
+        elif file_path.startswith("http"):
+            # S3 URL - extract key and download
+            # Parse URL to extract the path after the domain
+            from urllib.parse import urlparse
+            parsed_url = urlparse(file_path)
+            path_parts = parsed_url.path.strip('/').split('/')
+            
+            # For URLs like http://localhost:9000/clipizy/users/.../tracks/file.wav
+            # We want to extract everything after the bucket name (clipizy)
+            if len(path_parts) >= 2 and path_parts[0] == "clipizy":
+                s3_key = "/".join(path_parts[1:])  # Everything after "clipizy"
+                
+                # Check if file exists before trying to download
+                if not self.file_exists(s3_key):
+                    raise FileNotFoundError(f"File does not exist in S3: {s3_key}")
+                
+                self.download_file(s3_key, local_path)
+            else:
+                # Fallback to old logic
+                url_parts = file_path.split("/")
+                bucket_index = -1
+                for i, part in enumerate(url_parts):
+                    if "clipizy" in part or "s3" in part:
+                        bucket_index = i
+                        break
+                
+                if bucket_index >= 0 and bucket_index + 1 < len(url_parts):
+                    s3_key = "/".join(url_parts[bucket_index + 1:])
+                    # Remove query parameters
+                    s3_key = s3_key.split("?")[0]
+                    
+                    # Check if file exists before trying to download
+                    if not self.file_exists(s3_key):
+                        raise FileNotFoundError(f"File does not exist in S3: {s3_key}")
+                    
+                    self.download_file(s3_key, local_path)
+                else:
+                    raise ValueError(f"Invalid S3 URL format: {file_path}")
+        else:
+            # Assume it's already an S3 key
+            # Check if file exists before trying to download
+            if not self.file_exists(file_path):
+                raise FileNotFoundError(f"File does not exist in S3: {file_path}")
+            
+            self.download_file(file_path, local_path)
 
     def delete_file(self, key: str):
         """Delete a file from S3"""

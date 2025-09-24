@@ -303,23 +303,23 @@ export default function About() {
       </section>
 
       {/* CTA SECTION */}
-      <section className="section-padding bg-gradient-primary text-white">
+      <section className="section-padding bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10 dark:from-primary/20 dark:via-accent/10 dark:to-primary/20">
         <div className="container-custom text-center">
-          <h2 className="heading-responsive font-bold mb-4">
+          <h2 className="heading-responsive font-bold mb-4 text-gray-900 dark:text-white">
             Ready to Join Our
-            <span className="block">Creative Revolution?</span>
+            <span className="block gradient-text">Creative Revolution?</span>
           </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
+          <p className="text-xl mb-8 max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
             Be part of the future of content creation. Start creating amazing music videos today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-4" asChild>
+            <Button size="lg" className="btn-gradient text-lg px-8 py-4" asChild>
               <Link href="/dashboard/create">
                 <Play className="w-5 h-5 mr-2" />
                 Start Creating
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-primary" asChild>
+            <Button size="lg" variant="outline" className="text-lg px-8 py-4" asChild>
               <Link href="/contact">
                 <Heart className="w-5 h-5 mr-2" />
                 Get in Touch

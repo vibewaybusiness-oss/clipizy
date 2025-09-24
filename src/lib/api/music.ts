@@ -301,6 +301,8 @@ export class MusicService extends BaseApiClient {
       }
 
       const result = await response.json();
+      console.log('Backend analysis result:', result);
+      console.log('Analysis data:', result.analysis);
       return this.transformAnalysisResult({ id: trackId } as MusicTrack, result.analysis);
     } catch (error) {
       console.error(`Failed to analyze track ${trackId}:`, error);

@@ -38,6 +38,10 @@ export const SettingsSchema = z.object({
     audioVisualizerMirroring: z.string().optional(),
     audioTransition: z.string().optional(),
     videoTransition: z.string().optional(),
+    introTransition: z.string().optional(),
+    outroTransition: z.string().optional(),
+    introAudioTransition: z.string().optional(),
+    outroAudioTransition: z.string().optional(),
 });
 
 export const OverviewSchema = z.object({

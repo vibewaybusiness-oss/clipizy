@@ -20,7 +20,8 @@ try:
     from scipy.signal import find_peaks
     from scipy.ndimage import gaussian_filter1d
     CORE_ML_AVAILABLE = True
-except ImportError:
+    print(f"✅ Music analyzer ML libraries loaded: librosa={librosa.__version__}, numpy={np.__version__}")
+except ImportError as e:
     librosa = None
     np = None
     mutagen = None
@@ -28,6 +29,7 @@ except ImportError:
     find_peaks = None
     gaussian_filter1d = None
     CORE_ML_AVAILABLE = False
+    print(f"❌ Music analyzer ML libraries import failed: {e}")
 
 # Optional imports for advanced features
 try:
